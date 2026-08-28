@@ -13,7 +13,7 @@ pyshacl
 SPARQLWrapper
 
 # Capa transversal de IA (LLM + RAG)
-anthropic
+openai
 chromadb
 
 # Trazabilidad
