@@ -1,0 +1,26 @@
+# Bloque 1: Núcleo ontológico modular
+owlready2
+
+# Bloque 2: Alineación semántica
+sentence-transformers
+rapidfuzz
+
+# Bloque 3: Transformación
+rdflib
+
+# Bloque 4: Validación
+pyshacl
+SPARQLWrapper
+
+# Capa transversal de IA (LLM + RAG)
+anthropic
+chromadb
+
+# Trazabilidad
+prov
+
+# Utilidades
+python-dotenv
+pyyaml
+pandas
+pytest

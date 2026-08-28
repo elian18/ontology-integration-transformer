@@ -1,0 +1,7 @@
+rag:
+  top_k: 4
+  chunk_size: 800
+  chunk_overlap: 120
+llm:
+  max_tokens: 1024
+  temperature: 0.0
