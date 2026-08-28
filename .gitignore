@@ -1,0 +1,18 @@
+# entorno
+.venv/
+__pycache__/
+*.pyc
+
+# secretos
+.env
+
+# datos pesados y artefactos intermedios
+data/interim/
+data/output/
+*.owl.bak
+
+# base vectorial local
+chroma_db/
+
+# modelos descargados
+models/
