@@ -39,3 +39,31 @@ def dpv_status(path: str | Path = "vocab/dpv.ttl") -> DpvReport | None:
     """Load the DPV from disk if present (it is a fixed reference, not uploaded)."""
     p = Path(path)
     return load_dpv(p) if p.exists() else None
+
+
+
+def _project_config() -> dict:
+    import yaml
+    root = Path(__file__).resolve().parents[2]
+    cfg = root / "config" / "config.yaml"
+    if cfg.exists():
+        return yaml.safe_load(cfg.read_text(encoding="utf-8")) or {}
+    return {}
+
+
+def base_ontology():
+    """Load the project's base ontology (OntoPriv) from the path in config.yaml."""
+    inputs = _project_config().get("inputs", {})
+    path = Path(inputs.get("ontology", "data/input/ontopriv.rdf"))
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[2] / path
+    return load_ontology(path) if path.exists() else None
+
+
+def base_legal_text():
+    """Load the project's base legal text (LOPDP) from the path in config.yaml."""
+    inputs = _project_config().get("inputs", {})
+    path = Path(inputs.get("legal_text", "data/input/lopdp.pdf"))
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[2] / path
+    return load_legal_text(path) if path.exists() else None
