@@ -7,7 +7,7 @@ llm:
   temperature: 0.0
 inputs:
   ontology: "data/input/ontopriv.rdf"        # OntoPriv exported from Protégé (RDF/XML) — seed for the core
-  legal_text: "data/input/lopdp.txt"         # LOPDP or another law (.txt or .pdf)
+  legal_text: "data/input/lopdp.pdf"         # LOPDP or another law (.txt or .pdf)
   dpv: "vocab/dpv.ttl"                        # DPV 2.3 (Turtle), downloaded locally
 interim:
   ontology_rdfxml: "data/interim/ontopriv.rdf"   # normalized RDF/XML (feeds later stages)
