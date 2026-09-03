@@ -6,7 +6,7 @@ llm:
   max_tokens: 1024
   temperature: 0.0
 inputs:
-  ontology: "data/input/ontopriv.owx"       # OntoPriv (OWL/XML) — seed for the core
+  ontology: "data/input/ontopriv.rdf"        # OntoPriv exported from Protégé (RDF/XML) — seed for the core
   legal_text: "data/input/lopdp.txt"         # LOPDP or another law (.txt or .pdf)
   dpv: "vocab/dpv.ttl"                        # DPV 2.3 (Turtle), downloaded locally
 interim:

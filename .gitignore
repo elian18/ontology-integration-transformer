@@ -16,3 +16,7 @@ chroma_db/
 
 # modelos descargados
 models/
+
+# Sprint 1: artefactos generados y de prueba
+data/input/sample.*
+data/interim/
