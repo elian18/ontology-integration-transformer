@@ -1,94 +1,80 @@
-"""Inputs view (Sprint 1): project base inputs (auto-loaded) + optional upload."""
+"""Inputs view (Sprint 1): user upload is the focus; base inputs shown as a status line."""
 import streamlit as st
 from services import ingest
 
 st.header("Insumos")
-st.write(
-    "Los insumos base del proyecto (OntoPriv y la LOPDP) se cargan automáticamente y "
-    "alimentan las fases siguientes. Abajo puedes, opcionalmente, procesar otra ontología o ley."
-)
+st.write("Sube tu ontología y/o el texto de ley para procesarlos. Puedes cargar uno de los dos o ambos.")
 
-# ── Zona 1: insumos base del proyecto ─────────────────────────────────────────
-st.subheader("Insumos base del proyecto")
-
+# ── Protagonista: carga del usuario ───────────────────────────────────────────
 col_onto, col_law = st.columns(2)
-
 with col_onto:
-    st.markdown("**Ontología base — OntoPriv**")
-    r = ingest.base_ontology()
-    if r is None:
-        st.warning("No se encontró la ontología base (revisa config.yaml).")
-    else:
-        st.success(f"{r.n_classes} clases · {r.n_object_props} obj · {r.n_data_props} datos · "
-                   f"{r.n_individuals} indiv · {r.n_triples} tripletas.")
-        flavor = "OWL Full" if r.ontology_flavor == "owl-full" else r.ontology_flavor
-        st.info(f"Tipo: **{flavor}** — {r.flavor_detail}")
-        st.caption(f"formato={r.source_format} · sha256={r.sha256}")
-
-with col_law:
-    st.markdown("**Texto normativo — LOPDP**")
-    t = ingest.base_legal_text()
-    if t is None:
-        st.warning("No se encontró el texto base (revisa config.yaml).")
-    else:
-        st.success(f"{t.source} · {t.n_chars} caracteres · {t.n_lines} líneas · "
-                   f"{t.candidate_articles} artículos detectados.")
-        st.caption(f"sha256={t.sha256}")
-
-st.divider()
-
-# ── Zona 2: procesar otra ontología / ley (opcional) ──────────────────────────
-st.subheader("Procesar otra ontología o ley (opcional)")
-st.caption("Para caracterizar una ontología o ley distinta a las del proyecto.")
-
-col_left, col_right = st.columns(2)
-with col_left:
+    st.markdown("### Tu ontología")
+    st.caption("RDF/XML, Turtle o JSON-LD")
     onto_file = st.file_uploader(
-        "Otra ontología (RDF/XML, Turtle o JSON-LD)",
-        type=["rdf", "owl", "xml", "ttl", "jsonld", "json"],
-        help="OWL/XML (.owx) debe convertirse antes a RDF/XML con Protégé.",
+        "Tu ontología", type=["rdf", "owl", "xml", "ttl", "jsonld", "json"],
+        label_visibility="collapsed",
     )
-with col_right:
+with col_law:
+    st.markdown("### Tu texto de ley")
+    st.caption(".txt o PDF")
     law_file = st.file_uploader(
-        "Otro texto normativo (.txt o PDF)",
-        type=["txt", "pdf"],
-        help="Del PDF se extrae el texto. No se segmenta por artículo (eso es el Sprint 2).",
+        "Tu texto de ley", type=["txt", "pdf"],
+        label_visibility="collapsed",
     )
 
-if st.button("Procesar", type="primary"):
+process = st.button("Procesar", type="primary", use_container_width=True)
+
+# ── Resultados ────────────────────────────────────────────────────────────────
+if process:
     if onto_file is None and law_file is None:
         st.warning("Sube una ontología o un texto para procesar.")
+
     if onto_file is not None:
         try:
             with st.spinner("Cargando y caracterizando la ontología..."):
-                r2 = ingest.ingest_ontology(onto_file.name, onto_file.getvalue())
-            st.success(f"Ontología: {r2.n_classes} clases · formato {r2.source_format}.")
-            flavor = "OWL Full" if r2.ontology_flavor == "owl-full" else r2.ontology_flavor
-            st.info(f"Tipo: **{flavor}** — {r2.flavor_detail}")
+                r = ingest.ingest_ontology(onto_file.name, onto_file.getvalue())
+            flavor = "OWL Full" if r.ontology_flavor == "owl-full" else r.ontology_flavor
+            with st.container(border=True):
+                st.markdown(f"**Ontología procesada** · {flavor}")
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Clases", r.n_classes)
+                c2.metric("Prop. objeto", r.n_object_props)
+                c3.metric("Prop. datos", r.n_data_props)
+                c4.metric("Individuos", r.n_individuals)
+                st.caption(f"{r.flavor_detail} · formato {r.source_format} · {r.n_triples} tripletas")
         except ValueError as e:
             st.error(str(e))
         except Exception as e:
             st.error(f"No se pudo cargar la ontología: {type(e).__name__}: {e}")
+
     if law_file is not None:
         try:
             with st.spinner("Extrayendo el texto..."):
-                t2 = ingest.ingest_legal_text(law_file.name, law_file.getvalue())
-            st.success(f"Texto ({t2.source}): {t2.n_chars} caracteres · "
-                       f"{t2.candidate_articles} artículos detectados.")
-            if t2.n_chars < 500:
-                st.warning("Texto muy corto: si es PDF, podría estar escaneado (necesitaría OCR).")
+                t = ingest.ingest_legal_text(law_file.name, law_file.getvalue())
+            with st.container(border=True):
+                st.markdown(f"**Texto procesado** · {t.source.upper()}")
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Artículos", t.candidate_articles)
+                c2.metric("Caracteres", f"{t.n_chars:,}")
+                c3.metric("Líneas", f"{t.n_lines:,}")
+                if t.n_chars < 500:
+                    st.warning("Texto muy corto: si es un PDF, podría estar escaneado.")
         except Exception as e:
             st.error(f"No se pudo leer el texto: {type(e).__name__}: {e}")
 
+# ── Estado del sistema (base) al pie, tenue ───────────────────────────────────
 st.divider()
+r_base = ingest.base_ontology()
+t_base = ingest.base_legal_text()
+d_base = ingest.dpv_status()
 
-# ── DPV (referencia en memoria) ───────────────────────────────────────────────
-st.subheader("DPV (vocabulario de referencia en memoria)")
-d = ingest.dpv_status()
-if d:
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Tripletas", f"{d.n_triples:,}")
-    c2.metric("Conceptos", f"{d.n_concepts:,}")
-    c3.metric("Propiedades", f"{d.n_properties:,}")
-else:
-    st.warning("DPV no encontrado en vocab/dpv.ttl (tarea S1-T05).")
+parts = ["**Sistema listo**"]
+if r_base:
+    flavor = "OWL Full" if r_base.ontology_flavor == "owl-full" else r_base.ontology_flavor
+    parts.append(f"OntoPriv ({r_base.n_classes} clases, {flavor})")
+if t_base:
+    parts.append(f"LOPDP ({t_base.candidate_articles} artículos)")
+if d_base:
+    parts.append(f"DPV ({d_base.n_concepts:,} conceptos)")
+
+st.caption(" · ".join(parts))
