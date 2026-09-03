@@ -124,3 +124,29 @@ def _characterize(classes, obj_props, data_props, op_dp_overlap, class_prop_over
     if classes:
         return "rdfs", "Solo clases/jerarquías RDFS, sin propiedades OWL."
     return "unknown", "No se detectaron constructos OWL característicos."
+
+
+
+def characterization_summary(report: "OntologyReport") -> dict:
+    """Reusable, serializable characterization of an ontology.
+
+    Returns a plain dict (safe for JSON, the CLI and the web) with the OWL flavor,
+    its evidence, and the structural counts. Does not confirm the OWL 2 DL profile."""
+    return {
+        "path": report.path,
+        "source_format": report.source_format,
+        "flavor": report.ontology_flavor,
+        "flavor_detail": report.flavor_detail,
+        "is_owl_full": report.is_owl_full,
+        "structure": {
+            "triples": report.n_triples,
+            "classes": report.n_classes,
+            "object_properties": report.n_object_props,
+            "data_properties": report.n_data_props,
+            "individuals": report.n_individuals,
+        },
+        "owl_full_signals": {
+            "object_and_data_props": report.n_op_dp_overlap,
+            "class_and_property": report.n_class_prop_overlap,
+        },
+    }
