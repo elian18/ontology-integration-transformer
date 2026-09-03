@@ -1,3 +1,5 @@
+import pytest
+
 from src.ai.rag.embeddings import embed
 from src.ai.rag.vector_store import add
 from src.ai.rag.retriever import retrieve
@@ -10,6 +12,7 @@ def test_rag_circuit():
     hits = retrieve("derechos del titular", top_k=1)
     assert len(hits) == 1
 
+@pytest.mark.slow
 def test_llm_connection():
     reply = LLMClient().ask("Responde solo con la palabra: OK")
     assert isinstance(reply, str) and len(reply) > 0
