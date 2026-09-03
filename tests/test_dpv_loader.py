@@ -2,13 +2,9 @@ from pathlib import Path
 import pytest
 from src.ingest.dpv_loader import load_dpv
 
-ROOT = Path(__file__).resolve().parents[1]
-DPV = ROOT / "vocab/dpv.ttl"
 
-
-@pytest.mark.skipif(not DPV.exists(), reason="DPV no descargado en vocab/ (S1-T05)")
-def test_dpv_loads_in_memory():
-    d = load_dpv(DPV)
+def test_dpv_loads_in_memory(dpv_report):
+    d = dpv_report
     assert d.loaded
     assert d.n_concepts > 500        # DPV 2.3 tiene ~1123 conceptos
     assert d.n_triples > 5000

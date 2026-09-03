@@ -36,3 +36,24 @@ def test_owx_is_rejected_with_clear_message():
     # rdflib no parsea OWL/XML: debe fallar con un mensaje claro, no reventar feo.
     with pytest.raises(ValueError, match="OWL/XML"):
         load_ontology(ROOT / "data/input/ontopriv.owx")
+
+
+
+def test_loader_reads_turtle_and_jsonld(tmp_path):
+    # La misma ontología en otros formatos debe cargar igual (mismo nº de clases).
+    import rdflib
+    base = load_ontology(ONTO)
+    g = base.graph
+
+    ttl = tmp_path / "onto.ttl"
+    jsonld = tmp_path / "onto.jsonld"
+    g.serialize(destination=str(ttl), format="turtle")
+    g.serialize(destination=str(jsonld), format="json-ld")
+
+    r_ttl = load_ontology(ttl)
+    r_jsonld = load_ontology(jsonld)
+
+    assert r_ttl.source_format == "turtle"
+    assert r_jsonld.source_format == "json-ld"
+    assert r_ttl.n_classes == base.n_classes
+    assert r_jsonld.n_classes == base.n_classes
