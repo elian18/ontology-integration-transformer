@@ -1,0 +1,15 @@
+==================================================================
+ SPRINT 1 - CARGA DE INSUMOS
+==================================================================
+[ONTOLOGIA]  C:\Users\elian\Documents\2026-B\TIC\ontology-integration-transformer\data\input\ontopriv.rdf
+             formato=rdf/xml  sha256=f3106cfb5f4216f9  tripletas=5480
+             clases=175  obj_props=122  data_props=329  individuos=181
+             tipo de ontología: OWL-FULL -> OWL Full: 34 propiedades objeto+datos y 65 entidades clase+propiedad (punning).
+[LEY]        C:\Users\elian\Documents\2026-B\TIC\ontology-integration-transformer\data\input\lopdp.pdf
+             fuente=pdf  sha256=220d49f9e6cd420e  chars=141871  lineas=1810 (no vacias=1810)
+             codificacion=pdf-extract  articulos_detectados=77
+[DPV]        C:\Users\elian\Documents\2026-B\TIC\ontology-integration-transformer\vocab\dpv.ttl
+             tripletas=14909  conceptos=1123  clases=973  propiedades=150  con_etiqueta=1123
+==================================================================
+ RESULTADO: OK - insumos reconocidos
+==================================================================
