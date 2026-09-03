@@ -13,7 +13,6 @@ import streamlit as st
 st.set_page_config(page_title="Ontology Integration Transformer", layout="wide")
 
 pages = [
-    st.Page("views/home.py", title="Inicio", icon=":material/home:", default=True),
-    st.Page("views/home.py", title="Prueba", icon=":material/science:", url_path="prueba"),
+    st.Page("views/home.py", title="Inicio", icon=":material/home:", default=True)
 ]
 st.navigation(pages).run()
