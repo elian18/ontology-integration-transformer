@@ -5,7 +5,9 @@ rag:
 llm:
   max_tokens: 1024
   temperature: 0.0
-insumos:
-  ontologia: "data/input/ontopriv.owl"
-  texto_ley: "data/input/lopdp.txt"
-  dpv: "vocab/dpv.ttl"
+inputs:
+  ontology: "data/input/ontopriv.owx"       # OntoPriv (OWL/XML) — seed for the core
+  legal_text: "data/input/lopdp.txt"         # LOPDP or another law (.txt or .pdf)
+  dpv: "vocab/dpv.ttl"                        # DPV 2.3 (Turtle), downloaded locally
+interim:
+  ontology_rdfxml: "data/interim/ontopriv.rdf"   # normalized RDF/XML (feeds later stages)
