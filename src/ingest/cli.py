@@ -1,11 +1,14 @@
-"""Inputs demo (Sprint 1): load ontology + legal text + DPV and print a console report.
+"""Inputs demo (Sprint 1) + law segmentation and indexing (Sprint 2).
 
-Reads paths from config/config.yaml. Console output is in Spanish; identifiers in English.
+Reads paths from config/config.yaml. Console output is in Spanish; identifiers
+in English.
 
 Usage:
-    py -m src.ingest.cli
-    py -m src.ingest.cli --onto data/input/ontopriv.rdf --law data/input/lopdp.pdf --dpv vocab/dpv.ttl
-    py -m src.ingest.cli --normalize     (also write the canonical RDF/XML for later stages)
+    py -m src.ingest.cli                       (Sprint 1 report: ontology + law + DPV)
+    py -m src.ingest.cli --normalize           (also write the canonical RDF/XML)
+    py -m src.ingest.cli --index               (Sprint 2: segment the law and index it)
+    py -m src.ingest.cli --index --reset       (rebuild the 'normativa' collection first)
+    py -m src.ingest.cli --index --law data/input/lopdp.pdf
 """
 from __future__ import annotations
 import argparse
@@ -27,18 +30,66 @@ def _config() -> dict:
     return {}
 
 
+def _index_and_report(law_path: str, reset: bool) -> int:
+    """Segment the law and index its articles into ChromaDB, then report."""
+    # Imported here (not at module top) so the Sprint 1 report does not load
+    # the embedding model.
+    from src.ingest.legal_segmenter import segment_articles
+    from src.ai.rag import vector_store
+    from src.ai.rag.indexer import index_law
+
+    print("=" * 66)
+    print(" SPRINT 2 - SEGMENTACION E INDEXADO DE LA LEY")
+    print("=" * 66)
+
+    try:
+        t = load_legal_text(law_path)
+    except Exception as e:
+        print(f"[LEY]        ERROR: {type(e).__name__}: {e}")
+        print("=" * 66)
+        print(" RESULTADO: FALLO - no se pudo cargar la ley")
+        print("=" * 66)
+        return 1
+
+    summary = segment_articles(t.text, source=t.path)
+    print(f"[LEY]        {t.path}")
+    print(f"             fuente={t.source}  chars={t.n_chars}  "
+          f"articulos_segmentados={summary['n_articles']}")
+
+    if reset:
+        vector_store.reset()
+        print("[INDEX]      coleccion 'normativa' reiniciada")
+
+    report = index_law(summary)
+    print(f"[INDEX]      articulos_indexados={report['n_indexed']}  "
+          f"coleccion='normativa'  documentos={report['collection_count']}")
+
+    print("=" * 66)
+    print(" RESULTADO: OK - ley segmentada e indexada")
+    print("=" * 66)
+    return 0
+
+
 def main(argv=None) -> int:
     cfg = _config()
     inputs = cfg.get("inputs", {})
     interim = cfg.get("interim", {})
 
-    parser = argparse.ArgumentParser(description="Ingesta de insumos - Sprint 1")
+    parser = argparse.ArgumentParser(description="Ingesta de insumos y segmentacion")
     parser.add_argument("--onto", default=inputs.get("ontology", "data/input/ontopriv.rdf"))
     parser.add_argument("--law", default=inputs.get("legal_text", "data/input/lopdp.pdf"))
     parser.add_argument("--dpv", default=inputs.get("dpv", "vocab/dpv.ttl"))
     parser.add_argument("--normalize", action="store_true",
                         help="Escribe el RDF/XML canónico en interim.ontology_rdfxml")
+    parser.add_argument("--index", action="store_true",
+                        help="Segmenta la ley e indexa los articulos en ChromaDB (coleccion 'normativa')")
+    parser.add_argument("--reset", action="store_true",
+                        help="Vacia la coleccion 'normativa' antes de indexar (reconstruye desde cero)")
     args = parser.parse_args(argv)
+
+    # Sprint 2 path: segment + index, then stop.
+    if args.index:
+        return _index_and_report(args.law, reset=args.reset)
 
     ok = True
     print("=" * 66)
@@ -61,7 +112,7 @@ def main(argv=None) -> int:
         print(f"[ONTOLOGIA]  ERROR: {type(e).__name__}: {e}")
         ok = False
 
-    # 2) Legal text (.txt or .pdf; not segmented yet)
+    # 2) Legal text (.txt or .pdf; not segmented here)
     try:
         t = load_legal_text(args.law)
         print(f"[LEY]        {t.path}")
