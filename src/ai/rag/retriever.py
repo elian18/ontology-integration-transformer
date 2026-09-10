@@ -1,3 +1,10 @@
+"""Semantic search over the indexed law (ChromaDB 'normativa' collection).
+
+Given a query, returns the articles whose meaning is closest, each with its
+number and title so the web view and the traceability layer can show where a
+match comes from. ``top_k`` defaults to ``rag.top_k`` in config/config.yaml.
+"""
+
 from __future__ import annotations
 
 from typing import TypedDict
@@ -48,6 +55,7 @@ def retrieve_articles(query: str, top_k: int | None = None) -> list[RetrievedArt
 
     articles: list[RetrievedArticle] = []
     for document, metadata, distance in zip(documents, metadatas, distances):
+        metadata = metadata or {}   # a document may have been stored without metadata
         articles.append({
             "number": metadata.get("number"),
             "title": metadata.get("title", ""),
