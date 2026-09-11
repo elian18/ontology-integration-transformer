@@ -1,8 +1,15 @@
 import os
 import chromadb
 
-_client = chromadb.PersistentClient(path=os.getenv("CHROMA_PATH", "./chroma_db"))
-collection = _client.get_or_create_collection("normativa")   # poblada en el Sprint 2
+from src.config import load_config
+
+_cfg = load_config().get("vector_store", {}) or {}
+# CHROMA_PATH (env) wins so the test suite can isolate ChromaDB in a temp dir.
+_PATH = os.getenv("CHROMA_PATH") or _cfg.get("path") or "chroma_db"
+_COLLECTION = _cfg.get("collection") or "normativa"
+
+_client = chromadb.PersistentClient(path=_PATH)
+collection = _client.get_or_create_collection(_COLLECTION)
 
 
 def add(ids: list[str], docs: list[str], embeddings: list[list[float]]):
@@ -27,5 +34,5 @@ def count() -> int:
 def reset():
     """Drop and recreate the collection, to rebuild it from scratch."""
     global collection
-    _client.delete_collection("normativa")
-    collection = _client.get_or_create_collection("normativa")
+    _client.delete_collection(_COLLECTION)
+    collection = _client.get_or_create_collection(_COLLECTION)

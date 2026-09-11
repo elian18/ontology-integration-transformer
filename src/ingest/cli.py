@@ -1,7 +1,7 @@
 """Inputs demo (Sprint 1) + law segmentation and indexing (Sprint 2).
 
-Reads paths from config/config.yaml. Console output is in Spanish; identifiers
-in English.
+Reads paths from config/config.yaml via src.config. Console output is in
+Spanish; identifiers in English.
 
 Usage:
     py -m src.ingest.cli                       (Sprint 1 report: ontology + law + DPV)
@@ -13,21 +13,11 @@ Usage:
 from __future__ import annotations
 import argparse
 import sys
-from pathlib import Path
-import yaml
 
+from src.config import load_config
 from src.ingest.ontology_loader import load_ontology, normalize_to_rdfxml, characterization_summary
 from src.ingest.text_loader import load_legal_text
 from src.ingest.dpv_loader import load_dpv
-
-ROOT = Path(__file__).resolve().parents[2]
-
-
-def _config() -> dict:
-    path = ROOT / "config" / "config.yaml"
-    if path.exists():
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    return {}
 
 
 def _index_and_report(law_path: str, reset: bool) -> int:
@@ -71,7 +61,7 @@ def _index_and_report(law_path: str, reset: bool) -> int:
 
 
 def main(argv=None) -> int:
-    cfg = _config()
+    cfg = load_config() or {}
     inputs = cfg.get("inputs", {})
     interim = cfg.get("interim", {})
 
