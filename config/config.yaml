@@ -2,6 +2,9 @@ rag:
   top_k: 4
   chunk_size: 800
   chunk_overlap: 120
+vector_store:
+  collection: "normativa"        # ChromaDB collection that holds the indexed law
+  path: "chroma_db"              # persistence dir (overridable with CHROMA_PATH env)
 llm:
   max_tokens: 1024
   temperature: 0.0
