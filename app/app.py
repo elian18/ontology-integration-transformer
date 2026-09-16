@@ -17,5 +17,6 @@ st.set_page_config(page_title="Ontology Integration Transformer", layout="wide")
 pages = [
     st.Page("views/home.py", title="Inicio", icon=":material/home:", default=True),
     st.Page("views/inputs.py", title="Insumos", icon=":material/upload_file:"),
+    st.Page("views/articles.py", title="Artículos", icon=":material/article:"),
 ]
 st.navigation(pages).run()
