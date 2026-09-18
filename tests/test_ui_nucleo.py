@@ -30,3 +30,17 @@ def test_core_and_profile_do_not_share_general_families():
     # A profile-only family must never appear as a core family.
     assert "Verification" not in structure["core_families"]
     assert "Sanctions" not in structure["core_families"]
+    
+
+def test_build_downloads_produces_valid_rdfxml():
+    downloads = nucleo.build_downloads()
+    if downloads is None:
+        pytest.skip("OntoPriv base no disponible en data/input/")
+    from rdflib import Graph
+    for module in ("core", "profile"):
+        info = downloads[module]
+        assert info["bytes"] and info["filename"].endswith(".rdf")
+        g = Graph()
+        g.parse(data=info["bytes"], format="xml")
+        assert len(g) == info["triples"] and info["triples"] > 0
+    assert isinstance(downloads["moved_to_profile"], list)
