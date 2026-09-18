@@ -1,9 +1,9 @@
 """Modular-core view (Sprint 3): structure of the core/profile and downloadable modules.
 
-Presentation only; the counts, families and file bytes come from services.nucleo. The
-AI-proposed concepts are S3-T08 — this view shows the structure and the downloads."""
+Presentation only; the counts, families and file bytes come from services.core_module. The
+AI-proposed concepts live in the ai_proposals view — this one shows structure and downloads."""
 import streamlit as st
-from services import nucleo
+from services import core_module
 
 st.header("Núcleo modular")
 st.write(
@@ -12,7 +12,7 @@ st.write(
     "general que se reutiliza para cualquier ley; el perfil es lo propio de la jurisdicción."
 )
 
-structure = nucleo.core_structure()
+structure = core_module.core_structure()
 if structure is None:
     st.warning("No se encontró la ontología base. Revisa 'inputs.ontology' en config/config.yaml.")
     st.stop()
@@ -46,9 +46,9 @@ st.write("Genera el núcleo modular y descarga los dos archivos en RDF/XML. El p
 
 if st.button("Generar núcleo modular", type="primary", use_container_width=True):
     with st.spinner("Generando núcleo y perfil..."):
-        st.session_state["nucleo_downloads"] = nucleo.build_downloads()
+        st.session_state["core_downloads"] = core_module.build_downloads()
 
-downloads = st.session_state.get("nucleo_downloads")
+downloads = st.session_state.get("core_downloads")
 if downloads:
     core, profile = downloads["core"], downloads["profile"]
     st.caption(

@@ -1,10 +1,7 @@
-"""Bridge for the modular-core view (Sprint 3): structure and downloadable modules.
-
-Wraps the split (S3-T03) and the materialization (S3-T04) so the Streamlit view stays pure
-presentation, mirroring how services.segmentation backs the articles view. Results are cached
-because they are deterministic and touch no network."""
+"""Bridge for the modular-core view (Sprint 3): structure, downloads and AI proposals."""
 from __future__ import annotations
 
+import json
 import tempfile
 from functools import lru_cache
 from pathlib import Path
@@ -14,12 +11,26 @@ from src.ingest.ontology_loader import load_ontology
 from src.core.split import assign_modules, split_summary
 from src.core.emit import materialize_modules
 
+_PROPOSALS_FILE = "perfil-conceptos-propuestos.json"
+
+
+def _root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
 
 def _base_ontology_path() -> Path:
     path = Path(load_config().get("inputs", {}).get("ontology", "data/input/ontopriv.rdf"))
     if not path.is_absolute():
-        path = Path(__file__).resolve().parents[2] / path      # app/services/ -> project root
+        path = _root() / path
     return path
+
+
+def _proposals_path() -> Path:
+    out_dir = load_config().get("outputs", {}).get("dir", "data/output")
+    p = Path(out_dir)
+    if not p.is_absolute():
+        p = _root() / p
+    return p / _PROPOSALS_FILE
 
 
 @lru_cache(maxsize=1)
@@ -33,8 +44,8 @@ def core_structure() -> dict | None:
     summary = split_summary(assign_modules(load_ontology(str(path))))
     return {
         "onto_path": summary["onto_path"],
-        "counts": summary["counts"],                    # {"core": {...}, "profile": {...}}
-        "core_families": summary["core_families"],      # {family: n_classes}
+        "counts": summary["counts"],
+        "core_families": summary["core_families"],
         "profile_families": summary["profile_families"],
         "n_cross_refs": summary["n_cross_refs"],
         "n_flagged": summary["n_flagged"],
@@ -45,9 +56,8 @@ def core_structure() -> dict | None:
 def build_downloads() -> dict | None:
     """Materialize the core and profile and return their file bytes for st.download_button.
 
-    Returns None when the base ontology is missing. Bytes are read into memory, so the temp
-    files can be cleaned up immediately. These are the REAL emitted files (with individuals and
-    the autonomy move), so their counts differ slightly from core_structure()."""
+    Returns None when the base ontology is missing. These are the REAL emitted files (with
+    individuals and the autonomy move), so their counts differ slightly from core_structure()."""
     path = _base_ontology_path()
     if not path.exists():
         return None
@@ -65,4 +75,25 @@ def build_downloads() -> dict | None:
         "manifest": {"filename": Path(result.manifest_path).name, "bytes": manifest_bytes},
         "moved_to_profile": result.moved_to_profile,
         "core_iri": result.core_iri, "profile_iri": result.profile_iri,
+    }
+
+
+def proposed_concepts(path=None) -> dict | None:
+    """Read the AI-proposed concepts written by S3-T05 (perfil-conceptos-propuestos.json).
+
+    Returns None when the extraction has not been run yet. Not cached: the file grows as the
+    extraction resumes, and the view should always show the latest."""
+    p = Path(path) if path is not None else _proposals_path()
+    if not p.exists():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return {
+        "source": data.get("source", ""),
+        "counts": data.get("counts", {}),
+        "quota_exhausted": data.get("quota_exhausted", False),
+        "processed_articles": data.get("processed_articles", []),
+        "concepts": data.get("concepts", []),
     }
