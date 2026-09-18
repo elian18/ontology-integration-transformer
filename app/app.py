@@ -18,5 +18,6 @@ pages = [
     st.Page("views/home.py", title="Inicio", icon=":material/home:", default=True),
     st.Page("views/inputs.py", title="Insumos", icon=":material/upload_file:"),
     st.Page("views/articles.py", title="Artículos", icon=":material/article:"),
+    st.Page("views/nucleo.py", title="Núcleo", icon=":material/account_tree:"),
 ]
 st.navigation(pages).run()
