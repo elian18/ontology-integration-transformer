@@ -10,8 +10,10 @@ from src.config import load_config
 from src.ingest.ontology_loader import load_ontology
 from src.core.split import assign_modules, split_summary
 from src.core.emit import materialize_modules
+from src.core.extract import PROPOSALS_FILE
 
-_PROPOSALS_FILE = "perfil-conceptos-propuestos.json"
+# Same name the extractor writes; imported so both sides can never drift apart.
+_PROPOSALS_FILE = PROPOSALS_FILE
 
 
 def _root() -> Path:
@@ -79,7 +81,7 @@ def build_downloads() -> dict | None:
 
 
 def proposed_concepts(path=None) -> dict | None:
-    """Read the AI-proposed concepts written by S3-T05 (perfil-conceptos-propuestos.json).
+    """Read the AI-proposed concepts written by S3-T05 (``PROPOSALS_FILE`` in data/output).
 
     Returns None when the extraction has not been run yet. Not cached: the file grows as the
     extraction resumes, and the view should always show the latest."""
