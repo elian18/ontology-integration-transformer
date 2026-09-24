@@ -3,6 +3,7 @@
 Takes the assignment from S3-T03 and writes:
 - ``ontopriv-core.rdf``      : the reusable, jurisdiction-neutral core (must be self-contained).
 - ``profile-ecuador-lopdp.rdf``: the Ecuador (LOPDP) profile, which ``owl:imports`` the core.
+- ``core-manifest.json``     : a small manifest with IRIs, counts and what was moved.
 
 Before writing, the core is made STANDALONE: any core entity that still points into the
 profile (a core -> profile hard reference from S3-T03) is moved to the profile. Moving down is
@@ -31,7 +32,7 @@ CORE_IRI = "http://www.semanticweb.org/ontopriv-core"
 PROFILE_IRI = "http://www.semanticweb.org/profiles/ecuador-lopdp"
 CORE_FILE = "ontopriv-core.rdf"
 PROFILE_FILE = "profile-ecuador-lopdp.rdf"
-MANIFEST_FILE = "nucleo-manifest.json"
+MANIFEST_FILE = "core-manifest.json"
 
 
 @dataclass

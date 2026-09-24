@@ -3,8 +3,9 @@
 This is the first place the AI enters the pipeline. It reads the law article by article and
 proposes data-protection concepts for the jurisdiction profile, each carrying the article it
 came from (provenance). It only PROPOSES: nothing is written into an ontology here. Deciding
-which proposals are genuinely new vs. already in OntoPriv-Core, and wiring them in, is the
-alignment sprint (S5); this module stops at a reviewed-by-human "por validar" list.
+which proposals are genuinely new vs. already in OntoPriv-Core is the alignment work
+(Sprint 4 builds the candidates; Sprint 5 is where a human approves them and wires them in);
+this module stops at a reviewed-by-human "por validar" list.
 
 Design forced by the free-tier LLM (Gemini free tier allows ~20 requests/day):
 - BATCHING: several articles per call (~8 calls for the whole LOPDP, not 77), to fit the quota.
@@ -24,6 +25,9 @@ import time
 from dataclasses import dataclass, field
 from collections import OrderedDict
 from pathlib import Path
+
+# Output file name (single source of truth; the web service imports it from here).
+PROPOSALS_FILE = "profile-proposed-concepts.json"
 
 _INSTRUCTION = (
     "Te entrego varios articulos de una ley de proteccion de datos, cada uno con su numero. "
@@ -280,7 +284,7 @@ def _run() -> None:
         return
     text = load_legal_text(law_path).text
     segmentation = segment_articles(text, source=Path(law_path).stem)
-    out_path = Path(out_dir) / "perfil-conceptos-propuestos.json"
+    out_path = Path(out_dir) / PROPOSALS_FILE
     report = propose_profile_concepts(segmentation["articles"], source=segmentation["source"],
                                       out_path=out_path)
     print(render_console(report))
