@@ -20,3 +20,8 @@ alignment:
   weight_semantic: 0.6        # weight of the meaning similarity (embeddings, S4-T05)
   duplicate_threshold: 0.75   # AI concept marked "possible duplicate" of OntoPriv at/above this (S4-T06, provisional)
   duplicate_name_match: 0.95  # ...or when an OntoPriv entity has (almost) the same name (S4-T06)
+  justify_batch_size: 15      # concepts per LLM call when the AI proposes the SKOS type (S4-T08)
+  justify_max_calls: 60       # LLM calls per run (~39 needed; gemini-3.1-flash-lite free tier: 500/day)
+  justify_pause_seconds: 5    # pause between calls (free tier: 15 requests and 250K tokens per minute)
+  justify_article_chars: 1200 # length of the law article sent as evidence
+  justify_max_tokens: 8192    # max answer length per call

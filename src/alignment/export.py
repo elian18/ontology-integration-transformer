@@ -7,8 +7,9 @@ Joins both flows agreed for Sprint 4 into ONE table:
 One row per (concept, DPV candidate). Every row starts as ``review_status = "pending"``
 (shown as "por validar"): nothing here is approved; that is Sprint 5.
 
-Two columns are left EMPTY on purpose and filled by S4-T08 (the AI): ``proposed_relation``
-(SKOS mapping type) and ``justification``. ``needs_justification`` says which rows S4-T08 must
+Three columns are left EMPTY on purpose and filled by S4-T08 (the AI): ``proposed_relation``
+(SKOS mapping type), ``justification`` and ``evidence_article`` (the law article shown to the
+AI as evidence). ``needs_justification`` says which rows S4-T08 must
 send to the AI: all OntoPriv rows and the AI concepts marked ``new``; a possible duplicate
 inherits the alignment of its OntoPriv entity, so its rows are kept but not sent.
 
@@ -45,9 +46,11 @@ COLUMNS = [
     "duplicate_reason",
     "rank", "dpv_iri", "dpv_name", "dpv_label", "dpv_kind", "dpv_definition", "dpv_parents",
     "lexical", "semantic", "score",
-    "needs_justification", "proposed_relation", "justification", "review_status",
+    "needs_justification", "proposed_relation", "justification", "evidence_article",
+    "review_status",
 ]
 _LIST_COLUMNS = ("concept_kinds", "concept_articles", "dpv_parents")
+_INT_COLUMNS = ("rank", "evidence_article")     # nullable ints: CSV shows 29, not 29.0
 
 
 @dataclass
@@ -150,6 +153,7 @@ def build_candidate_table(sources: AlignmentSources, targets: DpvTargets, embed_
                 "needs_justification": bool(needs),
                 "proposed_relation": None,
                 "justification": None,
+                "evidence_article": None,
                 "review_status": REVIEW_PENDING,
             })
 
@@ -191,6 +195,8 @@ def write_candidate_files(table: CandidateTable, out_dir: str | Path) -> tuple[P
 
     flat = [{col: _csv_value(col, row.get(col)) for col in COLUMNS} for row in table.rows]
     frame = pd.DataFrame(flat, columns=COLUMNS)
+    for col in _INT_COLUMNS:
+        frame[col] = frame[col].astype("Int64")
     frame.to_csv(csv_path, index=False, encoding="utf-8-sig")   # BOM: Excel shows accents
     return json_path, csv_path
 
@@ -198,6 +204,20 @@ def write_candidate_files(table: CandidateTable, out_dir: str | Path) -> tuple[P
 def load_candidate_file(path: str | Path) -> dict:
     """Read a candidates JSON written by ``write_candidate_files``."""
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def justified_rows(path: str | Path) -> int:
+    """How many rows of an existing candidates file already carry the AI's type (S4-T08).
+
+    Used to refuse overwriting AI work (quota already spent) unless ``--force`` is given."""
+    p = Path(path)
+    if not p.exists():
+        return 0
+    try:
+        rows = load_candidate_file(p).get("rows", [])
+    except (OSError, json.JSONDecodeError):
+        return 0
+    return sum(1 for r in rows if r.get("proposed_relation") is not None)
 
 
 def render_console(table: CandidateTable, json_path=None, csv_path=None) -> str:
@@ -220,8 +240,11 @@ def render_console(table: CandidateTable, json_path=None, csv_path=None) -> str:
     return "\n".join(lines)
 
 
-def _run() -> None:
-    """Build the candidates for OntoPriv + AI proposals and write them (loads the model)."""
+def _run(argv: list[str] | None = None) -> None:
+    """Build the candidates for OntoPriv + AI proposals and write them (loads the model).
+
+    Refuses to overwrite a file that already holds AI justifications unless ``--force``."""
+    import sys
     from src.config import load_config
     from src.ingest.ontology_loader import load_ontology
     from src.ingest.dpv_loader import load_dpv
@@ -235,6 +258,13 @@ def _run() -> None:
     out_dir = cfg.get("outputs", {}).get("dir", "data/output")
     if not Path(onto_path).exists() or not Path(dpv_path).exists():
         print("Falta la ontologia base o el DPV (revisa 'inputs' en config.yaml).")
+        return
+    argv = sys.argv[1:] if argv is None else argv
+    already = justified_rows(Path(out_dir) / CANDIDATES_JSON)
+    if already and "--force" not in argv:
+        print(f"El archivo de candidatos ya tiene {already} filas justificadas por la IA "
+              f"(S4-T08). Regenerarlo las borraria.\n"
+              f"Si de verdad quieres empezar de cero: py -m src.alignment.export --force")
         return
     sources = build_alignment_sources(load_ontology(onto_path))
     if not sources.proposals_found:
