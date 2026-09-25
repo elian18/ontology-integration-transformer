@@ -15,6 +15,7 @@ from src.alignment.candidates import AlignmentSettings
 from src.alignment.duplicates import STATUS_DUPLICATE, STATUS_NEW
 from src.alignment.export import (
     build_candidate_table, write_candidate_files, load_candidate_file, render_console,
+    justified_rows,
     COLUMNS, CANDIDATES_JSON, CANDIDATES_CSV, REVIEW_PENDING,
 )
 
@@ -119,7 +120,7 @@ def test_everything_pending_and_ai_columns_empty(tmp_path):
     table = _table(tmp_path)
     assert {r["review_status"] for r in table.rows} == {REVIEW_PENDING}
     assert all(r["proposed_relation"] is None and r["justification"] is None
-               for r in table.rows)
+               and r["evidence_article"] is None for r in table.rows)
 
 
 def test_duplicate_mark_and_what_goes_to_the_ai(tmp_path):
@@ -196,6 +197,28 @@ def test_write_json_and_csv(tmp_path):
     assert str(row["concept_articles"]) == "23"                         # pandas reads it as 23
     ds = frame[(frame["concept_name"] == "DataSubject") & (frame["rank"] == 1)].iloc[0]
     assert ds["concept_articles"] == "4|17"
+
+
+def test_integer_columns_are_written_without_decimals(tmp_path):
+    table = _table(tmp_path)
+    table.rows[0]["evidence_article"] = 29                 # others stay empty (None)
+    _, csv_path = write_candidate_files(table, tmp_path / "out")
+    import csv
+    with csv_path.open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert rows[0]["evidence_article"] == "29"               # not "29.0"
+    assert rows[1]["evidence_article"] == ""                 # empty stays empty
+    assert {r["rank"] for r in rows} == {"1", "2", "3"}      # not "1.0"
+
+
+def test_justified_rows_protects_ai_work(tmp_path):
+    table = _table(tmp_path)
+    json_path, _ = write_candidate_files(table, tmp_path / "out")
+    assert justified_rows(json_path) == 0
+    table.rows[0]["proposed_relation"] = "skos:exactMatch"
+    write_candidate_files(table, tmp_path / "out")
+    assert justified_rows(json_path) == 1
+    assert justified_rows(tmp_path / "no-existe.json") == 0
 
 
 def test_console_summary(tmp_path):
