@@ -15,6 +15,8 @@ inputs:
 interim:
   ontology_rdfxml: "data/interim/ontopriv.rdf"   # normalized RDF/XML (feeds later stages)
 alignment:
-  top_k: 3                 # DPV candidates kept per concept (no threshold: the human decides)
-  weight_lexical: 0.4      # weight of the name similarity (rapidfuzz, S4-T04)
-  weight_semantic: 0.6     # weight of the meaning similarity (embeddings, S4-T05)
+  top_k: 3                    # DPV candidates kept per concept (no threshold: the human decides)
+  weight_lexical: 0.4         # weight of the name similarity (rapidfuzz, S4-T04)
+  weight_semantic: 0.6        # weight of the meaning similarity (embeddings, S4-T05)
+  duplicate_threshold: 0.75   # AI concept marked "possible duplicate" of OntoPriv at/above this (S4-T06, provisional)
+  duplicate_name_match: 0.95  # ...or when an OntoPriv entity has (almost) the same name (S4-T06)
