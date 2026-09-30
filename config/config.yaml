@@ -25,3 +25,7 @@ alignment:
   justify_pause_seconds: 5    # pause between calls (free tier: 15 requests and 250K tokens per minute)
   justify_article_chars: 1200 # length of the law article sent as evidence
   justify_max_tokens: 8192    # max answer length per call
+  reference_sample: "data/reference/alignment-reference-sample.csv"  # hand-labelled sample (S4-T09, tracked in git)
+  reference_size: 30          # concepts in the sample
+  reference_ai_share: 0.34    # share of AI-proposed concepts (~10 of 30); the rest are OntoPriv
+  reference_seed: 42          # fixed seed: the same sample every time
