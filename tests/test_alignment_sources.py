@@ -145,3 +145,25 @@ def test_real_ontopriv_and_proposals():
         expected = {c["name"].lower() for c in json.loads(
             proposals.read_text(encoding="utf-8"))["concepts"]}
         assert len(src.of_origin(ORIGIN_AI)) == len(expected)
+
+
+def test_ai_kind_comes_from_the_name_not_from_the_extraction():
+    """S4-T09: the extraction marked class-like names as properties; the name decides."""
+    from src.alignment.sources import kind_from_name
+    assert kind_from_name("RightToErasure") == ALIGN_CLASS
+    assert kind_from_name("hasPurpose") == ALIGN_PROPERTY
+    ai = load_ai_concepts({"concepts": [
+        {"name": "RightToErasure", "type": "property", "label": "Derecho de eliminacion"},
+        {"name": "hasPurpose", "type": "property"},
+        {"name": "DataSubject", "type": "class"},
+    ]})
+    by = {c.name: c for c in ai}
+    assert by["RightToErasure"].kinds == (ALIGN_CLASS,)
+    assert by["RightToErasure"].declared_kind == ALIGN_PROPERTY      # kept for the record
+    assert by["hasPurpose"].kinds == (ALIGN_PROPERTY,)
+    assert by["DataSubject"].kinds == (ALIGN_CLASS,)
+    src = build_alignment_sources(_report(), proposals={"concepts": [
+        {"name": "RightToErasure", "type": "property"}, {"name": "hasPurpose", "type": "property"}]})
+    assert src.counts()["ai_kind_corrected"] == 1
+    from src.alignment.sources import render_console
+    assert "Tipo corregido por el nombre" in render_console(src)

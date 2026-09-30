@@ -69,19 +69,36 @@ DEFAULT_MAX_TOKENS = 8192
 QUOTA_WAIT_SECONDS = 60
 TRANSIENT_WAIT_SECONDS = 20
 
+# Version 2 (S4-T09): the measurement showed the AI overused exactMatch (5 of 13 errors) and
+# claimed exact/close matches for concepts without a DPV counterpart; the rules below are
+# stricter and the worked examples are NOT part of the hand-labelled sample.
+PROMPT_VERSION = 2
 _INSTRUCTION = (
     "Te entrego conceptos de una ontologia de proteccion de datos, cada uno con un id (C1, C2...), "
     "su definicion, un articulo de la ley como evidencia y sus candidatos del Data Privacy "
     "Vocabulary (DPV). Para CADA candidato decide la relacion SKOS del concepto HACIA el "
-    "candidato: 'exactMatch' (mismo significado), 'closeMatch' (casi el mismo, con matices), "
-    "'broadMatch' (el candidato DPV es MAS GENERAL que el concepto), 'narrowMatch' (el candidato "
-    "DPV es MAS ESPECIFICO que el concepto), 'relatedMatch' (relacionados sin jerarquia) o "
-    "'none' (no hay correspondencia). Devuelve UNA LINEA por candidato; cada linea es un objeto "
-    "JSON compacto con estas claves exactas: 'concept' (el id, p. ej. C1), 'dpv' (el nombre del "
-    "candidato tal como aparece antes de la barra), 'relation' (uno de los seis valores) y "
-    "'justification' (una sola oracion en espanol que se apoye en las definiciones o en el "
-    "articulo). No uses saltos de linea dentro de un valor. No agregues texto adicional ni "
-    "marcadores de codigo."
+    "candidato, con estas reglas:\n"
+    "- 'exactMatch': SOLO si las dos definiciones son intercambiables en cualquier contexto. "
+    "Como maximo UN candidato por concepto puede ser exactMatch.\n"
+    "- 'closeMatch': casi el mismo significado, pero con matices de alcance o condiciones "
+    "propias de la ley. Ante la duda entre exactMatch y closeMatch, elige closeMatch.\n"
+    "- 'broadMatch': el candidato DPV es MAS GENERAL y abarca al concepto.\n"
+    "- 'narrowMatch': el candidato DPV es MAS ESPECIFICO, es un caso particular del concepto.\n"
+    "- 'relatedMatch': hay una relacion concreta que puedes nombrar, pero ninguno contiene al "
+    "otro.\n"
+    "- 'none': el candidato trata de otra cosa, aunque comparta palabras. Si no puedes nombrar "
+    "una relacion concreta, elige none.\n"
+    "Ejemplos: 'Data_Controller' -> DataController = exactMatch (mismo rol). "
+    "'Right_to_portability' -> DataSubjectRight = broadMatch (la portabilidad es uno de los "
+    "derechos del titular). 'Sensitive_data' de la ley -> SensitivePersonalData = closeMatch "
+    "(la ley fija su propia lista). 'for_serious_infractions' -> hasSeverity = none (el DPV no "
+    "modela sanciones de una ley).\n"
+    "Devuelve UNA LINEA por candidato; cada linea es un objeto JSON compacto con estas claves "
+    "exactas: 'concept' (el id, p. ej. C1), 'dpv' (el nombre del candidato tal como aparece "
+    "antes de la barra), 'relation' (uno de los seis valores) y 'justification' (una sola "
+    "oracion en espanol que se apoye en las definiciones o en el articulo, sin mencionar el id). "
+    "No uses saltos de linea dentro de un valor. No agregues texto adicional ni marcadores de "
+    "codigo."
 )
 
 
@@ -205,6 +222,7 @@ def _save(data: dict, out_dir, report: JustifyReport, model: str | None) -> None
     meta["justification"] = {
         "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "llm_model": model,
+        "prompt_version": PROMPT_VERSION,
         "remaining_concepts": report.remaining_concepts,
     }
     data["metadata"] = meta

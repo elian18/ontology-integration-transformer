@@ -19,6 +19,12 @@ Decisions encoded here:
   (``consentimiento001``, ``banking001``...: one per class, no label, no comment). An example
   record is not a concept, so by default they are NOT aligned (their class is); they are
   counted and reported. ``include_individuals=True`` turns them on for another ontology.
+- Kind of the AI concepts (measured in S4-T09): the Sprint 3 extraction declared 46 of the 93
+  concepts as ``property``, but all 46 are named like classes ('RightToErasure',
+  'PrincipleOfLoyalty'), so they could only meet DPV properties. The declared type is not
+  trusted: the kind is derived from the OWL naming convention (classes in UpperCamelCase,
+  properties in lowerCamelCase, e.g. 'hasPurpose'). The declared type is kept in
+  ``declared_kind`` and the corrections are counted.
 """
 from __future__ import annotations
 
@@ -80,6 +86,7 @@ class SourceConcept:
     namespace: str | None = None
     family: str | None = None        # ontology family, or the class of an individual
     articles: list[int] = field(default_factory=list)   # provenance (AI concepts)
+    declared_kind: str | None = None  # AI concepts: type declared by the extraction (S3-T05)
 
     def name_text(self) -> str:
         """Humanized identifier ('DataSubject' -> 'Data Subject'): input of the lexical match."""
@@ -106,6 +113,7 @@ class SourceConcept:
             "namespace": self.namespace,
             "family": self.family,
             "articles": self.articles,
+            "declared_kind": self.declared_kind,
         }
 
 
@@ -137,6 +145,8 @@ class AlignmentSources:
             "ontology_individuals": sum(1 for c in onto if ALIGN_INDIVIDUAL in c.kinds),
             "ai_classes": sum(1 for c in ai if ALIGN_CLASS in c.kinds),
             "ai_properties": sum(1 for c in ai if ALIGN_PROPERTY in c.kinds),
+            "ai_kind_corrected": sum(1 for c in ai if c.declared_kind
+                                     and c.declared_kind not in c.kinds),
             "borrowed": len(self.borrowed),
             "individuals_total": self.individuals_total,
             "individuals_skipped": len(self.skipped_individuals),
@@ -225,6 +235,12 @@ def default_proposals_path() -> Path:
     return Path(out_dir) / PROPOSALS_FILE
 
 
+def kind_from_name(name: str) -> str:
+    """OWL naming convention: lowerCamelCase -> property ('hasPurpose'), else class."""
+    first = name.strip()[:1]
+    return ALIGN_PROPERTY if first.islower() else ALIGN_CLASS
+
+
 def load_ai_concepts(proposals) -> list[SourceConcept]:
     """Turn the AI proposals (a path or the already-parsed dict) into source concepts."""
     if isinstance(proposals, (str, Path)):
@@ -238,7 +254,8 @@ def load_ai_concepts(proposals) -> list[SourceConcept]:
             continue
         seen.add(name.lower())
         ctype = str(raw.get("type") or "class").strip().lower()
-        kind = ALIGN_PROPERTY if ctype == "property" else ALIGN_CLASS
+        declared = ALIGN_PROPERTY if ctype == "property" else ALIGN_CLASS
+        kind = kind_from_name(name)                  # the declared type is not trusted
         articles = []
         for a in raw.get("articles", []) or []:
             try:
@@ -253,6 +270,7 @@ def load_ai_concepts(proposals) -> list[SourceConcept]:
             label=(str(raw.get("label") or "").strip() or None),
             definition=(str(raw.get("definition") or "").strip() or None),
             articles=articles,
+            declared_kind=declared,
         ))
     return concepts
 
@@ -328,6 +346,10 @@ def render_console(sources: AlignmentSources) -> str:
     if sources.proposals_found:
         lines.append(f"  Flujo B (propuestos por la IA): {c['ai']} conceptos "
                      f"({c['ai_classes']} clases, {c['ai_properties']} propiedades)")
+        if c["ai_kind_corrected"]:
+            lines.append(f"    Tipo corregido por el nombre (convencion OWL): "
+                         f"{c['ai_kind_corrected']} conceptos que la extraccion marco como "
+                         f"propiedad tienen nombre de clase")
     else:
         lines.append("  Flujo B (propuestos por la IA): no se encontro el archivo de propuestas "
                      f"({PROPOSALS_FILE}); corre primero la extraccion del Sprint 3.")

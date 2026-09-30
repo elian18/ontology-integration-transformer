@@ -79,7 +79,7 @@ def test_score_lexical_and_kind_compatibility(tmp_path):
     targets = _targets(tmp_path)
     src = _sources([
         {"name": "DataSubject", "label": "titular", "type": "class"},
-        {"name": "DataSubject2", "label": "tiene titular", "type": "property"},
+        {"name": "dataSubject2", "label": "tiene titular", "type": "property"},
     ])
     scores = score_lexical(src, targets)
     assert scores.matrix.shape == (2, len(targets.targets))
@@ -88,9 +88,9 @@ def test_score_lexical_and_kind_compatibility(tmp_path):
     best = {r["name"]: r for r in best_compatible(src, targets, scores)}
     assert best["DataSubject"]["dpv_label"] == "Data Subject"
     # A property may only match DPV properties, even if a DPV class is spelled closer.
-    prop_best = best["DataSubject2"]["dpv_iri"]
+    prop_best = best["dataSubject2"]["dpv_iri"]
     assert next(t for t in targets.targets if t.iri == prop_best).kind == TARGET_PROPERTY
-    assert best["DataSubject2"]["dpv_label"] == "has data subject"
+    assert best["dataSubject2"]["dpv_label"] == "has data subject"
 
 
 def test_top_respects_allowed(tmp_path):

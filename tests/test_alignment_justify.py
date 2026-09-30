@@ -120,6 +120,17 @@ def test_pause_between_calls_not_before_the_first():
     assert report.calls == 3 and waits == [5, 5]
 
 
+def test_prompt_v2_rules_and_examples_outside_the_sample():
+    from src.alignment.justify import _INSTRUCTION, PROMPT_VERSION
+    assert PROMPT_VERSION == 2
+    assert "Como maximo UN candidato por concepto puede ser exactMatch" in _INSTRUCTION
+    assert "Ante la duda entre exactMatch y closeMatch, elige closeMatch" in _INSTRUCTION
+    # worked examples must not be concepts of the hand-labelled sample (S4-T09)
+    for sample_concept in ("DataSuperintendent", "RightToErasure", "InternationalTransfer",
+                           "Confidentiality", "Legal_institutions"):
+        assert sample_concept not in _INSTRUCTION
+
+
 def test_normalize_relation():
     assert normalize_relation("skos:ExactMatch") == "skos:exactMatch"
     assert normalize_relation("broadMatch") == "skos:broadMatch"
@@ -268,6 +279,7 @@ def test_files_are_rewritten_with_the_new_columns(tmp_path):
     assert set(frame.loc[frame["concept_name"] == "Banking", "evidence_article"]) == {4}
     saved = json.loads((tmp_path / CANDIDATES_JSON).read_text(encoding="utf-8"))
     assert saved["metadata"]["justification"]["remaining_concepts"] == 0
+    assert saved["metadata"]["justification"]["prompt_version"] == 2
     text = render_console(report, data["rows"])
     assert "equivalente: 1" in text and "Conceptos pendientes para la proxima corrida: 0" in text
 
