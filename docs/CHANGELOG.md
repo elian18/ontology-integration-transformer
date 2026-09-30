@@ -170,3 +170,134 @@ pruebas en verde (80 sin las marcadas `slow`).
   subida (fuera del alcance de este TIC).
 - Algún concepto propuesto sale sin artículo (la IA no lo etiquetó); se asigna en la
   validación, no se inventa.
+
+---
+
+## v0.4.0 — Sprint 4 (Candidatos)
+
+**Entregable:** la web muestra, para cada concepto de OntoPriv y para cada concepto que la IA
+propuso desde la LOPDP, sus candidatos de alineación con el DPV (similitud léxica + embeddings)
+y el tipo de correspondencia SKOS que propone la IA, con su justificación y el artículo de la ley
+usado como evidencia. Todo queda "por validar": aprobar es el Sprint 5. Es la primera fase de la
+etapa 2 de la arquitectura ("Alineación semántica": candidatos automáticos; la IA propone y
+justifica).
+
+### Qué se construyó
+- `src/alignment/sources.py` (S4-T02) — reúne los dos flujos que se alinean: A, las 527
+  entidades de OntoPriv (las 65 que son clase y propiedad a la vez se comparan con ambos tipos),
+  y B, los 93 conceptos propuestos por la IA.
+- `src/alignment/dpv_targets.py` (S4-T03) — los 1116 términos propios del DPV 2.3 (972
+  conceptos, 144 propiedades) con definición y padres; excluye 7 términos de otros vocabularios
+  que trae el archivo (`dct:`, `dcat:`, `foaf:`).
+- `src/alignment/lexical.py` (S4-T04) — similitud por escritura (rapidfuzz, `token_sort_ratio`
+  sobre nombres normalizados); solo compara identificadores en inglés.
+- `src/alignment/candidates.py` (S4-T05) — similitud por significado (embeddings multilingües),
+  puntaje combinado 0,4 × léxico + 0,6 × semántico y los 3 mejores candidatos de tipo compatible
+  por concepto, sin umbral.
+- `src/alignment/duplicates.py` (S4-T06) — marca los conceptos de la IA que ya existen en
+  OntoPriv: puntaje combinado ≥ 0,75 o mismo nombre (léxico ≥ 0,95).
+- `src/alignment/export.py` (S4-T07) — `alignment-candidates.json` y `.csv`: una fila por
+  (concepto, candidato DPV), autocontenida, en estado `pending`. No se sobrescribe si ya tiene
+  justificaciones de la IA (salvo `--force`).
+- `src/alignment/justify.py` (S4-T08) — la IA propone el tipo SKOS y lo justifica, con un
+  artículo de la LOPDP como evidencia (el de origen para los conceptos de la IA; el recuperado
+  por RAG para OntoPriv). Lotes de 15 conceptos, pausa entre llamadas, reintento ante 429/503 y
+  reanudación.
+- `src/alignment/evaluate.py` (S4-T09) — muestra ciega etiquetada a mano, métricas Hit@1/Hit@3,
+  acierto del tipo y prueba de pesos; `find` para buscar términos del DPV al etiquetar.
+- `app/services/alignment.py` + `app/views/alignment.py` (S4-T10) — página **Alineación DPV**:
+  tabla concepto · candidato DPV · similitud · tipo propuesto, con justificación, filtros y la
+  medición.
+- S4-T01 — las salidas del Sprint 3 pasan a nombres en inglés (`profile-proposed-concepts.json`,
+  `core-manifest.json`), con una prueba que impide volver a los nombres en español.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Se alinean los dos flujos.** Los conceptos de la IA se cruzan primero con OntoPriv: un
+  posible duplicado conserva sus candidatos pero no gasta cuota de la IA, porque hereda la
+  alineación de su entidad de OntoPriv.
+- **Correspondencias SKOS** (`exactMatch`, `closeMatch`, `broadMatch`, `narrowMatch`,
+  `relatedMatch`) o `none`, siempre del concepto hacia el DPV. No se usan axiomas OWL
+  (`owl:equivalentClass`) hacia el DPV, para no introducir consecuencias lógicas en el
+  razonador de Jena (Sprint 8).
+- **Sin umbral en el ranking.** El estado del arte reporta que los resultados dependen del
+  umbral elegido; se conservan los 3 mejores y decide la persona.
+- **La IA actúa después de los candidatos** (orden del Scrumban) y no aprueba nada.
+- **Individuos fuera.** Los 181 individuos de OntoPriv son registros de ejemplo (`banking001`,
+  `consentimiento001`: uno por clase, sin etiqueta); 177 no se alinean (se alinea su clase) y 4
+  entran porque también son clase o propiedad.
+- **LLM:** `gemini-3.1-flash-lite` (plan gratuito: 500 solicitudes al día, 15 por minuto); la
+  corrida completa usa unas 45 llamadas.
+
+### Medición (S4-T09) y correcciones con evidencia
+Muestra ciega de 30 conceptos (20 de OntoPriv y 10 de la IA, semilla 42) etiquetada a mano
+(`data/reference/alignment-reference-sample.csv`): 19 con término DPV correcto y 11 sin
+contraparte en el DPV.
+
+| Métrica | v1 | v2 (corregida) |
+|---|---|---|
+| Hit@1 (el correcto sale primero) | 47,4 % | 47,4 % |
+| Hit@3 (el correcto está entre los 3) | 89,5 % | 84,2 % |
+| Hit@3 OntoPriv | 11/11 | 11/11 |
+| Acierto del tipo propuesto por la IA | 23,5 % (4/17) | 25,0 % (4/16) |
+| Sin correspondencia respetada | 63,6 % (7/11) | 63,6 % (7/11) |
+
+Hallazgos y correcciones:
+1. **La extracción del Sprint 3 marcó 46 de los 93 conceptos como propiedad**, y los 46 tienen
+   nombre de clase (`RightToErasure`, `PrincipleOfLoyalty`), así que solo podían encontrar
+   propiedades del DPV. Corrección: el tipo se deduce del nombre (convención OWL: clases en
+   UpperCamelCase, propiedades en lowerCamelCase). Con ello `InternationalTransfer` y
+   `RightToErasure` recuperan su término correcto (`CrossBorderTransfer`, `DataErasurePolicy`).
+2. **La IA abusaba de `exactMatch`** (271 "equivalente" frente a 8 "casi equivalente"; 5 de sus
+   13 errores). El prompt v2 endurece el criterio (como máximo un `exactMatch` por concepto; ante
+   la duda, `closeMatch`) con ejemplos que no están en la muestra: 158 `exactMatch` y 104
+   `closeMatch`. En la muestra el acierto casi no cambia; los errores se movieron a la frontera
+   entre "casi equivalente" y "más general/específico".
+3. **Pesos 0,4 / 0,6 confirmados**: son el máximo de Hit@1 y Hit@3 en las dos corridas.
+
+Limitaciones: un solo anotador y 30 conceptos; la corrección se evaluó con la misma muestra que
+reveló los problemas. La muestra se etiquetó viendo los candidatos de v1: la baja de Hit@3 en v2
+viene de 3 conceptos de la IA (`AdequateProtectionLevel`, `ProportionalityPrinciple`,
+`SecurityPrinciple`) cuya etiqueta se eligió entre las propiedades que v1 les mostraba y que v2 ya
+no propone. Conclusión: el ranking es confiable (OntoPriv 11/11 en Hit@3), mientras que el tipo
+propuesto por la IA es el eslabón débil, lo que respalda la validación humana obligatoria del
+Sprint 5.
+
+### Resultados con OntoPriv + LOPDP + DPV 2.3
+- 620 conceptos (527 de OntoPriv, 93 de la IA) y 1860 filas (3 candidatos por concepto).
+- Conceptos de la IA: 34 posibles duplicados de OntoPriv (28 por puntaje, 6 por mismo nombre) y
+  59 nuevos.
+- La IA justificó 586 conceptos (1758 filas): 158 equivalentes, 104 casi equivalentes, 188 "el
+  DPV es más general", 142 "el DPV es más específico", 525 relacionados y 641 sin
+  correspondencia; ninguna respuesta fuera de la lista.
+
+### Cómo usar
+Consola (en orden):
+
+    py -m src.alignment.export              # candidatos (JSON + CSV)
+    py -m src.alignment.justify             # la IA propone el tipo y lo justifica
+    py -m src.alignment.evaluate sample     # muestra ciega para etiquetar (una sola vez)
+    py -m src.alignment.evaluate find <t>   # buscar un término del DPV al etiquetar
+    py -m src.alignment.evaluate --sweep    # medición + prueba de pesos
+
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+y entrar a la página **Alineación DPV**.
+
+### Pruebas
+`tests/test_file_names.py`, `test_alignment_sources.py`, `test_dpv_targets.py`,
+`test_lexical.py`, `test_candidates.py`, `test_duplicates.py`, `test_alignment_export.py`,
+`test_alignment_justify.py`, `test_alignment_evaluate.py`, `test_ui_alignment.py` y
+`test_alignment_pipeline.py` (flujo completo del sprint con embeddings y LLM de prueba). Suite
+del proyecto: 175 pruebas en verde sin las marcadas `slow` (181 en total).
+
+### Alcance y pendientes
+- **Sprint 5 (Alineación final):** primero aprobar los conceptos propuestos por la IA, luego las
+  correspondencias, y escribir el grafo alineado con propiedades de mapeo SKOS.
+- **Extracción del Sprint 3:** su prompt no distingue bien clase de propiedad. La alineación ya
+  no depende de ese tipo, pero para leyes nuevas conviene corregir el prompt (propiedades en
+  lowerCamelCase).
+- **Derechos específicos** (portabilidad, suspensión, oposición…) no están en `dpv.ttl`, sino
+  en extensiones del DPV; incorporarlas queda como trabajo futuro.
+- **Muestra de referencia:** un solo anotador; conviene que la tutora revise una parte.
