@@ -54,6 +54,14 @@ def test_rejection_and_no_match_carry_no_type():
         _mapping(decision=DECISION_NO_MATCH, relation=None, dpv_iri=DPV_CONSENT)
 
 
+def test_withdrawing_a_no_match_needs_no_dpv_term():
+    no_match = _mapping(decision=DECISION_NO_MATCH, relation=None, dpv_iri="")
+    back = _mapping(decision=DECISION_PENDING, relation=None, dpv_iri="")
+    assert no_match.key == back.key                    # same key: the pending withdraws it
+    with pytest.raises(ValueError, match="Falta el termino del DPV"):
+        _mapping(decision=DECISION_REJECTED, relation=None, dpv_iri="")
+
+
 def test_concept_decisions():
     ok = make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:PortabilityRight",
                        decision=DECISION_APPROVED, entity_kind="class", reviewer="Elian")
