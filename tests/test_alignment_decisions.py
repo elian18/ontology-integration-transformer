@@ -61,9 +61,17 @@ def test_concept_decisions():
     with pytest.raises(ValueError, match="confirmar su tipo"):
         make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:PortabilityRight",
                       decision=DECISION_APPROVED, reviewer="Elian")
+    with pytest.raises(ValueError, match="a que entidad de OntoPriv equivale"):
+        make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:DataSubject",
+                      decision=DECISION_DUPLICATE, reviewer="Elian")
     dup = make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:DataSubject",
-                        decision=DECISION_DUPLICATE, reviewer="Elian")
-    assert dup.entity_kind is None
+                        decision=DECISION_DUPLICATE, reviewer="Elian", same_as=CONSENT)
+    assert dup.entity_kind is None and dup.same_as == CONSENT
+    with pytest.raises(ValueError, match="solo se registra al marcar"):
+        make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:X",
+                      decision=DECISION_REJECTED, reviewer="Elian", same_as=CONSENT)
+    with pytest.raises(ValueError, match="no lleva entidad equivalente"):
+        _mapping(same_as=CONSENT)
     with pytest.raises(ValueError, match="no aplica"):
         make_decision(source_id=SRC, target=TARGET_CONCEPT, concept_key="ai:X",
                       decision=DECISION_NO_MATCH, reviewer="Elian")
@@ -123,6 +131,16 @@ def test_decisions_of_another_input_do_not_mix(tmp_path):
     assert latest_decisions(read_log(path), SRC)[
         decision_key(SRC, TARGET_MAPPING, CONSENT, DPV_CONSENT)].decision == DECISION_APPROVED
     assert len(latest_decisions(read_log(path))) == 2
+
+
+def test_old_lines_without_same_as_still_load(tmp_path):
+    path = tmp_path / DECISIONS_FILE
+    line = {"source_id": SRC, "target": TARGET_MAPPING, "concept_key": CONSENT,
+            "decision": DECISION_APPROVED, "reviewer": "Elian", "decided_at": "2026-10-01",
+            "dpv_iri": DPV_CONSENT, "relation": "skos:exactMatch", "entity_kind": None,
+            "note": None, "snapshot": {}}
+    path.write_text(json.dumps(line) + "\n", encoding="utf-8")
+    assert read_log(path)[0].same_as is None
 
 
 def test_missing_file_is_an_empty_log(tmp_path):
