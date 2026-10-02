@@ -8,7 +8,7 @@ from src.core.emit import PROFILE_IRI
 from src.alignment.decisions import (read_log, DECISIONS_FILE, DECISION_APPROVED,
                                      DECISION_REJECTED, DECISION_DUPLICATE, TARGET_CONCEPT)
 from src.alignment.ai_concepts import (
-    ai_concepts, concept_iri, suggested_entity_kind, concept_decisions, decide,
+    ai_concepts, ontology_entities, concept_iri, suggested_entity_kind, concept_decisions, decide,
     concept_progress, review_rows, approved_new_concepts, confirmed_duplicates,
     excluded_from_mapping, render_console,
     ACTION_APPROVE, ACTION_REJECT, ACTION_DUPLICATE, ACTION_UNDO,
@@ -115,16 +115,52 @@ def test_reject_new_concept(tmp_path):
     assert d.decision == DECISION_REJECTED and d.entity_kind is None   # kind ignored
 
 
-def test_confirm_duplicate_only_for_possible_duplicates(tmp_path):
+def test_confirm_detected_duplicate(tmp_path):
     log = tmp_path / DECISIONS_FILE
     concepts = _by_name(ai_concepts(_data()))
     d = decide(concepts["PortabilityRight"], ACTION_DUPLICATE, reviewer="Elian", source_id=SRC,
                log_path=log)
     assert d.decision == DECISION_DUPLICATE
+    assert d.same_as == FRANC + "Right_to_portability"         # the detected one by default
     assert d.snapshot["duplicate_of"] == FRANC + "Right_to_portability"
-    with pytest.raises(ValueError, match="no fue marcado como posible duplicado"):
-        decide(concepts["DataBreachNotice"], ACTION_DUPLICATE, reviewer="Elian",
-               source_id=SRC, log_path=log)
+
+
+def test_new_concept_can_be_a_duplicate_the_check_missed(tmp_path):
+    """e.g. PrincipleOfLawfulness (marked new) is OntoPriv's Juridicity: the person names it."""
+    log = tmp_path / DECISIONS_FILE
+    data = _data()
+    keys = {e["key"] for e in ontology_entities(data)}
+    notice = _by_name(ai_concepts(data))["DataBreachNotice"]
+    with pytest.raises(ValueError, match="Elige la entidad de OntoPriv"):
+        decide(notice, ACTION_DUPLICATE, reviewer="Elian", source_id=SRC, log_path=log)
+    with pytest.raises(ValueError, match="no es parte de OntoPriv"):
+        decide(notice, ACTION_DUPLICATE, same_as=ONTO + "Nope", ontology_keys=keys,
+               reviewer="Elian", source_id=SRC, log_path=log)
+    d = decide(notice, ACTION_DUPLICATE, same_as=ONTO + "Consent", ontology_keys=keys,
+               reviewer="Elian", source_id=SRC, log_path=log)
+    assert d.same_as == ONTO + "Consent"
+    dups = confirmed_duplicates(ai_concepts(data), concept_decisions(read_log(log), SRC))
+    assert dups[0]["duplicate_of"] == ONTO + "Consent"
+    assert dups[0]["detected_duplicate_of"] is None
+
+
+def test_person_can_correct_the_detected_duplicate(tmp_path):
+    log = tmp_path / DECISIONS_FILE
+    data = _data()
+    portability = _by_name(ai_concepts(data))["PortabilityRight"]
+    decide(portability, ACTION_DUPLICATE, same_as=ONTO + "Consent", reviewer="Elian",
+           source_id=SRC, log_path=log)
+    dups = confirmed_duplicates(ai_concepts(data), concept_decisions(read_log(log), SRC))
+    assert dups[0]["duplicate_of"] == ONTO + "Consent"
+    assert dups[0]["detected_duplicate_of"] == FRANC + "Right_to_portability"
+
+
+def test_ontology_entities_for_the_picker():
+    entities = ontology_entities(_data())
+    assert [e["name"] for e in entities] == ["Consent", "Right_to_portability"]
+    assert [e["module"] for e in entities] == ["ley-organica-proteccion-datos-personales",
+                                               "OntologiaLOPDP"]
+    assert entities[0]["kinds"] == ["class"]
 
 
 def test_rejected_duplicate_is_decided_as_new(tmp_path):
@@ -175,6 +211,7 @@ def test_progress_and_review_rows(tmp_path):
         "total": 4, "pending": 1, DECISION_APPROVED: 1, DECISION_REJECTED: 1,
         DECISION_DUPLICATE: 1}
     rows = {r["name"]: r for r in review_rows(concepts, current)}
+    assert rows["PortabilityRight"]["same_as"] == FRANC + "Right_to_portability"
     assert rows["DataBreachNotice"]["status_label"] == "aprobado"
     assert rows["PortabilityRight"]["status_label"] == "ya existe en OntoPriv"
     assert rows["hasRetentionPeriod"]["status_label"] == "por validar"

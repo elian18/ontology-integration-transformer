@@ -15,6 +15,9 @@ Rules:
   justification, the evidence article, LLM model, prompt version, embedding model), so the
   decision keeps its provenance even if the candidates file is regenerated.
 - ``pending`` withdraws a previous decision (the key goes back to "por validar").
+- ``same_as`` (concept decisions only): the OntoPriv entity a person says an AI concept already
+  is. The automatic duplicate check (S4-T06) misses some (e.g. names in another language), so
+  the person names the entity; its law article is later attached to it (S5-T06).
 
 Codes are stored in English; console and web show them in Spanish (``DECISION_LABELS``).
 """
@@ -82,6 +85,7 @@ class Decision:
     dpv_iri: str = ""
     relation: str | None = None
     entity_kind: str | None = None
+    same_as: str | None = None
     note: str | None = None
     snapshot: dict = field(default_factory=dict)
 
@@ -104,8 +108,9 @@ def _utc_now() -> str:
 
 def make_decision(*, source_id: str, target: str, concept_key: str, decision: str,
                   reviewer: str, dpv_iri: str | None = "", relation: str | None = None,
-                  entity_kind: str | None = None, note: str | None = None,
-                  snapshot: dict | None = None, decided_at: str | None = None) -> Decision:
+                  entity_kind: str | None = None, same_as: str | None = None,
+                  note: str | None = None, snapshot: dict | None = None,
+                  decided_at: str | None = None) -> Decision:
     """Validate and build a decision. Raises ``ValueError`` with a Spanish message."""
     reviewer = (reviewer or "").strip()
     if not reviewer:
@@ -131,9 +136,16 @@ def make_decision(*, source_id: str, target: str, concept_key: str, decision: st
                              f"({', '.join(ENTITY_KINDS)}).")
         if decision != DECISION_APPROVED and entity_kind:
             raise ValueError("El tipo de entidad solo se registra al aprobar el concepto.")
+        if decision == DECISION_DUPLICATE and not (same_as or "").strip():
+            raise ValueError("Indica a que entidad de OntoPriv equivale el concepto.")
+        if decision != DECISION_DUPLICATE and same_as:
+            raise ValueError("La entidad equivalente de OntoPriv solo se registra al marcar "
+                             "'ya existe en OntoPriv'.")
     else:
         if entity_kind:
             raise ValueError("Una correspondencia no lleva tipo de entidad.")
+        if same_as:
+            raise ValueError("Una correspondencia no lleva entidad equivalente de OntoPriv.")
         if decision == DECISION_NO_MATCH:
             if dpv_iri or relation:
                 raise ValueError("'Sin correspondencia' se registra para el concepto entero, "
@@ -149,6 +161,7 @@ def make_decision(*, source_id: str, target: str, concept_key: str, decision: st
     return Decision(source_id=source_id.strip(), target=target, concept_key=concept_key.strip(),
                     decision=decision, reviewer=reviewer, decided_at=decided_at or _utc_now(),
                     dpv_iri=dpv_iri, relation=relation, entity_kind=entity_kind,
+                    same_as=(same_as or "").strip() or None,
                     note=(note or "").strip() or None, snapshot=dict(snapshot or {}))
 
 

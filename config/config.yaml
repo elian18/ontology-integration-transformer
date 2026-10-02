@@ -32,4 +32,4 @@ alignment:
 review:
   source_id: "ontopriv+lopdp"                          # which input the decisions belong to (S5-T01); another law/ontology gets its own id
   decisions_file: "data/review/alignment-decisions.jsonl"  # human decisions log, append-only, tracked in git (S5-T01)
-  reviewer: "Elian"                                    # default reviewer shown in the web; editable there
+  reviewer: "Elian Gavilanes"                                    # default reviewer shown in the web; editable there

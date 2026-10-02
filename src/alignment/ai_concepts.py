@@ -7,6 +7,9 @@ the AI extracted from the law (93 for the LOPDP):
 - a concept marked ``possible_duplicate`` is confirmed as DUPLICATE (it already exists in
   OntoPriv: it is not created, and its law article is later attached to the OntoPriv entity),
   or, if the person sees it is NOT the same thing, it is approved or rejected like a new one.
+- a concept marked ``new`` can ALSO be a duplicate the automatic check missed (e.g. the AI named
+  it in English and OntoPriv in another wording: PrincipleOfLawfulness vs Juridicity). The person
+  then marks it as duplicate and names the OntoPriv entity (``same_as``).
 
 The decision is written to the S5-T01 log; nothing here touches the ontology (that is S5-T06).
 A new concept gets the IRI ``<profile IRI>#<Name>``; the profile IRI is a parameter (the Ecuador
@@ -98,6 +101,29 @@ def ontology_names(data: dict) -> dict[str, str]:
     return out
 
 
+def _module_name(iri: str) -> str:
+    """Last segment of the entity's namespace: OntoPriv mixes two namespaces
+    ('ley-organica-proteccion-datos-personales' and 'OntologiaLOPDP'), and both can hold an
+    entity with the same name (e.g. two 'Confidentiality')."""
+    ns = iri.rsplit("#", 1)[0] if "#" in iri else iri.rsplit("/", 1)[0]
+    return ns.rstrip("/").rsplit("/", 1)[-1]
+
+
+def ontology_entities(data: dict) -> list[dict]:
+    """OntoPriv entities a person can pick as 'the same as' an AI concept, sorted by name.
+
+    Each one carries its kinds and module so two entities with the same name can be told apart
+    (a class vs a datatype property, or the same name in each OntoPriv namespace)."""
+    seen: dict[str, dict] = {}
+    for r in data.get("rows", []):
+        if r.get("origin") == ORIGIN_ONTOLOGY and r["concept_key"] not in seen:
+            seen[r["concept_key"]] = {"key": r["concept_key"], "name": r.get("concept_name"),
+                                      "family": r.get("concept_family"),
+                                      "kinds": list(r.get("concept_kinds") or []),
+                                      "module": _module_name(r["concept_key"])}
+    return sorted(seen.values(), key=lambda e: ((e["name"] or "").lower(), e["module"]))
+
+
 def ai_concepts(data: dict, profile_iri: str = PROFILE_IRI) -> list[AIConcept]:
     """The AI concepts of a candidates file, in file order (one per concept, best candidate)."""
     names = ontology_names(data)
@@ -133,14 +159,24 @@ def concept_decisions(records: list[Decision], source_id: str) -> dict[str, Deci
 
 
 def decide(concept: AIConcept, action: str, *, reviewer: str, source_id: str,
-           log_path: str | Path, entity_kind: str | None = None, note: str | None = None,
+           log_path: str | Path, entity_kind: str | None = None, same_as: str | None = None,
+           ontology_keys: set[str] | None = None, note: str | None = None,
            metadata: dict | None = None, decided_at: str | None = None) -> Decision:
-    """Record a person's decision about one AI concept in the log and return it."""
+    """Record a person's decision about one AI concept in the log and return it.
+
+    ``same_as`` (duplicate only): the OntoPriv entity it equals; for a possible duplicate it
+    defaults to the one the automatic check found. ``ontology_keys``: if given, ``same_as`` must
+    be one of them (protects against a typo or a stale page)."""
     if action not in _ACTION_TO_DECISION:
         raise ValueError(f"Accion desconocida: {action!r}.")
-    if action == ACTION_DUPLICATE and not concept.is_possible_duplicate:
-        raise ValueError(f"'{concept.name}' no fue marcado como posible duplicado de OntoPriv; "
-                         f"apruebalo o descartalo.")
+    if action == ACTION_DUPLICATE:
+        same_as = same_as or concept.duplicate_of
+        if not same_as:
+            raise ValueError(f"Elige la entidad de OntoPriv a la que equivale '{concept.name}'.")
+        if ontology_keys is not None and same_as not in ontology_keys:
+            raise ValueError(f"La entidad elegida no es parte de OntoPriv: {same_as}")
+    else:
+        same_as = None
     if action == ACTION_APPROVE:
         if entity_kind not in ENTITY_KINDS:
             raise ValueError("Confirma el tipo del concepto antes de aprobarlo "
@@ -156,7 +192,7 @@ def decide(concept: AIConcept, action: str, *, reviewer: str, source_id: str,
     decision = make_decision(
         source_id=source_id, target=TARGET_CONCEPT, concept_key=concept.key,
         decision=_ACTION_TO_DECISION[action], reviewer=reviewer, entity_kind=entity_kind,
-        note=note, snapshot=snapshot, decided_at=decided_at,
+        same_as=same_as, note=note, snapshot=snapshot, decided_at=decided_at,
     )
     append_decision(decision, log_path)
     return decision
@@ -185,6 +221,7 @@ def review_rows(concepts: list[AIConcept], current: dict[str, Decision]) -> list
             "status": d.decision if d else DECISION_PENDING,
             "status_label": DECISION_LABELS[d.decision if d else DECISION_PENDING],
             "entity_kind": d.entity_kind if d else None,
+            "same_as": d.same_as if d else None,
             "reviewer": d.reviewer if d else None,
             "decided_at": d.decided_at if d else None,
         })
@@ -205,13 +242,14 @@ def approved_new_concepts(concepts: list[AIConcept], current: dict[str, Decision
 
 
 def confirmed_duplicates(concepts: list[AIConcept], current: dict[str, Decision]) -> list[dict]:
-    """AI concepts confirmed as already in OntoPriv: their articles go to the OntoPriv entity."""
+    """AI concepts confirmed as already in OntoPriv: their articles go to the OntoPriv entity
+    the PERSON named (``same_as``), which may differ from the one the automatic check found."""
     out = []
     for c in concepts:
         d = current.get(c.key)
         if d and d.decision == DECISION_DUPLICATE:
-            out.append({"key": c.key, "name": c.name, "duplicate_of": c.duplicate_of,
-                        "duplicate_of_name": c.duplicate_of_name, "articles": c.articles,
+            out.append({"key": c.key, "name": c.name, "duplicate_of": d.same_as or c.duplicate_of,
+                        "detected_duplicate_of": c.duplicate_of, "articles": c.articles,
                         "reviewer": d.reviewer, "decided_at": d.decided_at})
     return out
 
