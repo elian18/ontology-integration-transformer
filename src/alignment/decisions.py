@@ -150,7 +150,8 @@ def make_decision(*, source_id: str, target: str, concept_key: str, decision: st
             if dpv_iri or relation:
                 raise ValueError("'Sin correspondencia' se registra para el concepto entero, "
                                  "sin termino del DPV ni tipo SKOS.")
-        elif not dpv_iri:
+        elif not dpv_iri and decision != DECISION_PENDING:
+            # pending with no DPV term = withdraw the concept's "sin correspondencia"
             raise ValueError("Falta el termino del DPV (dpv_iri) de la correspondencia.")
         if decision == DECISION_APPROVED and relation not in MAPPING_RELATIONS:
             raise ValueError("Para aprobar una correspondencia hay que elegir el tipo SKOS "
