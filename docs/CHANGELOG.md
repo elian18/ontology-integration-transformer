@@ -301,3 +301,133 @@ del proyecto: 175 pruebas en verde sin las marcadas `slow` (181 en total).
 - **Derechos específicos** (portabilidad, suspensión, oposición…) no están en `dpv.ttl`, sino
   en extensiones del DPV; incorporarlas queda como trabajo futuro.
 - **Muestra de referencia:** un solo anotador; conviene que la tutora revise una parte.
+
+---
+
+## v0.5.0 — Sprint 5 (Alineación final)
+
+**Entregable:** el grafo alineado con el DPV, construido solo con decisiones humanas
+registradas. La web permite aprobar los conceptos que la IA propuso desde la LOPDP, revisar las
+correspondencias con el DPV (una por una o confirmando por lotes las propuestas del asistente),
+escribir el grafo y descargarlo, incluso como paquete que se abre en Protégé. Cierra la etapa 2
+de la arquitectura ("Alineación semántica": la persona valida lo que la IA propuso).
+
+### Qué se construyó
+- `src/alignment/decisions.py` (S5-T01) — registro de decisiones humanas
+  (`data/review/alignment-decisions.jsonl`): una línea por decisión, solo se agregan líneas,
+  vale la última por clave y "deshacer" es otra línea. Cada decisión guarda quién, cuándo y una
+  foto de cómo se generó el candidato (modelos, versión del prompt, puntajes, tipo de la IA).
+  Va en git. Bloque `review:` en `config.yaml` (`source_id`, archivo, revisor).
+- `src/alignment/ai_concepts.py` (S5-T02) + `app/services/concept_review.py` y
+  `app/views/concept_review.py` (S5-T03) — página **Aprobar conceptos IA**: cada concepto de la
+  IA se aprueba como nuevo (con su tipo: clase, propiedad de objeto o de datos), se marca como
+  duplicado eligiendo la entidad de OntoPriv a la que equivale, o se descarta.
+- `src/alignment/mapping_review.py` (S5-T04) + `app/services/mapping_review.py` y la pestaña
+  **Revisar correspondencias** de **Alineación DPV** (S5-T05) — tarjeta por concepto con sus 3
+  candidatos: la persona elige el tipo SKOS, aprueba o descarta, busca otro término del DPV
+  (solo del tipo compatible) o marca "sin correspondencia".
+- `src/alignment/assistant_review.py` (S5-T08) + pestaña **Confirmar propuestas del asistente**
+  — propuestas para los conceptos pendientes (`data/review/assistant-proposals.json`, con una
+  razón por concepto) que la persona revisa y confirma por familia en una tabla editable.
+- `src/alignment/write.py` (S5-T06) — `py -m src.alignment.write` escribe
+  `ontopriv-dpv-alignment.rdf`, `alignment-manifest.json` y `alignment-approved.csv`.
+- `src/alignment/bundle.py` + `app/services/alignment_graph.py` (S5-T07) — pestaña **Grafo
+  alineado**: escribe el grafo y ofrece el RDF/XML, el manifiesto, el CSV y un .zip para
+  Protégé con su propio `catalog-v001.xml`.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **La revisión humana es parte de la construcción de la base, no del uso.** OntoPriv y la LOPDP
+  son entradas fijas: sus 552 conceptos se alinean una sola vez y la alineación validada se
+  reutiliza. El usuario final no revisa estos conceptos (sus modos de entrada: Sprints 6 y 7).
+- **Las decisiones viven fuera de la ontología**, en un registro auditable separado por entrada
+  (`source_id = ontopriv+lopdp`), para que otra ley u ontología tenga sus propias decisiones.
+- **El tipo SKOS no viene preseleccionado**: la IA acertó el tipo en el 25 % de la muestra del
+  Sprint 4 y preseleccionarlo empujaría a aceptarlo.
+- **Duplicados elegidos por la persona.** El detector del Sprint 4 no ve equivalencias entre
+  formulaciones distintas (`BusinessVolume` ↔ `Turnover`, `DataProtectionOfficer` ↔
+  `Delegate`); por eso cualquier concepto puede marcarse como duplicado, y la persona elige la
+  entidad (el selector muestra familia, tipo y módulo, porque OntoPriv repite nombres en sus dos
+  espacios de nombres). Un duplicado no se alinea aparte: hereda la alineación de OntoPriv y le
+  aporta su artículo de la ley.
+- **Grafo como módulo aparte**: `owl:imports` del perfil (que importa el núcleo) y sin importar
+  el DPV, que se referencia por IRI. El núcleo y el perfil del Sprint 3 no cambian; los 25
+  conceptos nuevos se declaran en este módulo, sin ubicarlos en la jerarquía de OntoPriv.
+- **Solo propiedades de mapeo SKOS** hacia el DPV; "sin correspondencia" no escribe nada. El
+  artículo de la ley se anota con `dct:source` ("LOPDP, art. N"); PROV-O llega en el Sprint 10.
+- **El grafo solo se escribe sin nada pendiente**, y su manifiesto guarda la huella SHA-256 del
+  registro de decisiones del que salió.
+- **Revisión asistida por lotes (S5-T08).** Tras revisar 20 conceptos uno por uno, el revisor
+  notó que estaba siguiendo la sugerencia de la IA (coincidió con su tipo en 25 de 28
+  correspondencias, frente a un 25 % de acierto medido) y que revisar 552 así no era viable. Se
+  cambió el método: el asistente de programación propuso una decisión con su razón para cada
+  concepto pendiente y la persona las confirmó por familia. Las propuestas no son decisiones:
+  entran al registro solo al confirmarse, a nombre de quien confirma, con la nota "propuesta del
+  asistente confirmada" y la propuesta original en la foto de procedencia.
+
+### Resultados con OntoPriv + LOPDP + DPV 2.3
+- **Conceptos de la IA (93):** 25 aprobados como nuevos (todos clases), 66 duplicados de
+  OntoPriv y 2 descartados. De los 34 posibles duplicados del detector, 33 se confirmaron (29
+  con la misma entidad y 4 con otra) y 1 resultó nuevo; los otros 33 duplicados los encontró la
+  persona entre los que el detector marcó como nuevos.
+- **Correspondencias (552 conceptos = 527 de OntoPriv + 25 nuevos):** 552 revisados, 173
+  alineados y 379 sin correspondencia en el DPV.
+
+| Tipo SKOS | Correspondencias |
+|---|---|
+| `exactMatch` (equivalente) | 25 |
+| `closeMatch` (casi equivalente) | 36 |
+| `broadMatch` (el DPV es más general) | 57 |
+| `narrowMatch` (el DPV es más específico) | 4 |
+| `relatedMatch` (relacionado) | 68 |
+| **Total** | **190** |
+
+- 156 correspondencias de entidades de OntoPriv y 34 de conceptos nuevos; 41 con términos
+  encontrados fuera de los 3 candidatos (búsqueda).
+- **Quién decidió:** 20 conceptos (31 correspondencias) la persona sola; 532 conceptos (159
+  correspondencias) confirmados desde propuestas del asistente, sin cambios.
+- **Tipo igual al de la IA (Gemini):** 64 de 144 correspondencias con tipo de la IA (44,4 %);
+  25 de 28 en la revisión manual y 39 de 116 en las propuestas del asistente.
+- **Grafo:** 385 tripletas; 25 conceptos nuevos declarados con etiqueta, definición y artículo;
+  58 entidades de OntoPriv reciben artículos de la ley. Verificado en Protégé: el .zip resuelve
+  alineación → perfil → núcleo y todas las entidades con correspondencia están declaradas.
+
+### Cómo usar
+Consola:
+
+    py -m src.alignment.decisions           # resumen del registro de decisiones
+    py -m src.alignment.ai_concepts         # estado de los conceptos de la IA
+    py -m src.alignment.mapping_review      # estado de las correspondencias
+    py -m src.alignment.assistant_review    # propuestas del asistente abiertas, por familia
+    py -m src.alignment.write               # escribe el grafo, el manifiesto y el CSV
+
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+y entrar a **Aprobar conceptos IA** y a **Alineación DPV** (pestañas Revisar
+correspondencias, Confirmar propuestas del asistente y Grafo alineado).
+
+### Pruebas
+`tests/test_alignment_decisions.py`, `test_alignment_ai_concepts.py`,
+`test_ui_concept_review.py`, `test_alignment_mapping_review.py`, `test_ui_mapping_review.py`,
+`test_alignment_assistant_review.py`, `test_alignment_write.py`, `test_alignment_bundle.py`,
+`test_ui_alignment_graph.py` y `test_review_pipeline.py` (flujo completo del sprint a través de
+los mismos servicios de la web, de los conceptos de la IA al .zip para Protégé). Suite del
+proyecto: 289 pruebas en verde sin las marcadas `slow` (295 en total).
+
+### Alcance y pendientes
+- **Sprints 6 y 7 (modos del usuario):** conectar solo ontología, solo ley y ley + ontología.
+  La idea es que el usuario solo suba su material: los conceptos que coincidan con OntoPriv
+  heredan la alineación validada aquí, y el resto recibe propuestas automáticas marcadas como
+  "no validadas". El alcance de esa automatización lo decide la PO frente al "garantizando la
+  validación humana" del plan.
+- **Sprint 8 (validación con Jena):** con razonamiento RDFS/OWL-RL las propiedades de mapeo SKOS
+  tipan sujeto y objeto como `skos:Concept` (punning, aceptable porque OntoPriv ya es OWL Full).
+- **Sprint 10 (trazabilidad):** convertir las fotos de procedencia del registro a PROV-O.
+- **Limitaciones para la tesis:** un solo revisor; 532 de 552 conceptos se decidieron
+  confirmando propuestas del asistente sin cambios, en una sesión; conviene una segunda revisión
+  independiente de una muestra (por ejemplo, la tutora). Los conceptos nuevos no tienen lugar
+  en la jerarquía de OntoPriv.
+- `data/output/catalog-v001.xml` (lo dejó Protégé) apunta el IRI del núcleo al archivo del
+  perfil; el .zip trae un catálogo correcto y ese archivo no se usa.
+- Sigue pendiente incorporar las extensiones del DPV (derechos específicos).
