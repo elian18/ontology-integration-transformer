@@ -7,11 +7,14 @@ DPV counterpart. Every click goes to the decisions log (S5-T01) through
 services.mapping_review. Tab "Confirmar propuestas del asistente" (S5-T08): the assistant's
 proposals for the concepts still open, as an editable table per family; nothing is recorded
 until the person confirms the batch, and then in their name with the proposal as provenance.
+Tab "Grafo alineado" (S5-T07): writes the aligned graph once nothing is pending and offers it
+for download (the graph, the manifest, the CSV and a zip that opens in Protégé).
 Tab "Tabla de candidatos": the Sprint 4 table, unchanged."""
 import pandas as pd
 import streamlit as st
 from services import alignment
 from services import mapping_review as mr
+from services import alignment_graph as ag
 
 st.header("Alineación con el DPV")
 st.write(
@@ -46,9 +49,10 @@ if "reviewer" not in st.session_state:
 st.text_input("Revisor (queda registrado en cada decisión)", key="reviewer")
 reviewer = st.session_state.get("reviewer", "")
 
-tab_review, tab_assist, tab_table = st.tabs(["Revisar correspondencias",
-                                             "Confirmar propuestas del asistente",
-                                             "Tabla de candidatos"])
+tab_review, tab_assist, tab_graph, tab_table = st.tabs(["Revisar correspondencias",
+                                                       "Confirmar propuestas del asistente",
+                                                       "Grafo alineado",
+                                                       "Tabla de candidatos"])
 
 
 def _done(ok: bool, message: str, next_key: str | None = None):
@@ -289,6 +293,61 @@ with tab_assist:
                     st.rerun()
                 else:
                     st.error(msg)
+
+with tab_graph:
+    st.write(
+        "Cuando no queda nada por validar, escribe el grafo con las correspondencias "
+        "aprobadas. Es un módulo aparte que importa el perfil de Ecuador (y este el núcleo); "
+        "el DPV no se importa, se referencia por IRI. El núcleo y el perfil no cambian."
+    )
+    paths = mr.default_paths()
+    ready = ag.readiness(state)
+    (st.success if ready["ready"] else st.info)(ready["message"])
+    if st.button("Escribir grafo alineado", type="primary", disabled=not ready["ready"],
+                 key="ag_write"):
+        with st.spinner("Escribiendo el grafo…"):
+            ok, msg = ag.write_graph(paths)
+        (st.success if ok else st.error)(msg)
+
+    graph = ag.current_graph(paths)
+    if graph is None:
+        st.caption("Todavía no se ha escrito el grafo.")
+    else:
+        man = graph["manifest"]
+        if ag.stale(state, man):
+            st.warning("La revisión cambió después de escribir este grafo: vuelve a escribirlo "
+                       "para que lo incluya.")
+        mp, ai, prov = (man.get("mappings") or {}), (man.get("ai_concepts") or {}), \
+            (man.get("review_provenance") or {})
+        g1, g2, g3, g4 = st.columns(4)
+        g1.metric("Correspondencias SKOS", mp.get("total", 0))
+        g2.metric("Conceptos nuevos", ai.get("new_declared", 0))
+        g3.metric("Entidades con artículos", ai.get("ontopriv_entities_with_law_articles", 0),
+                  help="Entidades de OntoPriv que recibieron el artículo de la ley de un "
+                       "concepto de la IA confirmado como duplicado")
+        g4.metric("Tripletas", man.get("triples", 0))
+        st.table(ag.summary_rows(man))
+        sha = ((man.get("decisions_log") or {}).get("sha256") or "")[:8]
+        st.caption(f"Escrito: {man.get('created') or '-'} · decidieron: "
+                   f"{prov.get('reviewed_by_person', 0)} conceptos la persona sola y "
+                   f"{prov.get('confirmed_from_assistant', 0)} confirmados desde propuestas "
+                   f"del asistente · registro {sha}")
+        files = graph["files"]
+        st.download_button("Descargar paquete para Protégé (.zip)", data=files[ag.BUNDLE_FILE],
+                           file_name=ag.BUNDLE_FILE, mime=ag.MIME[ag.BUNDLE_FILE],
+                           type="primary", key="ag_dl_zip")
+        st.caption("Descomprímelo y abre ontopriv-dpv-alignment.rdf en Protégé: el catálogo "
+                   "incluido resuelve las importaciones (alineación → perfil → núcleo).")
+        if graph["bundle_missing"]:
+            st.warning("Al paquete le faltan " + ", ".join(graph["bundle_missing"]) +
+                       ". Genéralos con  `py -m src.core.emit`")
+        d1, d2, d3 = st.columns(3)
+        for col, name, label in ((d1, ag.ALIGNMENT_FILE, "Grafo (RDF/XML)"),
+                                 (d2, ag.ALIGNMENT_MANIFEST, "Manifiesto (JSON)"),
+                                 (d3, ag.ALIGNMENT_CSV, "Correspondencias (CSV)")):
+            if name in files:
+                col.download_button(label, data=files[name], file_name=name,
+                                    mime=ag.MIME[name], width="stretch", key=f"ag_dl_{name}")
 
 with tab_table:
     data = alignment.candidates()

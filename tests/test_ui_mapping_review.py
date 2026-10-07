@@ -329,8 +329,8 @@ def test_search_and_approve_from_the_page(page):
 def test_table_tab_still_shows_the_sprint4_table(page):
     at, _ = page
     at.run()
-    assert len(at.tabs) == 3
-    assert at.tabs[2].label == "Tabla de candidatos"
+    assert len(at.tabs) == 4
+    assert at.tabs[3].label == "Tabla de candidatos"
     assert any("fila(s) · tipo propuesto" in c.value for c in at.caption)
 
 
