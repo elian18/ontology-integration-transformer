@@ -1,4 +1,5 @@
-"""S5-T05: the review card of the "Alineación DPV" page (service logic + the page with AppTest)."""
+"""S5-T05: the review card of the "Alineación DPV" page (service logic + the page with AppTest).
+S5-T08: the tab that confirms the assistant proposals in batches."""
 import importlib
 import json
 import sys
@@ -10,6 +11,7 @@ from app.services import mapping_review as mr
 from src.alignment.dpv_targets import DpvTarget, DpvTargets
 from src.alignment.decisions import (read_log, make_decision, append_decision, review_settings,
                                      DECISIONS_FILE, TARGET_CONCEPT, DECISION_APPROVED)
+from src.alignment.assistant_review import PROPOSALS_FILE
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = "ontopriv+lopdp"
@@ -64,7 +66,29 @@ dpv:Turnover a rdfs:Class , skos:Concept ; skos:prefLabel "Turnover"@en ;
     skos:definition "Income of a company."@en .
 dpv:hasTurnover a rdf:Property ; skos:prefLabel "has turnover"@en .
 """, encoding="utf-8")
+    props = tmp_path / "review" / PROPOSALS_FILE
+    props.write_text(json.dumps(_proposals()), encoding="utf-8")
     return cand, log, dpv
+
+
+def _proposals():
+    """Assistant proposals for the three concepts (S5-T08)."""
+    return {"metadata": {"assistant": "asistente de prueba", "created_at": "2026-10-01"},
+            "proposals": [
+        {"concept_key": "ai:ImpactAssessment", "concept_name": "ImpactAssessment",
+         "concept_label": "Evaluacion de impacto", "family": None, "decision": "approve",
+         "reason": "la EIPD es una evaluacion de impacto",
+         "mappings": [{"dpv_iri": DPV + "DPIA", "dpv_name": "DPIA", "dpv_definition": "def",
+                       "relation": "skos:broadMatch", "found_by": "candidates"}]},
+        {"concept_key": ONTO + "Consent", "concept_name": "Consent", "family": "Principles",
+         "decision": "approve", "reason": "mismo concepto",
+         "mappings": [{"dpv_iri": DPV + "Consent", "dpv_name": "Consent",
+                       "relation": "skos:exactMatch", "found_by": "candidates"},
+                      {"dpv_iri": DPV + "ConsentRecord", "dpv_name": "ConsentRecord",
+                       "relation": "skos:relatedMatch", "found_by": "candidates"}]},
+        {"concept_key": ONTO + "Turnover", "concept_name": "Turnover", "family": "Terminology",
+         "decision": "no_match", "reason": "no hay volumen de negocio en el DPV",
+         "mappings": []}]}
 
 
 def _state(tmp_path):
@@ -171,6 +195,55 @@ def test_default_paths_follow_the_config():
     paths = mr.default_paths()
     assert paths["log"] == ROOT / "data/review" / DECISIONS_FILE
     assert paths["dpv"] == ROOT / "vocab/dpv.ttl"
+    assert paths["proposals"] == ROOT / "data/review" / PROPOSALS_FILE
+
+
+# ---------------------------------------------------------------- assistant proposals (S5-T08)
+def _assist(tmp_path):
+    state, cand, log = _state(tmp_path)
+    return state, mr.load_assistant(state, tmp_path / "review" / PROPOSALS_FILE), cand, log
+
+
+def test_assistant_table_per_family(tmp_path):
+    state, assist, _, _ = _assist(tmp_path)
+    assert mr.load_assistant(state, tmp_path / "none.json") is None
+    assert mr.proposal_families(assist) == [("Conceptos nuevos de la IA", 1), ("Principles", 1),
+                                            ("Terminology", 1)]
+    rows = mr.proposal_table(state, assist, "Principles")
+    assert [(r["Propuesta del asistente"], r["Tipo SKOS"], r["Acción"]) for r in rows] == [
+        ("dpv:Consent", "exactMatch · equivalente", "Omitir"),          # nothing preselected
+        ("dpv:ConsentRecord", "relatedMatch · relacionado", "Omitir")]
+    assert all(r["Acción"] == "Aceptar" for r in mr.proposal_table(state, assist, "Principles",
+                                                                   prefill=True))
+    none = mr.proposal_table(state, assist, "Terminology")[0]
+    assert none["Propuesta del asistente"] == mr.NO_MATCH_TEXT and none["Tipo SKOS"] is None
+    assert mr.count_actions(rows) == {"Aceptar": 0, "Sin correspondencia": 0, "Omitir": 2}
+
+
+def test_confirm_table_writes_in_the_reviewer_name(tmp_path):
+    state, assist, cand, log = _assist(tmp_path)
+    rows = mr.proposal_table(state, assist, "Principles")
+    ok, msg, _ = mr.confirm_table(state, assist, rows, "Elian")
+    assert not ok and "No hay filas" in msg
+    rows[0]["Acción"], rows[0]["Tipo SKOS"] = "Aceptar", None
+    ok, msg, _ = mr.confirm_table(state, assist, rows, "Elian")
+    assert not ok and "Elige el tipo SKOS" in msg and "Consent" in msg
+    rows[0]["Tipo SKOS"] = "closeMatch · casi equivalente"              # the person changes it
+    ok, msg, summary = mr.confirm_table(state, assist, rows, "Elian")
+    assert ok and "1 con cambios" in msg and summary["decisions"] == 1
+    mapping = [d for d in read_log(log) if d.target == "mapping"]
+    assert (mapping[0].reviewer, mapping[0].relation) == ("Elian", "skos:closeMatch")
+    assert mapping[0].snapshot["not_accepted_from_proposal"] == [DPV + "ConsentRecord"]
+    state = mr.load(candidates_path=cand, log_path=log, cfg=CFG)
+    assist = mr.load_assistant(state, tmp_path / "review" / PROPOSALS_FILE)
+    assert [p.concept_name for p in assist["open"]] == ["ImpactAssessment", "Turnover"]
+    rows = mr.proposal_table(state, assist, "Terminology", prefill=True)
+    ok, msg, _ = mr.confirm_table(state, assist, rows, "Elian")
+    assert ok and "1 tal como se propusieron" in msg
+    state = mr.load(candidates_path=cand, log_path=log, cfg=CFG)
+    assert mr.status_of(state, ONTO + "Turnover") == "no_match"
+    assert mr.load_assistant(state, tmp_path / "review" / PROPOSALS_FILE)["provenance"][
+        "confirmed_from_assistant"] == 2
 
 
 # ---------------------------------------------------------------- the page (AppTest)
@@ -186,8 +259,9 @@ def page(tmp_path, monkeypatch):
     view_mr = importlib.import_module("services.mapping_review")
     view_al = importlib.import_module("services.alignment")
     cand, log, dpv = _files(tmp_path)
+    props = tmp_path / "review" / PROPOSALS_FILE
     monkeypatch.setattr(view_mr, "default_paths",
-                        lambda: {"candidates": cand, "log": log, "dpv": dpv})
+                        lambda: {"candidates": cand, "log": log, "dpv": dpv, "proposals": props})
     monkeypatch.setattr(view_al, "_output_dir", lambda: tmp_path)
     at = AppTest.from_file(str(ROOT / "app/views/alignment.py"), default_timeout=30)
     return at, log
@@ -255,6 +329,35 @@ def test_search_and_approve_from_the_page(page):
 def test_table_tab_still_shows_the_sprint4_table(page):
     at, _ = page
     at.run()
-    assert len(at.tabs) == 2
-    assert at.tabs[1].label == "Tabla de candidatos (Sprint 4)"
-    assert any("fila(s)" in c.value for c in at.caption)
+    assert len(at.tabs) == 3
+    assert at.tabs[2].label == "Tabla de candidatos"
+    assert any("fila(s) · tipo propuesto" in c.value for c in at.caption)
+
+
+def test_assistant_tab_shows_proposals_without_recording_them(page):
+    at, log = page
+    at.run()
+    assert not at.exception
+    assert at.tabs[1].label == "Confirmar propuestas del asistente"
+    assert any("no decisiones" in w.value for w in at.warning)
+    assert at.selectbox(key="ap_family").value == "Conceptos nuevos de la IA (1)"
+    assert at.button(key="ap_confirm").disabled                      # all rows start "Omitir"
+    assert [d.target for d in read_log(log)] == ["concept"]          # nothing written
+
+
+def test_confirm_a_family_from_the_page(page):
+    at, log = page
+    at.run()
+    at.checkbox(key="ap_prefill_Conceptos nuevos de la IA").check().run()
+    assert not at.button(key="ap_confirm").disabled
+    at.button(key="ap_confirm").click().run()
+    assert not at.exception
+    d = [x for x in read_log(log) if x.target == "mapping"][0]
+    assert (d.concept_key, d.dpv_iri, d.relation) == ("ai:ImpactAssessment", DPV + "DPIA",
+                                                      "skos:broadMatch")
+    assert d.reviewer == review_settings()["reviewer"]
+    assert d.note == "propuesta del asistente confirmada"
+    assert d.snapshot["proposed_by"] == "assistant"
+    assert "Registradas 1 decisión(es)" in at.success[0].value
+    assert at.metric[6].value == "1"                         # confirmados desde propuestas
+    assert at.selectbox(key="ap_family").value == "Principles (1)"
