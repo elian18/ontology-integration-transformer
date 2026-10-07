@@ -178,12 +178,13 @@ def _snapshot(concept: MappingConcept, dpv_iri: str, metadata: dict | None,
 def approve(concept: MappingConcept, dpv_iri: str, relation: str, *, reviewer: str,
             source_id: str, log_path, current: dict[str, dict[str, Decision]] | None = None,
             target=None, metadata: dict | None = None, note: str | None = None,
-            decided_at: str | None = None) -> Decision:
+            decided_at: str | None = None, extra_snapshot: dict | None = None) -> Decision:
     """Approve one correspondence with the SKOS type the person chose.
 
     ``dpv_iri`` must be one of the concept's candidates or, if found with the search, its
     ``target`` (a DpvTarget) must be given so its kind can be checked. If the concept was marked
-    "no match", that mark is withdrawn first."""
+    "no match", that mark is withdrawn first. ``extra_snapshot`` adds context to the snapshot
+    (e.g. the assistant proposal the person confirmed, S5-T08)."""
     if relation not in MAPPING_RELATIONS:
         raise ValueError("Elige el tipo SKOS de la correspondencia antes de aprobarla.")
     row = concept.candidate(dpv_iri)
@@ -199,10 +200,11 @@ def approve(concept: MappingConcept, dpv_iri: str, relation: str, *, reviewer: s
     if "" in decided and decided[""].decision == DECISION_NO_MATCH:
         _record(concept, DECISION_PENDING, source_id=source_id, log_path=log_path,
                 reviewer=reviewer, note="se aprobo una correspondencia", decided_at=decided_at)
+    snap = _snapshot(concept, dpv_iri, metadata, target)
+    snap.update(extra_snapshot or {})
     return _record(concept, DECISION_APPROVED, source_id=source_id, log_path=log_path,
                    reviewer=reviewer, dpv_iri=dpv_iri, relation=relation, note=note,
-                   snapshot=_snapshot(concept, dpv_iri, metadata, target),
-                   decided_at=decided_at)
+                   snapshot=snap, decided_at=decided_at)
 
 
 def reject(concept: MappingConcept, dpv_iri: str, *, reviewer: str, source_id: str, log_path,
@@ -217,7 +219,7 @@ def reject(concept: MappingConcept, dpv_iri: str, *, reviewer: str, source_id: s
 def mark_no_match(concept: MappingConcept, *, reviewer: str, source_id: str, log_path,
                   current: dict[str, dict[str, Decision]] | None = None,
                   metadata: dict | None = None, note: str | None = None,
-                  decided_at: str | None = None) -> Decision:
+                  decided_at: str | None = None, extra_snapshot: dict | None = None) -> Decision:
     """The DPV has no counterpart for this concept (only if nothing is approved)."""
     decided = (current or {}).get(concept.key, {})
     approved = [d for d in decided.values() if d.decision == DECISION_APPROVED]
@@ -227,6 +229,7 @@ def mark_no_match(concept: MappingConcept, *, reviewer: str, source_id: str, log
     snap = snapshot_from_row(concept.candidates[0] if concept.candidates else None, metadata)
     snap["ai_relations"] = [r.get("proposed_relation") for r in concept.candidates]
     snap["subject_iri"] = concept.iri
+    snap.update(extra_snapshot or {})
     return _record(concept, DECISION_NO_MATCH, source_id=source_id, log_path=log_path,
                    reviewer=reviewer, note=note, snapshot=snap, decided_at=decided_at)
 

@@ -4,7 +4,11 @@ Tab "Revisar correspondencias": one card per concept with its DPV candidates. Fo
 person CHOOSES the SKOS type (empty by default: the AI type is shown only as a suggestion) and
 approves or discards it; they can also search another DPV term or mark the concept as having no
 DPV counterpart. Every click goes to the decisions log (S5-T01) through
-services.mapping_review. Tab "Tabla de candidatos": the Sprint 4 table, unchanged."""
+services.mapping_review. Tab "Confirmar propuestas del asistente" (S5-T08): the assistant's
+proposals for the concepts still open, as an editable table per family; nothing is recorded
+until the person confirms the batch, and then in their name with the proposal as provenance.
+Tab "Tabla de candidatos": the Sprint 4 table, unchanged."""
+import pandas as pd
 import streamlit as st
 from services import alignment
 from services import mapping_review as mr
@@ -33,8 +37,18 @@ if state is None:
 flash = st.session_state.pop("mr_flash", None)
 if flash:
     st.success(flash)
+flash_warn = st.session_state.pop("mr_flash_warn", None)
+if flash_warn:
+    st.warning(flash_warn)
 
-tab_review, tab_table = st.tabs(["Revisar correspondencias", "Tabla de candidatos (Sprint 4)"])
+if "reviewer" not in st.session_state:
+    st.session_state["reviewer"] = state["settings"]["reviewer"]
+st.text_input("Revisor (queda registrado en cada decisión)", key="reviewer")
+reviewer = st.session_state.get("reviewer", "")
+
+tab_review, tab_assist, tab_table = st.tabs(["Revisar correspondencias",
+                                             "Confirmar propuestas del asistente",
+                                             "Tabla de candidatos"])
 
 
 def _done(ok: bool, message: str, next_key: str | None = None):
@@ -60,11 +74,6 @@ with tab_review:
     if a["type_agreement"] is not None:
         st.caption(f"Tipo SKOS igual al que sugirió la IA: {a['same_type_as_ai']} de "
                    f"{a['approved_with_ai_type']} ({a['type_agreement'] * 100:.0f} %)")
-
-    if "reviewer" not in st.session_state:
-        st.session_state["reviewer"] = state["settings"]["reviewer"]
-    st.text_input("Revisor (queda registrado en cada decisión)", key="reviewer")
-    reviewer = st.session_state.get("reviewer", "")
 
     st.divider()
     f1, f2, f3, f4 = st.columns([1, 1, 1.4, 1.6])
@@ -209,6 +218,77 @@ with tab_review:
                     st.session_state["mr_selected"] = nxt
                 st.rerun()
         st.caption(f"Registro de decisiones: {state['log_path']}")
+
+with tab_assist:
+    assist = mr.load_assistant(state)
+    if assist is None:
+        st.info("No hay propuestas del asistente (data/review/assistant-proposals.json).")
+    else:
+        st.warning(
+            "Estas son **propuestas del asistente, no decisiones**. Nada entra al registro "
+            "hasta que confirmas el lote; entonces queda **a tu nombre**, con la nota "
+            "«propuesta del asistente confirmada» y la propuesta original como procedencia. "
+            "Lee cada fila (término del DPV, tipo SKOS y razón): si no te convence, cambia el "
+            "tipo, márcala «Sin correspondencia» o déjala en «Omitir» y revísala luego en la "
+            "pestaña «Revisar correspondencias»."
+        )
+        meta, prov = assist["metadata"], assist["provenance"]
+        st.caption(f"Propuestas de: {meta.get('assistant') or '-'} · "
+                   f"{meta.get('created_at') or '-'} · {assist['path']}")
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric("Propuestas abiertas", len(assist["open"]))
+        k2.metric("Revisados por ti solo", prov["reviewed_by_person"])
+        k3.metric("Confirmados desde propuestas", prov["confirmed_from_assistant"])
+        k4.metric("Cambiados por ti", prov["changed_by_person"])
+        if not assist["open"]:
+            st.success("No quedan propuestas abiertas: todos sus conceptos ya tienen decisión.")
+        else:
+            fams = mr.proposal_families(assist)
+            fam_labels = {f"{f} ({n})": f for f, n in fams}
+            family = fam_labels[st.selectbox("Familia", list(fam_labels), key="ap_family")]
+            prefill = st.checkbox("Marcar todas las filas de esta familia como «Aceptar» "
+                                  "(después cambia las que no aceptes)",
+                                  key=f"ap_prefill_{family}")
+            table = pd.DataFrame(mr.proposal_table(state, assist, family, prefill))
+            table["Tipo SKOS"] = table["Tipo SKOS"].astype(
+                pd.CategoricalDtype(list(mr.relation_options())))   # empty cell, not "None"
+            edited = st.data_editor(
+                table,
+                key=f"ap_editor_{family}_{prefill}_{len(assist['open'])}",
+                hide_index=True,
+                width="stretch",
+                column_order=["Acción", "Concepto", "Propuesta del asistente", "Tipo SKOS",
+                              "Razón", "Etiqueta", "Definición en el DPV",
+                              "Definición del concepto"],
+                disabled=["Concepto", "Etiqueta", "Propuesta del asistente", "Razón",
+                          "Definición en el DPV", "Definición del concepto"],
+                column_config={
+                    "Acción": st.column_config.SelectboxColumn(
+                        "Acción", options=mr.action_options(), required=True),
+                    "Tipo SKOS": st.column_config.SelectboxColumn(
+                        "Tipo SKOS", options=list(mr.relation_options()),
+                        help="Del concepto hacia el DPV; en las filas sin correspondencia "
+                             "se ignora"),
+                    "Razón": st.column_config.TextColumn("Razón", width="large"),
+                    "Etiqueta": st.column_config.TextColumn(width="medium"),
+                    "Definición en el DPV": st.column_config.TextColumn(width="medium"),
+                    "Definición del concepto": st.column_config.TextColumn(width="medium"),
+                },
+            )
+            rows = edited.to_dict("records")
+            counts = mr.count_actions(rows)
+            n = len(rows) - counts["Omitir"]
+            st.caption(f"{len(rows)} fila(s) · Aceptar: {counts['Aceptar']} · Sin "
+                       f"correspondencia: {counts['Sin correspondencia']} · Omitir: "
+                       f"{counts['Omitir']}")
+            if st.button(f"Confirmar lote ({n} fila(s))", type="primary",
+                         disabled=n == 0 or not reviewer.strip(), key="ap_confirm"):
+                ok, msg, summary = mr.confirm_table(state, assist, rows, reviewer)
+                if ok:
+                    st.session_state["mr_flash_warn" if summary["errors"] else "mr_flash"] = msg
+                    st.rerun()
+                else:
+                    st.error(msg)
 
 with tab_table:
     data = alignment.candidates()
