@@ -4,6 +4,9 @@ Writes the aligned graph with ``src.alignment.write`` (S5-T06) and offers the fi
 ready for Protégé (``src.alignment.bundle``). The paths come from the view
 (``services.mapping_review.default_paths()``), so both tabs always read and write the same
 files; the outputs go next to the candidates file (data/output).
+
+S6-T03: the zip can be requested in any output format (RDF/XML, OWL, Turtle, JSON-LD); the
+modules inside are converted and its catalog points to the files of that format.
 """
 from __future__ import annotations
 
@@ -14,10 +17,15 @@ from src.alignment.decisions import read_log, review_settings
 from src.alignment.export import load_candidate_file
 from src.alignment.write import (collect, write_alignment, ALIGNMENT_FILE, ALIGNMENT_MANIFEST,
                                  ALIGNMENT_CSV)
-from src.alignment.bundle import build_bundle, BUNDLE_FILE
+from src.alignment.bundle import build_package, bundle_name, BUNDLE_FILE, PROTEGE_JSONLD_NOTE
+from src.transform.convert import OUTPUT_FORMATS
 
 MIME = {ALIGNMENT_FILE: "application/rdf+xml", ALIGNMENT_MANIFEST: "application/json",
         ALIGNMENT_CSV: "text/csv", BUNDLE_FILE: "application/zip"}
+ZIP_MIME = "application/zip"
+
+# Formats offered for the Protégé package: (key, label shown in the web).
+FORMATS = [(f.key, f.label) for f in OUTPUT_FORMATS.values()]
 
 
 def output_dir(paths: dict) -> Path:
@@ -54,11 +62,17 @@ def write_graph(paths: dict, cfg: dict | None = None) -> tuple[bool, str]:
                   f"tripletas.")
 
 
-def current_graph(paths: dict) -> dict | None:
+def graph_exists(paths: dict) -> bool:
+    """True once the aligned graph has been written in the outputs folder."""
+    return (output_dir(paths) / ALIGNMENT_FILE).exists()
+
+
+def current_graph(paths: dict, fmt: str = "rdfxml") -> dict | None:
     """The graph already written (by this page or by ``py -m src.alignment.write``), with the
-    bytes of each file and of the Protégé zip; None if it has not been written yet."""
+    bytes of each file and of the Protégé zip in ``fmt``; None if it has not been written yet.
+    The zip is under ``files[bundle_name]``; ``main_file`` is the module to open in Protégé."""
     out = output_dir(paths)
-    if not (out / ALIGNMENT_FILE).exists():
+    if not graph_exists(paths):
         return None
     manifest = {}
     if (out / ALIGNMENT_MANIFEST).exists():
@@ -66,10 +80,15 @@ def current_graph(paths: dict) -> dict | None:
     files = {name: (out / name).read_bytes()
              for name in (ALIGNMENT_FILE, ALIGNMENT_MANIFEST, ALIGNMENT_CSV)
              if (out / name).exists()}
-    bundle, included, missing = build_bundle(out)
-    files[BUNDLE_FILE] = bundle
-    return {"manifest": manifest, "files": files, "bundle_includes": included,
-            "bundle_missing": missing, "out_dir": out}
+    package = build_package(out, fmt=fmt)
+    name = bundle_name(package.format)
+    files[name] = package.data
+    note = PROTEGE_JSONLD_NOTE if package.format.key == "jsonld" else None
+    return {"manifest": manifest, "files": files, "bundle_name": name,
+            "bundle_format": package.format.label, "main_file": package.main_file,
+            "protege_note": note,
+            "bundle_includes": package.included, "bundle_missing": package.missing,
+            "out_dir": out}
 
 
 def summary_rows(manifest: dict) -> list[dict]:

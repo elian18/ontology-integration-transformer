@@ -8,7 +8,8 @@ services.mapping_review. Tab "Confirmar propuestas del asistente" (S5-T08): the 
 proposals for the concepts still open, as an editable table per family; nothing is recorded
 until the person confirms the batch, and then in their name with the proposal as provenance.
 Tab "Grafo alineado" (S5-T07): writes the aligned graph once nothing is pending and offers it
-for download (the graph, the manifest, the CSV and a zip that opens in Protégé).
+for download (the graph, the manifest, the CSV and a zip that opens in Protégé). S6-T03: the
+person picks the format of that zip (RDF/XML, OWL, Turtle or JSON-LD).
 Tab "Tabla de candidatos": the Sprint 4 table, unchanged."""
 import pandas as pd
 import streamlit as st
@@ -309,10 +310,15 @@ with tab_graph:
             ok, msg = ag.write_graph(paths)
         (st.success if ok else st.error)(msg)
 
-    graph = ag.current_graph(paths)
-    if graph is None:
+    if not ag.graph_exists(paths):
         st.caption("Todavía no se ha escrito el grafo.")
     else:
+        labels = {label: key for key, label in ag.FORMATS}
+        choice = st.selectbox(
+            "Formato del paquete", list(labels), key="ag_fmt",
+            help="Los tres módulos se convierten a este formato sin perder ninguna tripleta; "
+                 "el catálogo del paquete apunta a esos archivos.")
+        graph = ag.current_graph(paths, fmt=labels[choice])
         man = graph["manifest"]
         if ag.stale(state, man):
             st.warning("La revisión cambió después de escribir este grafo: vuelve a escribirlo "
@@ -333,11 +339,14 @@ with tab_graph:
                    f"{prov.get('confirmed_from_assistant', 0)} confirmados desde propuestas "
                    f"del asistente · registro {sha}")
         files = graph["files"]
-        st.download_button("Descargar paquete para Protégé (.zip)", data=files[ag.BUNDLE_FILE],
-                           file_name=ag.BUNDLE_FILE, mime=ag.MIME[ag.BUNDLE_FILE],
-                           type="primary", key="ag_dl_zip")
-        st.caption("Descomprímelo y abre ontopriv-dpv-alignment.rdf en Protégé: el catálogo "
-                   "incluido resuelve las importaciones (alineación → perfil → núcleo).")
+        st.download_button(f"Descargar paquete para Protégé ({graph['bundle_format']}, .zip)",
+                           data=files[graph["bundle_name"]], file_name=graph["bundle_name"],
+                           mime=ag.ZIP_MIME, type="primary", key="ag_dl_zip")
+        if graph["protege_note"]:
+            st.info(graph["protege_note"])
+        else:
+            st.caption(f"Descomprímelo y abre {graph['main_file']} en Protégé: el catálogo "
+                       "incluido resuelve las importaciones (alineación → perfil → núcleo).")
         if graph["bundle_missing"]:
             st.warning("Al paquete le faltan " + ", ".join(graph["bundle_missing"]) +
                        ". Genéralos con  `py -m src.core.emit`")
