@@ -34,3 +34,6 @@ review:
   decisions_file: "data/review/alignment-decisions.jsonl"  # human decisions log, append-only, tracked in git (S5-T01)
   reviewer: "Elian Gavilanes"                                    # default reviewer shown in the web; editable there
   proposals_file: "data/review/assistant-proposals.json"  # assistant proposals, NOT decisions: a person confirms them in the web (S5-T08)
+workspaces:
+  dir: "data/workspaces"      # one folder per user upload (S6-T04); ignored by git, never mixed with data/output
+  max_upload_mb: 25           # larger uploads are refused with a message in Spanish
