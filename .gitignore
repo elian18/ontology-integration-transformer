@@ -9,6 +9,7 @@ __pycache__/
 # datos pesados y artefactos intermedios
 data/interim/
 data/output/
+data/workspaces/
 *.owl.bak
 
 # base vectorial local

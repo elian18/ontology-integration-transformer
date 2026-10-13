@@ -1,1 +1,3 @@
+# Line endings: the repository stores LF; Windows checkouts may hold CRLF without showing
+* text=auto eol=lf
 *.jsonl text eol=lf
