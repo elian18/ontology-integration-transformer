@@ -1,5 +1,6 @@
 """S5-T07: the "Grafo alineado" tab writes the graph only when nothing is pending and offers the
-files and the Protégé zip for download (service logic + the page with AppTest)."""
+files and the Protégé zip for download (service logic + the page with AppTest). S6-T03: the zip
+comes in the format the person picks."""
 import importlib
 import io
 import json
@@ -13,7 +14,7 @@ from app.services import alignment_graph as ag
 from app.services import mapping_review as mr
 from src.alignment.decisions import read_log
 from src.alignment.write import ALIGNMENT_FILE, ALIGNMENT_MANIFEST, ALIGNMENT_CSV
-from src.alignment.bundle import BUNDLE_FILE, CATALOG_FILE
+from src.alignment.bundle import BUNDLE_FILE, CATALOG_FILE, bundle_name
 from tests.test_alignment_write import _decide_all, ONTO, DPV
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,8 +118,36 @@ def test_write_from_the_page_and_download(page):
     assert any("Grafo escrito" in s.value for s in at.success)
     assert (ag.output_dir(paths) / ALIGNMENT_FILE).exists()
     labels = [b.label for b in at.download_button]
-    assert labels == ["Descargar paquete para Protégé (.zip)", "Grafo (RDF/XML)",
+    assert labels == ["Descargar paquete para Protégé (RDF/XML, .zip)", "Grafo (RDF/XML)",
                       "Manifiesto (JSON)", "Correspondencias (CSV)"]
     metrics = {m.label: m.value for m in at.metric}
     assert metrics["Correspondencias SKOS"] == "3" and metrics["Conceptos nuevos"] == "1"
     assert [d.target for d in read_log(paths["log"])].count("mapping") == 4   # log untouched
+
+# ---------------------------------------------------------------- S6-T03: format of the zip
+def test_service_offers_the_zip_in_each_format(tmp_path):
+    paths = _files(tmp_path)
+    ag.write_graph(paths, CFG)
+    assert [k for k, _ in ag.FORMATS] == ["rdfxml", "owl", "turtle", "jsonld"]
+    graph = ag.current_graph(paths, fmt="turtle")
+    assert graph["bundle_name"] == bundle_name("turtle") and graph["bundle_format"] == "Turtle"
+    assert graph["main_file"] == "ontopriv-dpv-alignment.ttl"
+    names = zipfile.ZipFile(io.BytesIO(graph["files"][graph["bundle_name"]])).namelist()
+    assert "ontopriv-dpv-alignment.ttl" in names and CATALOG_FILE in names
+    assert ag.graph_exists(paths) and graph["protege_note"] is None
+    assert "Protégé 5.6" in ag.current_graph(paths, fmt="jsonld")["protege_note"]
+
+
+def test_page_switches_the_zip_format(page):
+    at, paths = page()
+    at.run()
+    at.button(key="ag_write").click().run()
+    assert at.selectbox(key="ag_fmt").options == ["RDF/XML", "OWL (RDF/XML)", "Turtle",
+                                                   "JSON-LD"]
+    at.selectbox(key="ag_fmt").select("JSON-LD").run()
+    assert not at.exception
+    assert at.download_button[0].label == "Descargar paquete para Protégé (JSON-LD, .zip)"
+    assert any("Protégé 5.6 no abre JSON-LD" in i.value for i in at.info)
+    at.selectbox(key="ag_fmt").select("Turtle").run()
+    assert any("ontopriv-dpv-alignment.ttl" in c.value for c in at.caption)
+    assert not any("Protégé 5.6 no abre JSON-LD" in i.value for i in at.info)
