@@ -7,3 +7,6 @@ font = "sans serif"
 
 [client]
 toolbarMode = "minimal"
+
+[server]
+maxUploadSize = 25   # MB; the same limit as workspaces.max_upload_mb (S6-T04)
