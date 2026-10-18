@@ -431,3 +431,181 @@ proyecto: 289 pruebas en verde sin las marcadas `slow` (295 en total).
 - `data/output/catalog-v001.xml` (lo dejó Protégé) apunta el IRI del núcleo al archivo del
   perfil; el .zip trae un catálogo correcto y ese archivo no se usa.
 - Sigue pendiente incorporar las extensiones del DPV (derechos específicos).
+
+---
+
+## v0.6.0 — Sprint 6 (Transformación 1 + modo "solo ontología")
+
+**Entregable:** el usuario sube su ontología de protección de datos en la página **Alinear mi
+ontología** y, sin revisar nada, la recibe alineada con el DPV y la descarga en el formato que
+elija (RDF/XML, OWL, Turtle o JSON-LD), como un .zip que se abre en Protégé. Lo que ya fue
+validado en la base se hereda; lo demás va como propuesta automática, en un módulo aparte y
+marcado como no validado. Es la primera parte de la etapa 3 de la arquitectura ("Transformación
+de formatos"); la segunda (etiquetas es/en) es del Sprint 7.
+
+### Qué se construyó
+- `src/transform/convert.py` (S6-T01) — convierte entre RDF/XML, OWL (RDF/XML con extensión
+  .owl), Turtle y JSON-LD sin perder tripletas. Corrige dos pérdidas del serializador de rdflib:
+  en Turtle reescribía decimales ("15" pasaba a "15.0") y en JSON-LD perdía las tripletas
+  `rdf:type rdf:List` de las listas (OntoPriv bajaba de 5480 a 5468 tripletas). OWL/XML (.owx)
+  sigue solo de entrada, con un mensaje que pide convertirlo en Protégé.
+- `src/transform/roundtrip.py` (S6-T02) — prueba de ida y vuelta entre formatos con isomorfismo
+  de grafos (`rdflib.compare`: incluye nodos en blanco, idioma y tipo de dato) sobre los archivos
+  reales; guarda `data/output/roundtrip-report.json`.
+- `src/transform/package.py` + `src/alignment/bundle.py` (S6-T03) — un .zip por formato con su
+  propio `catalog-v001.xml`, para que Protégé resuelva los `owl:imports` (alineación → perfil →
+  núcleo) sin internet. La pestaña **Grafo alineado** tiene selector de formato.
+- `src/workspace/store.py` (S6-T04) — un espacio de trabajo por cada subida
+  (`data/workspaces/<nombre>-<hash8>`, ignorado en git) con su manifiesto y el estado de cada
+  paso. Una subida nunca escribe en la base (`data/output`, `data/review`); subir el mismo
+  archivo reutiliza lo ya calculado. Límite de 25 MB (bloque `workspaces:` de `config.yaml` y
+  `.streamlit/config.toml`).
+- `src/alignment/inherit.py` (S6-T05) — la ontología subida hereda las decisiones validadas de
+  la base con tres reglas: mismo IRI; mismo nombre o etiqueta (incluye como alias los nombres de
+  los 66 conceptos de la IA confirmados como duplicados en el Sprint 5); o muy parecido, con los
+  umbrales del detector de duplicados del Sprint 4 (combinado ≥ 0.75 o léxico ≥ 0.95).
+- `src/alignment/calibrate.py` + `src/alignment/propose.py` (S6-T06) — propuestas automáticas
+  para lo que no se heredó: el mejor candidato del ranking del Sprint 4, solo si su puntaje
+  llega al umbral (bloque `auto:` de `config.yaml`, 0.75); la IA pone el tipo SKOS o la descarta
+  ("none"). Sin IA (sin clave o sin cuota), la propuesta queda sin tipo y se escribe como
+  `rdfs:seeAlso`.
+- `src/alignment/user_alignment.py` (S6-T07) — escribe dos módulos que importan la ontología
+  del usuario sin editarla: el **validado** (solo correspondencias heredadas, con `owl:Axiom`,
+  `dct:source` al concepto de la base y quién lo decidió) y el de **propuestas** ("Propuesta
+  automática, no validada", con puntaje y justificación de la IA); además
+  `alignment-manifest.json`, `alignment.csv` y el paquete `<archivo>-alineada-<formato>.zip`.
+- `app/services/align_ontology.py` + `app/views/align_ontology.py` (S6-T08) — página **Alinear
+  mi ontología**, primera del menú (sección "Tu ontología"): la alineación arranca sola al subir
+  el archivo, con el progreso por pasos; muestra cuatro cifras explicadas, el formato de
+  descarga y, si se quiere, una tabla por concepto. Las páginas anteriores pasan a la sección
+  "Construcción de la base".
+- `src/alignment/external_check.py` (S6-T09) — comprobación automática con una ontología externa,
+  sin etiquetar nada a mano (ver Resultados).
+- `.gitattributes` (`* text=auto eol=lf`): los merges dejaban archivos "modificados" solo por
+  los fines de línea de Windows.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Opción híbrida, con el usuario haciendo lo mínimo** (subir, elegir formato y descargar). El
+  Scrumban decía "el usuario aprueba su alineación": en este sprint no hay aprobar o descartar
+  en la web. La validación humana del plan está en la base (Sprint 5); lo que el usuario recibe
+  sin validar va en otro módulo y marcado, para que pueda importar solo lo validado.
+- **Umbral 0.75**: el menor con precisión ≥ 75 % y al menos 10 propuestas, medido contra las
+  552 decisiones de la base con el filtro de la IA (tabla en Resultados). Se prefirió precisión
+  a cobertura porque nadie revisa estas propuestas.
+- **OWL como salida** = RDF/XML con extensión .owl (mismos bytes que el .rdf). OWL/XML sigue
+  solo de entrada.
+- **JSON-LD y Protégé**: Protégé 5.6.9 (OWL API 4.5.29) no abre JSON-LD (lo lee como RDF/JSON).
+  El archivo es válido (verificado con pyld) y sirve para otras herramientas; el paquete y la web
+  lo advierten, y su readme dice "Archivo principal" en lugar de "Abre … en Protégé".
+- **Comprobación externa sin hoja manual (S6-T09).** La referencia ya existe: los conceptos de
+  la ontología externa que heredaron una decisión de la base tienen la respuesta que dio una
+  persona en el Sprint 5. Se resuelven otra vez como si fueran nuevos y se comparan. No hay un
+  mapeo oficial GDPRtEXT ↔ DPV publicado que sirviera de referencia externa.
+- **GDPRtEXT como ontología externa**: Pandit, H. J., Fatema, K., O'Sullivan, D. y Lewis, D.
+  (2018). *GDPRtEXT - GDPR as a Linked Data Resource*. ESWC 2018, LNCS 10843, pp. 481-496. ADAPT
+  Centre, Trinity College Dublin; licencia CC-BY-4.0. Es el id12 de la revisión de alcance y se
+  incluye en `data/input/gdprtext-ontology.ttl`.
+
+### Resultados
+**Conversión (S6-T02).** 6 archivos (OntoPriv, `sample.ttl`, núcleo, perfil, grafo alineado y
+DPV 2.3), 24 idas y vueltas, las 24 con el mismo grafo; 30.190 tripletas comprobadas. Con el
+serializador de rdflib sin las correcciones fallan 4 de 12: Turtle cambia 2 decimales de
+OntoPriv y del núcleo, y JSON-LD pierde 12 tripletas de OntoPriv y de `sample.ttl`.
+
+Hallazgo: OntoPriv trae 1 literal tipado `rdf:langString` sin etiqueta de idioma
+(`responsible_for_treatment`, propiedad `activity_within_right_of_access`), algo que RDF 1.1 no
+admite. La conversión lo conserva tal cual (no corrige datos); se revisa en la validación.
+
+**Calibración del umbral (S6-T06)**, contra las decisiones de la base (552 conceptos, 173 con
+término del DPV; en 92 el mejor candidato es uno que la persona aprobó). Con el filtro de la IA:
+
+| Umbral | Propuestas | Correctas | Precisión | Cobertura (de 92) |
+|---|---|---|---|---|
+| 0.65 | 93 | 50 | 53,8 % | 54,3 % |
+| 0.70 | 69 | 44 | 63,8 % | 47,8 % |
+| **0.75** | **34** | **28** | **82,4 %** | **30,4 %** |
+| 0.80 | 23 | 21 | 91,3 % | 22,8 % |
+| 0.85 | 10 | 9 | 90,0 % | 9,8 % |
+
+- Sin el filtro de la IA, 0.75 da 36 propuestas y 28 correctas (77,8 %).
+- Muestra ciega del Sprint 4 (30 conceptos etiquetados a mano): con 0.75 sale 1 sola propuesta,
+  y es incorrecta.
+- **Ranking:** de los 173 conceptos alineados de la base, el término correcto quedó en el
+  puesto 1 en 92 (53 %), en el puesto 2 o 3 en 46 (27 %) y fuera de los 3 candidatos en 35
+  (20 %). Un diseño que solo mira el puesto 1 no puede recuperar esos 81.
+
+**GDPRtEXT en la web (S6-T08)**, subido como lo haría un usuario: 1632 tripletas, 223 clases y
+13 propiedades de objeto, sin señales de OWL Full; 235 conceptos alineables.
+- Heredados: 22 (18 por mismo nombre y 4 muy parecidos); 21 con término (23 correspondencias
+  validadas) y 1 sin correspondencia (`Accountability`).
+- Propuestas automáticas: 38, todas con tipo de la IA (24 `exactMatch`, 3 `closeMatch`, 8
+  `narrowMatch`, 3 `broadMatch`), con 3 llamadas a Gemini; 175 conceptos sin propuesta (mejor
+  candidato bajo 0.75).
+- Módulo validado: 166 tripletas; módulo de propuestas: 274. El .zip resuelve la importación de
+  GDPRtEXT en los cuatro formatos.
+
+**Comprobación automática con GDPRtEXT (S6-T09).** Los 22 conceptos heredados se resolvieron
+como si fueran nuevos, con el diseño actual (puesto 1 + umbral 0.75 + IA; 1 llamada a
+`gemini-3.1-flash-lite`, embeddings `paraphrase-multilingual-MiniLM-L12-v2`), y se compararon
+con la decisión de la persona:
+
+| Medida | Resultado |
+|---|---|
+| Propuestas correctas | 10 de 10 (precisión 100 %) |
+| Cobertura | 10 de 21 (48 %) |
+| Tipo SKOS igual al de la persona | 2 de 10 |
+| "Sin correspondencia" detectada | 1 de 1 |
+| Término correcto en el puesto 1 / top 3 / top 10 | 14 / 19 / 21 de 21 |
+| No propuestos con el correcto en el puesto 1 (bajo 0.75) | 4 |
+| No propuestos con el correcto fuera del puesto 1 | 7 |
+
+- Las 10 propuestas son de conceptos con el mismo nombre en la base; de los 4 "muy parecidos"
+  no se propuso ninguno. Es una muestra chica y de casos fáciles.
+- **Tipo SKOS:** en 7 de los 10 aciertos la persona había elegido `exactMatch`; la IA eligió
+  `closeMatch` en 6 de ellos, lo que sigue la regla del prompt v2 ("ante la duda, closeMatch").
+- **Lo que alcanzaría un paso que elija entre candidatos:** 19 de 21 con los 3 primeros y 21 de
+  21 con los 10 primeros, frente a 10 de 21 hoy. Es la línea base del rediseño del Sprint 7.
+- Resultado completo: `data/output/gdprtext-ontology-external-check.json`.
+
+### Cómo usar
+Consola:
+
+    py -m src.transform.convert ARCHIVO --to turtle     # rdfxml, owl, turtle, jsonld o all
+    py -m src.transform.roundtrip                        # ida y vuelta de la base
+    py -m src.alignment.bundle --formato turtle          # paquete de la base para Protégé
+    py -m src.alignment.calibrate                        # tabla del umbral
+    py -m src.alignment.user_alignment ARCHIVO --formato turtle   # alinea una ontología
+    py -m src.alignment.external_check data/input/gdprtext-ontology.ttl
+
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+y entrar a **Alinear mi ontología** (sección "Tu ontología").
+
+### Pruebas
+`tests/test_transform_convert.py`, `test_transform_roundtrip.py`, `test_transform_package.py`,
+`test_alignment_bundle.py`, `test_ui_alignment_graph.py`, `test_workspace.py`,
+`test_alignment_inherit.py`, `test_alignment_calibrate.py`, `test_alignment_propose.py`,
+`test_user_alignment.py`, `test_ui_align_ontology.py`, `test_alignment_external_check.py` y
+`test_sprint6_pipeline.py` (flujo completo con el GDPRtEXT real, embeddings y LLM de prueba:
+subida, herencia, propuestas, módulos, .zip en los cuatro formatos, comprobación externa y la
+base sin tocar). Suite del proyecto: 432 pruebas en verde sin las marcadas `slow` (439 en total).
+
+### Alcance y pendientes
+- **Sprint 7, al inicio: rediseño de la IA de alineación.** Hoy el RAG no se usa en el modo de
+  usuario (ChromaDB solo tiene la colección `normativa` de la LOPDP), el LLM solo ve el
+  candidato 1 y los prompts viven dentro de `justify.py` y `extract.py` (`src/ai/prompts/` está
+  vacía). Plan: colecciones de ChromaDB para el DPV (1116 términos) y para las 552 decisiones
+  de la base; el LLM elige entre los 10 primeros candidatos (o ninguno) con precedentes
+  recuperados; prompts versionados en `src/ai/prompts/`; evaluación automática antes y después
+  (dejando fuera cada decisión de la base, y con GDPRtEXT). Después, los modos con ley y las
+  etiquetas es/en del Scrumban.
+- **Decisión pendiente para el Sprint 7:** el Scrumban dice "IA extrae conceptos → aprobación"
+  en el modo solo ley; con la regla de este sprint, el usuario no aprobaría nada.
+- **Limitaciones para la tesis:** la referencia de la calibración no es independiente (532 de
+  552 decisiones confirman propuestas del asistente); la comprobación externa usa 22 conceptos,
+  casi todos con el mismo nombre que en la base; el umbral es sensible (de 0.70 a 0.80 la
+  precisión pasa de 64 % a 91 % y la cobertura de 48 % a 23 %).
+- Aprobar o descartar propuestas en la web queda fuera de este sprint.
+- **Sprint 8 (validación):** revisar el literal `rdf:langString` sin idioma de OntoPriv.
