@@ -42,3 +42,6 @@ auto:
   min_precision: 0.75         # the calibration picks the lowest threshold that reaches this precision
   use_llm: true               # the AI proposes the SKOS type of each automatic proposal; without it they stay untyped (rdfs:seeAlso)
   llm_max_calls: 20           # AI calls per run for the proposals (15 concepts per call); re-run to continue
+decider:                      # S7-T03..T06: the alignment decider (retrieve -> decide with precedents -> fixed rule)
+  candidate_source: hybrid    # where its DPV candidates come from: hybrid | dpv | dpv_rerank (chosen by py -m src.alignment.benchmark)
+  candidates: 10              # DPV candidates it sees per concept (Sprint 6: only the best one)
