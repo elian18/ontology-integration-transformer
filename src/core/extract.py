@@ -26,19 +26,16 @@ from dataclasses import dataclass, field
 from collections import OrderedDict
 from pathlib import Path
 
+from src.ai.prompts import load_prompt
+
 # Output file name (single source of truth; the web service imports it from here).
 PROPOSALS_FILE = "profile-proposed-concepts.json"
 
-_INSTRUCTION = (
-    "Te entrego varios articulos de una ley de proteccion de datos, cada uno con su numero. "
-    "Extrae los conceptos relevantes (entidades, roles, principios, derechos, obligaciones, "
-    "mecanismos). Devuelve UNA LINEA por concepto; cada linea es un objeto JSON compacto con "
-    "estas claves exactas: 'name' (identificador corto en ingles, CamelCase, sin espacios), "
-    "'label' (el termino en espanol como aparece), 'type' ('class' o 'property'), "
-    "'definition' (definicion breve en espanol, en UNA sola linea, basada solo en el articulo), "
-    "'article' (el numero del articulo del que proviene). No uses saltos de linea dentro de un "
-    "valor. No agregues texto adicional ni marcadores de codigo."
-)
+# Prompt of the extraction (text in src/ai/prompts/extract.v1.txt since S7-T02, moved without
+# changing a letter; tests/test_ai_prompts.py locks its sha256).
+PROMPT_VERSION = 1
+PROMPT = load_prompt("extract", PROMPT_VERSION)
+_INSTRUCTION = PROMPT.text
 
 
 @dataclass
@@ -239,6 +236,7 @@ def extraction_summary(report: ExtractionReport) -> dict:
     """Serializable summary (safe for JSON, the CLI and the web)."""
     return {
         "source": report.source,
+        "prompt": PROMPT.manifest(),
         "counts": report.counts(),
         "processed_articles": report.processed_articles,
         "quota_exhausted": report.quota_exhausted,
