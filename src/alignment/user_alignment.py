@@ -47,6 +47,7 @@ from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
+from src.alignment.justify import PROMPT as JUSTIFY_PROMPT
 from src.alignment.propose import (STATUS_AI_NONE, STATUS_BELOW, STATUS_PROPOSED,
                                    load_result as proposals_result)
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
@@ -306,7 +307,8 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
             "proposals": proposals.get("summary"),
             "settings": {"inheritance": inherited.get("settings"),
                          "embedding_model": os.environ.get("EMBEDDING_MODEL"),
-                         "llm_model": os.environ.get("LLM_MODEL")},
+                         "llm_model": os.environ.get("LLM_MODEL"),
+                         "prompts": {"justify": JUSTIFY_PROMPT.manifest()}},
             "base": {"source_id": (inherited.get("settings") or {}).get("base_source_id"),
                      "decisions_log_sha256": _sha256(paths["log"])},
             "notes": [
