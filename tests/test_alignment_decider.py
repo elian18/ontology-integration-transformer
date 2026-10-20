@@ -175,6 +175,18 @@ def test_precedents_respect_kind_self_and_leak_control(chroma, base):
     assert [p["key"] for p in only_props] == [B + "has_goal"]
 
 
+def test_ties_between_identical_precedents_are_broken_by_key(tmp_path):
+    names = ("Zeta_measures", "Yota_measures", "Xi_measures", "Alpha_measures", "Beta_measures")
+    twins = BaseIndex(concepts=[_bc(n, "no_match") for n in names], source_id="s")
+    path = tmp_path / "ties"
+    kn.ensure_collection("decisions", "fp", lambda: kn.decision_records(twins),
+                         embed_fn=lambda docs: [[1.0, 0.0] for _ in docs],
+                         model_name="fake-model", path=path)
+    probe = SourceConcept(key="u#X", origin="ontology", name="X", kinds=("class",))
+    found = dc.find_precedents(probe, [1.0, 0.0], 2, path=path)
+    assert [p["key"] for p in found] == [B + "Alpha_measures", B + "Beta_measures"]
+
+
 def test_decisions_collection_must_be_built_with_the_same_model(chroma):
     dc.check_decisions_collection("fake-model", chroma)
     with pytest.raises(ValueError, match="knowledge"):
@@ -229,6 +241,7 @@ def test_answers_become_decisions_with_provenance(targets, chroma):
     assert rect.prompt == {"name": "decide", "version": 1, "sha256": dc.PROMPT.sha256}
     assert d["u#Penalty"].none is True and d["u#Penalty"].dpv_iri is None
     assert d["u#has_aim"].dpv_iri == D + "hasPurpose"
+    assert rect.kinds == ("class",) and not rect.is_property and d["u#has_aim"].is_property
 
 
 def test_leak_control_hides_forbidden_precedents(targets, chroma):
@@ -363,11 +376,12 @@ def test_parse_answer_rejects_text_without_decisions():
         dc.parse_answer('{"otra": 1}')
 
 
-def _dec(key, status=dc.STATUS_DECIDED, term=True, confidence="alta", score=0.8, none=False):
+def _dec(key, status=dc.STATUS_DECIDED, term=True, confidence="alta", score=0.8, none=False,
+         relation="skos:closeMatch", kinds=("class",)):
     return dc.Decision(key=key, name=key, status=status,
                        dpv_iri=(D + "X") if term and not none else None,
-                       relation="skos:closeMatch" if term and not none else None,
-                       none=none, confidence=confidence, score=score)
+                       relation=relation if term and not none else None,
+                       none=none, confidence=confidence, score=score, kinds=kinds)
 
 
 def test_fixed_rule_variants():
@@ -381,6 +395,39 @@ def test_fixed_rule_variants():
     assert set(dc.apply_rule(decisions, accept=("alta", "media"))) == {"a", "b", "c", "e"}
     assert set(dc.apply_rule(decisions, min_score=0.6)) == {"a", "c"}
     assert set(dc.apply_rule(decisions, accept_none=())) == {"a", "e"}
+
+
+def test_fixed_rule_by_relation_and_kind():
+    prop, both = ("property",), ("class", "property")
+    decisions = [_dec("exact", relation="skos:exactMatch"), _dec("close"),
+                 _dec("related", relation="skos:relatedMatch"),
+                 _dec("untyped", relation=None),
+                 _dec("p_exact", relation="skos:exactMatch", kinds=prop),
+                 _dec("p_close", kinds=prop),
+                 _dec("punned", relation="skos:relatedMatch", kinds=both),
+                 _dec("p_none", none=True, kinds=prop)]
+    keys = lambda **kw: set(dc.apply_rule(decisions, **kw))           # noqa: E731
+    assert keys() == {d.key for d in decisions}                        # no filter: everything
+    strong = keys(relations=dc.SKOS_STRONG)                            # properties: the same
+    assert strong == {"exact", "close", "p_exact", "p_close", "p_none"}
+    assert keys(relations=dc.SKOS_STRONG, property_relations=dc.SKOS_EXACT) == {
+        "exact", "close", "p_exact", "p_none"}
+    assert keys(relations=dc.SKOS_STRONG, property_relations=()) == {"exact", "close", "p_none"}
+    assert keys(relations=dc.SKOS_EXACT, property_relations=None) == {
+        "exact", "p_exact", "p_close", "p_none"}                       # None = any relation
+    assert "punned" in keys(property_relations=())                     # punned counts as class
+
+
+def test_suggestions_are_high_confidence_terms_the_rule_left_out():
+    decisions = [_dec("kept"), _dec("related", relation="skos:relatedMatch"),
+                 _dec("medium", relation="skos:relatedMatch", confidence="media"),
+                 _dec("none", none=True), _dec("none_medium", none=True, confidence="media"),
+                 _dec("i", status=dc.STATUS_INVALID)]
+    auto = dc.apply_rule(decisions, relations=dc.SKOS_STRONG)
+    assert set(auto) == {"kept", "none"}
+    assert dc.suggested(decisions, auto) == {
+        "related": {"term": D + "X", "relation": "skos:relatedMatch"}}
+    assert set(dc.suggested(decisions, auto, levels=("alta", "media"))) == {"related", "medium"}
 
 
 def test_console_is_in_spanish(targets, chroma):

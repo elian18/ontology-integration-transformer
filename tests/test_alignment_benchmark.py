@@ -124,6 +124,19 @@ def test_unknown_source_is_rejected(tmp_path):
                            path=tmp_path)
 
 
+def test_ties_in_the_dpv_collection_are_broken_by_iri(tmp_path):
+    targets = DpvTargets(dpv_path="t", targets=[
+        DpvTarget(D + "Zeta", "Zeta", "class", "Zeta", None, []),
+        DpvTarget(D + "Alpha", "Alpha", "class", "Alpha", None, []),
+        DpvTarget(D + "Beta", "Beta", "class", "Beta", None, [])])
+    _stored(tmp_path, targets, [[1.0, 0.0]] * 3)                       # three identical vectors
+    lists = bm.candidate_lists("dpv", [_src("x#Q", "Q")], targets, np.array([[1.0, 0.0]]),
+                               np.array([[1.0, 0.0]] * 3), k=2, path=tmp_path)
+    assert lists["x#Q"] == [D + "Alpha", D + "Beta"]
+    assert bm.stable_order(["b", "a", "c"], [0.1, 0.1, 0.05]) == [("c", 0.05), ("a", 0.1),
+                                                                    ("b", 0.1)]
+
+
 def test_hits_counts_the_best_rank_of_any_approved_term():
     ref = Reference("t", [RefItem("a", "A", "aligned", {D + "X": "skos:exactMatch"}),
                           RefItem("b", "B", "aligned", {D + "Y": "r", D + "Z": "r"}),

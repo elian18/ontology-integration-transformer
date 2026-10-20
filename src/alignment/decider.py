@@ -22,7 +22,10 @@ For every concept that did not inherit a decision:
    a confidence (alta | media | baja) and one sentence in Spanish. Answers are checked: a term
    that is not one of the concept's candidates is rejected, never written.
 3. FIXED RULE (``apply_rule``): deterministic and explainable. Its parameters (which
-   confidences are accepted, a minimum score) are calibrated in S7-T05, not invented here.
+   confidences are accepted, a minimum score, which SKOS relations are accepted for classes and
+   for properties) are calibrated in S7-T05, not invented here. What the rule leaves out but
+   the LLM said with high confidence is a SUGGESTION (``suggested``): it is never written into
+   the ontology; it is shown so that a person can comment on it (Sprint 10).
 
 Free tier, as in Sprints 3-6: pause between calls, call limit per run, one retry after a 429
 or a 503, stop cleanly when the quota is exhausted. Every answer is cached by CONTENT (prompt,
@@ -52,8 +55,8 @@ import numpy as np
 
 from src.ai.prompts import load_prompt
 from src.ai.rag import vector_store
-from src.alignment.benchmark import (MemoEmbed, SOURCE_HYBRID, candidate_lists, decider_settings,
-                                     stored_dpv_vectors)
+from src.alignment.benchmark import (TIE_MARGIN, MemoEmbed, SOURCE_HYBRID, candidate_lists,
+                                     decider_settings, stable_order, stored_dpv_vectors)
 from src.alignment.candidates import alignment_settings
 from src.alignment.justify import (QUOTA_WAIT_SECONDS, RELATION_UNTYPED, TRANSIENT_WAIT_SECONDS,
                                    _is_transient_error, clean_justification, normalize_relation)
@@ -67,6 +70,9 @@ PROMPT = load_prompt("decide", PROMPT_VERSION)
 CACHE_FILE = "decider-cache.jsonl"
 NONE_ANSWER = "ninguno"
 CONFIDENCE_LEVELS = ("alta", "media", "baja")
+SKOS_EXACT = ("skos:exactMatch",)
+SKOS_STRONG = ("skos:exactMatch", "skos:closeMatch", "skos:broadMatch", "skos:narrowMatch")
+SAME_AS_CLASSES = "same"            # property_relations: the same relations as for classes
 _CONFIDENCE_ALIASES = {"alta": "alta", "high": "alta", "media": "media", "medium": "media",
                        "moderada": "media", "baja": "baja", "low": "baja"}
 _NONE_ALIASES = {"ninguno", "ninguna", "none", "no", "sin correspondencia", "nada", ""}
@@ -140,6 +146,12 @@ class Decision:
     issues: list[str] = field(default_factory=list)
     prompt: dict = field(default_factory=dict)
     model: str | None = None
+    kinds: tuple[str, ...] = ()          # the concept's kinds (class, property)
+
+    @property
+    def is_property(self) -> bool:
+        """Only a property: a concept that is also a class (OWL Full punning) counts as class."""
+        return "property" in self.kinds and "class" not in self.kinds
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -208,13 +220,15 @@ def find_precedents(concept, vector, n: int, forbidden: set[str] | None = None,
     if where is None:
         return []
     banned = set(forbidden or ()) | {concept.key}
-    res = vector_store.query([list(map(float, vector))], n + len(banned), name=DECISIONS_COLLECTION,
-                             path=path, where=where, include=("metadatas", "distances"))
+    res = vector_store.query([list(map(float, vector))], n + len(banned) + TIE_MARGIN,
+                             name=DECISIONS_COLLECTION, path=path, where=where,
+                             include=("metadatas", "distances"))
+    metas = dict(zip(res["ids"][0], res["metadatas"][0]))
     out = []
-    for key, meta, dist in zip(res["ids"][0], res["metadatas"][0], res["distances"][0]):
+    for key, dist in stable_order(res["ids"][0], res["distances"][0]):
         if key in banned:
             continue
-        m = parse_record_metadata(meta)
+        m = parse_record_metadata(metas[key])
         out.append({"key": key, "name": m["name"], "label": m.get("label") or None,
                     "definition": m.get("definition") or None, "status": m["status"],
                     "mappings": m.get("mappings", []), "similarity": round(1 - float(dist), 4)})
@@ -483,7 +497,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
 
     for item in items:
         c = item.concept
-        base = {"key": c.key, "name": c.name,
+        base = {"key": c.key, "name": c.name, "kinds": tuple(c.kinds),
                 "candidates": [t.iri for t, _ in item.candidates],
                 "precedents": [p["key"] for p in item.precedents],
                 "evidence_article": (item.evidence or {}).get("number"),
@@ -504,15 +518,21 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
 # --------------------------------------------------------------------------- the fixed rule
 
 def apply_rule(decisions: list[Decision], accept=("alta",), min_score: float = 0.0,
-               accept_none=None) -> dict[str, dict]:
+               accept_none=None, *, relations=None,
+               property_relations=SAME_AS_CLASSES) -> dict[str, dict]:
     """Deterministic rule: what becomes an automatic answer (S7-T05 calibrates it).
 
-    - a chosen term whose confidence is accepted and whose score >= ``min_score`` -> proposal;
+    - a chosen term whose confidence is accepted, whose score >= ``min_score`` and whose SKOS
+      relation is allowed -> proposal. ``relations`` are the relations allowed for classes
+      (None = any); ``property_relations`` those allowed for concepts that are only properties
+      (``SAME_AS_CLASSES`` = the same as for classes, None = any, () = never automatic);
     - "ninguno" with an accepted confidence (``accept_none``, default = ``accept``) -> "sin
-      correspondencia";
-    - anything else (other confidences, pending, invalid) -> no proposal."""
+      correspondencia", for classes and properties alike;
+    - anything else (other confidences or relations, pending, invalid) -> no proposal."""
     accept = set(accept)
     accept_none = accept if accept_none is None else set(accept_none)
+    if property_relations == SAME_AS_CLASSES:
+        property_relations = relations
     out = {}
     for d in decisions:
         if d.status != STATUS_DECIDED:
@@ -520,9 +540,22 @@ def apply_rule(decisions: list[Decision], accept=("alta",), min_score: float = 0
         if d.none:
             if d.confidence in accept_none:
                 out[d.key] = {"term": None, "relation": None, "none": True}
-        elif d.dpv_iri and d.confidence in accept and (d.score or 0.0) >= min_score:
+            continue
+        allowed = property_relations if d.is_property else relations
+        if (d.dpv_iri and d.confidence in accept and (d.score or 0.0) >= min_score
+                and (allowed is None or d.relation in allowed)):
             out[d.key] = {"term": d.dpv_iri, "relation": d.relation, "none": False}
     return out
+
+
+def suggested(decisions: list[Decision], automatic: dict[str, dict],
+              levels=("alta",)) -> dict[str, dict]:
+    """The terms the LLM chose with one of ``levels`` that the rule did not accept (option D)."""
+    levels = set(levels)
+    return {d.key: {"term": d.dpv_iri, "relation": d.relation}
+            for d in decisions
+            if d.status == STATUS_DECIDED and d.dpv_iri            # "ninguno" has no term
+            and d.confidence in levels and d.key not in automatic}
 
 
 # --------------------------------------------------------------------------- console / CLI
