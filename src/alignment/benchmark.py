@@ -126,6 +126,16 @@ def _allowed_kinds(concept) -> tuple[str, ...]:
     return tuple(sorted(allowed))
 
 
+TIE_MARGIN = 10
+
+
+def stable_order(ids, distances) -> list[tuple]:
+    """Nearest first; exact ties (identical texts give identical vectors) are broken by id, so
+    every run sees the same list and the decider's cache is hit (ChromaDB does not promise an
+    order among equal distances). Ask ChromaDB for ``TIE_MARGIN`` extra results first."""
+    return sorted(zip(ids, (float(d) for d in distances)), key=lambda r: (round(r[1], 6), r[0]))
+
+
 def _query_dpv(concepts, vectors: np.ndarray, n: int, path=None) -> dict[str, list[tuple]]:
     """Nearest DPV terms per concept in the collection: [(iri, similarity), ...]."""
     groups: dict[tuple, list[int]] = {}
@@ -138,10 +148,11 @@ def _query_dpv(concepts, vectors: np.ndarray, n: int, path=None) -> dict[str, li
                 out[concepts[i].key] = []
             continue
         where = {"kind": kinds[0]} if len(kinds) == 1 else {"kind": {"$in": list(kinds)}}
-        res = vector_store.query([vectors[i].tolist() for i in rows], n, name=DPV_COLLECTION,
-                                 path=path, where=where, include=("distances",))
+        res = vector_store.query([vectors[i].tolist() for i in rows], n + TIE_MARGIN,
+                                 name=DPV_COLLECTION, path=path, where=where,
+                                 include=("distances",))
         for i, ids, dists in zip(rows, res["ids"], res["distances"]):
-            out[concepts[i].key] = [(iri, 1.0 - float(d)) for iri, d in zip(ids, dists)]
+            out[concepts[i].key] = [(iri, 1.0 - d) for iri, d in stable_order(ids, dists)[:n]]
     return out
 
 
