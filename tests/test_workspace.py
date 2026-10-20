@@ -1,4 +1,5 @@
-"""S6-T04: one workspace per upload, never mixed with the system base."""
+"""S6-T04: one workspace per upload, never mixed with the system base (S7-T07: the steps
+depend on what the workspace holds)."""
 from __future__ import annotations
 
 import hashlib
@@ -9,10 +10,11 @@ from pathlib import Path
 import pytest
 
 from src.workspace import store
-from src.workspace.store import (BASE_DIRS, DONE, ERROR, KIND_LAW, KIND_ONTOLOGY,
+from src.workspace.store import (BASE_DIRS, DONE, ERROR, KIND_LAW, KIND_ONTOLOGY, LAW_STEPS,
                                  MANIFEST_FILE, PENDING, STEPS, WorkspaceError, check_root,
-                                 list_workspaces, load_workspace, open_ontology, open_upload,
-                                 safe_file_name, slugify, workspace_id, workspace_settings)
+                                 list_workspaces, load_workspace, open_law, open_ontology,
+                                 open_upload, safe_file_name, slugify, steps_for, workspace_id,
+                                 workspace_settings)
 from tests.test_transform_convert import FIXTURE_TTL
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,6 +84,18 @@ def test_law_and_both_modes_are_accepted(cfg):
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", TTL), KIND_LAW: ("l.txt", b"Art. 1")},
                        cfg=cfg)
     assert both.manifest["mode"] == "ontology+law" and both.id.startswith("o-")
+
+
+def test_the_steps_depend_on_what_the_workspace_holds(cfg):
+    assert steps_for("ontology") == STEPS and steps_for(None) == STEPS
+    assert steps_for("law") == LAW_STEPS == ("segment", "index")
+    assert steps_for("ontology+law") == LAW_STEPS + STEPS
+    law = open_law("Ley.txt", b"Art. 1.- Objeto.", cfg=cfg)
+    assert law.manifest["mode"] == "law" and list(law.manifest["steps"]) == list(LAW_STEPS)
+    assert [r["label"] for r in law.progress()] == ["Separar la ley en artículos",
+                                                    "Indexar los artículos de la ley"]
+    law.mark_step("segment", DONE, "1 artículos")
+    assert load_workspace(law.id, cfg=cfg).step("segment")["status"] == DONE
 
 
 # ------------------------------------------------------------------ friendly errors

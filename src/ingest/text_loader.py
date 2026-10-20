@@ -6,7 +6,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import hashlib
-import re
 
 
 @dataclass
@@ -27,15 +26,23 @@ class TextReport:
 
 
 def _count_articles(text: str) -> int:
-    return len(re.findall(r"(?im)^\s*art[íi]?(?:culo|\.)\s*\d+\s*\.?-", text))
+    """Tentative count: the articles the segmenter would find (S7-T07: every heading style)."""
+    from src.ingest.legal_segmenter import count_articles
+    return count_articles(text)
+
+
+def _newlines(text: str) -> str:
+    """Windows (CRLF) and old Mac (CR) line endings become LF, as with any text file read
+    by Python, so the article headings are found on every system (S7-T07)."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _load_txt(path: Path) -> tuple[str, str]:
     data = path.read_bytes()
     try:
-        return data.decode("utf-8"), "utf-8"
+        return _newlines(data.decode("utf-8")), "utf-8"
     except UnicodeDecodeError:
-        return data.decode("latin-1"), "latin-1"
+        return _newlines(data.decode("latin-1")), "latin-1"
 
 
 def _load_pdf(path: Path) -> tuple[str, str]:

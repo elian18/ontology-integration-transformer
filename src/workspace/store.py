@@ -18,8 +18,10 @@ what was already computed); a different file, even with the same name, gets a ne
 decisions of a workspace use ``source_id = "upload:<id>"`` so they never mix with the base
 (``ontopriv+lopdp``, Sprint 5).
 
-The workspace can hold an ontology now (mode "solo ontología", Sprint 6) and a law text in
-Sprint 7 (modes "solo ley" and "ley + ontología"); the id then covers every uploaded file.
+The workspace can hold an ontology (mode "solo ontología", Sprint 6) and a law text (modes
+"solo ley" and "ley + ontología", Sprint 7); the id then covers every uploaded file. The steps
+of a workspace depend on what it holds: those of the ontology, those of the law (S7-T07:
+segment and index it), or both.
 
 CLI: ``py -m src.workspace.store ARCHIVO`` creates (or reopens) the workspace of a file.
 """
@@ -47,11 +49,14 @@ KIND_ONTOLOGY = "ontology"
 KIND_LAW = "law"
 LAW_SUFFIXES = (".txt", ".pdf")
 
-# Steps of the "solo ontología" flow, in order (filled by S6-T05..T08).
+# Steps of the "solo ontología" flow, in order (filled by S6-T05..T08), and of an uploaded law
+# (S7-T07; the later tasks of Sprint 7 add theirs).
 STEPS = ("inherit", "candidates", "propose", "write", "package")
+LAW_STEPS = ("segment", "index")
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
                "propose": "Proponer correspondencias", "write": "Escribir la ontología alineada",
-               "package": "Preparar la descarga"}
+               "package": "Preparar la descarga", "segment": "Separar la ley en artículos",
+               "index": "Indexar los artículos de la ley"}
 PENDING, RUNNING, DONE, ERROR = "pending", "running", "done", "error"
 STATUS_LABELS = {PENDING: "pendiente", RUNNING: "en curso", DONE: "hecho", ERROR: "error"}
 ACCEPTED_ONTOLOGY = "RDF/XML (.rdf, .owl), Turtle (.ttl) o JSON-LD (.jsonld)"
@@ -62,6 +67,15 @@ BASE_DIRS = ("data/output", "data/review", "data/input", "data/reference", "voca
 
 class WorkspaceError(ValueError):
     """The upload cannot be stored (message in Spanish, shown as is in the web)."""
+
+
+def steps_for(mode: str | None) -> tuple[str, ...]:
+    """The steps of a workspace, in order, by what it holds."""
+    if mode == "law":
+        return LAW_STEPS
+    if mode == "ontology+law":
+        return LAW_STEPS + STEPS
+    return STEPS
 
 
 def _now() -> str:
@@ -187,7 +201,7 @@ class Workspace:
     def mark_step(self, name: str, status: str, detail: str | None = None,
                   **extra) -> None:
         """Record the state of a step (pending/running/done/error) and save the manifest."""
-        if name not in STEPS:
+        if name not in STEPS + LAW_STEPS:
             raise WorkspaceError(f"Paso desconocido: {name}")
         if status not in (PENDING, RUNNING, DONE, ERROR):
             raise WorkspaceError(f"Estado desconocido: {status}")
@@ -200,7 +214,8 @@ class Workspace:
 
     def progress(self) -> list[dict]:
         """One row per step, in order, for the web and the console."""
-        return [{"step": s, "label": STEP_LABELS[s], **self.step(s)} for s in STEPS]
+        return [{"step": s, "label": STEP_LABELS[s], **self.step(s)}
+                for s in steps_for(self.manifest.get("mode"))]
 
     def save(self) -> Path:
         self.manifest["updated"] = _now()
@@ -264,7 +279,7 @@ def open_upload(files: dict[str, tuple[str, bytes]], *, cfg: dict | None = None,
             else "ontology" if KIND_ONTOLOGY in inputs else "law")
     ws = Workspace(path, {"id": ws_id, "source_id": SOURCE_PREFIX + ws_id, "mode": mode,
                           "created": _now(), "opened": 1, "inputs": inputs,
-                          "steps": {s: {"status": PENDING} for s in STEPS}})
+                          "steps": {s: {"status": PENDING} for s in steps_for(mode)}})
     ws.save()
     return ws
 
@@ -272,6 +287,11 @@ def open_upload(files: dict[str, tuple[str, bytes]], *, cfg: dict | None = None,
 def open_ontology(name: str, data: bytes, **kwargs) -> Workspace:
     """Shortcut for the "solo ontología" mode (Sprint 6)."""
     return open_upload({KIND_ONTOLOGY: (name, data)}, **kwargs)
+
+
+def open_law(name: str, data: bytes, **kwargs) -> Workspace:
+    """Shortcut for the "solo ley" mode (Sprint 7)."""
+    return open_upload({KIND_LAW: (name, data)}, **kwargs)
 
 
 def load_workspace(ws_id: str, *, cfg: dict | None = None,
@@ -338,8 +358,9 @@ def _run(argv: list[str] | None = None) -> int:
     return 0
 
 
-__all__ = ["Workspace", "WorkspaceError", "open_upload", "open_ontology", "load_workspace",
-           "list_workspaces", "workspace_id", "slugify", "STEPS"]
+__all__ = ["Workspace", "WorkspaceError", "open_upload", "open_ontology", "open_law",
+           "load_workspace", "list_workspaces", "workspace_id", "slugify", "STEPS", "LAW_STEPS",
+           "steps_for"]
 
 if __name__ == "__main__":
     raise SystemExit(_run())
