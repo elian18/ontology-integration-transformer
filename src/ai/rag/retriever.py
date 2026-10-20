@@ -1,8 +1,12 @@
-"""Semantic search over the indexed law (ChromaDB 'normativa' collection).
+"""Semantic search over an indexed law (ChromaDB).
 
 Given a query, returns the articles whose meaning is closest, each with its
 number and title so the web view and the traceability layer can show where a
 match comes from. ``top_k`` defaults to ``rag.top_k`` in config/config.yaml.
+
+By default it searches the base law ('normativa', Sprint 2), exactly as before. With
+``name`` and ``path`` it searches another collection, such as the law of an upload,
+indexed in its own workspace (S7-T07).
 """
 
 from __future__ import annotations
@@ -27,27 +31,34 @@ def _default_top_k() -> int:
     return int(load_config()["rag"]["top_k"])
 
 
-def retrieve_articles(query: str, top_k: int | None = None) -> list[RetrievedArticle]:
+def retrieve_articles(query: str, top_k: int | None = None, *, name: str | None = None,
+                      path=None, embed_fn=None) -> list[RetrievedArticle]:
     """Return the articles most similar in meaning to ``query``.
 
     Args:
         query: Free text to search for.
         top_k: How many articles to return. Defaults to rag.top_k from config.
+        name, path: collection and ChromaDB folder (default: 'normativa' of the base).
+        embed_fn: embedder (default: the project's model).
 
     Returns:
         A list of articles (number, title, source, text and distance), ordered
         from most to least similar.
     """
     k = top_k if top_k is not None else _default_top_k()
-    query_embedding = embed([query])[0]
+    query_embedding = (embed_fn or embed)([query])[0]
 
-    # Read the collection from the module (not a bound name) so it stays valid
-    # even after vector_store.reset() recreates it.
-    result = vector_store.collection.query(
-        query_embeddings=[query_embedding],
-        n_results=k,
-        include=["documents", "metadatas", "distances"],
-    )
+    if name is None and path is None:
+        # Read the collection from the module (not a bound name) so it stays valid
+        # even after vector_store.reset() recreates it.
+        result = vector_store.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=k,
+            include=["documents", "metadatas", "distances"],
+        )
+    else:
+        result = vector_store.query([[float(x) for x in query_embedding]], k, name=name,
+                                    path=path, include=("documents", "metadatas", "distances"))
 
     documents = result["documents"][0] if result["documents"] else []
     metadatas = result["metadatas"][0] if result["metadatas"] else []
