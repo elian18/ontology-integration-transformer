@@ -493,6 +493,25 @@ def test_suggestions_are_high_confidence_terms_the_rule_left_out():
     assert set(dc.suggested(decisions, auto, levels=("alta", "media"))) == {"related", "medium"}
 
 
+def test_dpv_vectors_are_embedded_again_if_chromadb_cannot_read_them(targets, chroma,
+                                                                     monkeypatch):
+    """S7-T08: the read seen failing on Windows; the decisions do not change."""
+    from dataclasses import asdict
+    from chromadb.errors import InternalError
+    from src.ai.rag import vector_store
+    normal, _ = _run(targets, chroma)
+    real_get = vector_store.get
+
+    def no_vectors(ids=None, *, include=("documents", "metadatas"), **kw):
+        if tuple(include) == ("embeddings",):
+            raise InternalError("Error creating hnsw segment reader: Nothing found on disk")
+        return real_get(ids, include=include, **kw)
+    monkeypatch.setattr(vector_store, "get", no_vectors)
+    monkeypatch.setattr(vector_store, "_sleep", lambda s: None)
+    again, _ = _run(targets, chroma)
+    assert [asdict(d) for d in again.decisions] == [asdict(d) for d in normal.decisions]
+
+
 def test_console_is_in_spanish(targets, chroma):
     report, _ = _run(targets, chroma)
     text = dc.render_console(report)

@@ -100,7 +100,7 @@ _NOT_ON_DISK = ("Error executing plan: Internal error: Error creating hnsw segme
 
 
 class _Flaky:
-    """A collection whose first reads fail as ChromaDB did once on Windows (S7-T05)."""
+    """A collection whose first reads fail as ChromaDB did on Windows (S7-T05, S7-T08)."""
 
     def __init__(self, failures, message=_NOT_ON_DISK):
         self.failures, self.message, self.calls = failures, message, 0
@@ -136,9 +136,17 @@ def test_reads_give_up_and_other_errors_are_raised_at_once(monkeypatch):
     monkeypatch.setattr(vector_store, "_target", lambda name, path: always)
     with pytest.raises(InternalError, match="Nothing found on disk"):
         vector_store.get(["a"], name="x")
-    assert always.calls == vector_store.READ_RETRIES
+    assert always.calls == vector_store.READ_RETRIES == 5
+    assert sleeps == [0.5, 1.0, 2.0, 4.0]                     # doubles: 7.5 s at most
     other = _Flaky(failures=1, message="Error executing plan: something else")
     monkeypatch.setattr(vector_store, "_target", lambda name, path: other)
     with pytest.raises(InternalError, match="something else"):
         vector_store.query([[1.0]], 1, name="x")
-    assert other.calls == 1 and len(sleeps) == 2
+    assert other.calls == 1 and len(sleeps) == 4
+
+
+def test_not_on_disk_recognizes_only_that_error():
+    assert vector_store.not_on_disk(InternalError("Error creating hnsw segment reader: NOTHING "
+                                                  "found on disk"))
+    assert not vector_store.not_on_disk(InternalError("Error executing plan: something else"))
+    assert not vector_store.not_on_disk(ValueError("Nothing found on disk"))

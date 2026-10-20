@@ -1,7 +1,7 @@
-"""S6-T07 + S7-T06: the aligned ontology of an upload (ONE module: inherited correspondences and
-the ones the rule accepted, each annotated with who decided it and its version; suggestions
-never written), its manifest and CSV, and the zip in every format with a catalog that resolves
-the imports."""
+"""S6-T07 + S7-T06 + S7-T08: the aligned ontology of an upload (ONE module: inherited
+correspondences and the ones the rule accepted, each annotated with who decided it and its
+version; suggestions never written), the module of the labels es/en the ontology lacked, its
+manifest and CSV, and the zip in every format with a catalog that resolves the imports."""
 from __future__ import annotations
 
 import csv
@@ -27,6 +27,7 @@ from src.alignment.user_alignment import (ACCEPTED, CSV_FILE, GENERATED_IRI_BASE
                                           RULE_NO_MATCH, SUGGESTED, UNDECIDED, align_upload,
                                           build_user_package, concept_rows, load_manifest,
                                           write_user_alignment)
+from src.transform import labels as lab
 from src.transform.convert import load_graph
 from src.transform.package import CATALOG_FILE, README_FILE
 from src.workspace.store import DONE, open_ontology
@@ -38,6 +39,7 @@ from tests.test_alignment_write import DPV, ONTO
 EX = "http://example.org/gdpr#"
 ONTO_IRI = "http://example.org/gdpr"
 MODULE = ONTO_IRI + "-dpv-alignment"
+LABELS = ONTO_IRI + "-labels"
 D = "https://w3id.org/dpv#"
 
 
@@ -46,6 +48,18 @@ def _ws(env, targets, *, ttl=TTL, llm=None, use_llm=True):
     inherit_for_workspace(w, base=env.base, use_embeddings=False)
     run(w, env, targets, llm or DeciderLLM(), use_llm=use_llm)
     return w
+
+
+def _labelled(env, targets, *, use_llm=True):
+    """A workspace whose labels (S7-T08) are done too, as ``align_upload`` leaves it."""
+    w = _ws(env, targets)
+    lab.labels_for_workspace(w, llm=DeciderLLM(), use_llm=use_llm, cfg=env.cfg)
+    return w
+
+
+def _csv(w) -> list[dict]:
+    with open(w.output_dir / CSV_FILE, encoding="utf-8-sig") as handle:
+        return list(csv.DictReader(handle))
 
 
 def _unzip(package, folder: Path) -> Path:
@@ -171,6 +185,84 @@ def test_csv_and_manifest(env, targets):
         saved["base"]["decisions_log_sha256"]) == 64
 
 
+def test_the_labels_go_in_their_own_module(env, targets):
+    w = _labelled(env, targets)
+    m = write_user_alignment(w, cfg=env.cfg)
+    assert m["modules"] == {"alignment": MODULE, "labels": LABELS}
+    assert m["files"]["labels"] == "output/mi-gdpr-labels.ttl"
+    assert m["triples"]["labels"] == 6 + 8                     # 4 classes x (es, en)
+    g = load_graph(w.path / m["files"]["labels"])
+    personal = URIRef(EX + "PersonalData")
+    assert (personal, RDFS.label, Literal("Dato personal", lang="es")) in g
+    assert (personal, RDFS.label, Literal("Personal Data", lang="en")) in g
+    assert (URIRef(LABELS), OWL.imports, URIRef(ONTO_IRI)) in g
+    a = load_graph(w.path / m["files"]["alignment"])
+    assert set(a.objects(URIRef(MODULE), OWL.imports)) == {URIRef(ONTO_IRI), URIRef(LABELS)}
+    assert not list(a.triples((None, RDFS.label, Literal("Dato personal", lang="es"))))
+    labels = m["labels"]
+    assert (labels["concepts"], labels["complete"], labels["translated"], labels["pending"]) == (
+        4, 0, 4, 0)
+    assert labels["added"] == {"es": 4, "en": 4} and labels["glossary"]["entries"] == 2
+    assert labels["ai"]["calls"] == 1 and labels["ai"]["available"] is True
+    assert m["settings"]["prompts"]["labels"] == lab.PROMPT.manifest()
+    assert any("módulo de etiquetas" in n for n in m["notes"])
+    by = {r["concept_name"]: r for r in _csv(w)}
+    assert (by["PersonalData"]["label_es"], by["PersonalData"]["label_en"],
+            by["PersonalData"]["labels_added"]) == ("Dato personal", "Personal Data", "es, en")
+    assert by["Consent"]["label_es"] == "Consentimiento"
+    assert list(by["Consent"])[:5] == ["concept_iri", "concept_name", "label_es", "label_en",
+                                       "labels_added"]
+
+
+def test_the_package_carries_the_labels(env, targets, tmp_path):
+    w = _labelled(env, targets)
+    m = write_user_alignment(w, cfg=env.cfg)
+    package = build_user_package(w, "turtle")
+    assert [f for f in package.included if f.endswith(".ttl")] == [
+        "mi-gdpr-dpv-alignment.ttl", "mi-gdpr-labels.ttl", "mi-gdpr.ttl"]
+    assert package.main_file == "mi-gdpr-dpv-alignment.ttl"
+    folder = _unzip(package, tmp_path / "z")
+    g = _resolve(folder, m["modules"]["alignment"])
+    expected = (load_graph(w.path / m["files"]["alignment"]) + load_graph(w.input_path())
+                + load_graph(w.path / m["files"]["labels"]))
+    assert isomorphic(g, expected)
+    assert (URIRef(EX + "Pizza"), RDFS.label, Literal("Pizza", lang="es")) in g
+    readme = (folder / README_FILE).read_text(encoding="utf-8")
+    assert ("  - mi-gdpr-labels.ttl: las etiquetas que le faltaban a tu ontología (4 en "
+            "español y 4 en inglés), escritas por la IA. Tus etiquetas no cambian.") in readme
+    assert "quedaron sin sus etiquetas" not in readme
+    rdf = build_user_package(w, "rdfxml")
+    assert "mi-gdpr-labels.rdf" in rdf.included
+
+
+def test_labels_left_pending_write_no_module(env, targets, tmp_path):
+    w = _labelled(env, targets, use_llm=False)
+    m = write_user_alignment(w, cfg=env.cfg)
+    assert m["modules"] == {"alignment": MODULE} and "labels" not in m["files"]
+    assert m["labels"]["pending"] == 4 and m["labels"]["ai"]["available"] is False
+    a = load_graph(w.path / m["files"]["alignment"])
+    assert set(a.objects(URIRef(MODULE), OWL.imports)) == {URIRef(ONTO_IRI)}
+    assert {r["labels_added"] for r in _csv(w)} == {"pendiente"}
+    readme = (_unzip(build_user_package(w), tmp_path / "z") / README_FILE).read_text(
+        encoding="utf-8")
+    assert "mi-gdpr-labels" not in readme and "las etiquetas que le faltaban" not in readme
+    assert ("  - 4 conceptos quedaron sin sus etiquetas en español o inglés (la IA no las "
+            "completó)") in readme
+    assert not any("módulo de etiquetas" in n for n in m["notes"])
+
+
+def test_without_labels_result_no_module_and_a_stale_one_goes(env, targets):
+    w = _labelled(env, targets)
+    write_user_alignment(w, cfg=env.cfg)
+    module = w.output_dir / "mi-gdpr-labels.ttl"
+    assert module.exists()
+    (w.work_dir / lab.RESULT_FILE).unlink()
+    m = write_user_alignment(w, cfg=env.cfg)
+    assert not module.exists() and m["labels"] is None and "labels" not in m["triples"]
+    assert "labels" not in m["settings"]["prompts"]
+    assert {r["label_es"] for r in _csv(w)} == {""}
+
+
 def test_concept_rows_cover_every_status():
     inherited = {"inherited": [], "not_inherited": [{"key": "e#i", "name": "ind1",
                                                        "reason": "kind"},
@@ -220,17 +312,38 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
               cfg=env.cfg, chroma_path=env.chroma, sleep_fn=lambda s: None)
     w, m, path = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append, **kw)
     assert seen == ["Heredar lo validado", "Buscar candidatos del DPV",
+                    "Completar las etiquetas en español e inglés",
                     "Escribir la ontología alineada", "Preparar la descarga"]
     assert path.name == "mi-gdpr-alineada-rdfxml.zip" and path.exists()
     assert all(s["status"] == DONE for s in w.progress())
+    assert m["modules"]["labels"] == LABELS and m["labels"]["pending"] == 0
+    text = ua.render_console(w, m, path)
+    assert ("  Etiquetas es/en: 0 conceptos ya las tenían; la IA agregó 4 en español y 4 en "
+            "inglés (módulo output/mi-gdpr-labels.ttl, 14 tripletas)\n") in text
+    assert "  IA de las etiquetas: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
     calls = (embed.calls, llm.calls)
-    w2, _, path2 = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), **{**kw, "fmt": "jsonld"})
+    seen = []
+    w2, _, path2 = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append,
+                                **{**kw, "fmt": "jsonld"})
     assert w2.path == w.path and (embed.calls, llm.calls) == calls     # nothing recomputed
+    assert seen == ["Escribir la ontología alineada", "Preparar la descarga"]
     assert path2.name == "mi-gdpr-alineada-jsonld.zip"
     stricter = {**env.cfg, "decider": {**env.cfg["decider"], "rule": {"min_score": 0.99}}}
     _, m3, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), **{**kw, "cfg": stricter})
     assert llm.calls == calls[1]                                       # decided again: cache
     assert m3["settings"]["rule"]["min_score"] == 0.99
+
+
+def test_labels_left_pending_are_completed_on_the_next_upload(env, targets):
+    kw = dict(fmt="turtle", embed_fn=Embed(), base=env.base, targets=targets, cfg=env.cfg,
+              chroma_path=env.chroma, sleep_fn=lambda s: None)
+    w, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), use_llm=False, **kw)
+    assert m["labels"]["pending"] == 4 and "labels" not in m["modules"]
+    llm, seen = DeciderLLM(), []
+    _, m2, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), llm=llm, progress=seen.append,
+                            **kw)
+    assert "Completar las etiquetas en español e inglés" in seen
+    assert m2["labels"]["pending"] == 0 and m2["modules"]["labels"] == LABELS
 
 
 def test_a_workspace_of_v060_is_decided_again(env, targets):
@@ -255,10 +368,13 @@ def test_cli(tmp_path, monkeypatch, capsys, env, targets):
     path.write_text(TTL, encoding="utf-8")
     assert ua._run([str(path), "--formato", "turtle", "--sin-ia"]) == 0
     out = capsys.readouterr().out
-    assert "Ontología alineada (S7-T06)" in out and "gdpr-alineada-turtle.zip" in out
+    assert "Ontología alineada (S7-T08)" in out and "gdpr-alineada-turtle.zip" in out
     assert re.search(r"aceptadas automáticamente: ([1-9]\d*) \(\1 sin tipo\)", out)  # --sin-ia
     assert "versión 1" in out and "IA del decisor: no usada (IA desactivada (--sin-ia))" in out
     assert "Regla: confianza alta de la IA" in out
+    assert ("  Etiquetas es/en: 0 conceptos ya las tenían; la IA agregó 0 en español y 0 en "
+            "inglés · pendientes: 4\n") in out
+    assert "IA de las etiquetas: no usada (IA desactivada (--sin-ia))" in out
     assert ua._run([str(path), "--formato", "owx"]) == 1
     assert ua._run([str(tmp_path / "no.ttl")]) == 1
 

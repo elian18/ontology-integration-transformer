@@ -167,6 +167,33 @@ def test_stored_vectors_must_match_the_model(tmp_path):
         bm.stored_dpv_vectors(targets, "another-model", tmp_path)
 
 
+def test_stored_vectors_are_embedded_again_when_chromadb_cannot_read_them(tmp_path,
+                                                                          monkeypatch):
+    from chromadb.errors import InternalError
+    targets = _targets()
+    texts = [t.semantic_text() for t in targets.targets]
+    _stored(tmp_path, targets, FakeEmbed()(texts))
+    read = bm.stored_dpv_vectors(targets, "fake-model", tmp_path)
+    real_get = bm.vector_store.get
+
+    def broken(*a, **kw):
+        raise InternalError("Error executing plan: Internal error: Error creating hnsw segment "
+                            "reader: Nothing found on disk")
+    monkeypatch.setattr(bm.vector_store, "get", broken)
+    embed = FakeEmbed()
+    again = bm.stored_dpv_vectors(targets, "fake-model", tmp_path, embed_fn=embed)
+    assert embed.texts == len(texts) and again.dtype == float
+    assert np.array_equal(again, read)                     # float32, as ChromaDB stores them
+    with pytest.raises(InternalError, match="Nothing found on disk"):
+        bm.stored_dpv_vectors(targets, "fake-model", tmp_path)          # without embed_fn
+    monkeypatch.setattr(bm.vector_store, "get", lambda *a, **kw: (_ for _ in ()).throw(
+        InternalError("Error executing plan: something else")))
+    with pytest.raises(InternalError, match="something else"):
+        bm.stored_dpv_vectors(targets, "fake-model", tmp_path, embed_fn=embed)
+    monkeypatch.setattr(bm.vector_store, "get", real_get)
+    assert np.array_equal(bm.stored_dpv_vectors(targets, "fake-model", tmp_path), read)
+
+
 def test_memo_embed_computes_each_text_once():
     inner = FakeEmbed()
     memo = bm.MemoEmbed(inner)

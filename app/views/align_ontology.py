@@ -1,9 +1,11 @@
-"""Page "Alinear mi ontología" (S6-T08, S7-T06): the user's flow, as little to do as possible.
+"""Page "Alinear mi ontología" (S6-T08, S7-T06, S7-T08): the user's flow, as little to do as
+possible.
 
 1. Upload the ontology: the alignment starts on its own (no extra button), with a progress
    box that names each step.
-2. See the result: five numbers, the rule that decided, a short explanation and, if wanted, a
-   read-only table (suggestions included).
+2. See the result: five numbers, the rule that decided, what was done with the labels in
+   Spanish and English, a short explanation and, if wanted, a read-only table (suggestions and
+   labels included).
 3. Pick the format and download the zip.
 Nothing to review: the ontology holds what a person decided while building the base and what
 the calibrated rule accepted; the suggestions are only shown (comments come in Sprint 10).
@@ -22,7 +24,8 @@ st.write(
     "Vocabulary (DPV)**. No tienes que revisar nada: lo que ya fue validado en la base del "
     "sistema (OntoPriv + LOPDP) se aplica solo; para lo demás, la IA elige entre los términos "
     "más parecidos del DPV y una regla calibrada decide qué entra. Lo que la IA sugiere y la "
-    "regla no acepta se muestra aparte, sin entrar a la ontología."
+    "regla no acepta se muestra aparte, sin entrar a la ontología. Además, completa las "
+    "etiquetas en español e inglés que le falten a tu ontología, sin cambiar las tuyas."
 )
 
 
@@ -91,8 +94,12 @@ st.caption(f"{v['concepts']} conceptos · {v['mappings']} correspondencias en la
            f"versión {v['version']}")
 if v["rule"]:
     st.caption(f"Regla: {v['rule']}.")
+if v["labels"]:
+    st.caption(v["labels"])
 if v["ai_note"]:
     st.warning(v["ai_note"])
+if v["labels_note"]:
+    st.warning(v["labels_note"])
 if v["iri_generated"]:
     st.caption("Tu ontología no declaraba un IRI de ontología: se le asignó uno en la copia "
                "del paquete (tu archivo original no cambia).")

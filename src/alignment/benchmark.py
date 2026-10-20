@@ -106,15 +106,27 @@ class MemoEmbed:
         return [self.cache[t] for t in texts]
 
 
-def stored_dpv_vectors(targets, model_name: str, path=None) -> np.ndarray:
-    """The DPV vectors of the "dpv" collection, in the order of ``targets``."""
+def stored_dpv_vectors(targets, model_name: str, path=None, embed_fn=None) -> np.ndarray:
+    """The DPV vectors of the "dpv" collection, in the order of ``targets``.
+
+    Reading them only saves computing the embeddings again. When ChromaDB still cannot read a
+    collection it has just built ("Nothing found on disk" after the retries of vector_store,
+    seen on Windows) and ``embed_fn`` is given, the same texts the collection was built from
+    are embedded again, rounded to float32 as ChromaDB stores them, so the candidates, the
+    scores and the decider's cache keys stay the same."""
     meta = vector_store.metadata(DPV_COLLECTION, path)
     count = vector_store.count(name=DPV_COLLECTION, path=path)
     if count != len(targets.targets) or meta.get("embedding_model") != model_name:
         raise ValueError("La colección dpv no está al día con este modelo de embeddings: "
                          "corre primero py -m src.alignment.knowledge")
     ids = [t.iri for t in targets.targets]
-    got = vector_store.get(ids, name=DPV_COLLECTION, path=path, include=("embeddings",))
+    try:
+        got = vector_store.get(ids, name=DPV_COLLECTION, path=path, include=("embeddings",))
+    except Exception as exc:                          # noqa: BLE001 - only one is handled
+        if embed_fn is None or not vector_store.not_on_disk(exc):
+            raise
+        texts = [t.semantic_text() for t in targets.targets]     # = knowledge.dpv_records
+        return np.asarray(embed_fn(texts), dtype=np.float32).astype(float)
     by_id = dict(zip(got["ids"], got["embeddings"]))
     return np.asarray([by_id[i] for i in ids], dtype=float)
 

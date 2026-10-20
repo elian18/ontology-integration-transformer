@@ -1,7 +1,8 @@
 """S7-T06: the decider and its fixed rule for the concepts of an upload that inherited nothing
 (and the Sprint 6 proposer, kept for the S6-T09 check).
 
-Fast tests: a fake embedder, a fake LLM that answers like the decider's (``DeciderLLM``), a small
+Fast tests: a fake embedder, a fake LLM that answers like the decider's (``DeciderLLM``, which
+also answers the labels prompt of S7-T08, so the whole web flow runs with it), a small
 DPV and a small validated base written to temporary files, and a temporary ChromaDB where the
 knowledge collections are built from them."""
 from __future__ import annotations
@@ -23,6 +24,7 @@ from src.alignment.decider import CACHE_FILE
 from src.alignment.export import CANDIDATES_JSON
 from src.alignment.inherit import inherit_for_workspace, load_base
 from src.alignment.dpv_targets import build_dpv_targets
+from src.core.dpv_proximity import _humanize
 from src.alignment.propose import (ACCEPTED, BY_RULE, BY_RULE_WITHOUT_AI, NO_MATCH, NO_PROPOSAL,
                                    RESULT_FILE, STATUS_AI_NONE, STATUS_BELOW, STATUS_PROPOSED,
                                    SUGGESTED, UNDECIDED, decide, is_current, mark_for_ai,
@@ -47,7 +49,8 @@ TTL_PROPERTY = TTL + "ex:hasRecipient a owl:ObjectProperty .\n"
 CFG = {"auto": {"threshold": 0.6, "use_llm": True, "llm_max_calls": 5},
        "alignment": {"top_k": 3, "weight_lexical": 0.4, "weight_semantic": 0.6,
                      "justify_batch_size": 15, "justify_pause_seconds": 0},
-       "decider": {"candidates": 3, "precedents": 2, "batch_size": 10, "pause_seconds": 0}}
+       "decider": {"candidates": 3, "precedents": 2, "batch_size": 10, "pause_seconds": 0},
+       "labels": {"pause_seconds": 0}}
 
 
 class Embed:
@@ -98,11 +101,15 @@ class FakeLLM:
 ANSWERS = {"PersonalData": ("PersonalData", "exactMatch", "alta"),
            "DataController": ("DataController", "relatedMatch", "alta"),
            "hasRecipient": ("hasRecipient", "exactMatch", "alta")}
+LABELS_ES = {"Consent": "Consentimiento", "PersonalData": "Dato personal",
+             "DataController": "Responsable del tratamiento", "Pizza": "Pizza",
+             "hasRecipient": "Tiene destinatario"}
 
 
 class DeciderLLM:
     """Answers like the decider's LLM: the term of ``answers`` if it is a candidate, otherwise
-    'ninguno' with high confidence."""
+    'ninguno' with high confidence. To the labels prompt (S7-T08) it answers the Spanish label
+    of ``LABELS_ES`` ("Etiqueta de <name>" for the others) and the name split into words."""
 
     def __init__(self, answers=None, error=None, model="modelo-de-prueba"):
         self.answers = ANSWERS if answers is None else answers
@@ -114,6 +121,12 @@ class DeciderLLM:
         if self.error:
             raise Exception(self.error)
         out = []
+        if '"labels"' in prompt:
+            for block in context.split("=== ")[1:]:
+                name = re.search(r"^Concepto: (\S+) \(", block, re.M).group(1)
+                out.append({"concept": block.split(" ===", 1)[0], "en": _humanize(name),
+                            "es": LABELS_ES.get(name, f"Etiqueta de {name}")})
+            return json.dumps({"labels": out}, ensure_ascii=False)
         for block in context.split("=== ")[1:]:
             cid = block.split(" ===", 1)[0]
             name = re.search(r"^Concepto: (\S+) \(", block, re.M).group(1)
