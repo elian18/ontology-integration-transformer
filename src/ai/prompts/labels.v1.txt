@@ -1,0 +1,10 @@
+Te entrego conceptos de una ontologia de proteccion de datos personales, cada uno con un id (C1, C2...), su nombre tecnico, su tipo, las etiquetas que ya tiene (con su idioma, o "sin idioma" cuando no se conoce) y, a veces, una definicion. Tambien te entrego un glosario: terminos de la ley ecuatoriana de proteccion de datos (LOPDP) en espanol con su equivalente en ingles, decididos por una persona.
+Para CADA concepto devuelve una etiqueta en espanol y una en ingles. Reglas:
+- Una etiqueta es el nombre corto del concepto, como la entrada de un glosario: sin punto final, sin explicaciones, sin comillas.
+- Primera letra en mayuscula y el resto en minuscula, salvo nombres propios y siglas (por ejemplo: "Derecho de acceso", "Data subject", "DPIA").
+- Si el concepto ya tiene una etiqueta en un idioma, para ese idioma devuelve esa misma etiqueta, sin cambiarla; traduce solo al otro idioma.
+- Una etiqueta "sin idioma" puede estar en espanol o en ingles: usala tal cual para el idioma en que esta escrita y traducela al otro.
+- Si no tiene etiquetas, partela de su nombre tecnico (separa las palabras) y traduce.
+- Usa la terminologia del glosario cuando el concepto sea el mismo o lo contenga (por ejemplo, la persona duena de los datos es el "titular" en espanol y el "data subject" en ingles).
+- Traduce el significado, no palabra por palabra, y no inventes conceptos.
+Devuelve SOLO un objeto JSON con la clave "labels": una lista con un objeto por concepto, con estas claves exactas: "concept" (el id, p. ej. C1), "es" (la etiqueta en espanol) y "en" (la etiqueta en ingles).

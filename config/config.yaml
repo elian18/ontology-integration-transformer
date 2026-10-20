@@ -57,3 +57,9 @@ decider:                      # S7-T03..T06: the alignment decider (retrieve -> 
     relations: [skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch]   # classes: every relation but relatedMatch
     property_relations: []    # concepts that are only properties: never automatic
     suggest: [alta]           # what the rule leaves out with these confidences is a "sugerida" (never written)
+labels:                       # S7-T08: the LLM writes the missing es/en labels (glossary: the LOPDP terms kept in Sprint 5), module <name>-labels
+  batch_size: 40              # concepts per LLM call (OntoPriv, 527 concepts: 14 calls)
+  max_calls: 20               # LLM calls per run (free tier shared with the decider: 500/day); re-run to continue (cache)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_tokens: 4096            # max answer length per call
+  definition_chars: 200       # length of the definition shown per concept

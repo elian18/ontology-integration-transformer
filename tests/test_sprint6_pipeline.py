@@ -11,6 +11,8 @@ figures are in the CHANGELOG; this test locks what does not depend on them:
 - the alignment module holds the inherited correspondences plus what the rule accepted (S7-T06:
   the decider runs with the real base as knowledge, a deterministic embedding and a fake AI),
   and the zip resolves the import of GDPRtEXT in the four formats (S6-T07);
+- every class and property gets its labels in Spanish and English (S7-T08): the English one is
+  GDPRtEXT's own label, only tagged, and both live in the labels module;
 - the automatic check solves every inherited concept again and leaves the user's alignment as
   it was (S6-T09);
 - nothing is written outside the workspace (S6-T04)."""
@@ -24,9 +26,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rdflib import URIRef
+from rdflib import Literal, URIRef
 from rdflib.compare import isomorphic
-from rdflib.namespace import OWL, RDF
+from rdflib.namespace import OWL, RDF, RDFS
 
 from src.alignment.external_check import check_workspace
 from src.alignment.inherit import METHOD_SAME_NAME, load_base, load_result
@@ -90,7 +92,7 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
         GDPRTEXT.name, GDPRTEXT.read_bytes(), fmt="turtle", base=real_base,
         embed_fn=_orthogonal_embed, llm=llm, cfg=cfg, progress=seen.append,
         chroma_path=tmp_path / "chroma", sleep_fn=lambda s: None)
-    assert len(seen) == 4 and all(s["status"] == DONE for s in ws.progress())
+    assert len(seen) == 5 and all(s["status"] == DONE for s in ws.progress())
 
     inherited = load_result(ws)
     same_name = [i for i in inherited["inherited"] if i["method"] == METHOD_SAME_NAME]
@@ -105,11 +107,21 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
     assert s["mappings"] == expected_mappings + s["accepted_mappings"]
     assert llm.calls >= 1 and manifest["decider"]["pending_ai"] == 0
 
+    labels = manifest["labels"]
+    assert (labels["concepts"], labels["translated"], labels["pending"]) == (235, 235, 0)
+    assert labels["added"] == {"es": 235, "en": 234}            # one had its English tag
+    assert labels["glossary"]["entries"] > 0 and labels["ai"]["calls"] == 6   # 40 per call
+    consent = URIRef(GDPR_IRI + "#Consent")
+    original = {str(o) for o in load_graph(GDPRTEXT).objects(consent, RDFS.label)}
+
     for fmt in ("rdfxml", "owl", "turtle", "jsonld"):
         folder = tmp_path / fmt
         zipfile.ZipFile(io.BytesIO(build_user_package(ws, fmt).data)).extractall(folder)
         g = _resolve(folder, manifest["modules"]["alignment"])
         assert (URIRef(GDPR_IRI + "#Consent"), RDF.type, OWL.Class) in g    # GDPRtEXT imported
+        assert (consent, RDFS.label, Literal("Consentimiento", lang="es")) in g
+        english = {str(o) for o in g.objects(consent, RDFS.label) if o.language == "en"}
+        assert english and english <= original                         # same text, tagged
     assert zip_path.exists()
 
     work = [ws.work_dir / DECISIONS_FILE]

@@ -1,4 +1,4 @@
-"""S6-T08 + S7-T06: the "Alinear mi ontología" page (service + the page with AppTest).
+"""S6-T08 + S7-T06 + S7-T08: the "Alinear mi ontología" page (service + the page with AppTest).
 
 AppTest cannot drive a file uploader, so the upload itself is tested through the service
 (``align``) and the page is run with the workspace id already in the session, exactly what
@@ -43,6 +43,7 @@ def test_align_runs_every_step_and_names_them(aligned):
     ws_id, seen = aligned
     assert ws_id.startswith("mi-gdpr-")
     assert seen == ["Heredar lo validado", "Buscar candidatos del DPV",
+                    "Completar las etiquetas en español e inglés",
                     "Escribir la ontología alineada", "Preparar la descarga"]
 
 
@@ -59,6 +60,13 @@ def test_view_has_the_numbers_and_the_table(aligned):
                       "Sugerida", "Sin correspondencia"]
     consent = [r for r in v["rows"] if r["Concepto"] == "Consent"]
     assert len(consent) == 2 and consent[0]["Decidido por"] == "base · mismo nombre · Consent"
+    assert (consent[0]["Etiqueta (es)"], consent[0]["Etiqueta (en)"]) == ("Consentimiento",
+                                                                          "Consent")
+    assert list(consent[0])[:4] == ["Concepto", "Etiqueta (es)", "Etiqueta (en)", "Estado"]
+    assert v["labels"] == ("Etiquetas en español e inglés: 0 conceptos ya las tenían; la IA "
+                           "completó las de 4 (4 en español y 4 en inglés) en un módulo aparte, "
+                           "sin cambiar tus etiquetas.")
+    assert v["labels_note"] is None
     accepted = svc.filter_rows(v["rows"], "Aceptada automáticamente")[0]
     assert (accepted["Concepto"], accepted["Decidido por"], accepted["Confianza de la IA"]) == (
         "PersonalData", "regla", "alta")
@@ -109,6 +117,24 @@ def test_without_ai_the_page_says_what_happened(env, targets, monkeypatch):
     assert {r["Decidido por"] for r in v["rows"] if r["Estado"] == "Aceptada automáticamente"} \
         == {"regla sin IA"}
     assert "Sin decidir" in {r["Estado"] for r in v["rows"]}
+    assert v["labels"] == "Etiquetas en español e inglés: 0 conceptos ya las tenían."
+    assert v["labels_note"].startswith("La IA no estuvo disponible: 4 conceptos quedaron sin "
+                                       "sus etiquetas en español o inglés.")
+    assert {r["Etiqueta (es)"] for r in v["rows"]} == {""}
+
+
+def test_labels_caption_and_note():
+    assert svc.labels_caption(None) is None and svc._labels_note(None) is None
+    done = {"complete": 3, "translated": 0, "pending": 0, "added": {"es": 0, "en": 0}}
+    assert svc.labels_caption(done) == "Etiquetas en español e inglés: 3 conceptos ya las tenían."
+    assert svc._labels_note(done) is None
+    left = {"pending": 2, "ai": {"available": True}}
+    quota = svc._labels_note({**left, "ai": {"available": True, "quota_exhausted": True}})
+    assert quota.startswith("Se agotó la cuota diaria de la IA: 2 conceptos quedaron")
+    assert "mañana (lo ya traducido no se repite)" in quota
+    limit = svc._labels_note({**left, "ai": {"available": True, "call_limit_reached": True}})
+    assert limit.startswith("Se llegó al límite de llamadas a la IA de esta subida")
+    assert svc._labels_note(left).startswith("La IA no devolvió etiquetas válidas: 2 conceptos")
 
 
 def test_a_workspace_of_v060_asks_to_upload_again(aligned):
@@ -163,6 +189,9 @@ def test_page_shows_the_result_and_the_download(page, aligned):
     assert all(m.help for m in at.metric)                         # every number explained
     assert any("3 correspondencias en la ontología" in c.value for c in at.caption)
     assert any(c.value.startswith("Regla: confianza alta") for c in at.caption)
+    assert any(c.value.startswith("Etiquetas en español e inglés: 0 conceptos ya las tenían; "
+                                  "la IA completó las de 4") for c in at.caption)
+    assert not at.warning
     assert at.radio(key="align_fmt").value == "Turtle"
     assert at.download_button[0].label == "Descargar ontología alineada (Turtle, .zip)"
     assert any("mi-gdpr-dpv-alignment.ttl" in c.value for c in at.caption)
@@ -171,6 +200,21 @@ def test_page_shows_the_result_and_the_download(page, aligned):
     assert any("Protégé 5.6 no abre JSON-LD" in i.value for i in at.info)
     at.selectbox(key="align_filter").set_value("Validada en la base").run()
     assert len(at.dataframe[0].value) == 2
+
+
+def test_page_warns_when_the_ai_left_labels_pending(page, env, targets, monkeypatch):
+    offline = {**env.cfg, "auto": {**env.cfg["auto"], "use_llm": False}}
+    monkeypatch.setattr(svc, "workspace_cfg", lambda: offline)
+    ws_id = svc.align("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, targets=targets,
+                      embed_fn=Embed(), chroma_path=env.chroma)
+    at = page()
+    at.session_state["align_ws"] = ws_id
+    at.run()
+    assert not at.exception
+    warnings = [w.value for w in at.warning]
+    assert len(warnings) == 2 and warnings[0].startswith("La IA no estuvo disponible: a 3")
+    assert warnings[1].startswith("La IA no estuvo disponible: 4 conceptos quedaron sin sus "
+                                  "etiquetas")
 
 
 def test_page_reports_a_broken_workspace(page):

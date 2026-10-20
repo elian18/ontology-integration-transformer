@@ -506,7 +506,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
 
     cvec = np.asarray(embed([c.semantic_text() for c in concepts]), float)
     tvec = (np.asarray(target_vectors, float) if target_vectors is not None
-            else stored_dpv_vectors(targets, embedding_model, chroma_path))
+            else stored_dpv_vectors(targets, embedding_model, chroma_path, embed_fn=embed))
     lists = candidate_lists(settings.candidate_source, concepts, targets, cvec, tvec,
                             k=settings.candidates, path=chroma_path, cfg=cfg)
     scored = _candidate_scores(concepts, targets, cvec, tvec, lists, cfg)

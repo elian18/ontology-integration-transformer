@@ -1,8 +1,9 @@
-"""Bridge for the "Alinear mi ontología" page (S6-T08, S7-T06): the user's flow in the web.
+"""Bridge for the "Alinear mi ontología" page (S6-T08, S7-T06, S7-T08): the user's flow in the web.
 
 The person only uploads a file; everything else is automatic: the workspace (S6-T04),
 inheriting the validated decisions (S6-T05), the decider and its calibrated rule for the rest
-(S7-T06), writing the module and the zip (S6-T07). This adapter calls
+(S7-T06), the labels in Spanish and English that the ontology lacked (S7-T08), writing the
+modules and the zip (S6-T07). This adapter calls
 ``src.alignment.user_alignment.align_upload`` and turns its results into what the page shows:
 a few numbers, a read-only table per concept and the zip in the chosen format.
 
@@ -124,8 +125,42 @@ def view(ws_id: str) -> dict:
         "rule": decider.get("rule"),
         "ai_note": _ai_note(decider),
         "iri_generated": manifest.get("ontology_iri_generated", False),
+        "labels": labels_caption(manifest.get("labels")),
+        "labels_note": _labels_note(manifest.get("labels")),
         "rows": table_rows(_rows(ws)),
     }
+
+
+def labels_caption(labels: dict | None) -> str | None:
+    """What S7-T08 did, in one line (None for a workspace aligned before it)."""
+    if not labels:
+        return None
+    text = f"Etiquetas en español e inglés: {labels['complete']} conceptos ya las tenían"
+    if labels["translated"]:
+        added = labels["added"]
+        text += (f"; la IA completó las de {labels['translated']} ({added['es']} en español y "
+                 f"{added['en']} en inglés) en un módulo aparte, sin cambiar tus etiquetas")
+    return text + "."
+
+
+def _labels_note(labels: dict | None) -> str | None:
+    """A warning only when concepts were left without their labels."""
+    pending = (labels or {}).get("pending") or 0
+    if not pending:
+        return None
+    ai = labels.get("ai") or {}
+    what = f"{pending} conceptos quedaron sin sus etiquetas en español o inglés"
+    if not ai.get("available"):
+        return (f"La IA no estuvo disponible: {what}. Vuelve a subir el archivo cuando la IA "
+                "esté disponible para completarlas.")
+    if ai.get("quota_exhausted"):
+        return (f"Se agotó la cuota diaria de la IA: {what}. Vuelve a subir el archivo mañana "
+                "(lo ya traducido no se repite).")
+    if ai.get("call_limit_reached"):
+        return (f"Se llegó al límite de llamadas a la IA de esta subida: {what}. Vuelve a subir "
+                "el archivo para seguir (lo ya traducido no se repite).")
+    return (f"La IA no devolvió etiquetas válidas: {what}. Vuelve a subir el archivo para "
+            "intentarlo de nuevo.")
 
 
 def _ai_note(decider: dict) -> str | None:
@@ -161,6 +196,8 @@ def table_rows(rows: list[dict]) -> list[dict]:
         score = r.get("score")
         out.append({
             "Concepto": r.get("concept_name"),
+            "Etiqueta (es)": r.get("label_es") or "",
+            "Etiqueta (en)": r.get("label_en") or "",
             "Estado": STATE_LABELS.get(r.get("status"), r.get("status")),
             "Relación": r.get("relation") or "",
             "Término del DPV": r.get("dpv_name") or "",

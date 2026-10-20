@@ -88,6 +88,7 @@ def test_law_and_both_modes_are_accepted(cfg):
 
 def test_the_steps_depend_on_what_the_workspace_holds(cfg):
     assert steps_for("ontology") == STEPS and steps_for(None) == STEPS
+    assert STEPS == ("inherit", "candidates", "propose", "labels", "write", "package")  # S7-T08
     assert steps_for("law") == LAW_STEPS == ("segment", "index")
     assert steps_for("ontology+law") == LAW_STEPS + STEPS
     law = open_law("Ley.txt", b"Art. 1.- Objeto.", cfg=cfg)

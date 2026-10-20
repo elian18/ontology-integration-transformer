@@ -14,10 +14,15 @@ Until Sprint 6 the project had ONE collection, fixed when this module was import
 ``CHROMA_PATH`` (environment) still wins over config.yaml, so the test suite keeps isolating
 ChromaDB in a temporary directory (tests/conftest.py).
 
-Reads (``get``, ``query``) are retried a couple of times, with a short wait, when ChromaDB has
-not finished writing the index of a collection that was just built: seen once on Windows in the
-test suite (S7-T05) as "Error creating hnsw segment reader: Nothing found on disk". Any other
-error is raised at once.
+Reads (``get``, ``query``) are retried, waiting a little longer each time, when ChromaDB has
+not finished writing the index of a collection that was just built: "Error creating hnsw
+segment reader: Nothing found on disk". ChromaDB persists the HNSW index in the background and
+a read of the vectors that arrives while a young segment is still being written fails; it was
+seen on Windows in the test suite in S7-T05 and again in S7-T08, where three attempts in
+1.5 s were not enough, so the wait now doubles: 0.5 + 1 + 2 + 4 s (7.5 s at most, only when
+it fails). After the last attempt the error is raised as is; any other error is raised at once.
+The decider does not even depend on this: if the stored DPV vectors cannot be read, it embeds
+the same texts again (``src.alignment.benchmark.stored_dpv_vectors``).
 """
 from __future__ import annotations
 
@@ -40,10 +45,15 @@ _SPACE_KEY = "hnsw:space"
 
 _clients: dict[str, object] = {}   # folder -> chromadb.PersistentClient
 
-READ_RETRIES = 3                   # attempts of a read whose index is not on disk yet
-READ_WAIT_SECONDS = 0.5            # wait before the 2nd attempt (doubles before the 3rd)
+READ_RETRIES = 5                   # attempts of a read whose index is not on disk yet
+READ_WAIT_SECONDS = 0.5            # wait before the 2nd attempt (doubles before each next one)
 _NOT_ON_DISK = "nothing found on disk"
 _sleep = time.sleep                # the tests replace it
+
+
+def not_on_disk(exc: Exception) -> bool:
+    """True for the error of a read that arrived before ChromaDB wrote the index to disk."""
+    return isinstance(exc, InternalError) and _NOT_ON_DISK in str(exc).lower()
 
 
 def _read(call):
@@ -52,9 +62,9 @@ def _read(call):
         try:
             return call()
         except InternalError as exc:
-            if _NOT_ON_DISK not in str(exc).lower() or attempt == READ_RETRIES - 1:
+            if not not_on_disk(exc) or attempt == READ_RETRIES - 1:
                 raise
-            _sleep(READ_WAIT_SECONDS * (attempt + 1))
+            _sleep(READ_WAIT_SECONDS * 2 ** attempt)
 
 
 def default_name() -> str:

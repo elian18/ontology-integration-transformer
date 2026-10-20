@@ -49,12 +49,14 @@ KIND_ONTOLOGY = "ontology"
 KIND_LAW = "law"
 LAW_SUFFIXES = (".txt", ".pdf")
 
-# Steps of the "solo ontología" flow, in order (filled by S6-T05..T08), and of an uploaded law
-# (S7-T07; the later tasks of Sprint 7 add theirs).
-STEPS = ("inherit", "candidates", "propose", "write", "package")
+# Steps of the "solo ontología" flow, in order (filled by S6-T05..T08; "labels": S7-T08), and
+# of an uploaded law (S7-T07; the later tasks of Sprint 7 add theirs).
+STEPS = ("inherit", "candidates", "propose", "labels", "write", "package")
 LAW_STEPS = ("segment", "index")
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
-               "propose": "Proponer correspondencias", "write": "Escribir la ontología alineada",
+               "propose": "Proponer correspondencias",
+               "labels": "Completar las etiquetas en español e inglés",
+               "write": "Escribir la ontología alineada",
                "package": "Preparar la descarga", "segment": "Separar la ley en artículos",
                "index": "Indexar los artículos de la ley"}
 PENDING, RUNNING, DONE, ERROR = "pending", "running", "done", "error"
