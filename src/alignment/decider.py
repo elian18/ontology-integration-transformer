@@ -27,12 +27,17 @@ For every concept that did not inherit a decision:
    the LLM said with high confidence is a SUGGESTION (``suggested``): it is never written into
    the ontology; it is shown so that a person can comment on it (Sprint 10).
 
+The rule used in production (S7-T06) is ``decider.rule`` of config.yaml (``rule_settings``),
+the one S7-T05 chose: high confidence, score >= 0.5, every SKOS relation but relatedMatch for
+classes, never automatic for concepts that are only properties.
+
 Free tier, as in Sprints 3-6: pause between calls, call limit per run, one retry after a 429
 or a 503, stop cleanly when the quota is exhausted. Every answer is cached by CONTENT (prompt,
-model and everything the LLM saw), so a re-run never spends a call twice and an interrupted
-run resumes where it stopped; a change of prompt, model, candidates or precedents makes a new
-call. Each decision keeps its provenance for PROV-O (Sprint 10): candidates, precedents,
-article, prompt version and model.
+model, the generation settings that differ from temperature 0, and everything the LLM saw), so
+a re-run never spends a call twice and an interrupted run resumes where it stopped; a change of
+prompt, model, temperature, candidates or precedents makes a new call. With ``max_calls`` 0 (no
+AI) only the cache answers. Each decision keeps its provenance for PROV-O (Sprint 10):
+candidates, precedents, article, prompt version and model.
 
 The LLM, the embedder and the evidence are injected: the fast tests use fakes.
 
@@ -44,6 +49,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import time
 import unicodedata
@@ -72,7 +78,10 @@ NONE_ANSWER = "ninguno"
 CONFIDENCE_LEVELS = ("alta", "media", "baja")
 SKOS_EXACT = ("skos:exactMatch",)
 SKOS_STRONG = ("skos:exactMatch", "skos:closeMatch", "skos:broadMatch", "skos:narrowMatch")
+SKOS_ALL = SKOS_STRONG + ("skos:relatedMatch",)
 SAME_AS_CLASSES = "same"            # property_relations: the same relations as for classes
+# Generation settings of every answer cached in S7-T04/T05: only other values enter the key.
+CACHE_NEUTRAL = {"temperature": 0.0}
 _CONFIDENCE_ALIASES = {"alta": "alta", "high": "alta", "media": "media", "medium": "media",
                        "moderada": "media", "baja": "baja", "low": "baja"}
 _NONE_ALIASES = {"ninguno", "ninguna", "none", "no", "sin correspondencia", "nada", ""}
@@ -123,6 +132,73 @@ def settings_from_config(cfg: dict | None = None) -> DeciderSettings:
     return s
 
 
+@dataclass(frozen=True)
+class RuleSettings:
+    """The fixed rule of production (``decider.rule``); the defaults are the S7-T05 choice."""
+    accept: tuple[str, ...] = ("alta",)
+    min_score: float = 0.5
+    relations: tuple[str, ...] | None = SKOS_STRONG        # classes (None = any relation)
+    property_relations: tuple[str, ...] | None = ()        # only properties (() = never)
+    suggest: tuple[str, ...] = ("alta",)                    # left out with these -> sugerida
+
+    def kwargs(self) -> dict:
+        """The arguments of ``apply_rule``."""
+        return {"accept": self.accept, "min_score": self.min_score, "relations": self.relations,
+                "property_relations": self.property_relations}
+
+    def as_dict(self) -> dict:
+        lists = (lambda v: None if v is None else list(v))          # noqa: E731
+        return {"accept": list(self.accept), "min_score": self.min_score,
+                "relations": lists(self.relations),
+                "property_relations": lists(self.property_relations),
+                "suggest": list(self.suggest)}
+
+    def label(self) -> str:
+        """The rule in Spanish (web, README, annotations)."""
+        def rel(values):
+            if values is None:
+                return "cualquier relación"
+            if not values:
+                return "nunca automáticas"
+            names = [v.replace("skos:", "") for v in values]
+            return ", ".join(names[:-1]) + " o " + names[-1] if len(names) > 1 else names[0]
+        return (f"confianza {' o '.join(self.accept)} de la IA y puntaje >= {self.min_score:g}; "
+                f"clases: {rel(self.relations)}; propiedades: {rel(self.property_relations)}")
+
+
+def _relations(value, *, allow_same: bool):
+    if value is None:
+        return None
+    if allow_same and value == SAME_AS_CLASSES:
+        return SAME_AS_CLASSES
+    if isinstance(value, str) or not set(value) <= set(SKOS_ALL):
+        raise ValueError("Valores inválidos en decider.rule de config.yaml: las relaciones "
+                         f"deben ser una lista de {', '.join(SKOS_ALL)}.")
+    return tuple(value)
+
+
+def rule_settings(cfg: dict | None = None) -> RuleSettings:
+    """``decider.rule`` of config.yaml (defaults for the keys that are missing)."""
+    if cfg is None:
+        from src.config import load_config
+        cfg = load_config()
+    block = ((cfg or {}).get("decider", {}) or {}).get("rule", {}) or {}
+    default = RuleSettings()
+    accept = tuple(block.get("accept", default.accept))
+    suggest = tuple(block.get("suggest", default.suggest))
+    min_score = float(block.get("min_score", default.min_score))
+    if (not accept or not set(accept) | set(suggest) <= set(CONFIDENCE_LEVELS)
+            or not 0.0 <= min_score <= 1.0):
+        raise ValueError("Valores inválidos en decider.rule de config.yaml (accept y suggest: "
+                         "alta, media o baja; min_score entre 0 y 1).")
+    relations = _relations(block.get("relations", default.relations), allow_same=False)
+    props = _relations(block.get("property_relations", default.property_relations),
+                       allow_same=True)
+    return RuleSettings(accept=accept, min_score=min_score, relations=relations,
+                        property_relations=relations if props == SAME_AS_CLASSES else props,
+                        suggest=suggest)
+
+
 # --------------------------------------------------------------------------- data
 
 @dataclass
@@ -139,6 +215,7 @@ class Decision:
     justification: str | None = None
     score: float | None = None           # hybrid score of the chosen candidate (for the rule)
     rank: int | None = None              # its position among the candidates
+    best_score: float | None = None      # score of the first candidate (rule without AI)
     candidates: list[str] = field(default_factory=list)       # DPV IRIs shown, in order
     precedents: list[str] = field(default_factory=list)       # base keys shown as precedents
     evidence_article: int | None = None
@@ -291,9 +368,22 @@ def concept_body(item: _Item, settings: DeciderSettings) -> str:
     return "\n".join(lines)
 
 
-def cache_key(body: str, model: str | None) -> str:
-    payload = json.dumps({"prompt": PROMPT.sha256, "model": model, "body": body},
-                         ensure_ascii=False, sort_keys=True)
+def generation_settings(llm) -> dict:
+    """What else shapes an answer besides the prompt, the model and the text: the settings of
+    the LLM that differ from ``CACHE_NEUTRAL``, so every answer cached until now keeps its key."""
+    out = {}
+    for name in ("temperature", "reasoning_effort"):
+        value = getattr(llm, name, None)
+        if value is not None and value != CACHE_NEUTRAL.get(name):
+            out[name] = value
+    return out
+
+
+def cache_key(body: str, model: str | None, generation: dict | None = None) -> str:
+    content = {"prompt": PROMPT.sha256, "model": model, "body": body}
+    if generation:
+        content["generation"] = generation
+    payload = json.dumps(content, ensure_ascii=False, sort_keys=True)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
@@ -394,14 +484,18 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
            cache_path: str | Path | None = None, chroma_path=None, target_vectors=None,
            model_name: str | None = None, embedding_model: str | None = None,
            sleep_fn=time.sleep, cfg: dict | None = None) -> DecideReport:
-    """Retrieve, decide (LLM, cached, in batches) and validate, for every concept."""
+    """Retrieve, decide (LLM, cached, in batches) and validate, for every concept.
+
+    With ``settings.max_calls`` 0 no LLM is needed: the cached answers are used and the rest
+    stays pending (the model name for the cache comes from LLM_MODEL)."""
     from src.alignment.knowledge import embedding_model_name
     settings = settings or settings_from_config(cfg)
-    if llm is None:                                   # lazy: the fast tests need no key
+    embedding_model = embedding_model or embedding_model_name()      # also loads .env
+    if llm is None and settings.max_calls > 0:        # lazy: the fast tests need no key
         from src.ai.llm_client import LLMClient
         llm = LLMClient()
-    model_name = model_name or getattr(llm, "model", None)
-    embedding_model = embedding_model or embedding_model_name()
+    model_name = model_name or getattr(llm, "model", None) or os.environ.get("LLM_MODEL")
+    generation = generation_settings(llm)
     if embed_fn is None:
         from src.ai.rag.embeddings import embed as embed_fn
     embed = MemoEmbed(embed_fn)
@@ -427,7 +521,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
         item = _Item(concept=c, candidates=scored.get(c.key, []), precedents=precedents,
                      evidence=evidence_fn(c) if evidence_fn else None)
         item.body = concept_body(item, settings)
-        item.cache_key = cache_key(item.body, model_name)
+        item.cache_key = cache_key(item.body, model_name, generation)
         items.append(item)
 
     cache = load_cache(cache_path)
@@ -499,6 +593,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
         c = item.concept
         base = {"key": c.key, "name": c.name, "kinds": tuple(c.kinds),
                 "candidates": [t.iri for t, _ in item.candidates],
+                "best_score": item.candidates[0][1] if item.candidates else None,
                 "precedents": [p["key"] for p in item.precedents],
                 "evidence_article": (item.evidence or {}).get("number"),
                 "prompt": PROMPT.manifest(), "model": model_name}

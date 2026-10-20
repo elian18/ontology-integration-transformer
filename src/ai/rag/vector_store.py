@@ -13,14 +13,20 @@ Until Sprint 6 the project had ONE collection, fixed when this module was import
 
 ``CHROMA_PATH`` (environment) still wins over config.yaml, so the test suite keeps isolating
 ChromaDB in a temporary directory (tests/conftest.py).
+
+Reads (``get``, ``query``) are retried a couple of times, with a short wait, when ChromaDB has
+not finished writing the index of a collection that was just built: seen once on Windows in the
+test suite (S7-T05) as "Error creating hnsw segment reader: Nothing found on disk". Any other
+error is raised at once.
 """
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 
 import chromadb
-from chromadb.errors import NotFoundError
+from chromadb.errors import InternalError, NotFoundError
 
 from src.config import load_config
 
@@ -33,6 +39,22 @@ SPACE_COSINE = "cosine"          # distance = 1 - cosine similarity (new collect
 _SPACE_KEY = "hnsw:space"
 
 _clients: dict[str, object] = {}   # folder -> chromadb.PersistentClient
+
+READ_RETRIES = 3                   # attempts of a read whose index is not on disk yet
+READ_WAIT_SECONDS = 0.5            # wait before the 2nd attempt (doubles before the 3rd)
+_NOT_ON_DISK = "nothing found on disk"
+_sleep = time.sleep                # the tests replace it
+
+
+def _read(call):
+    """Run a read, retrying only when the index of the collection is not on disk yet."""
+    for attempt in range(READ_RETRIES):
+        try:
+            return call()
+        except InternalError as exc:
+            if _NOT_ON_DISK not in str(exc).lower() or attempt == READ_RETRIES - 1:
+                raise
+            _sleep(READ_WAIT_SECONDS * (attempt + 1))
 
 
 def default_name() -> str:
@@ -116,15 +138,16 @@ def get(ids: list[str] | None = None, *, name: str | None = None,
         path: str | Path | None = None, where: dict | None = None,
         include: tuple[str, ...] = ("documents", "metadatas")) -> dict:
     """Read stored documents (all, by id or by metadata filter)."""
-    return _target(name, path).get(ids=ids, where=where, include=list(include))
+    return _read(lambda: _target(name, path).get(ids=ids, where=where, include=list(include)))
 
 
 def query(query_embeddings: list[list[float]], n_results: int, *, name: str | None = None,
           path: str | Path | None = None, where: dict | None = None,
           include: tuple[str, ...] = ("documents", "metadatas", "distances")) -> dict:
     """Nearest documents for each query vector (optionally filtered by metadata)."""
-    return _target(name, path).query(query_embeddings=query_embeddings, n_results=n_results,
-                                     where=where, include=list(include))
+    return _read(lambda: _target(name, path).query(query_embeddings=query_embeddings,
+                                                   n_results=n_results, where=where,
+                                                   include=list(include)))
 
 
 def metadata(name: str | None = None, path: str | Path | None = None) -> dict:

@@ -8,8 +8,9 @@ figures are in the CHANGELOG; this test locks what does not depend on them:
 - it converts to every format and back without losing a triple (S6-T01/T02);
 - 18 concepts inherit the validated decision by the "same name" rule (S6-T05), the same 18
   of the web run (no embeddings needed for that rule);
-- the validated module only holds inherited correspondences and the zip resolves the import of
-  GDPRtEXT in the four formats (S6-T07);
+- the alignment module holds the inherited correspondences plus what the rule accepted (S7-T06:
+  the decider runs with the real base as knowledge, a deterministic embedding and a fake AI),
+  and the zip resolves the import of GDPRtEXT in the four formats (S6-T07);
 - the automatic check solves every inherited concept again and leaves the user's alignment as
   it was (S6-T09);
 - nothing is written outside the workspace (S6-T04)."""
@@ -27,14 +28,14 @@ from rdflib import URIRef
 from rdflib.compare import isomorphic
 from rdflib.namespace import OWL, RDF
 
-from src.alignment.export import CANDIDATES_JSON
 from src.alignment.external_check import check_workspace
 from src.alignment.inherit import METHOD_SAME_NAME, load_base, load_result
+from src.alignment.propose import RESULT_FILE as DECISIONS_FILE
 from src.alignment.user_alignment import align_upload, build_user_package
 from src.transform.convert import load_graph, parse_bytes, serialize
 from src.workspace.store import BASE_DIRS, DONE
 from tests.test_alignment_bundle import _resolve
-from tests.test_alignment_propose import FakeLLM
+from tests.test_alignment_propose import DeciderLLM
 
 ROOT = Path(__file__).resolve().parents[1]
 GDPRTEXT = ROOT / "data" / "input" / "gdprtext-ontology.ttl"
@@ -84,9 +85,11 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
     cfg = {**real, "workspaces": {"dir": str(tmp_path / "ws")},
            "alignment": {**real["alignment"], "justify_pause_seconds": 0}}   # fake AI: no wait
     seen = []
+    llm = DeciderLLM()
     ws, manifest, zip_path = align_upload(
         GDPRTEXT.name, GDPRTEXT.read_bytes(), fmt="turtle", base=real_base,
-        embed_fn=_orthogonal_embed, llm=FakeLLM(), cfg=cfg, progress=seen.append)
+        embed_fn=_orthogonal_embed, llm=llm, cfg=cfg, progress=seen.append,
+        chroma_path=tmp_path / "chroma", sleep_fn=lambda s: None)
     assert len(seen) == 4 and all(s["status"] == DONE for s in ws.progress())
 
     inherited = load_result(ws)
@@ -97,7 +100,10 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
 
     assert manifest["ontology_iri"] == GDPR_IRI and not manifest["ontology_iri_generated"]
     expected_mappings = sum(len(i["mappings"]) for i in inherited["inherited"])
-    assert manifest["summary"]["validated_mappings"] == expected_mappings
+    s = manifest["summary"]
+    assert s["validated_mappings"] == expected_mappings
+    assert s["mappings"] == expected_mappings + s["accepted_mappings"]
+    assert llm.calls >= 1 and manifest["decider"]["pending_ai"] == 0
 
     for fmt in ("rdfxml", "owl", "turtle", "jsonld"):
         folder = tmp_path / fmt
@@ -106,7 +112,7 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
         assert (URIRef(GDPR_IRI + "#Consent"), RDF.type, OWL.Class) in g    # GDPRtEXT imported
     assert zip_path.exists()
 
-    work = [ws.work_dir / CANDIDATES_JSON, ws.work_dir / "proposals.json"]
+    work = [ws.work_dir / DECISIONS_FILE]
     hashes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in work]
     check = check_workspace(ws, embed_fn=_orthogonal_embed, use_llm=False, cfg=cfg)
     a = check["summary"]["all"]

@@ -18,10 +18,11 @@ from src.alignment.external_check import (ABSTAIN_OK, CHECK_DIR, HIT, LOST_AI, L
                                           LOST_THRESHOLD, RESULT_FILE, WRONG, check_workspace,
                                           compare, known_answers, render_console, summarize)
 from src.alignment.inherit import inherit_for_workspace, load_base
+from src.alignment.propose import RESULT_FILE as DECISIONS_FILE
 from src.alignment.propose import STATUS_AI_NONE, STATUS_BELOW, STATUS_PROPOSED
-from src.alignment.propose import propose_for_workspace
 from src.workspace.store import open_ontology
-from tests.test_alignment_propose import CFG, EX, TTL, Embed, FakeLLM, targets  # noqa: F401
+from tests.test_alignment_propose import (CFG, EX, TTL, DeciderLLM, Embed, FakeLLM,  # noqa: F401
+                                          make_env, run, targets)
 from tests.test_alignment_write import DPV, _decide_all
 
 CHECK_CFG = {**CFG, "auto": {**CFG["auto"], "threshold": 0.8}}
@@ -189,11 +190,9 @@ def test_without_ai_nothing_is_typed(ws, targets):
     assert not result["ai"]["available"]
 
 
-def test_the_user_alignment_is_not_touched(ws, targets):
-    propose_for_workspace(ws, embed_fn=Embed(), llm=FakeLLM(), targets=targets, cfg=CFG,
-                          sleep_fn=lambda s: None)
-    files = [ws.work_dir / CANDIDATES_JSON, ws.work_dir / "proposals.json",
-             ws.work_dir / inh.RESULT_FILE]
+def test_the_user_alignment_is_not_touched(ws, targets, tmp_path):
+    run(ws, make_env(tmp_path), targets, DeciderLLM())        # the decider of the web (S7-T06)
+    files = [ws.work_dir / DECISIONS_FILE, ws.work_dir / inh.RESULT_FILE]
     before = [_sha(p) for p in files]
     check_workspace(ws, targets=targets, embed_fn=Embed(), llm=FakeLLM(), cfg=CHECK_CFG,
                     sleep_fn=lambda s: None)
