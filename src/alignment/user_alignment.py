@@ -1,33 +1,34 @@
-"""Write the aligned ontology of an upload and package it in the chosen format (S6-T07).
+"""Write the aligned ontology of an upload and package it in the chosen format (S6-T07, S7-T06).
 
-Closes the back-end of the "solo ontología" mode: upload -> inherit (S6-T05) -> propose
-(S6-T06) -> write + package (this module). Everything is written inside the workspace
-(``data/workspaces/<id>/output``); nothing of the base is touched.
+Closes the back-end of the "solo ontología" mode: upload -> inherit (S6-T05) -> decide
+(S7-T06, ``propose``) -> write + package (this module). Everything is written inside the
+workspace (``data/workspaces/<id>/output``); nothing of the base is touched.
 
 What is written (same design as Sprint 5: the user's ontology is never edited, the alignment
-lives in separate modules that import it):
+lives in a separate module that imports it):
 
-1. ``<name>-dpv-alignment``: the VALIDATED module. One SKOS triple per correspondence inherited
-   from the base (a person decided it in Sprint 5). Each triple carries an ``owl:Axiom``
-   annotation with where it comes from: ``dct:source`` = the base concept and an
-   ``rdfs:comment`` such as "Heredada de Data_Owner (mismo nombre); decisión validada por
-   Elian Gavilanes el 2026-10-07". "Sin correspondencia" writes nothing (as in Sprint 5).
-2. ``<name>-dpv-proposals``: the AUTOMATIC proposals, apart, never mixed with the validated
-   module. Typed by the AI -> its SKOS property; untyped -> ``rdfs:seeAlso`` (claims no SKOS
-   relation). Each one is annotated "Propuesta automática, no validada", with its confidence
-   score (an annotation property declared in the module itself) and the AI's justification.
-   Not written when there are no proposals.
-3. ``alignment-manifest.json`` (counts, settings, models, base used) and ``alignment.csv``
-   (one row per concept of the user's ontology with what happened to it).
+1. ``<name>-dpv-alignment``: ONE module with every correspondence that counts (since S7-T06 the
+   alignment is automatic and a calibrated rule decides; until v0.6.0 the automatic ones went
+   to a module of proposals "no validadas"). Each SKOS triple carries an ``owl:Axiom``
+   annotation with who decided it (``#decidedBy``: "base", "regla" or "regla sin IA"), its
+   version (``owl:versionInfo``, 1 in this sprint) and an ``rdfs:comment`` in Spanish:
+   - inherited from the base (a person decided it in Sprint 5): ``dct:source`` = the base
+     concept, "Heredada de Data_Owner (mismo nombre); decisión validada por ...";
+   - accepted by the rule: its score (``#confidence``) and the LLM's justification;
+   - accepted by the rule without AI: untyped, so ``rdfs:seeAlso`` (claims no SKOS relation).
+   "Sin correspondencia" writes nothing (as in Sprint 5); SUGGESTIONS are never written.
+2. ``alignment-manifest.json`` (counts, settings, rule, prompt, models, base used, version) and
+   ``alignment.csv`` (one row per concept of the user's ontology with what happened to it,
+   suggestions included, so the person can comment on them in Sprint 10).
 
-Both modules ``owl:imports`` the user's ontology by its IRI and reference the DPV by IRI only.
+The module ``owl:imports`` the user's ontology by its IRI and references the DPV by IRI only.
 If the uploaded ontology declares no ``owl:Ontology`` IRI, one is generated
 (``http://www.semanticweb.org/uploads/<workspace id>``) and added to a copy of it in
 ``output/``, because an import needs an IRI; the manifest says so.
 
-The package (``build_user_package``) holds the three modules converted to the chosen format,
-the catalog for Protégé, the manifest, the CSV and a LEEME.txt; the JSON-LD one carries the
-Protégé note measured in S6-T03.
+The package (``build_user_package``) holds the module and the user's ontology converted to the
+chosen format, the catalog for Protégé, the manifest, the CSV and a LEEME.txt; the JSON-LD one
+carries the Protégé note measured in S6-T03.
 
 CLI: ``py -m src.alignment.user_alignment ARCHIVO [--formato turtle] [--sin-ia]`` runs the
 whole back-end for one file and writes the zip into the workspace.
@@ -45,11 +46,10 @@ from pathlib import Path
 from rdflib import BNode, Graph, Literal, Namespace, URIRef
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 
+from src.alignment import propose as dec
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
-from src.alignment.justify import PROMPT as JUSTIFY_PROMPT
-from src.alignment.propose import (STATUS_AI_NONE, STATUS_BELOW, STATUS_PROPOSED,
-                                   load_result as proposals_result)
+from src.alignment.propose import load_result as decisions_result
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
 from src.transform.package import CATALOG_FILE, Module, Package, package_modules
 
@@ -63,28 +63,36 @@ _SKOS = {"skos:exactMatch": SKOS.exactMatch, "skos:closeMatch": SKOS.closeMatch,
          "skos:broadMatch": SKOS.broadMatch, "skos:narrowMatch": SKOS.narrowMatch,
          "skos:relatedMatch": SKOS.relatedMatch}
 
-# Status of every concept of the user's ontology (CSV, manifest, web).
+# Status of every concept of the user's ontology (CSV, manifest, web), in display order.
 INHERITED_ALIGNED = "inherited_aligned"
+ACCEPTED = "accepted"
 INHERITED_NO_MATCH = "inherited_no_match"
-PROPOSED = "proposed"
+RULE_NO_MATCH = "rule_no_match"
+SUGGESTED = "suggested"
 NO_PROPOSAL = "no_proposal"
-AI_REJECTED = "ai_rejected"
+UNDECIDED = "undecided"
 NOT_ALIGNABLE = "not_alignable"
 STATUS_LABELS = {INHERITED_ALIGNED: "validada (heredada de la base)",
+                 ACCEPTED: "aceptada automáticamente",
                  INHERITED_NO_MATCH: "sin correspondencia (heredada de la base)",
-                 PROPOSED: "propuesta automática, no validada",
-                 NO_PROPOSAL: "sin propuesta (bajo el umbral)",
-                 AI_REJECTED: "sin propuesta (la IA la descartó)",
+                 RULE_NO_MATCH: "sin correspondencia (decidido por la regla)",
+                 SUGGESTED: "sugerida (no entra a la ontología)",
+                 NO_PROPOSAL: "sin propuesta",
+                 UNDECIDED: "sin decidir (la IA no estuvo disponible)",
                  NOT_ALIGNABLE: "no se alinea (individuo)"}
-CSV_COLUMNS = ["concept_iri", "concept_name", "status", "estado", "validated", "relation",
-               "dpv_iri", "dpv_name", "score", "method", "base_concept", "decided_by",
-               "justification"]
+WRITTEN = (INHERITED_ALIGNED, ACCEPTED)          # the statuses that put triples in the module
+_FROM_DECIDER = {dec.ACCEPTED: ACCEPTED, dec.SUGGESTED: SUGGESTED, dec.NO_MATCH: RULE_NO_MATCH,
+                 dec.NO_PROPOSAL: NO_PROPOSAL, dec.UNDECIDED: UNDECIDED}
+CSV_COLUMNS = ["concept_iri", "concept_name", "status", "estado", "decided_by", "validated",
+               "relation", "dpv_iri", "dpv_name", "score", "confidence", "method",
+               "base_concept", "reviewer", "justification", "version"]
 
 
 # --------------------------------------------------------------------------- names and IRIs
 
 def stems(ws) -> dict[str, str]:
-    """File stems inside the package: the upload's name plus the two module suffixes."""
+    """File stems inside the package: the upload's name plus the module suffix (``proposals``:
+    the module of v0.6.0, only to remove it from an old workspace)."""
     base = Path(ws.manifest["inputs"]["ontology"]["stored_as"]).stem
     return {"ontology": base, "alignment": f"{base}-dpv-alignment",
             "proposals": f"{base}-dpv-proposals"}
@@ -110,13 +118,26 @@ def _bind(g: Graph, source: Graph) -> None:
         g.bind(prefix, ns, override=True)
 
 
-def _header(g: Graph, iri: str, imports: str, label: str, comment: str, created: str) -> None:
+def _header(g: Graph, iri: str, imports: str, label: str, comment: str, created: str,
+            version: int) -> None:
     node = URIRef(iri)
     g.add((node, RDF.type, OWL.Ontology))
     g.add((node, OWL.imports, URIRef(imports)))
     g.add((node, RDFS.label, Literal(label, lang="es")))
     g.add((node, RDFS.comment, Literal(comment, lang="es")))
     g.add((node, DCTERMS.created, Literal(created, datatype=XSD.dateTime)))
+    g.add((node, OWL.versionInfo, Literal(str(version))))
+
+
+def _annotation_property(g: Graph, iri: URIRef, label: str, comment: str) -> URIRef:
+    g.add((iri, RDF.type, OWL.AnnotationProperty))
+    g.add((iri, RDFS.label, Literal(label, lang="es")))
+    g.add((iri, RDFS.comment, Literal(comment, lang="es")))
+    return iri
+
+
+def _score(value: float) -> str:
+    return f"{value:.2f}".replace(".", ",")
 
 
 def _annotate(g: Graph, s, p, o, comment: str, extra: list[tuple] = ()) -> None:
@@ -132,15 +153,28 @@ def _annotate(g: Graph, s, p, o, comment: str, extra: list[tuple] = ()) -> None:
 
 # --------------------------------------------------------------------------- the graphs
 
-def validated_graph(inherited: dict, *, iri: str, onto_iri: str, name: str, created: str,
-                    source: Graph | None = None) -> Graph:
+def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_iri: str,
+                    name: str, created: str, source: Graph | None = None) -> Graph:
+    """The module: inherited correspondences + the ones the rule accepted (never suggestions)."""
+    decisions = decisions or {}
+    version = decisions.get("alignment_version", dec.ALIGNMENT_VERSION)
     g = Graph()
     if source is not None:
         _bind(g, source)
-    _header(g, iri, onto_iri, f"Alineación validada de {name} con el DPV",
-            "Correspondencias heredadas de la base del sistema (OntoPriv + LOPDP), decididas "
-            "por una persona en el Sprint 5. El DPV se referencia por IRI, no se importa.",
-            created)
+    _header(g, iri, onto_iri, f"Alineación de {name} con el DPV",
+            "Correspondencias heredadas de la base del sistema (OntoPriv + LOPDP, decididas "
+            "por una persona en el Sprint 5) y aceptadas automáticamente por la regla del "
+            "decisor (S7-T05). Las sugeridas no se escriben. El DPV se referencia por IRI, no "
+            "se importa.", created, version)
+    ns = iri.rstrip("#/")
+    g.bind("alignment", Namespace(ns + "#"), override=True)
+    by = _annotation_property(g, URIRef(ns + "#decidedBy"), "decidido por",
+                              "Quién decidió la correspondencia: base (una persona, Sprint 5), "
+                              "regla (el decisor con IA y la regla calibrada) o regla sin IA.")
+    conf = _annotation_property(g, URIRef(ns + "#confidence"), "puntaje del candidato",
+                                "Puntaje de 0 a 1 del término del DPV (0.4 léxico + 0.6 "
+                                "embeddings) cuando lo aceptó la regla.")
+    stamp = Literal(str(version))
     for item in inherited.get("inherited", []):
         subject = URIRef(item["key"])
         for m in item.get("mappings", []):
@@ -152,67 +186,62 @@ def validated_graph(inherited: dict, *, iri: str, onto_iri: str, name: str, crea
             _annotate(g, subject, prop, target,
                       f"Heredada de {item['base_name']} ({METHOD_LABELS[item['method']]}); "
                       f"decisión validada por {who}" + (f" el {when}" if when else "") + ".",
-                      [(DCTERMS.source, URIRef(item["base_iri"]))])
-    return g
-
-
-def proposals_graph(proposals: dict, *, iri: str, onto_iri: str, name: str, created: str,
-                    source: Graph | None = None) -> Graph | None:
-    chosen = [p for p in proposals.get("proposals", []) if p["status"] == STATUS_PROPOSED]
-    if not chosen:
-        return None
-    g = Graph()
-    if source is not None:
-        _bind(g, source)
-    _header(g, iri, onto_iri, f"Propuestas automáticas para {name} (no validadas)",
-            "Correspondencias propuestas por el sistema sin revisión humana: el mejor "
-            "candidato del DPV con puntaje sobre el umbral calibrado y, si la IA estuvo "
-            "disponible, su tipo SKOS. Las que no tienen tipo usan rdfs:seeAlso.", created)
-    conf = URIRef(iri.rstrip("#/") + "#confidence")
-    g.add((conf, RDF.type, OWL.AnnotationProperty))
-    g.add((conf, RDFS.label, Literal("confianza de la propuesta automática", lang="es")))
-    g.add((conf, RDFS.comment, Literal("Puntaje de 0 a 1 del candidato (0.4 léxico + 0.6 "
-                                       "embeddings) usado para proponerlo.", lang="es")))
-    for p in chosen:
-        subject, target = URIRef(p["key"]), URIRef(p["dpv_iri"])
-        prop = _SKOS.get(p.get("relation") or "", RDFS.seeAlso)
+                      [(DCTERMS.source, URIRef(item["base_iri"])),
+                       (by, Literal("base", lang="es")), (OWL.versionInfo, stamp)])
+    rule = (decisions.get("summary") or {}).get("rule", "")
+    threshold = decisions.get("threshold_without_ai")
+    for e in decisions.get("entries", []):
+        if e["status"] != dec.ACCEPTED:
+            continue
+        subject, target = URIRef(e["key"]), URIRef(e["dpv_iri"])
+        prop = _SKOS.get(e.get("relation") or "", RDFS.seeAlso)
         g.add((subject, prop, target))
-        text = "Propuesta automática, no validada."
-        if p.get("justification"):
-            text += f" Justificación de la IA: {p['justification']}"
-        _annotate(g, subject, prop, target, text,
-                  [(conf, Literal(f"{p['score']:.4f}", datatype=XSD.decimal))])
+        if e["decided_by"] == dec.BY_RULE_WITHOUT_AI:
+            text = ("Aceptada automáticamente sin IA: mejor candidato con puntaje "
+                    f"{_score(e['score'])} (mínimo {_score(threshold or 0)}); sin tipo SKOS.")
+            who = "regla sin IA"
+        else:
+            text = f"Aceptada automáticamente por la regla ({rule})."
+            if e.get("justification"):
+                text += f" Justificación de la IA: {e['justification']}"
+            who = "regla"
+        extra = [(by, Literal(who, lang="es")), (OWL.versionInfo, Literal(str(e["version"])))]
+        if e.get("score") is not None:
+            extra.append((conf, Literal(f"{e['score']:.4f}", datatype=XSD.decimal)))
+        _annotate(g, subject, prop, target, text, extra)
     return g
 
 
 # --------------------------------------------------------------------------- rows
 
-def concept_rows(inherited: dict, proposals: dict | None) -> list[dict]:
+def concept_rows(inherited: dict, decisions: dict | None) -> list[dict]:
     """One row per concept of the user's ontology (aligned ones: one row per mapping)."""
+    version = (decisions or {}).get("alignment_version", dec.ALIGNMENT_VERSION)
     rows = []
     for item in inherited.get("inherited", []):
         common = {"concept_iri": item["key"], "concept_name": item["name"],
                   "method": METHOD_LABELS[item["method"]], "base_concept": item["base_iri"],
-                  "validated": True}
+                  "decided_by": "base", "validated": True, "version": version}
         if item["status"] == "aligned" and item.get("mappings"):
             for m in item["mappings"]:
                 rows.append({**common, "status": INHERITED_ALIGNED, "relation": m["relation"],
                              "dpv_iri": m["dpv_iri"], "dpv_name": m.get("dpv_name"),
-                             "decided_by": m.get("reviewer")})
+                             "reviewer": m.get("reviewer")})
         else:
             rows.append({**common, "status": INHERITED_NO_MATCH})
-    by_status = {STATUS_PROPOSED: PROPOSED, STATUS_BELOW: NO_PROPOSAL,
-                 STATUS_AI_NONE: AI_REJECTED}
-    for p in (proposals or {}).get("proposals", []):
-        status = by_status[p["status"]]
-        row = {"concept_iri": p["key"], "concept_name": p["name"], "status": status,
-               "validated": False, "score": p["score"], "justification": p.get("justification")}
-        if status == PROPOSED:
-            row.update(relation=p.get("relation") or "rdfs:seeAlso", dpv_iri=p["dpv_iri"],
-                       dpv_name=p.get("dpv_name"))
+    decided = {e["key"] for e in (decisions or {}).get("entries", [])}
+    for e in (decisions or {}).get("entries", []):
+        status = _FROM_DECIDER[e["status"]]
+        row = {"concept_iri": e["key"], "concept_name": e["name"], "status": status,
+               "decided_by": e["decided_by"], "validated": False, "score": e.get("score"),
+               "confidence": e.get("confidence"), "justification": e.get("justification"),
+               "version": e.get("version", version)}
+        if status in (ACCEPTED, SUGGESTED):
+            row.update(relation=e.get("relation") or "rdfs:seeAlso", dpv_iri=e["dpv_iri"],
+                       dpv_name=e.get("dpv_name"))
         rows.append(row)
     for n in inherited.get("not_inherited", []):
-        if n.get("reason") == "kind":
+        if n.get("reason") == "kind" and n["key"] not in decided:
             rows.append({"concept_iri": n["key"], "concept_name": n["name"],
                          "status": NOT_ALIGNABLE, "validated": False})
     for r in rows:
@@ -234,11 +263,15 @@ def summarize(rows: list[dict]) -> dict:
     for r in rows:
         concepts.setdefault(r["concept_iri"], r["status"])
     counts = {s: sum(1 for v in concepts.values() if v == s) for s in STATUS_LABELS}
+    accepted = [r for r in rows if r["status"] == ACCEPTED]
     return {"concepts": len(concepts), "by_status": counts,
             "validated_mappings": sum(1 for r in rows if r["status"] == INHERITED_ALIGNED),
-            "proposed_mappings": sum(1 for r in rows if r["status"] == PROPOSED),
-            "proposed_untyped": sum(1 for r in rows if r["status"] == PROPOSED
-                                    and r.get("relation") == "rdfs:seeAlso")}
+            "accepted_mappings": len(accepted),
+            "accepted_without_ai": sum(r["decided_by"] == dec.BY_RULE_WITHOUT_AI
+                                       for r in accepted),
+            "accepted_untyped": sum(r.get("relation") == "rdfs:seeAlso" for r in accepted),
+            "suggested": sum(1 for r in rows if r["status"] == SUGGESTED),
+            "mappings": sum(1 for r in rows if r["status"] in WRITTEN)}
 
 
 # --------------------------------------------------------------------------- writing
@@ -251,12 +284,13 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
     """Write both modules (Turtle), the manifest and the CSV into ``output/``; mark the step."""
     from src.alignment.inherit import base_paths
     from src.workspace.store import DONE, ERROR, RUNNING
+    from src.alignment.decider import PROMPT as DECIDE_PROMPT
     inherited = inherited_result(ws)
     if inherited is None:
         raise ValueError("Primero hay que heredar lo validado (paso S6-T05).")
-    proposals = proposals_result(ws)
-    if proposals is None:
-        raise ValueError("Primero hay que calcular las propuestas automáticas (paso S6-T06).")
+    decisions = decisions_result(ws)
+    if decisions is None:
+        raise ValueError("Primero hay que decidir lo que no se heredó (paso S7-T06).")
     ws.mark_step("write", RUNNING)
     try:
         out = ws.output_dir
@@ -274,48 +308,44 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
             ontology_file.write_bytes(serialize(user_graph, MASTER_FORMAT))
         created = datetime.now(timezone.utc).isoformat(timespec="seconds")
         display = ws.manifest["inputs"]["ontology"]["original_name"]
-        iris = {"alignment": module_iri(onto_iri, "-dpv-alignment"),
-                "proposals": module_iri(onto_iri, "-dpv-proposals")}
+        iri = module_iri(onto_iri, "-dpv-alignment")
         files = {"ontology": ontology_file.relative_to(ws.path).as_posix()}
 
-        validated = validated_graph(inherited, iri=iris["alignment"], onto_iri=onto_iri,
-                                    name=display, created=created, source=user_graph)
-        (out / f"{names['alignment']}.ttl").write_bytes(serialize(validated, MASTER_FORMAT))
+        graph = alignment_graph(inherited, decisions, iri=iri, onto_iri=onto_iri, name=display,
+                                created=created, source=user_graph)
+        (out / f"{names['alignment']}.ttl").write_bytes(serialize(graph, MASTER_FORMAT))
         files["alignment"] = f"output/{names['alignment']}.ttl"
-        auto = proposals_graph(proposals, iri=iris["proposals"], onto_iri=onto_iri,
-                               name=display, created=created, source=user_graph)
         stale = out / f"{names['proposals']}.ttl"
-        if auto is not None:
-            stale.write_bytes(serialize(auto, MASTER_FORMAT))
-            files["proposals"] = f"output/{names['proposals']}.ttl"
-        elif stale.exists():
-            stale.unlink()                             # an earlier run had proposals
+        if stale.exists():
+            stale.unlink()                             # module of proposals of v0.6.0
 
-        rows = concept_rows(inherited, proposals)
+        rows = concept_rows(inherited, decisions)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
         manifest = {
             "workspace": ws.id, "source_id": ws.source_id, "created": created,
             "uploaded_file": display, "ontology_iri": onto_iri,
             "ontology_iri_generated": generated,
-            "modules": {"alignment": iris["alignment"],
-                        "proposals": iris["proposals"] if auto is not None else None},
-            "files": files,
-            "triples": {"alignment": len(validated), "proposals": len(auto) if auto else 0},
+            "alignment_version": decisions.get("alignment_version", dec.ALIGNMENT_VERSION),
+            "modules": {"alignment": iri}, "files": files,
+            "triples": {"alignment": len(graph)},
             "summary": summarize(rows),
             "inheritance": inherited.get("summary"),
-            "proposals": proposals.get("summary"),
+            "decider": decisions.get("summary"),
             "settings": {"inheritance": inherited.get("settings"),
+                         "rule": decisions.get("rule"),
+                         "threshold_without_ai": decisions.get("threshold_without_ai"),
                          "embedding_model": os.environ.get("EMBEDDING_MODEL"),
                          "llm_model": os.environ.get("LLM_MODEL"),
-                         "prompts": {"justify": JUSTIFY_PROMPT.manifest()}},
+                         "prompts": {"decide": DECIDE_PROMPT.manifest()}},
             "base": {"source_id": (inherited.get("settings") or {}).get("base_source_id"),
                      "decisions_log_sha256": _sha256(paths["log"])},
             "notes": [
-                "El módulo de alineación solo contiene correspondencias heredadas de la base, "
-                "decididas por una persona; la equivalencia con el concepto de la base es "
-                "automática y queda anotada (regla y concepto de origen).",
-                "Las propuestas automáticas van en un módulo aparte y no están validadas.",
+                "El módulo de alineación contiene las correspondencias heredadas de la base "
+                "(decididas por una persona) y las aceptadas automáticamente por la regla; "
+                "cada una lleva anotado quién la decidió y su versión.",
+                "Las sugeridas (la IA las dio con confianza alta pero la regla no las acepta) "
+                "no entran a la ontología: están en alignment.csv para comentarlas.",
                 "'Sin correspondencia' no genera tripletas.",
             ],
         }
@@ -325,10 +355,10 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
         ws.mark_step("write", ERROR, str(exc)[:300])
         raise
     s = manifest["summary"]
-    ws.mark_step("write", DONE, f"{s['validated_mappings']} validadas y "
-                                f"{s['proposed_mappings']} propuestas",
+    ws.mark_step("write", DONE, f"{s['validated_mappings']} de la base y "
+                                f"{s['accepted_mappings']} aceptadas por la regla",
                  validated_mappings=s["validated_mappings"],
-                 proposed_mappings=s["proposed_mappings"])
+                 accepted_mappings=s["accepted_mappings"], suggested=s["suggested"])
     return manifest
 
 
@@ -349,7 +379,6 @@ def _readme_for(manifest: dict):
         s = manifest["summary"]
         main = package.main_file or ""
         jsonld = package.format.key == "jsonld"
-        names = {f.rsplit(".", 1)[0]: f for f in package.included}
         text = [
             f"Ontología alineada con el DPV: {manifest['uploaded_file']}",
             f"Formato: {package.format.label}",
@@ -359,19 +388,25 @@ def _readme_for(manifest: dict):
         ]
         if jsonld:
             text += ["Nota: " + PROTEGE_JSONLD_NOTE]
+        rule = ((manifest.get("decider") or {}).get("rule")) or ""
         text += [
             f"El archivo {CATALOG_FILE} resuelve las importaciones (IRI -> archivo).",
             "",
             "Qué contiene:",
-            f"  - {main}: {s['validated_mappings']} correspondencias VALIDADAS, heredadas de la "
-            "base del sistema (decididas por una persona). Importa tu ontología.",
+            f"  - {main}: {s['mappings']} correspondencias con el DPV. Importa tu ontología.",
+            f"      {s['validated_mappings']} heredadas de la base del sistema (decididas por "
+            "una persona).",
+            f"      {s['accepted_mappings']} aceptadas automáticamente por la regla"
+            + (f" ({rule})" if rule else "") + ".",
         ]
-        prop = next((f for stem, f in names.items() if stem.endswith("-dpv-proposals")), None)
-        if prop:
-            text.append(f"  - {prop}: {s['proposed_mappings']} propuestas AUTOMÁTICAS, NO "
-                        "validadas (módulo aparte; ábrelo solo si quieres verlas).")
-        else:
-            text.append("  - No hubo propuestas automáticas sobre el umbral.")
+        if s.get("accepted_without_ai"):
+            text.append(f"      De ellas, {s['accepted_without_ai']} sin IA (sin tipo SKOS: "
+                        "rdfs:seeAlso).")
+        text.append("      Cada correspondencia lleva anotado quién la decidió y su versión.")
+        if s.get("suggested"):
+            text.append(f"  - {s['suggested']} sugeridas: la IA las dio con confianza alta "
+                        f"pero la regla no las acepta; NO están en la ontología, solo en "
+                        f"{CSV_FILE}.")
         text += [
             "  - Tu ontología, sin cambios"
             + (" (se le agregó un IRI de ontología porque no tenía)."
@@ -386,18 +421,15 @@ def _readme_for(manifest: dict):
 
 
 def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
-    """The zip in ``fmt``: validated module (opened first), proposals, the user's ontology."""
+    """The zip in ``fmt``: the alignment module (opened first) and the user's ontology."""
     manifest = load_manifest(ws)
     if manifest is None:
         raise ValueError("Primero hay que escribir la ontología alineada (paso S6-T07).")
     names = stems(ws)
     onto_iri = manifest["ontology_iri"]
     modules = [Module(manifest["modules"]["alignment"], ws.path / manifest["files"]["alignment"],
-                      names["alignment"])]
-    if manifest["modules"].get("proposals"):
-        modules.append(Module(manifest["modules"]["proposals"],
-                              ws.path / manifest["files"]["proposals"], names["proposals"]))
-    modules.append(Module(onto_iri, ws.path / manifest["files"]["ontology"], names["ontology"]))
+                      names["alignment"]),
+               Module(onto_iri, ws.path / manifest["files"]["ontology"], names["ontology"])]
     extras = {MANIFEST_FILE: ws.output_dir / MANIFEST_FILE, CSV_FILE: ws.output_dir / CSV_FILE}
     return package_modules(modules, fmt, extras=extras, readme=_readme_for(manifest))
 
@@ -416,23 +448,26 @@ def write_package(ws, fmt: str | OutputFormat = "turtle") -> Path:
 
 def align_upload(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool | None = None,
                  embed_fn=None, llm=None, cfg: dict | None = None, base=None, targets=None,
-                 progress=None):
-    """Upload -> inherit -> propose -> write -> package. Steps already done are reused.
+                 progress=None, chroma_path=None, sleep_fn=None):
+    """Upload -> inherit -> decide -> write -> package. Steps already done are reused.
 
-    ``progress(step_label)`` is called before each step (for the web). Returns the workspace,
-    the manifest and the zip path."""
+    The decision is redone when it is not current (another method, as in v0.6.0, another
+    rule, or concepts the AI could not decide while it is available); the cache of the
+    workspace makes that cheap. ``progress(step_label)`` is called before each step (for the
+    web). Returns the workspace, the manifest and the zip path."""
     from src.alignment.inherit import inherit_for_workspace
-    from src.alignment.propose import propose_for_workspace
+    from src.alignment.propose import is_current, propose_for_workspace
     from src.workspace.store import STEP_LABELS, open_ontology
     ws = open_ontology(name, data, cfg=cfg)
     say = progress or (lambda label: None)
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
         inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
-    if proposals_result(ws) is None:
+    if not is_current(decisions_result(ws), cfg, use_llm):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
-                              targets=targets, cfg=cfg)
+                              targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,
+                              sleep_fn=sleep_fn)
     say(STEP_LABELS["write"])
     manifest = write_user_alignment(ws, cfg=cfg)
     say(STEP_LABELS["package"])
@@ -445,19 +480,28 @@ def align_upload(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool |
 def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
     s = manifest["summary"]
     c = s["by_status"]
-    lines = ["Ontología alineada (S6-T07)",
+    lines = ["Ontología alineada (S7-T06)",
              f"  {manifest['uploaded_file']}: {s['concepts']} conceptos",
-             f"    validadas (heredadas): {c[INHERITED_ALIGNED]} conceptos, "
+             f"    heredadas de la base: {c[INHERITED_ALIGNED]} conceptos, "
              f"{s['validated_mappings']} correspondencias",
-             f"    sin correspondencia (heredado): {c[INHERITED_NO_MATCH]}",
-             f"    propuestas automáticas: {c[PROPOSED]} ({s['proposed_untyped']} sin tipo)",
-             f"    sin propuesta: {c[NO_PROPOSAL] + c[AI_REJECTED]}"
+             f"    aceptadas automáticamente: {c[ACCEPTED]} ({s['accepted_untyped']} sin tipo)",
+             f"    sugeridas (no entran a la ontología): {c[SUGGESTED]}",
+             f"    sin correspondencia: {c[INHERITED_NO_MATCH] + c[RULE_NO_MATCH]}",
+             f"    sin propuesta: {c[NO_PROPOSAL]}"
+             + (f" · sin decidir: {c[UNDECIDED]}" if c[UNDECIDED] else "")
              + (f" · individuos (no se alinean): {c[NOT_ALIGNABLE]}" if c[NOT_ALIGNABLE] else ""),
-             f"  Módulo validado: {manifest['files']['alignment']} "
-             f"({manifest['triples']['alignment']} tripletas)"]
-    if manifest["files"].get("proposals"):
-        lines.append(f"  Módulo de propuestas: {manifest['files']['proposals']} "
-                     f"({manifest['triples']['proposals']} tripletas)")
+             f"  Módulo de alineación: {manifest['files']['alignment']} "
+             f"({manifest['triples']['alignment']} tripletas, versión "
+             f"{manifest['alignment_version']})"]
+    decider = manifest.get("decider") or {}
+    ai = decider.get("ai") or {}
+    if decider.get("rule"):
+        lines.append(f"  Regla: {decider['rule']}")
+    if ai.get("available"):
+        lines.append(f"  IA del decisor: {ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} "
+                     f"respuestas desde la caché")
+    elif decider.get("concepts"):
+        lines.append(f"  IA del decisor: no usada ({ai.get('error')})")
     if manifest.get("ontology_iri_generated"):
         lines.append(f"  La ontología no tenía IRI: se usó {manifest['ontology_iri']}")
     if zip_path is not None:
@@ -470,7 +514,7 @@ def _run(argv: list[str] | None = None) -> int:
     from src.workspace.store import WorkspaceError
     parser = argparse.ArgumentParser(
         prog="py -m src.alignment.user_alignment",
-        description="Alinea una ontología subida con el DPV y la empaqueta (S6-T07).")
+        description="Alinea una ontología subida con el DPV y la empaqueta (S7-T06).")
     parser.add_argument("file", help="ontología .rdf, .owl, .ttl o .jsonld")
     parser.add_argument("--formato", default="turtle", help="rdfxml, owl, turtle o jsonld")
     parser.add_argument("--sin-ia", action="store_true", help="no llamar al LLM")

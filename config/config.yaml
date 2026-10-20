@@ -38,10 +38,10 @@ workspaces:
   dir: "data/workspaces"      # one folder per user upload (S6-T04); ignored by git, never mixed with data/output
   max_upload_mb: 25           # larger uploads are refused with a message in Spanish
 auto:
-  threshold: 0.75             # S6-T06: rank-1 score needed for an automatic proposal; calibrated on the base (py -m src.alignment.calibrate): 82 % precision (28 of 34) with the AI filter
-  min_precision: 0.75         # the calibration picks the lowest threshold that reaches this precision
-  use_llm: true               # the AI proposes the SKOS type of each automatic proposal; without it they stay untyped (rdfs:seeAlso)
-  llm_max_calls: 20           # AI calls per run for the proposals (15 concepts per call); re-run to continue
+  threshold: 0.75             # S6-T06: rank-1 score needed for an automatic proposal; calibrated on the base (py -m src.alignment.calibrate): 82 % precision (28 of 34) with the AI filter. S7-T06: the rule WITHOUT AI (concepts the AI could not decide): rank 1 at or above it, untyped (rdfs:seeAlso)
+  min_precision: 0.75         # the calibration picks the lowest threshold that reaches this precision (also the floor of the decider rule, S7-T05)
+  use_llm: true               # S7-T06: the decider asks the LLM; false = only the cache and the rule without AI
+  llm_max_calls: 20           # Sprint 6 proposer (S6-T09 check): AI calls per run, 15 concepts per call
 decider:                      # S7-T03..T06: the alignment decider (retrieve -> decide with precedents -> fixed rule)
   candidate_source: hybrid    # where its DPV candidates come from: hybrid | dpv | dpv_rerank (chosen by py -m src.alignment.benchmark)
   candidates: 10              # DPV candidates it sees per concept (Sprint 6: only the best one)
@@ -51,3 +51,9 @@ decider:                      # S7-T03..T06: the alignment decider (retrieve -> 
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 8192            # max answer length per call
   article_chars: 1200         # length of the law article shown as evidence (S7-T05, S7-T11)
+  rule:                       # S7-T05 (py -m src.alignment.decider_eval): second grid; on the base 75,0 % precision, 29,5 % coverage (cross-validation: 72,0 %)
+    accept: [alta]            # LLM confidences that become an automatic answer
+    min_score: 0.5            # minimum hybrid score of the chosen candidate
+    relations: [skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch]   # classes: every relation but relatedMatch
+    property_relations: []    # concepts that are only properties: never automatic
+    suggest: [alta]           # what the rule leaves out with these confidences is a "sugerida" (never written)

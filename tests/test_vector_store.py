@@ -5,9 +5,10 @@ breaking it: the default collection is still "normativa", a named collection nev
 each folder (workspace) has its own database, and the new collections can use cosine distance
 and carry their manifest. The isolated, throwaway ChromaDB of conftest is used throughout; the
 "normativa" collection is only read here, never written, so test_rag/test_smoke keep their own
-state.
+state. S7-T06: reads are retried when the index of a new collection is not on disk yet.
 """
 import pytest
+from chromadb.errors import InternalError
 
 from src.ai.rag import vector_store
 
@@ -90,3 +91,54 @@ def test_each_folder_has_its_own_database(tmp_path):
     assert vector_store.count(name="law", path=ws_b) == 0
     assert not vector_store.exists("law")                 # the base database is untouched
     assert vector_store.client_path(ws_a) == str(ws_a)
+
+
+# --------------------------------------------------------------------------- index not on disk yet
+
+_NOT_ON_DISK = ("Error executing plan: Internal error: Error creating hnsw segment reader: "
+                "Nothing found on disk")
+
+
+class _Flaky:
+    """A collection whose first reads fail as ChromaDB did once on Windows (S7-T05)."""
+
+    def __init__(self, failures, message=_NOT_ON_DISK):
+        self.failures, self.message, self.calls = failures, message, 0
+
+    def _maybe_fail(self):
+        self.calls += 1
+        if self.calls <= self.failures:
+            raise InternalError(self.message)
+
+    def get(self, **kwargs):
+        self._maybe_fail()
+        return {"ids": ["a"]}
+
+    def query(self, **kwargs):
+        self._maybe_fail()
+        return {"ids": [["a"]]}
+
+
+def test_reads_wait_for_an_index_that_is_not_on_disk_yet(monkeypatch):
+    sleeps, flaky = [], _Flaky(failures=2)
+    monkeypatch.setattr(vector_store, "_sleep", sleeps.append)
+    monkeypatch.setattr(vector_store, "_target", lambda name, path: flaky)
+    assert vector_store.get(["a"], name="x") == {"ids": ["a"]}
+    assert flaky.calls == 3 and sleeps == [0.5, 1.0]
+    flaky.calls = 0
+    assert vector_store.query([[1.0]], 1, name="x") == {"ids": [["a"]]}
+
+
+def test_reads_give_up_and_other_errors_are_raised_at_once(monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(vector_store, "_sleep", sleeps.append)
+    always = _Flaky(failures=99)
+    monkeypatch.setattr(vector_store, "_target", lambda name, path: always)
+    with pytest.raises(InternalError, match="Nothing found on disk"):
+        vector_store.get(["a"], name="x")
+    assert always.calls == vector_store.READ_RETRIES
+    other = _Flaky(failures=1, message="Error executing plan: something else")
+    monkeypatch.setattr(vector_store, "_target", lambda name, path: other)
+    with pytest.raises(InternalError, match="something else"):
+        vector_store.query([[1.0]], 1, name="x")
+    assert other.calls == 1 and len(sleeps) == 2

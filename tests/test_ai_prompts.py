@@ -17,7 +17,8 @@ from src.alignment.user_alignment import write_user_alignment
 from src.core import extract
 from tests.test_alignment_justify import FakeLLM as JustifyLLM, _data, _run
 from tests.test_alignment_propose import targets  # noqa: F401  (fixture)
-from tests.test_user_alignment import _ws, base  # noqa: F401  (fixture + helper)
+from tests.test_alignment_propose import env  # noqa: F401  (fixture)
+from tests.test_user_alignment import _ws  # noqa: F401  (helper)
 
 # sha256 of the constants _INSTRUCTION of v0.6.0 (src/alignment/justify.py, src/core/extract.py)
 JUSTIFY_V2_SHA256 = "3d05c891ba7decd4814a4ed0d7b9ab914619ecff630a722988adb34a0fe3ff05"
@@ -126,7 +127,8 @@ def test_extraction_summary_records_its_prompt():
     assert summary["prompt"] == {"name": "extract", "version": 1, "sha256": EXTRACT_V1_SHA256}
 
 
-def test_upload_manifest_records_the_prompt(tmp_path, base, targets):  # noqa: F811
-    manifest = write_user_alignment(_ws(tmp_path, base, targets))
-    assert manifest["settings"]["prompts"]["justify"] == {
-        "name": "justify", "version": 2, "sha256": JUSTIFY_V2_SHA256}
+def test_upload_manifest_records_the_prompt(env, targets):  # noqa: F811
+    from src.alignment.decider import PROMPT as DECIDE_PROMPT
+    manifest = write_user_alignment(_ws(env, targets), cfg=env.cfg)   # S7-T06: the decider
+    assert manifest["settings"]["prompts"] == {"decide": {
+        "name": "decide", "version": 1, "sha256": DECIDE_PROMPT.sha256}}

@@ -1,12 +1,14 @@
-"""Page "Alinear mi ontología" (S6-T08): the user's flow, with as little to do as possible.
+"""Page "Alinear mi ontología" (S6-T08, S7-T06): the user's flow, as little to do as possible.
 
 1. Upload the ontology: the alignment starts on its own (no extra button), with a progress
    box that names each step.
-2. See the result: four numbers, a short explanation and, if wanted, a read-only table.
+2. See the result: five numbers, the rule that decided, a short explanation and, if wanted, a
+   read-only table (suggestions included).
 3. Pick the format and download the zip.
-Nothing to review: the validated module holds what a person decided while building the base;
-the automatic proposals travel apart, marked "no validada". Uploading the same file again
-reuses what was already computed (S6-T04), so changing the format costs nothing.
+Nothing to review: the ontology holds what a person decided while building the base and what
+the calibrated rule accepted; the suggestions are only shown (comments come in Sprint 10).
+Uploading the same file again reuses what was already computed (S6-T04), so changing the format
+costs nothing.
 """
 import hashlib
 
@@ -18,8 +20,9 @@ st.header("Alinear mi ontología con el DPV")
 st.write(
     "Sube tu ontología de protección de datos y el sistema la alinea con el **Data Privacy "
     "Vocabulary (DPV)**. No tienes que revisar nada: lo que ya fue validado en la base del "
-    "sistema (OntoPriv + LOPDP) se aplica solo, y lo demás se propone de forma automática, en "
-    "un archivo aparte y marcado como no validado."
+    "sistema (OntoPriv + LOPDP) se aplica solo; para lo demás, la IA elige entre los términos "
+    "más parecidos del DPV y una regla calibrada decide qué entra. Lo que la IA sugiere y la "
+    "regla no acepta se muestra aparte, sin entrar a la ontología."
 )
 
 
@@ -79,12 +82,15 @@ except Exception as exc:                                  # noqa: BLE001 - shown
     st.stop()
 
 st.subheader(v["file"])
-cols = st.columns(4)
+cols = st.columns(len(v["metrics"]))
 for col, (label, value) in zip(cols, v["metrics"].items()):
     col.metric(label, value, help=svc.METRIC_HELP.get(label))
-threshold = f" (umbral {v['threshold']:.2f})" if v["threshold"] is not None else ""
-st.caption(f"{v['concepts']} conceptos · {v['validated_mappings']} correspondencias validadas · "
-           f"{v['proposed_mappings']} propuestas automáticas{threshold}")
+st.caption(f"{v['concepts']} conceptos · {v['mappings']} correspondencias en la ontología "
+           f"({v['validated_mappings']} de la base y {v['accepted_mappings']} aceptadas por la "
+           f"regla) · {v['suggested']} sugeridas fuera de la ontología · "
+           f"versión {v['version']}")
+if v["rule"]:
+    st.caption(f"Regla: {v['rule']}.")
 if v["ai_note"]:
     st.warning(v["ai_note"])
 if v["iri_generated"]:
@@ -102,8 +108,8 @@ st.download_button(f"Descargar ontología alineada ({package['label']}, .zip)",
 if package["note"]:
     st.info(package["note"])
 else:
-    apart = (" Las propuestas automáticas están en un archivo aparte."
-             if v["proposed_mappings"] else "")
+    apart = (" Las sugeridas no están en la ontología: las ves abajo y en alignment.csv."
+             if v["suggested"] else "")
     st.caption(f"Descomprímelo y abre {package['main_file']} en Protégé: el catálogo incluido "
                f"resuelve las importaciones.{apart}")
 

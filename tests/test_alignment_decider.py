@@ -146,6 +146,48 @@ def test_settings_come_from_the_decider_block():
         dc.settings_from_config({"decider": {"precedents": 11}})
 
 
+def test_the_rule_of_config_is_the_one_chosen_in_s7_t05():
+    from src.alignment.decider_eval import RULE_GRID_2, rule_kwargs, rule_label
+    rule = dc.rule_settings()
+    assert rule == dc.RuleSettings()                                   # config.yaml = defaults
+    chosen = next(r for r in RULE_GRID_2 if rule_label(r) ==
+                  "alta, puntaje >= 0.5 | clases: sin related | propiedades: no responde")
+    assert rule.kwargs() == rule_kwargs(chosen) and rule.suggest == ("alta",)
+    assert rule.label() == ("confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, "
+                            "closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas")
+    assert rule.as_dict()["property_relations"] == []
+
+
+def test_rule_settings_read_and_check_the_block():
+    same = dc.rule_settings({"decider": {"rule": {"relations": ["skos:exactMatch"],
+                                                  "property_relations": "same",
+                                                  "accept": ["alta", "media"]}}})
+    assert same.property_relations == ("skos:exactMatch",) and same.accept == ("alta", "media")
+    assert dc.rule_settings({"decider": {"rule": {"relations": None}}}).relations is None
+    assert "cualquier relación" in dc.rule_settings(
+        {"decider": {"rule": {"relations": None}}}).label()
+    for bad in ({"accept": []}, {"accept": ["segura"]}, {"min_score": 2},
+                {"relations": ["owl:sameAs"]}, {"relations": "skos:exactMatch"},
+                {"property_relations": ""},
+                {"suggest": ["mucha"]}):
+        with pytest.raises(ValueError, match="decider.rule"):
+            dc.rule_settings({"decider": {"rule": bad}})
+
+
+def test_cache_key_keeps_the_answers_cached_until_now():
+    old = hashlib.sha256(json.dumps({"prompt": dc.PROMPT.sha256, "model": "m", "body": "b"},
+                                    ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    assert dc.cache_key("b", "m") == dc.cache_key("b", "m", {}) == old
+    assert dc.cache_key("b", "m", {"temperature": 1.0}) != old
+
+    class Client:
+        temperature = 0.0
+    assert dc.generation_settings(Client()) == {}                     # the settings used so far
+    Client.temperature, Client.reasoning_effort = 1.0, "low"
+    assert dc.generation_settings(Client()) == {"temperature": 1.0, "reasoning_effort": "low"}
+    assert dc.generation_settings(None) == {}
+
+
 def test_prompt_v1_is_loaded_and_has_no_fixed_examples_from_the_base():
     assert dc.PROMPT.name == "decide" and dc.PROMPT.version == 1
     text = dc.PROMPT.text
@@ -343,6 +385,27 @@ def test_server_overload_waits_once_then_continues(targets, chroma):
                      sleep=sleeps)
     assert TRANSIENT_WAIT_SECONDS in sleeps and not report.errors
     assert all(d.status == dc.STATUS_DECIDED for d in report.decisions)
+
+
+def test_without_calls_no_llm_is_needed_and_the_cache_answers(targets, chroma, tmp_path,
+                                                              monkeypatch):
+    cache = tmp_path / "cache.jsonl"
+    _run(targets, chroma, cache=cache, concepts=_concepts()[:1])     # one answer cached
+
+    def no_client(*a, **k):
+        raise AssertionError("no hace falta un LLM")
+    monkeypatch.setattr("src.ai.llm_client.LLMClient", no_client)
+    monkeypatch.setenv("LLM_MODEL", "modelo-de-prueba")               # names the cache
+    offline = dc.DeciderSettings(candidates=3, precedents=2, batch_size=2, max_calls=0,
+                                 pause_seconds=0)
+    report = dc.decide(_concepts(), targets, llm=None, embed_fn=FakeEmbed(), settings=offline,
+                       chroma_path=chroma, embedding_model="fake-model", cache_path=cache)
+    assert [d.status for d in report.decisions] == [dc.STATUS_DECIDED, dc.STATUS_PENDING,
+                                                    dc.STATUS_PENDING]
+    assert report.calls == 0 and report.cached == 1
+    assert all(d.best_score is not None and d.candidates for d in report.decisions)
+    decided = report.decisions[0]
+    assert decided.best_score >= decided.score                       # the first is the best
 
 
 def test_call_limit_leaves_the_rest_pending(targets, chroma):
