@@ -45,3 +45,9 @@ auto:
 decider:                      # S7-T03..T06: the alignment decider (retrieve -> decide with precedents -> fixed rule)
   candidate_source: hybrid    # where its DPV candidates come from: hybrid | dpv | dpv_rerank (chosen by py -m src.alignment.benchmark)
   candidates: 10              # DPV candidates it sees per concept (Sprint 6: only the best one)
+  precedents: 4               # S7-T04: closest decided base concepts shown as precedents (collection "decisions")
+  batch_size: 10              # concepts per LLM call
+  max_calls: 60               # LLM calls per run (gemini-3.1-flash-lite free tier: 500/day); re-run to continue (cache)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_tokens: 8192            # max answer length per call
+  article_chars: 1200         # length of the law article shown as evidence (S7-T05, S7-T11)
