@@ -54,10 +54,13 @@ LAW_SUFFIXES = (".txt", ".pdf")
 # Steps of the "solo ontología" flow, in order (filled by S6-T05..T08; "labels": S7-T08), of an
 # uploaded law (S7-T07) and, in the "solo ley" mode, of the concepts the AI extracts from it
 # (S7-T09) and of the profile built with them (S7-T10), which then follows the flow of STEPS.
+# In "ley + ontología" the law is segmented and indexed, the ontology follows STEPS, and the
+# evidence of the law (S7-T11) comes in just before writing.
 STEPS = ("inherit", "candidates", "propose", "labels", "write", "package")
 LAW_STEPS = ("segment", "index")
 EXTRACT_STEPS = ("extract", "accept")
 PROFILE_STEPS = ("profile",)                    # S7-T10: then the steps of STEPS on the profile
+EVIDENCE_STEPS = ("evidence",)                  # S7-T11: "ley + ontología", before writing
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
                "propose": "Proponer correspondencias",
                "labels": "Completar las etiquetas en español e inglés",
@@ -66,7 +69,8 @@ STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidato
                "index": "Indexar los artículos de la ley",
                "extract": "Extraer los conceptos de la ley con la IA",
                "accept": "Aceptar los conceptos por regla",
-               "profile": "Armar el perfil de la ley sobre OntoPriv-Core"}
+               "profile": "Armar el perfil de la ley sobre OntoPriv-Core",
+               "evidence": "Buscar en la ley los artículos de cada concepto"}
 PENDING, RUNNING, DONE, ERROR = "pending", "running", "done", "error"
 STATUS_LABELS = {PENDING: "pendiente", RUNNING: "en curso", DONE: "hecho", ERROR: "error"}
 ACCEPTED_ONTOLOGY = "RDF/XML (.rdf, .owl), Turtle (.ttl) o JSON-LD (.jsonld)"
@@ -84,7 +88,8 @@ def steps_for(mode: str | None) -> tuple[str, ...]:
     if mode == "law":
         return LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + STEPS
     if mode == "ontology+law":
-        return LAW_STEPS + STEPS
+        before = tuple(s for s in STEPS if s not in ("write", "package"))
+        return LAW_STEPS + before + EVIDENCE_STEPS + ("write", "package")
     return STEPS
 
 
@@ -211,7 +216,7 @@ class Workspace:
     def mark_step(self, name: str, status: str, detail: str | None = None,
                   **extra) -> None:
         """Record the state of a step (pending/running/done/error) and save the manifest."""
-        if name not in STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS:
+        if name not in STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + EVIDENCE_STEPS:
             raise WorkspaceError(f"Paso desconocido: {name}")
         if status not in (PENDING, RUNNING, DONE, ERROR):
             raise WorkspaceError(f"Estado desconocido: {status}")
@@ -370,7 +375,7 @@ def _run(argv: list[str] | None = None) -> int:
 
 __all__ = ["Workspace", "WorkspaceError", "open_upload", "open_ontology", "open_law",
            "load_workspace", "list_workspaces", "workspace_id", "slugify", "STEPS", "LAW_STEPS",
-           "EXTRACT_STEPS", "PROFILE_STEPS", "steps_for"]
+           "EXTRACT_STEPS", "PROFILE_STEPS", "EVIDENCE_STEPS", "steps_for"]
 
 if __name__ == "__main__":
     raise SystemExit(_run())
