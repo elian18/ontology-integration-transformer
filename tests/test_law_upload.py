@@ -17,7 +17,7 @@ from src.ingest import law_upload as lu
 from src.ingest.law_upload import (ARTICLES_FILE, LAW_COLLECTION, chroma_path, current_articles,
                                    index_workspace_law, prepare_law, retrieve_law_articles,
                                    segment_workspace_law)
-from src.workspace.store import (DONE, ERROR, EXTRACT_STEPS, KIND_ONTOLOGY, LAW_STEPS, STEPS,
+from src.workspace.store import (DONE, ERROR, EXTRACT_STEPS, KIND_ONTOLOGY, LAW_STEPS,
                                  WorkspaceError, open_law, open_upload)
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,7 +69,9 @@ def test_a_law_workspace_has_the_law_steps(ws, cfg):
         "segment", "index", "extract", "accept"]                       # S7-T09, then S7-T10
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", b"@prefix ex: <http://e.org/> .\n"),
                         "law": ("l.txt", LAW.encode("utf-8"))}, cfg=cfg)
-    assert [r["step"] for r in both.progress()] == list(LAW_STEPS + STEPS)
+    assert [r["step"] for r in both.progress()] == [                   # S7-T11
+        "segment", "index", "inherit", "candidates", "propose", "labels", "evidence", "write",
+        "package"]
 
 
 def test_segment_and_index_a_law(ws):

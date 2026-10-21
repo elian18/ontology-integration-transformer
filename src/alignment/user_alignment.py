@@ -24,7 +24,10 @@ lives in a separate module that imports it):
    the ontology lacked, written by the AI; it imports the user's ontology.
 3. ``alignment-manifest.json`` (counts, settings, rule, prompt, models, base used, version) and
    ``alignment.csv`` (one row per concept of the user's ontology with what happened to it,
-   suggestions included, so the person can comment on them in Sprint 10, and its labels).
+   suggestions included, so the person can comment on them in Sprint 10, and its labels). In
+   the "ley + ontología" mode (S7-T11, ``src.alignment.law_evidence``) the CSV also gives the
+   articles of the uploaded law closest to each concept, to review them; they are not written
+   to the ontology (no rule reached the 75 % precision on GDPRtEXT).
 
 The module ``owl:imports`` the user's ontology by its IRI and references the DPV by IRI only.
 If the uploaded ontology declares no ``owl:Ontology`` IRI, one is generated
@@ -56,6 +59,7 @@ from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 from src.alignment import propose as dec
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
+from src.alignment import law_evidence as ev
 from src.alignment.propose import load_result as decisions_result
 from src.core.emit import CORE_FILE, CORE_IRI
 from src.transform import labels as lab
@@ -93,6 +97,7 @@ WRITTEN = (INHERITED_ALIGNED, ACCEPTED)          # the statuses that put triples
 _FROM_DECIDER = {dec.ACCEPTED: ACCEPTED, dec.SUGGESTED: SUGGESTED, dec.NO_MATCH: RULE_NO_MATCH,
                  dec.NO_PROPOSAL: NO_PROPOSAL, dec.UNDECIDED: UNDECIDED}
 CSV_COLUMNS = ["concept_iri", "concept_name", "label_es", "label_en", "labels_added",
+               "law_evidence",
                "status", "estado", "decided_by", "validated",
                "relation", "dpv_iri", "dpv_name", "score", "confidence", "method",
                "base_concept", "reviewer", "justification", "version"]
@@ -229,9 +234,10 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
 
 # --------------------------------------------------------------------------- rows
 
-def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = None) -> list[dict]:
+def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = None,
+                 evidence: dict | None = None) -> list[dict]:
     """One row per concept of the user's ontology (aligned ones: one row per mapping), with its
-    labels in Spanish and English after S7-T08."""
+    labels in Spanish and English after S7-T08 and the articles of the law (S7-T11)."""
     version = (decisions or {}).get("alignment_version", dec.ALIGNMENT_VERSION)
     rows = []
     for item in inherited.get("inherited", []):
@@ -260,9 +266,11 @@ def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = 
         if n.get("reason") == "kind" and n["key"] not in decided:
             rows.append({"concept_iri": n["key"], "concept_name": n["name"],
                          "status": NOT_ALIGNABLE, "validated": False})
-    named = lab.by_key(labels)
+    named, articles = lab.by_key(labels), ev.by_key(evidence)
     for r in rows:
         r["estado"] = STATUS_LABELS[r["status"]]
+        if r["concept_iri"] in articles:
+            r["law_evidence"] = ev.evidence_text(articles[r["concept_iri"]])
         entry = named.get(r["concept_iri"])
         if entry is not None:
             final = lab.final_labels(entry)
@@ -367,7 +375,8 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None)
         if stale.exists():
             stale.unlink()                             # module of proposals of v0.6.0
 
-        rows = concept_rows(inherited, decisions, labels)
+        evidence = ev.load_result(ws)                  # "ley + ontología": only the CSV
+        rows = concept_rows(inherited, decisions, labels, evidence)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
         prompts = {"decide": DECIDE_PROMPT.manifest()}
@@ -396,6 +405,8 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None)
             "decider": decisions.get("summary"),
             "labels": ({**labels["summary"], "glossary": labels["glossary"],
                         "ai": labels["ai"]} if labels else None),
+            "law_evidence": ({**evidence["summary"], "law": evidence["law"],
+                              "settings": evidence["settings"]} if evidence else None),
             "settings": {"inheritance": inherited.get("settings"),
                          "rule": decisions.get("rule"),
                          "threshold_without_ai": decisions.get("threshold_without_ai"),
@@ -413,7 +424,11 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None)
                 "'Sin correspondencia' no genera tripletas.",
             ] + (["El módulo de etiquetas agrega, con su idioma, las etiquetas en español e "
                   "inglés que le faltaban a la ontología (las escribió la IA); ninguna etiqueta "
-                  "original cambia."] if "labels" in modules else []),
+                  "original cambia."] if "labels" in modules else [])
+            + ([f"La columna law_evidence de alignment.csv trae los artículos de "
+                f"{evidence['law']} más cercanos a cada concepto (búsqueda semántica), para "
+                "revisarlos; no entran a la ontología: en GDPRtEXT ninguna regla llegó al 75 % "
+                "de precisión (S7-T11)."] if evidence else []),
         }
         (out / MANIFEST_FILE).write_text(json.dumps(manifest, indent=2, ensure_ascii=False),
                                          encoding="utf-8")
@@ -507,6 +522,15 @@ def _readme_for(manifest: dict):
         text += [
             f"  - {MANIFEST_FILE}: cifras, ajustes y origen de cada decisión.",
             f"  - {CSV_FILE}: una fila por concepto con lo que pasó (ábrelo en Excel).",
+        ]
+        evidence = manifest.get("law_evidence")
+        if evidence:
+            text.append(f"    Su columna law_evidence trae, para {evidence['with_evidence']} de "
+                        f"tus conceptos, los artículos de {evidence['law']} más cercanos "
+                        f"({evidence['links']} en total, con su distancia), encontrados por "
+                        "búsqueda semántica: son para que los revises; no entran a la "
+                        "ontología.")
+        text += [
             "",
             "El DPV no se importa: sus términos se referencian por IRI (https://w3id.org/dpv#).",
         ]
@@ -583,6 +607,10 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     if not lab.is_current(lab.load_result(ws), cfg, use_llm):
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
+    if (ws.manifest.get("mode") == "ontology+law"
+            and not ev.is_current(ev.load_result(ws), cfg)):
+        say(STEP_LABELS["evidence"])
+        ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
     say(STEP_LABELS["write"])
     manifest = write_user_alignment(ws, cfg=cfg, core=core)
     say(STEP_LABELS["package"])
@@ -627,6 +655,12 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
                         f"{manifest['triples']['labels']} tripletas)"
                         if manifest["files"].get("labels") else ""))
         lines.append(f"  IA de las etiquetas: {lab.ai_line(labels)}")
+    evidence = manifest.get("law_evidence")
+    if evidence:
+        lines.append(f"  Evidencia de {evidence['law']}: {evidence['with_evidence']} de "
+                     f"{evidence['concepts']} conceptos con artículos para revisar "
+                     f"({evidence['links']} enlaces, {evidence['articles_cited']} artículos "
+                     f"distintos) en {CSV_FILE}; no entran a la ontología")
     if manifest.get("ontology_iri_generated"):
         lines.append(f"  La ontología no tenía IRI: se usó {manifest['ontology_iri']}")
     if manifest["files"].get("core"):
