@@ -33,7 +33,9 @@ If the uploaded ontology declares no ``owl:Ontology`` IRI, one is generated
 
 The package (``build_user_package``) holds the modules and the user's ontology converted to the
 chosen format, the catalog for Protégé, the manifest, the CSV and a LEEME.txt; the JSON-LD one
-carries the Protégé note measured in S6-T03.
+carries the Protégé note measured in S6-T03. When the ontology imports OntoPriv-Core (the
+profile of the "solo ley" mode, S7-T10, ``src.core.law_profile``), a copy of the core goes into
+``output/`` and into the package, so that the import resolves.
 
 CLI: ``py -m src.alignment.user_alignment ARCHIVO [--formato turtle] [--sin-ia]`` runs the
 whole back-end for one file and writes the zip into the workspace.
@@ -55,6 +57,7 @@ from src.alignment import propose as dec
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
 from src.alignment.propose import load_result as decisions_result
+from src.core.emit import CORE_FILE, CORE_IRI
 from src.transform import labels as lab
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
 from src.transform.package import CATALOG_FILE, Module, Package, package_modules
@@ -102,7 +105,8 @@ def stems(ws) -> dict[str, str]:
     the module of v0.6.0, only to remove it from an old workspace)."""
     base = Path(ws.manifest["inputs"]["ontology"]["stored_as"]).stem
     return {"ontology": base, "alignment": f"{base}-dpv-alignment",
-            "labels": f"{base}{lab.MODULE_SUFFIX}", "proposals": f"{base}-dpv-proposals"}
+            "labels": f"{base}{lab.MODULE_SUFFIX}", "proposals": f"{base}-dpv-proposals",
+            "core": Path(CORE_FILE).stem}
 
 
 def ontology_iri(graph: Graph) -> str | None:
@@ -298,11 +302,12 @@ def _sha256(path: Path) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 
 
-def write_user_alignment(ws, cfg: dict | None = None) -> dict:
+def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None) -> dict:
     """Write the modules (Turtle), the manifest and the CSV into ``output/``; mark the step.
 
     The labels of S7-T08 are optional here (``align_upload`` always computes them first): with
-    no result, no labels module is written and the CSV has no labels."""
+    no result, no labels module is written and the CSV has no labels. ``core``: OntoPriv-Core
+    already loaded (else it is read from the base when the ontology imports it)."""
     from src.alignment.inherit import base_paths
     from src.workspace.store import DONE, ERROR, RUNNING
     from src.alignment.decider import PROMPT as DECIDE_PROMPT
@@ -352,6 +357,12 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
         (out / f"{names['alignment']}.ttl").write_bytes(serialize(graph, MASTER_FORMAT))
         files["alignment"] = f"output/{names['alignment']}.ttl"
         triples = {"alignment": len(graph), **triples}
+        if (URIRef(onto_iri), OWL.imports, URIRef(CORE_IRI)) in user_graph:
+            from src.core.law_profile import load_core
+            core = core if core is not None else load_core(cfg)
+            (out / f"{names['core']}.ttl").write_bytes(serialize(core, MASTER_FORMAT))
+            files["core"] = f"output/{names['core']}.ttl"
+            modules["core"], triples["core"] = CORE_IRI, len(core)
         stale = out / f"{names['proposals']}.ttl"
         if stale.exists():
             stale.unlink()                             # module of proposals of v0.6.0
@@ -362,10 +373,22 @@ def write_user_alignment(ws, cfg: dict | None = None) -> dict:
         prompts = {"decide": DECIDE_PROMPT.manifest()}
         if labels:
             prompts["labels"] = labels["prompt"]
+        entry = ws.manifest["inputs"]["ontology"]
+        profile = None
+        if entry.get("generated_from") == "law":
+            from src.core.law_concepts import load_result as law_concepts
+            from src.core.law_profile import load_result as law_profile
+            built, concepts = law_profile(ws) or {}, law_concepts(ws) or {}
+            profile = {**(built.get("summary") or {}), "law": built.get("law"),
+                       "iri": built.get("profile_iri"), "language": built.get("language"),
+                       "law_concepts": concepts.get("summary"),
+                       "extraction": concepts.get("extraction")}
+            prompts["extract"] = concepts.get("prompt")
         manifest = {
             "workspace": ws.id, "source_id": ws.source_id, "created": created,
             "uploaded_file": display, "ontology_iri": onto_iri,
             "ontology_iri_generated": generated,
+            "generated_from": entry.get("generated_from"), "profile": profile,
             "alignment_version": decisions.get("alignment_version", dec.ALIGNMENT_VERSION),
             "modules": modules, "files": files, "triples": triples,
             "summary": summarize(rows),
@@ -417,6 +440,11 @@ def package_name(ws, fmt: str | OutputFormat) -> str:
     return f"{stems(ws)['ontology']}-alineada-{spec.key}.zip"
 
 
+def _included(package: Package, path: str) -> str | None:
+    """The file of the package that holds the module stored at ``path`` (any format)."""
+    return next((f for f in package.included if Path(f).stem == Path(path).stem), None)
+
+
 def _readme_for(manifest: dict):
     def readme(package: Package) -> str:
         s = manifest["summary"]
@@ -447,8 +475,8 @@ def _readme_for(manifest: dict):
                         "rdfs:seeAlso).")
         text.append("      Cada correspondencia lleva anotado quién la decidió y su versión.")
         labels = manifest.get("labels") or {}
-        stem = Path(manifest["files"]["labels"]).stem if manifest["files"].get("labels") else None
-        label_file = next((f for f in package.included if Path(f).stem == stem), None)
+        label_file = (_included(package, manifest["files"]["labels"])
+                      if manifest["files"].get("labels") else None)
         if label_file:
             added = labels.get("added") or {}
             text.append(f"  - {label_file}: las etiquetas que le faltaban a tu ontología "
@@ -462,10 +490,21 @@ def _readme_for(manifest: dict):
             text.append(f"  - {s['suggested']} sugeridas: la IA las dio con confianza alta "
                         f"pero la regla no las acepta; NO están en la ontología, solo en "
                         f"{CSV_FILE}.")
+        if manifest.get("generated_from") == "law":
+            p = manifest.get("profile") or {}
+            text.append(f"  - {_included(package, manifest['files']['ontology'])}: el perfil "
+                        f"de tu ley ({p.get('concepts', 0)} conceptos que la IA extrajo y la "
+                        f"regla aceptó: {p.get('reused', 0)} reutilizan OntoPriv-Core, "
+                        f"{p.get('linked', 0)} se enlazan con él y {p.get('new', 0)} son "
+                        "nuevos). Importa OntoPriv-Core.")
+        else:
+            text.append("  - Tu ontología, sin cambios"
+                        + (" (se le agregó un IRI de ontología porque no tenía)."
+                           if manifest.get("ontology_iri_generated") else "."))
+        if manifest["files"].get("core"):
+            text.append(f"  - {_included(package, manifest['files']['core'])}: el núcleo "
+                        "OntoPriv-Core de la base del sistema, sin cambios.")
         text += [
-            "  - Tu ontología, sin cambios"
-            + (" (se le agregó un IRI de ontología porque no tenía)."
-               if manifest.get("ontology_iri_generated") else "."),
             f"  - {MANIFEST_FILE}: cifras, ajustes y origen de cada decisión.",
             f"  - {CSV_FILE}: una fila por concepto con lo que pasó (ábrelo en Excel).",
             "",
@@ -488,6 +527,9 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
         modules.append(Module(manifest["modules"]["labels"], ws.path / manifest["files"]["labels"],
                               names["labels"]))
     modules.append(Module(onto_iri, ws.path / manifest["files"]["ontology"], names["ontology"]))
+    if manifest["modules"].get("core"):
+        modules.append(Module(manifest["modules"]["core"], ws.path / manifest["files"]["core"],
+                              names["core"]))
     extras = {MANIFEST_FILE: ws.output_dir / MANIFEST_FILE, CSV_FILE: ws.output_dir / CSV_FILE}
     return package_modules(modules, fmt, extras=extras, readme=_readme_for(manifest))
 
@@ -514,10 +556,21 @@ def align_upload(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool |
     (S7-T08: another prompt or glossary, or concepts left pending while the AI is available);
     the caches of the workspace make that cheap. ``progress(step_label)`` is called before each
     step (for the web). Returns the workspace, the manifest and the zip path."""
+    from src.workspace.store import open_ontology
+    ws = open_ontology(name, data, cfg=cfg)
+    return align_workspace(ws, fmt=fmt, use_llm=use_llm, embed_fn=embed_fn, llm=llm, cfg=cfg,
+                           base=base, targets=targets, progress=progress,
+                           chroma_path=chroma_path, sleep_fn=sleep_fn)
+
+
+def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, embed_fn=None,
+                    llm=None, cfg: dict | None = None, base=None, targets=None, progress=None,
+                    chroma_path=None, sleep_fn=None, core: Graph | None = None):
+    """The steps of ``align_upload`` on a workspace that already holds its ontology (an
+    upload, or the profile of a law in the "solo ley" mode, S7-T10)."""
     from src.alignment.inherit import inherit_for_workspace
     from src.alignment.propose import is_current, propose_for_workspace
-    from src.workspace.store import STEP_LABELS, open_ontology
-    ws = open_ontology(name, data, cfg=cfg)
+    from src.workspace.store import STEP_LABELS
     say = progress or (lambda label: None)
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
@@ -531,7 +584,7 @@ def align_upload(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool |
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
     say(STEP_LABELS["write"])
-    manifest = write_user_alignment(ws, cfg=cfg)
+    manifest = write_user_alignment(ws, cfg=cfg, core=core)
     say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return ws, manifest, path
@@ -576,6 +629,9 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
         lines.append(f"  IA de las etiquetas: {lab.ai_line(labels)}")
     if manifest.get("ontology_iri_generated"):
         lines.append(f"  La ontología no tenía IRI: se usó {manifest['ontology_iri']}")
+    if manifest["files"].get("core"):
+        lines.append(f"  Núcleo OntoPriv-Core incluido: {manifest['files']['core']} "
+                     f"({manifest['triples']['core']} tripletas)")
     if zip_path is not None:
         lines.append(f"  Paquete: {zip_path}")
     return "\n".join(lines)

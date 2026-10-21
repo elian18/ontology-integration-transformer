@@ -11,8 +11,8 @@ import pytest
 
 from src.workspace import store
 from src.workspace.store import (BASE_DIRS, DONE, ERROR, EXTRACT_STEPS, KIND_LAW, KIND_ONTOLOGY,
-                                 LAW_STEPS, MANIFEST_FILE, PENDING, STEPS, WorkspaceError,
-                                 check_root,
+                                 LAW_STEPS, MANIFEST_FILE, PENDING, PROFILE_STEPS, STEPS,
+                                 WorkspaceError, check_root,
                                  list_workspaces, load_workspace, open_law, open_ontology,
                                  open_upload, safe_file_name, slugify, steps_for, workspace_id,
                                  workspace_settings)
@@ -91,19 +91,23 @@ def test_the_steps_depend_on_what_the_workspace_holds(cfg):
     assert steps_for("ontology") == STEPS and steps_for(None) == STEPS
     assert STEPS == ("inherit", "candidates", "propose", "labels", "write", "package")  # S7-T08
     assert LAW_STEPS == ("segment", "index") and EXTRACT_STEPS == ("extract", "accept")
-    assert steps_for("law") == LAW_STEPS + EXTRACT_STEPS                # S7-T09: solo ley
+    assert PROFILE_STEPS == ("profile",)
+    # solo ley: the law (S7-T07), its concepts (S7-T09), the profile and its alignment (S7-T10)
+    assert steps_for("law") == LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + STEPS
     assert steps_for("ontology+law") == LAW_STEPS + STEPS
     law = open_law("Ley.txt", b"Art. 1.- Objeto.", cfg=cfg)
     assert law.manifest["mode"] == "law"
-    assert list(law.manifest["steps"]) == list(LAW_STEPS + EXTRACT_STEPS)
-    assert [r["label"] for r in law.progress()] == ["Separar la ley en artículos",
-                                                    "Indexar los artículos de la ley",
-                                                    "Extraer los conceptos de la ley con la IA",
-                                                    "Aceptar los conceptos por regla"]
+    assert list(law.manifest["steps"]) == list(steps_for("law"))
+    assert [r["label"] for r in law.progress()][:5] == [
+        "Separar la ley en artículos", "Indexar los artículos de la ley",
+        "Extraer los conceptos de la ley con la IA", "Aceptar los conceptos por regla",
+        "Armar el perfil de la ley sobre OntoPriv-Core"]
     law.mark_step("accept", DONE, "1 aceptados")
+    law.mark_step("profile", DONE, "1 nuevos")
     law.mark_step("segment", DONE, "1 artículos")
     again = load_workspace(law.id, cfg=cfg)
     assert again.step("segment")["status"] == again.step("accept")["status"] == DONE
+    assert again.step("profile")["status"] == DONE
 
 
 # ------------------------------------------------------------------ friendly errors

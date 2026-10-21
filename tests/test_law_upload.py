@@ -65,8 +65,8 @@ def _prepare(ws, embed=None, **kw):
 
 def test_a_law_workspace_has_the_law_steps(ws, cfg):
     assert ws.manifest["mode"] == "law"
-    assert [r["step"] for r in ws.progress()] == list(LAW_STEPS + EXTRACT_STEPS) == [
-        "segment", "index", "extract", "accept"]                       # S7-T09
+    assert [r["step"] for r in ws.progress()][:4] == list(LAW_STEPS + EXTRACT_STEPS) == [
+        "segment", "index", "extract", "accept"]                       # S7-T09, then S7-T10
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", b"@prefix ex: <http://e.org/> .\n"),
                         "law": ("l.txt", LAW.encode("utf-8"))}, cfg=cfg)
     assert [r["step"] for r in both.progress()] == list(LAW_STEPS + STEPS)
