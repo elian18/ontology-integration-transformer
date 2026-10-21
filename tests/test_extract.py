@@ -122,6 +122,64 @@ def test_summary_is_json_safe():
     assert set(summary["processed_articles"]) == {1, 2, 3}
 
 
+@pytest.mark.parametrize("value,number", [(3, 3), ("3", 3), ("3°", 3), ("Artículo 3", 3),
+                                          ("3, literal b", 3), (3.0, 3), (" 12 ", 12),
+                                          (None, None), ("", None), ("tres", None),
+                                          (True, None), ([3], None)])
+def test_article_number(value, number):
+    from src.core.extract import article_number
+    assert article_number(value) == number
+
+
+def test_an_article_written_with_a_degree_sign_keeps_its_provenance():
+    """S7-T09: the LLM copied "3°" from the Colombian law ("Artículo 3°.")."""
+    raw = {1: json.dumps({**_BY_ART[1], "article": "1°"}),
+           2: json.dumps({**_BY_ART[2], "article": "Artículo 2"})}
+    report = propose_profile_concepts(_ARTS[:2], llm=FakeLLM(raw_override=raw))
+    assert {c.name: c.articles for c in report.concepts} == {"Objective": [1], "Scope": [2]}
+
+
+def test_by_default_it_runs_as_in_sprint_3():
+    from src.core.extract import PROMPT
+    seen = []
+
+    class Spy(FakeLLM):
+        def ask(self, prompt, context="", max_tokens=1024):
+            seen.append(prompt)
+            return super().ask(prompt, context, max_tokens)
+
+    report = propose_profile_concepts(_ARTS, llm=Spy(), batch_size=1)
+    assert seen == [PROMPT.text] * 3 and report.calls == 3 and not report.call_limit_reached
+    summary = extraction_summary(report)
+    assert summary["prompt"] == PROMPT.manifest() and summary["prompt"]["version"] == 1
+    assert (summary["calls"], summary["call_limit_reached"], summary["model"]) == (3, False, None)
+
+
+def test_uploaded_laws_get_another_prompt_a_pause_and_a_limit():
+    """S7-T09: the extraction of an uploaded law (src.core.law_concepts)."""
+    from src.ai.prompts import load_prompt
+    v2, seen, pauses = load_prompt("extract", 2), [], []
+
+    class Spy(FakeLLM):
+        model = "modelo-de-prueba"
+
+        def ask(self, prompt, context="", max_tokens=1024):
+            seen.append(prompt)
+            return super().ask(prompt, context, max_tokens)
+
+    report = propose_profile_concepts(_ARTS, llm=Spy(), batch_size=1, prompt=v2,
+                                      prompt_text="texto lleno", pause_seconds=2,
+                                      sleep_fn=pauses.append, max_calls=2)
+    assert seen == ["texto lleno"] * 2 and pauses == [2]     # no pause before the first call
+    assert report.calls == 2 and report.call_limit_reached
+    assert report.processed_articles == [1, 2]
+    summary = extraction_summary(report)
+    assert summary["prompt"] == v2.manifest() and summary["model"] == "modelo-de-prueba"
+    assert (summary["calls"], summary["call_limit_reached"]) == (2, True)
+    none = propose_profile_concepts(_ARTS, llm=Spy(), batch_size=1, max_calls=0)
+    assert none.calls == 0 and none.call_limit_reached and none.processed_articles == []
+
+
 @pytest.mark.slow
 def test_real_llm_extracts_a_batch():
     try:

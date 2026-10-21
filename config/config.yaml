@@ -63,3 +63,8 @@ labels:                       # S7-T08: the LLM writes the missing es/en labels 
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 4096            # max answer length per call
   definition_chars: 200       # length of the definition shown per concept
+extraction:                   # S7-T09: the LLM extracts the concepts of an uploaded law (prompt extract.v2); a fixed rule accepts them (py -m src.core.acceptance)
+  batch_size: 8               # articles per LLM call (GDPR, 99 articles: 13 calls)
+  max_tokens: 8192            # max answer length per call (a definitions article gives dozens of concepts)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_calls: 30               # LLM calls per run; re-run to continue where it stopped

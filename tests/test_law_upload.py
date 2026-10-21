@@ -17,8 +17,8 @@ from src.ingest import law_upload as lu
 from src.ingest.law_upload import (ARTICLES_FILE, LAW_COLLECTION, chroma_path, current_articles,
                                    index_workspace_law, prepare_law, retrieve_law_articles,
                                    segment_workspace_law)
-from src.workspace.store import (DONE, ERROR, KIND_ONTOLOGY, LAW_STEPS, STEPS, WorkspaceError,
-                                 open_law, open_upload)
+from src.workspace.store import (DONE, ERROR, EXTRACT_STEPS, KIND_ONTOLOGY, LAW_STEPS, STEPS,
+                                 WorkspaceError, open_law, open_upload)
 
 ROOT = Path(__file__).resolve().parents[1]
 LAW = (
@@ -65,7 +65,8 @@ def _prepare(ws, embed=None, **kw):
 
 def test_a_law_workspace_has_the_law_steps(ws, cfg):
     assert ws.manifest["mode"] == "law"
-    assert [r["step"] for r in ws.progress()] == list(LAW_STEPS) == ["segment", "index"]
+    assert [r["step"] for r in ws.progress()] == list(LAW_STEPS + EXTRACT_STEPS) == [
+        "segment", "index", "extract", "accept"]                       # S7-T09
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", b"@prefix ex: <http://e.org/> .\n"),
                         "law": ("l.txt", LAW.encode("utf-8"))}, cfg=cfg)
     assert [r["step"] for r in both.progress()] == list(LAW_STEPS + STEPS)
@@ -91,7 +92,7 @@ def test_segment_and_index_a_law(ws):
                             include=("metadatas",))["metadatas"][0]
     assert meta["number"] == 2 and meta["title"] == "Consentimiento"
     assert meta["source"] == "Ley de prueba.txt"
-    assert [s["status"] for s in ws.progress()] == [DONE, DONE]
+    assert [s["status"] for s in ws.progress()][:2] == [DONE, DONE]
     assert ws.step("segment")["articles"] == 3 and ws.step("segment")["language"] == "es"
     assert ws.step("index")["items"] == 3
 
