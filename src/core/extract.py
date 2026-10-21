@@ -16,6 +16,13 @@ Design forced by the free-tier LLM (Gemini free tier allows ~20 requests/day):
   so quota is never spent redoing work.
 The LLM is injected (``llm``) so the fast tests use a deterministic fake and never hit the
 network; ``_run`` uses the real Sprint 2 ``LLMClient``.
+
+Since S7-T09 the same machinery extracts the concepts of a law a person uploads
+(``src.core.law_concepts``): it can take another prompt (``extract.v2``, any law in Spanish or
+English), pause between calls (free tier: 15 requests per minute) and stop after a number of
+calls; the report says which prompt and model produced it and how many calls it made. Called
+as before, it behaves as in Sprint 3 (prompt v1, no pause, no limit), except that an article
+number written "3°" or "Artículo 3" now counts as 3 (``article_number``).
 """
 from __future__ import annotations
 
@@ -58,6 +65,10 @@ class ExtractionReport:
     errors: list[dict] = field(default_factory=list)      # {articles, error}
     processed_articles: list[int] = field(default_factory=list)
     quota_exhausted: bool = False
+    prompt: object = PROMPT                               # the Prompt that produced it
+    model: str | None = None
+    calls: int = 0                                        # LLM calls of THIS run
+    call_limit_reached: bool = False
 
     def counts(self) -> dict:
         return {
@@ -117,6 +128,17 @@ def _parse_jsonl(raw: str) -> tuple[list[dict], int]:
     return objects, bad
 
 
+def article_number(value) -> int | None:
+    """The article number the LLM wrote: 3, "3", "3°", "Artículo 3" or "3, literal b" -> 3.
+
+    S7-T09: in the Colombian law the articles 1 to 9 are headed "Artículo 3°." and the LLM
+    copied "3°", which ``int`` refused, so every concept of that batch lost its article."""
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    match = re.search(r"\d+", str(value)) if isinstance(value, (str, float)) else None
+    return int(match.group()) if match else None
+
+
 def _normalize(concept: dict, valid_numbers: set[int]) -> ProposedConcept | None:
     name = (str(concept.get("name") or "")).strip()
     if not name:
@@ -124,14 +146,8 @@ def _normalize(concept: dict, valid_numbers: set[int]) -> ProposedConcept | None
     ctype = str(concept.get("type") or "class").strip().lower()
     if ctype not in ("class", "property"):
         ctype = "class"
-    articles: list[int] = []
-    raw_article = concept.get("article")
-    try:
-        num = int(raw_article)
-        if num in valid_numbers:
-            articles = [num]
-    except (TypeError, ValueError):
-        pass
+    num = article_number(concept.get("article"))
+    articles = [num] if num in valid_numbers else []
     return ProposedConcept(name=name, label=(str(concept.get("label") or "")).strip(),
                            ctype=ctype, definition=(str(concept.get("definition") or "")).strip(),
                            articles=articles)
@@ -163,11 +179,21 @@ def _save_state(out_path: Path, report: ExtractionReport) -> None:
 
 def propose_profile_concepts(articles, llm=None, source: str = "", batch_size: int = 8,
                              max_tokens: int = 4096, retries: int = 1,
-                             out_path=None, resume: bool = True) -> ExtractionReport:
-    """Extract concepts from the articles in batches and propose them, with provenance."""
+                             out_path=None, resume: bool = True, *, prompt=None,
+                             pause_seconds: float = 0.0, sleep_fn=time.sleep,
+                             max_calls: int | None = None,
+                             prompt_text: str | None = None) -> ExtractionReport:
+    """Extract concepts from the articles in batches and propose them, with provenance.
+
+    ``prompt`` (default: extract v1), ``prompt_text`` (its text already filled in, for instance
+    with the language of the law; the report keeps the manifest of ``prompt``), ``pause_seconds``
+    between calls and ``max_calls`` per run are for the uploaded laws of S7-T09; the defaults
+    keep the behaviour of Sprint 3."""
     if llm is None:                                 # lazy import so tests need no network/key
         from src.ai.llm_client import LLMClient
         llm = LLMClient()
+    prompt = prompt or PROMPT
+    instruction = prompt_text or prompt.text
 
     out_path = Path(out_path) if out_path else None
     merged: "OrderedDict[str, ProposedConcept]" = OrderedDict()
@@ -178,16 +204,23 @@ def propose_profile_concepts(articles, llm=None, source: str = "", batch_size: i
 
     pending = [a for a in articles if a.get("number") not in processed]
     report = ExtractionReport(source=source, concepts=list(merged.values()),
-                              errors=errors, processed_articles=sorted(processed))
+                              errors=errors, processed_articles=sorted(processed),
+                              prompt=prompt, model=getattr(llm, "model", None))
 
     for batch in _chunk(pending, batch_size):
         context, numbers = _batch_context(batch)
         if not context.strip():
             continue
+        if max_calls is not None and report.calls >= max_calls:
+            report.call_limit_reached = True
+            break
+        if report.calls and pause_seconds:
+            sleep_fn(pause_seconds)                 # stay under the per-minute limits
+        report.calls += 1
         raw, err = None, None
         for attempt in range(retries + 1):
             try:
-                raw = llm.ask(prompt=_INSTRUCTION, context=context, max_tokens=max_tokens) or ""
+                raw = llm.ask(prompt=instruction, context=context, max_tokens=max_tokens) or ""
                 err = None
                 break
             except Exception as exc:                # noqa: BLE001 - report, don't crash
@@ -236,7 +269,10 @@ def extraction_summary(report: ExtractionReport) -> dict:
     """Serializable summary (safe for JSON, the CLI and the web)."""
     return {
         "source": report.source,
-        "prompt": PROMPT.manifest(),
+        "prompt": report.prompt.manifest(),
+        "model": report.model,
+        "calls": report.calls,
+        "call_limit_reached": report.call_limit_reached,
         "counts": report.counts(),
         "processed_articles": report.processed_articles,
         "quota_exhausted": report.quota_exhausted,

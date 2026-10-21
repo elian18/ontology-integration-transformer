@@ -15,8 +15,9 @@ data-protection law (.pdf or .txt, Spanish or English: the LOPDP, the GDPR, the 
    segmenter or the embedding model change (the fingerprint of S7-T01), so uploading the same
    law again costs nothing.
 
-``retrieve_law_articles`` searches that collection: the extraction (S7-T09) and the evidence
-of the "ley + ontología" mode (S7-T11) will use it.
+``retrieve_law_articles`` searches that collection: the evidence of the "ley + ontología" mode
+(S7-T11) will use it (the concepts the AI extracts from the law in S7-T09 already carry their
+article).
 
 CLI: ``py -m src.ingest.law_upload ARCHIVO [--consulta "texto"]``.
 """
