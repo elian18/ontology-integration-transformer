@@ -21,7 +21,9 @@ decisions of a workspace use ``source_id = "upload:<id>"`` so they never mix wit
 The workspace can hold an ontology (mode "solo ontología", Sprint 6) and a law text (modes
 "solo ley" and "ley + ontología", Sprint 7); the id then covers every uploaded file. The steps
 of a workspace depend on what it holds: those of the ontology, those of the law (S7-T07:
-segment and index it), or both.
+segment and index it), or both. In the "solo ley" mode the profile built from the law
+(S7-T10) becomes the ontology of the workspace: it is saved in ``input/`` next to the law and
+its entry is marked ``generated_from: "law"``, so the steps of the ontology run on it.
 
 CLI: ``py -m src.workspace.store ARCHIVO`` creates (or reopens) the workspace of a file.
 """
@@ -50,11 +52,12 @@ KIND_LAW = "law"
 LAW_SUFFIXES = (".txt", ".pdf")
 
 # Steps of the "solo ontología" flow, in order (filled by S6-T05..T08; "labels": S7-T08), of an
-# uploaded law (S7-T07) and of the concepts the AI extracts from it in the "solo ley" mode
-# (S7-T09; the later tasks of Sprint 7 add theirs).
+# uploaded law (S7-T07) and, in the "solo ley" mode, of the concepts the AI extracts from it
+# (S7-T09) and of the profile built with them (S7-T10), which then follows the flow of STEPS.
 STEPS = ("inherit", "candidates", "propose", "labels", "write", "package")
 LAW_STEPS = ("segment", "index")
 EXTRACT_STEPS = ("extract", "accept")
+PROFILE_STEPS = ("profile",)                    # S7-T10: then the steps of STEPS on the profile
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
                "propose": "Proponer correspondencias",
                "labels": "Completar las etiquetas en español e inglés",
@@ -62,7 +65,8 @@ STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidato
                "package": "Preparar la descarga", "segment": "Separar la ley en artículos",
                "index": "Indexar los artículos de la ley",
                "extract": "Extraer los conceptos de la ley con la IA",
-               "accept": "Aceptar los conceptos por regla"}
+               "accept": "Aceptar los conceptos por regla",
+               "profile": "Armar el perfil de la ley sobre OntoPriv-Core"}
 PENDING, RUNNING, DONE, ERROR = "pending", "running", "done", "error"
 STATUS_LABELS = {PENDING: "pendiente", RUNNING: "en curso", DONE: "hecho", ERROR: "error"}
 ACCEPTED_ONTOLOGY = "RDF/XML (.rdf, .owl), Turtle (.ttl) o JSON-LD (.jsonld)"
@@ -78,7 +82,7 @@ class WorkspaceError(ValueError):
 def steps_for(mode: str | None) -> tuple[str, ...]:
     """The steps of a workspace, in order, by what it holds."""
     if mode == "law":
-        return LAW_STEPS + EXTRACT_STEPS
+        return LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + STEPS
     if mode == "ontology+law":
         return LAW_STEPS + STEPS
     return STEPS
@@ -207,7 +211,7 @@ class Workspace:
     def mark_step(self, name: str, status: str, detail: str | None = None,
                   **extra) -> None:
         """Record the state of a step (pending/running/done/error) and save the manifest."""
-        if name not in STEPS + LAW_STEPS + EXTRACT_STEPS:
+        if name not in STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS:
             raise WorkspaceError(f"Paso desconocido: {name}")
         if status not in (PENDING, RUNNING, DONE, ERROR):
             raise WorkspaceError(f"Estado desconocido: {status}")
@@ -366,7 +370,7 @@ def _run(argv: list[str] | None = None) -> int:
 
 __all__ = ["Workspace", "WorkspaceError", "open_upload", "open_ontology", "open_law",
            "load_workspace", "list_workspaces", "workspace_id", "slugify", "STEPS", "LAW_STEPS",
-           "EXTRACT_STEPS", "steps_for"]
+           "EXTRACT_STEPS", "PROFILE_STEPS", "steps_for"]
 
 if __name__ == "__main__":
     raise SystemExit(_run())
