@@ -24,8 +24,10 @@ grid and the criterion were fixed BEFORE measuring (as the decider rule, S7-T05)
 coverage (concepts with a correct article); ties go to the rule with fewer links. The optimism
 of choosing on the same 80 concepts is measured with cross-validation (chosen on one random
 half, measured on the other, 100 times, seed 7). Precision is a LOWER bound: GDPRtEXT names
-the article that DEFINES a concept (mostly article 4, the definitions), and the article about
-its topic is also related to it.
+the articles that define a concept (6, 4, 9 and 5 are the most frequent), and the search often
+gives another article about the same topic: for Consent it gives first article 7 ("Conditions
+for consent") while GDPRtEXT points to 4 and 6; for Processor, article 28 ("Processor") while
+GDPRtEXT points to 4.
 
 Result (S7-T11): no rule reaches 75 % (the best, 1 article up to 0.30: 73,9 % on 23 links;
 cross-validation 64,5 %), so the articles stay in the CSV. For the review the rule in
