@@ -242,10 +242,25 @@ def test_without_concepts_there_is_no_profile(env):
     assert ws.step("profile")["status"] == ERROR
     path = ws.work_dir / CONCEPTS_FILE
     saved = json.loads(path.read_text(encoding="utf-8"))
-    saved["ai"] = {"available": True}
+    saved["ai"] = {"available": True}                      # the whole law read, none accepted
+    saved["extraction"] = {**saved["extraction"], "complete": True}
     path.write_text(json.dumps(saved), encoding="utf-8")
-    with pytest.raises(WorkspaceError, match="la regla no aceptó ninguno"):
+    with pytest.raises(WorkspaceError, match=r"\(la regla no aceptó ninguno\); no se puede armar "
+                                             r"el perfil\.$"):
         profile_for_workspace(ws, base=env.base, cfg=env.cfg)
+    for ai, text in (({"quota_exhausted": True}, "se agotó la cuota diaria de la IA antes de "
+                      "leer toda la ley); no se puede armar el perfil. Vuelve a subirla mañana"),
+                     ({"call_limit_reached": True}, "se llegó al límite de llamadas a la IA "
+                      "antes de leer toda la ley); no se puede armar el perfil. Vuelve a "
+                      "subirla para seguir"),
+                     ({}, "la IA falló al leer la ley); no se puede armar el perfil. Vuelve a "
+                      "subirla para intentarlo de nuevo.")):
+        saved["ai"] = {"available": True, **ai}
+        saved["extraction"] = {**saved["extraction"], "complete": False}
+        path.write_text(json.dumps(saved), encoding="utf-8")
+        with pytest.raises(WorkspaceError) as exc:
+            profile_for_workspace(ws, base=env.base, cfg=env.cfg)
+        assert text in str(exc.value)
 
 
 def test_errors_mark_the_step_and_the_core_must_exist(env, tmp_path):

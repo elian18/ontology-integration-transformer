@@ -1,8 +1,9 @@
 """Streamlit entrypoint. Run from the project root:
     py -m streamlit run app/app.py
 
-Two sections in the menu (S6-T08): what the end user does ("Tu ontología") and the tools used
-once to build the system's base in Sprints 1-5 ("Construcción de la base").
+Two sections in the menu (S6-T08): what the end user does ("Tu ontología": since S7-T12 one
+page for the three modes, ontology, law or both) and the tools used once to build the system's
+base in Sprints 1-5 ("Construcción de la base").
 """
 import sys
 import pathlib
@@ -20,7 +21,7 @@ st.set_page_config(page_title="Ontology Integration Transformer", layout="wide")
 pages = {
     "Tu ontología": [
         st.Page("views/home.py", title="Inicio", icon=":material/home:", default=True),
-        st.Page("views/align_ontology.py", title="Alinear mi ontología",
+        st.Page("views/align_ontology.py", title="Alinear con el DPV",
                 icon=":material/auto_awesome:"),
     ],
     "Construcción de la base": [
