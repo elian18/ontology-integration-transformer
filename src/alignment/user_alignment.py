@@ -310,12 +310,15 @@ def _sha256(path: Path) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 
 
-def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None) -> dict:
+def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
+                         recomputed: dict | None = None) -> dict:
     """Write the modules (Turtle), the manifest and the CSV into ``output/``; mark the step.
 
     The labels of S7-T08 are optional here (``align_upload`` always computes them first): with
     no result, no labels module is written and the CSV has no labels. ``core``: OntoPriv-Core
-    already loaded (else it is read from the base when the ontology imports it)."""
+    already loaded (else it is read from the base when the ontology imports it).
+    ``recomputed``: which steps this run did again (S7-T13: the console says when the AI was
+    not called and the figures are those of an earlier run); None when it is not known."""
     from src.alignment.inherit import base_paths
     from src.workspace.store import DONE, ERROR, RUNNING
     from src.alignment.decider import PROMPT as DECIDE_PROMPT
@@ -407,6 +410,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None)
                         "ai": labels["ai"]} if labels else None),
             "law_evidence": ({**evidence["summary"], "law": evidence["law"],
                               "settings": evidence["settings"]} if evidence else None),
+            "recomputed": recomputed,
             "settings": {"inheritance": inherited.get("settings"),
                          "rule": decisions.get("rule"),
                          "threshold_without_ai": decisions.get("threshold_without_ai"),
@@ -596,23 +600,28 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     from src.alignment.propose import is_current, propose_for_workspace
     from src.workspace.store import STEP_LABELS
     say = progress or (lambda label: None)
+    ran = {"inherit": False, "decider": False, "labels": False, "evidence": False}
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
         inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
+        ran["inherit"] = True
     if not is_current(decisions_result(ws), cfg, use_llm):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
                               targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,
                               sleep_fn=sleep_fn)
+        ran["decider"] = True
     if not lab.is_current(lab.load_result(ws), cfg, use_llm):
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
+        ran["labels"] = True
     if (ws.manifest.get("mode") == "ontology+law"
             and not ev.is_current(ev.load_result(ws), cfg)):
         say(STEP_LABELS["evidence"])
         ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
+        ran["evidence"] = True
     say(STEP_LABELS["write"])
-    manifest = write_user_alignment(ws, cfg=cfg, core=core)
+    manifest = write_user_alignment(ws, cfg=cfg, core=core, recomputed=ran)
     say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return ws, manifest, path
@@ -620,7 +629,27 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
 
 # --------------------------------------------------------------------------- console
 
+REUSED = "no se volvió a llamar; son las cifras de la corrida anterior"
+
+
+def decider_ai_text(ai: dict) -> str:
+    """The AI of the decider in one line, with why it stopped and its first error."""
+    text = f"{ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} respuestas desde la caché"
+    if ai.get("quota_exhausted"):
+        text += " (cuota agotada: vuelve a correr mañana)"
+    elif ai.get("call_limit_reached"):
+        text += " (límite de llamadas: vuelve a correr para seguir)"
+    if ai.get("errors"):
+        text += f"; error: {ai['errors'][0]}"
+    return text
+
+
 def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
+    again = manifest.get("recomputed") or {}
+
+    def reused(step: str) -> bool:                      # unknown (None): say nothing
+        return bool(again) and not again.get(step)
+
     s = manifest["summary"]
     c = s["by_status"]
     lines = ["Ontología alineada (S7-T08)",
@@ -641,8 +670,8 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
     if decider.get("rule"):
         lines.append(f"  Regla: {decider['rule']}")
     if ai.get("available"):
-        lines.append(f"  IA del decisor: {ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} "
-                     f"respuestas desde la caché")
+        text = decider_ai_text(ai)
+        lines.append("  IA del decisor: " + (f"{REUSED} ({text})" if reused("decider") else text))
     elif decider.get("concepts"):
         lines.append(f"  IA del decisor: no usada ({ai.get('error')})")
     labels = manifest.get("labels")
@@ -654,13 +683,17 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
                      + (f" (módulo {manifest['files']['labels']}, "
                         f"{manifest['triples']['labels']} tripletas)"
                         if manifest["files"].get("labels") else ""))
-        lines.append(f"  IA de las etiquetas: {lab.ai_line(labels)}")
+        text = lab.ai_line(labels)
+        available = (labels.get("ai") or {}).get("available")
+        lines.append("  IA de las etiquetas: "
+                     + (f"{REUSED} ({text})" if available and reused("labels") else text))
     evidence = manifest.get("law_evidence")
     if evidence:
         lines.append(f"  Evidencia de {evidence['law']}: {evidence['with_evidence']} de "
                      f"{evidence['concepts']} conceptos con artículos para revisar "
                      f"({evidence['links']} enlaces, {evidence['articles_cited']} artículos "
-                     f"distintos) en {CSV_FILE}; no entran a la ontología")
+                     f"distintos) en {CSV_FILE}; no entran a la ontología"
+                     + (" (de la corrida anterior)" if reused("evidence") else ""))
     if manifest.get("ontology_iri_generated"):
         lines.append(f"  La ontología no tenía IRI: se usó {manifest['ontology_iri']}")
     if manifest["files"].get("core"):

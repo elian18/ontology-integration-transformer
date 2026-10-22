@@ -321,13 +321,22 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     assert ("  Etiquetas es/en: 0 conceptos ya las tenían; la IA agregó 4 en español y 4 en "
             "inglés (módulo output/mi-gdpr-labels.ttl, 14 tripletas)\n") in text
     assert "  IA de las etiquetas: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
+    assert m["recomputed"] == {"inherit": True, "decider": True, "labels": True,
+                               "evidence": False}
+    decider_line = [line for line in text.splitlines() if "IA del decisor" in line][0]
+    assert decider_line.startswith("  IA del decisor: ") and ua.REUSED not in text
     calls = (embed.calls, llm.calls)
     seen = []
-    w2, _, path2 = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append,
-                                **{**kw, "fmt": "jsonld"})
+    w2, m2, path2 = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append,
+                                 **{**kw, "fmt": "jsonld"})
     assert w2.path == w.path and (embed.calls, llm.calls) == calls     # nothing recomputed
     assert seen == ["Escribir la ontología alineada", "Preparar la descarga"]
     assert path2.name == "mi-gdpr-alineada-jsonld.zip"
+    assert not any(m2["recomputed"].values())
+    again = ua.render_console(w2, m2, path2)                           # S7-T13: says so
+    assert (f"  IA del decisor: {ua.REUSED} ({decider_line.split(': ', 1)[1]})") in again
+    assert (f"  IA de las etiquetas: {ua.REUSED} (1 llamadas, 0 desde la caché, 0 respuestas "
+            "inválidas)") in again
     stricter = {**env.cfg, "decider": {**env.cfg["decider"], "rule": {"min_score": 0.99}}}
     _, m3, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), **{**kw, "cfg": stricter})
     assert llm.calls == calls[1]                                       # decided again: cache
@@ -354,6 +363,24 @@ def test_a_workspace_of_v060_is_decided_again(env, targets):
     (w.work_dir / "proposals.json").write_text("{}", encoding="utf-8")
     _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), **kw)
     assert prop.load_result(w)["method"] == prop.METHOD and m["summary"]["accepted_mappings"] == 1
+
+
+def test_decider_ai_text():
+    assert ua.decider_ai_text({"calls": 3, "cached": 2}) == ("3 llamadas, 2 respuestas desde la "
+                                                             "caché")
+    assert ua.decider_ai_text({"calls": 3, "quota_exhausted": True, "errors": ["429 quota"]}) == (
+        "3 llamadas, 0 respuestas desde la caché (cuota agotada: vuelve a correr mañana); "
+        "error: 429 quota")
+    assert ua.decider_ai_text({"calls": 1, "call_limit_reached": True}).endswith(
+        "(límite de llamadas: vuelve a correr para seguir)")
+
+
+def test_without_knowing_what_ran_the_console_says_nothing_about_it(env, targets):
+    w, m, path = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), embed_fn=Embed(),
+                              llm=DeciderLLM(), base=env.base, targets=targets, cfg=env.cfg,
+                              chroma_path=env.chroma, sleep_fn=lambda s: None)
+    m = ua.write_user_alignment(w, cfg=env.cfg)                       # called on its own
+    assert m["recomputed"] is None and ua.REUSED not in ua.render_console(w, m, path)
 
 
 def test_cli(tmp_path, monkeypatch, capsys, env, targets):

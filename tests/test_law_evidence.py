@@ -382,9 +382,12 @@ def test_align_with_law_end_to_end(env, tmp_path):
             f"{e['articles_cited']} artículos distintos) en alignment.csv; no entran a la "
             "ontología") in render_console(ws, m, path).splitlines()
     calls, seen = llm.calls, []
-    align_with_law("Mi GDPR.ttl", TTL.encode("utf-8"), "ley.txt", LAW_E2E.encode("utf-8"),
-                   llm=llm, progress=seen.append, **_kw(env))
+    ws2, m2, path2 = align_with_law("Mi GDPR.ttl", TTL.encode("utf-8"), "ley.txt",
+                                    LAW_E2E.encode("utf-8"), llm=llm, progress=seen.append,
+                                    **_kw(env))
     assert llm.calls == calls and "Buscar en la ley los artículos de cada concepto" not in seen
+    assert ("en alignment.csv; no entran a la ontología (de la corrida anterior)"
+            in render_console(ws2, m2, path2))                          # S7-T13
 
 
 def test_other_settings_redo_only_the_evidence(env):

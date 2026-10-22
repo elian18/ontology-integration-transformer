@@ -609,3 +609,250 @@ base sin tocar). Suite del proyecto: 432 pruebas en verde sin las marcadas `slow
   precisión pasa de 64 % a 91 % y la cobertura de 48 % a 23 %).
 - Aprobar o descartar propuestas en la web queda fuera de este sprint.
 - **Sprint 8 (validación):** revisar el literal `rdf:langString` sin idioma de OntoPriv.
+
+---
+
+## v0.7.0 — Sprint 7 (Transformación 2 + modos con ley)
+
+**Entregable:** en la página **Alinear con el DPV** el usuario elige qué sube (su ontología, una
+ley o las dos) y, sin revisar nada, descarga una ontología alineada con el DPV y con etiquetas en
+español e inglés, en RDF/XML, OWL, Turtle o JSON-LD. Con una ley distinta de la LOPDP (probado
+con el GDPR en inglés y la Ley 1581 de 2012 de Colombia), la IA extrae sus conceptos, una regla
+los acepta y el sistema arma con ellos un perfil que importa OntoPriv-Core. La alineación la
+decide ahora un decisor con RAG (candidatos del DPV y precedentes de la base) y una regla
+calibrada; ya no hay un módulo de propuestas "no validadas".
+
+### Qué se construyó
+- `src/ai/rag/vector_store.py` + `src/alignment/knowledge.py` (S7-T01) — colecciones de ChromaDB
+  por nombre, construidas una vez desde la base y luego solo leídas: `dpv` (1116 términos
+  alineables: 972 clases y 144 propiedades) y `decisions` (los 552 conceptos decididos en el
+  Sprint 5, con su término y relación SKOS o "sin correspondencia"). Cada colección guarda la
+  huella de lo que la construyó (modelo, archivos, versión del texto) y se reconstruye sola si
+  algo cambió.
+- `src/ai/prompts/` + `src/ai/llm_client.py` (S7-T02) — los prompts viven en archivos
+  versionados (`decide.v1`, `justify.v2`, `extract.v2`, `labels.v1`) y cada manifiesto guarda su
+  versión y su sha256. `LLMClient` usa temperatura 0 y pide JSON cuando el modelo lo admite.
+- `src/alignment/reference.py` + `src/alignment/benchmark.py` (S7-T03) — referencia automática
+  (tus decisiones, sin etiquetar a mano) con control de fugas: al medir un concepto no se le
+  muestra su propia decisión ni la de los conceptos de la base de los que heredaría (mismo
+  nombre o muy parecido). Mide la línea base del Sprint 6 y elige,
+  con un criterio fijado antes, de dónde salen los candidatos del decisor.
+- `src/alignment/decider.py` (S7-T04) — por concepto, el LLM ve los 10 mejores candidatos del
+  DPV (ranking híbrido) y los 4 precedentes más parecidos de la base, y elige uno con su
+  relación SKOS y su confianza, o "ninguno". Lotes de 10 conceptos, caché por espacio de trabajo
+  y un límite de llamadas por corrida (60), con pausa de 5 s por la cuota gratuita.
+- `src/alignment/decider_eval.py` (S7-T05) — evaluación antes/después sobre las 552 decisiones
+  dejando fuera cada una, con dos grillas de reglas y validación cruzada (ver Resultados).
+- `src/alignment/propose.py` + `src/alignment/user_alignment.py` (S7-T06) — el decisor entra al
+  flujo de la subida. Un solo módulo `<nombre>-dpv-alignment` con lo heredado de la base y lo
+  que la regla aceptó; cada tripleta lleva un `owl:Axiom` con quién decidió ("base", "regla" o
+  "regla sin IA"), su versión y su justificación. Las **sugeridas** (confianza alta que la regla
+  no acepta) no entran a la ontología: van a `alignment.csv`. Sin IA, el mejor candidato con
+  puntaje ≥ 0.75 entra sin tipo, como `rdfs:seeAlso`.
+- `src/ingest/law_text.py` + `src/ingest/legal_segmenter.py` (v2) + `src/ingest/law_upload.py`
+  (S7-T07) — limpieza del PDF de una ley subida (encabezados y pies de página repetidos,
+  marcadores de EUR-Lex, ligaduras, títulos con letras espaciadas), segmentación de leyes en
+  español ("Art. N.-", "Artículo N°.") y en inglés ("Article N") con detección del idioma, e
+  índice de la ley en una ChromaDB propia del espacio de trabajo. La LOPDP de la base no cambia
+  (sigue con 77 artículos y su índice del Sprint 2).
+- `src/transform/labels.py` (S7-T08) — completa las etiquetas en español e inglés que le faltan
+  a cada clase y propiedad, en lotes de 40, con un glosario de 87 términos de la LOPDP tomados
+  de la base del Sprint 5. Van al módulo `<nombre>-labels`; las etiquetas del usuario no
+  cambian. Además, las lecturas de ChromaDB reintentan en Windows ("Nothing found on disk").
+- `src/core/law_concepts.py` + `src/core/acceptance.py` + `src/core/extract.py` (S7-T09) — la IA
+  extrae los conceptos de cualquier ley (prompt `extract.v2`, que pide etiqueta y definición en
+  el idioma de la ley) y una regla fija los acepta: cita un artículo de la ley, nombre técnico
+  bien formado, etiqueta y definición dentro de límites, y no se repite (clase y propiedad con la
+  misma etiqueta no son repetidas). La extracción se retoma donde quedó si se agota la cuota.
+- `src/core/law_profile.py` (S7-T10) — modo **solo ley**: los conceptos aceptados forman un
+  perfil nuevo que importa OntoPriv-Core. Si el concepto ya está en el núcleo, reutiliza su IRI;
+  si solo es muy parecido, se crea y se enlaza con `skos:exactMatch`; si no, es nuevo. Cada
+  concepto lleva `dct:source` con su artículo. El perfil pasa por la misma alineación y el .zip
+  incluye una copia del núcleo para que Protégé resuelva la importación.
+- `src/alignment/law_evidence.py` (S7-T11) — modo **ley + ontología**: la ontología se alinea
+  igual que en "solo ontología" y cada concepto recibe los artículos de la ley más cercanos, en la
+  columna `law_evidence` de `alignment.csv`, para revisarlos. No entran a la ontología (ver
+  Decisiones).
+- `app/services/align_ontology.py` + `app/views/align_ontology.py` + `app/views/home.py`
+  (S7-T12) — la página pasa a llamarse **Alinear con el DPV** y pregunta "¿Qué vas a subir?" (Mi
+  ontología · Una ley · Mi ontología y una ley). Cada modo pide solo sus archivos y arranca solo
+  cuando están todos. Muestra lo que se armó con la ley o los artículos para revisar, y avisa
+  cuando la IA no terminó de leer la ley.
+- `tests/test_sprint7_pipeline.py` + consola de `user_alignment` (S7-T13) — prueba de punta a
+  punta de los modos con ley (ver Pruebas). La consola dice cuándo la IA no se volvió a llamar y
+  las cifras son de la corrida anterior, y la línea del decisor muestra la cuota agotada, el
+  límite de llamadas y el primer error.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Alineación automática con supervisión humana después.** Al arrancar el sprint se cambió la
+  arquitectura: el usuario sube, alinea y descarga sin aprobar nada; la validación humana pasa
+  al ciclo de comentarios del Sprint 10. La arquitectura, el stack y el Scrumban del Proyecto se
+  actualizaron el 19 de octubre.
+- **Origen de los candidatos medido, no supuesto:** gana el ranking híbrido del Sprint 4 (más
+  aciertos en los 10 primeros de la base). La búsqueda solo por significado en `dpv` acierta
+  menos (138 frente a 154 de 173).
+- **La regla del decisor mantiene el piso de 75 %.** Ninguna regla de la primera grilla (fijada
+  antes de correr) llegó; la segunda grilla se declaró después del análisis de errores
+  (relación SKOS y clase/propiedad), sin bajar el piso. Regla elegida: confianza "alta", puntaje
+  ≥ 0.5, clases con cualquier relación menos `relatedMatch` y propiedades nunca automáticas.
+- **La ley no entra al decisor.** El Scrumban decía que la ley da los artículos de evidencia al
+  decisor; medido en S7-T05, dárselos baja la precisión de 75,0 % a 64,1 %.
+- **Solo ley con "aprobación automática por regla".** La regla de aceptación es estructural:
+  revisa la forma del concepto, no su significado.
+- **Conceptos de la ley que ya están en OntoPriv-Core reutilizan su IRI** (si solo son muy
+  parecidos, se enlazan), con las mismas reglas de herencia del Sprint 6 (mismo nombre o
+  etiqueta, o combinado ≥ 0.75 o léxico ≥ 0.95).
+- **Etiquetas es/en:** el LLM escribe solo la que falta, en un módulo aparte, guiado por el
+  glosario de la LOPDP; ninguna etiqueta original cambia.
+- **Artículos de la ley solo para revisar.** Con la grilla y el criterio fijados antes (precisión
+  ≥ 75 %, al menos 10 enlaces), ninguna regla llegó (la mejor, 73,9 % con 23 enlaces). Los
+  artículos van a `alignment.csv` con la regla de mayor cobertura (3 por concepto, distancia
+  ≤ 0,55) y la persona los confirma en el Sprint 10, igual que las sugeridas.
+- **LLM:** `gemini-3.1-flash-lite` (cuota gratuita: 500 llamadas por día); embeddings
+  `paraphrase-multilingual-MiniLM-L12-v2`.
+
+### Resultados
+**Origen de los candidatos (S7-T03).** Término correcto en el puesto 1 / top 3 / top 10, con 10
+candidatos:
+
+| Origen | Base (173) | GDPRtEXT (21) | Muestra ciega (19) |
+|---|---|---|---|
+| **híbrido (Sprint 4)** | **92 / 138 / 154** | **14 / 19 / 21** | **9 / 16 / 16** |
+| solo `dpv` (significado) | 70 / 109 / 138 | 12 / 18 / 21 | 5 / 9 / 15 |
+| `dpv` + reordenado híbrido | 93 / 138 / 153 | 14 / 19 / 21 | 9 / 16 / 16 |
+
+- Línea base del Sprint 6 con la misma medida: 34 propuestas, 28 correctas (82,4 %), cobertura
+  16,2 % de los 173 alineados; en la muestra ciega, 1 propuesta y es incorrecta.
+- La referencia es ruidosa: la muestra ciega del Sprint 4 y las decisiones del Sprint 5
+  coinciden en 10 de los 23 conceptos que comparten (43,5 %).
+
+**Evaluación del decisor (S7-T05)**, sobre las 552 decisiones dejando fuera cada una, con la regla
+elegida:
+
+| Diseño | Propuestas | Correctas | Precisión | Cobertura | F1 |
+|---|---|---|---|---|---|
+| Línea base (Sprint 6) | 34 | 28 | 82,4 % | 16,2 % | 27,1 % |
+| Decisor sin precedentes | 69 | 47 | 68,1 % | 27,2 % | 38,9 % |
+| **Decisor con precedentes** | **68** | **51** | **75,0 %** | **29,5 %** | **42,3 %** |
+| Decisor con precedentes + ley | 78 | 50 | 64,1 % | 28,9 % | 39,8 % |
+
+- Validación cruzada de la segunda grilla (elegir en una mitad y medir en la otra, 100 veces):
+  precisión 72,0 % (p10 62,5 %, p90 86,4 %), cobertura 30,3 %; sin regla en 9 de 200 mitades.
+- Confirmación sin reajustar: en GDPRtEXT, 18 propuestas y 17 correctas (94,4 %), cobertura 81,0
+  % de 21 (con el diseño del Sprint 6 eran 10 de 21); en la muestra ciega, 6 propuestas y 3
+  correctas (50,0 %).
+- 119 sugeridas (confianza alta que la regla no acepta): 52 coinciden con tu decisión y 59 caen
+  sobre conceptos que dejaste sin correspondencia.
+
+**GDPRtEXT subido en "Mi ontología" (S7-T06, S7-T08)**, 235 conceptos:
+- Heredados de la base: 22 (18 por mismo nombre y 4 muy parecidos), con 23 correspondencias
+  validadas; `Accountability` sin correspondencia.
+- Aceptados por la regla: 80 (54 `exactMatch`, 14 `broadMatch`, 7 `closeMatch` y 5
+  `narrowMatch`); sugeridos 21; sin correspondencia 78; sin propuesta 35. En el Sprint 6 eran 38
+  propuestas sin validar.
+- 22 llamadas al decisor. Módulo de alineación: 940 tripletas.
+- Etiquetas: la IA agregó 235 en español y 234 en inglés (una ya tenía su etiqueta en inglés) en
+  6 llamadas; módulo de etiquetas: 475 tripletas.
+
+**Leyes subidas (S7-T07, S7-T09, S7-T10):**
+
+| | GDPR (inglés) | Ley 1581 de 2012, Colombia (español) |
+|---|---|---|
+| PDF | 78 páginas; 151 líneas de encabezado o pie quitadas, 30 marcadores de EUR-Lex, 32 títulos con letras espaciadas | 9 páginas; 18 líneas quitadas, 46 ligaduras |
+| Artículos | 99 | 30 |
+| Conceptos extraídos / aceptados | 122 / 122 (74 clases, 48 propiedades), 13 llamadas | 28 / 27 (1 repetido), 4 llamadas |
+| Perfil sobre OntoPriv-Core | 13 reutilizan su IRI, 1 se enlaza (`Pseudonymisation` → `Pseudonymization`, 0,79), 108 nuevos | 9 reutilizan su IRI, 18 nuevos |
+| Heredados de la base | 22 conceptos, 24 correspondencias | 11 conceptos, 12 correspondencias |
+| Aceptados por la regla / sugeridos | 24 / 14 (10 llamadas) | 3 / 3 (2 llamadas) |
+| Etiquetas agregadas | 122 en español (4 llamadas) | 27 en inglés (1 llamada) |
+
+- Calibración de la regla de aceptación con los 93 conceptos que la IA propuso desde la LOPDP en
+  el Sprint 3: coincide con tus decisiones del Sprint 5 en 91 de 93 (97,8 %). Los dos
+  desacuerdos: `ExplicitConsent` (la regla lo acepta y tú lo descartaste) y `UnfulfilledRegistry`
+  (la regla lo rechaza por no citar artículo y tú lo conservaste).
+- En las dos leyes reales la regla no rechazó ningún concepto.
+
+**Artículos de la ley para revisar (S7-T11)**, calibración con GDPRtEXT + GDPR: GDPRtEXT dice en qué
+artículo se define cada uno de 80 conceptos (113 pares concepto-artículo en 38 artículos). El
+artículo correcto queda primero en 44 de 80 y entre los 3 primeros en 53 de 80.
+
+| Regla | Enlaces | Precisión | Cobertura |
+|---|---|---|---|
+| 1 artículo, distancia ≤ 0,30 (la de mayor precisión) | 23 | 73,9 % | 21,2 % |
+| 1 artículo, sin distancia máxima | 80 | 55,0 % | 55,0 % |
+| **3 artículos, distancia ≤ 0,55 (la elegida para revisar)** | **222** | **26,6 %** | **66,2 %** |
+| 3 artículos, sin distancia máxima | 240 | 24,6 % | 66,2 % |
+
+- Validación cruzada: precisión media 64,5 % (p10 50,0 %, p90 72,7 %); sin regla en 98 de 200
+  mitades.
+- La precisión es una cota inferior: GDPRtEXT nombra los artículos donde se define cada
+  concepto (los más frecuentes son el 6, el 4, el 9 y el 5) y la búsqueda devuelve a menudo otro
+  artículo del mismo tema. Para `Consent` da primero el 7 ("Conditions for consent") y GDPRtEXT
+  apunta al 4 y al 6; para `Processor` da el 28 ("Processor") y GDPRtEXT apunta al 4.
+- GDPRtEXT + GDPR en "Mi ontología y una ley": la misma alineación que GDPRtEXT solo (80
+  aceptadas, 940 tripletas) y 210 de 235 conceptos con artículos para revisar (580 enlaces a 76
+  artículos distintos).
+
+**La web (S7-T12).** Los tres modos funcionan con los archivos de las corridas anteriores y
+reutilizan lo ya calculado.
+
+### Cómo usar
+Consola:
+
+    py -m src.alignment.knowledge --estado               # colecciones dpv y decisions
+    py -m src.alignment.benchmark                        # línea base y origen de los candidatos
+    py -m src.alignment.decider_eval                     # evaluación antes/después del decisor
+    py -m src.alignment.user_alignment ONTOLOGIA --formato turtle     # Mi ontología
+    py -m src.ingest.law_upload LEY [--consulta "texto"]             # segmenta e indexa una ley
+    py -m src.core.acceptance                            # calibra la regla de aceptación
+    py -m src.core.law_concepts LEY                      # extrae y acepta los conceptos
+    py -m src.core.law_profile LEY --formato turtle      # Una ley
+    py -m src.alignment.law_evidence --calibrar          # calibra los artículos para revisar
+    py -m src.alignment.law_evidence ONTOLOGIA LEY --formato turtle  # Mi ontología y una ley
+
+Las que llaman al LLM aceptan `--sin-ia`, salvo `decider_eval`, que limita las llamadas con
+`--max-llamadas` y reutiliza su caché. Web (demo):
+
+    py -m streamlit run app/app.py
+
+y entrar a **Alinear con el DPV** (sección "Tu ontología").
+
+### Pruebas
+`tests/test_vector_store.py`, `test_alignment_knowledge.py`, `test_ai_prompts.py`,
+`test_llm_client.py`, `test_alignment_reference.py`, `test_alignment_benchmark.py`,
+`test_alignment_decider.py`, `test_alignment_decider_eval.py`, `test_law_text.py`,
+`test_law_upload.py`, `test_labels.py`, `test_extract.py`, `test_acceptance.py`,
+`test_law_concepts.py`, `test_law_profile.py`, `test_law_evidence.py` y
+`test_sprint7_pipeline.py` (los modos con ley de la web con las leyes reales, la base real,
+OntoPriv-Core y el DPV, con embeddings y LLM de prueba: la ley de Colombia se convierte en un
+perfil que reutiliza el núcleo y el .zip resuelve sus importaciones; GDPRtEXT con el GDPR da la
+misma alineación que GDPRtEXT solo, con sus artículos para revisar; la base no se toca). Las
+pruebas lentas (`-m slow`) usan el modelo real de embeddings o el LLM. Suite del proyecto: 757
+pruebas en verde sin las marcadas `slow` (770 en total).
+
+### Alcance y pendientes
+- **Sprint 8 (validación estructural):** SHACL y el razonador de Jena sobre lo que producen los
+  tres modos; sigue pendiente el literal `rdf:langString` sin idioma de OntoPriv.
+- **Sprint 10 (comentarios del usuario):** el material ya está en `alignment.csv`: las
+  sugeridas (21 en GDPRtEXT), las propiedades (nunca automáticas) y los artículos para revisar.
+  Falta decidir cómo se escriben en la ontología los artículos que la persona confirme (la vista
+  de trazabilidad muestra "de qué artículo sale" cada concepto) y si entra el botón "Confirmar
+  esta versión".
+- **Mejoras posibles, por decidir:**
+  - **Compartir la caché de la IA entre espacios de trabajo.** Hoy GDPRtEXT subido solo y con el
+    GDPR gasta dos veces las mismas 28 llamadas (22 del decisor y 6 de las etiquetas).
+  - **Indexar la ley por párrafo o por definición numerada.** GDPRtEXT apunta al párrafo
+    (`article4-11`), y un artículo largo como el 4 del GDPR (26 definiciones) queda en un solo
+    vector que mezcla todos sus temas.
+- **Limitaciones para la tesis:**
+  - la referencia es ruidosa (43,5 % de acuerdo entre la muestra ciega y el Sprint 5) y no es
+    independiente (la mayoría de las decisiones confirman propuestas del asistente);
+  - la segunda grilla de la regla se declaró después de ver los errores de la primera (la
+    validación cruzada mide el optimismo: 72,0 % frente a 75,0 %);
+  - el LLM se muestra confiado de más: 119 sugeridas con confianza alta que la regla no acepta;
+  - la regla de aceptación de conceptos de una ley es estructural y no juzga el significado;
+  - el segmentador deja a veces el título del capítulo siguiente al final del texto de un
+    artículo;
+  - hay correspondencias para revisar en los comentarios: una heredada de la base
+    (`NationalDatabaseRegistry` → `ProtectionOfNationalSecurity`) y una aceptada en el GDPR
+    (`EmploymentContext` `exactMatch` `ProcessingContext`).
