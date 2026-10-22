@@ -179,6 +179,23 @@ def load_result(ws) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
+def _without_concepts(concepts: dict) -> tuple[str, str]:
+    """Why a law has no accepted concept, and what the person can do (S7-T12: shown in the web)."""
+    ai, x = concepts.get("ai") or {}, concepts.get("extraction") or {}
+    if not ai.get("available"):
+        return ("la IA no estuvo disponible para extraerlos",
+                " Vuelve a subir la ley cuando la IA esté disponible.")
+    if not x.get("complete", True):
+        if ai.get("quota_exhausted"):
+            return ("se agotó la cuota diaria de la IA antes de leer toda la ley",
+                    " Vuelve a subirla mañana (lo ya leído no se repite).")
+        if ai.get("call_limit_reached"):
+            return ("se llegó al límite de llamadas a la IA antes de leer toda la ley",
+                    " Vuelve a subirla para seguir (lo ya leído no se repite).")
+        return "la IA falló al leer la ley", " Vuelve a subirla para intentarlo de nuevo."
+    return "la regla no aceptó ninguno", ""
+
+
 def profile_for_workspace(ws, *, base=None, embed_fn=None, cfg: dict | None = None,
                           core: Graph | None = None) -> dict:
     """Build the profile from ``work/law-concepts.json``, save it as the ontology of the
@@ -192,10 +209,9 @@ def profile_for_workspace(ws, *, base=None, embed_fn=None, cfg: dict | None = No
     if concepts is None:
         raise ValueError("Primero hay que extraer y aceptar los conceptos de la ley (S7-T09).")
     if not concepts["summary"]["accepted"]:
-        why = ("la IA no estuvo disponible para extraerlos" if not concepts["ai"].get("available")
-               else "la regla no aceptó ninguno")
+        why, advice = _without_concepts(concepts)
         message = (f"No hay conceptos aceptados de la ley ({why}); no se puede armar el "
-                   "perfil.")
+                   f"perfil.{advice}")
         ws.mark_step("profile", ERROR, message)
         raise WorkspaceError(message)
     ws.mark_step("profile", RUNNING)

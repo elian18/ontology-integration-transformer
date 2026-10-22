@@ -1,11 +1,21 @@
-"""Bridge for the "Alinear mi ontología" page (S6-T08, S7-T06, S7-T08): the user's flow in the web.
+"""Bridge for the "Alinear con el DPV" page (S6-T08, S7-T06, S7-T08, S7-T12): the user's flow
+in the web, in the three modes of the system.
 
-The person only uploads a file; everything else is automatic: the workspace (S6-T04),
-inheriting the validated decisions (S6-T05), the decider and its calibrated rule for the rest
-(S7-T06), the labels in Spanish and English that the ontology lacked (S7-T08), writing the
-modules and the zip (S6-T07). This adapter calls
-``src.alignment.user_alignment.align_upload`` and turns its results into what the page shows:
-a few numbers, a read-only table per concept and the zip in the chosen format.
+The person picks what to upload (S7-T12) and only uploads; everything else is automatic:
+
+- "Mi ontología" (``ontology``): the workspace (S6-T04), inheriting the validated decisions
+  (S6-T05), the decider and its calibrated rule for the rest (S7-T06), the labels in Spanish
+  and English that the ontology lacked (S7-T08), writing the modules and the zip (S6-T07):
+  ``src.alignment.user_alignment.align_upload``.
+- "Una ley" (``law``): the law is split into articles and indexed (S7-T07), the AI extracts its
+  concepts and a rule accepts them (S7-T09), they become a profile that imports OntoPriv-Core
+  (S7-T10) and the profile goes through the same flow: ``src.core.law_profile.align_law``.
+- "Mi ontología y una ley" (``ontology+law``): the ontology is aligned as in the first mode and
+  each concept gets the articles of the law closest to it, to review them; they do not enter
+  the ontology (S7-T11): ``src.alignment.law_evidence.align_with_law``.
+
+This adapter turns the results into what the page shows: a few numbers, what was done with
+the law, a read-only table per concept and the zip in the chosen format.
 
 Nothing here asks the person to review. The ontology holds what a person decided while building
 the base and what the rule accepted; the suggestions (high confidence, left out by the rule)
@@ -19,11 +29,37 @@ import io
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
-from src.workspace.store import WorkspaceError, load_workspace
+from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, WorkspaceError, load_workspace
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
+LAW_TYPES = ["txt", "pdf"]
 FORMATS = [(f.key, f.label) for f in OUTPUT_FORMATS.values()]
 DEFAULT_FORMAT = "turtle"
+
+# The three modes (S7-T12): code, what the person reads, what is uploaded, in display order.
+MODE_ONTOLOGY, MODE_LAW, MODE_BOTH = KIND_ONTOLOGY, KIND_LAW, "ontology+law"
+MODES = {MODE_ONTOLOGY: "Mi ontología", MODE_LAW: "Una ley", MODE_BOTH: "Mi ontología y una ley"}
+MODE_FILES = {MODE_ONTOLOGY: (KIND_ONTOLOGY,), MODE_LAW: (KIND_LAW,),
+              MODE_BOTH: (KIND_ONTOLOGY, KIND_LAW)}
+MODE_HELP = {
+    MODE_ONTOLOGY: "Tu ontología se alinea con el DPV tal como está.",
+    MODE_LAW: "La IA saca los conceptos de la ley y el sistema arma con ellos una ontología "
+              "sobre OntoPriv-Core, ya alineada.",
+    MODE_BOTH: "Tu ontología se alinea igual que en el primer modo y, además, cada concepto "
+               "trae los artículos de la ley más cercanos, para que los revises.",
+}
+MODE_WAIT = {
+    MODE_ONTOLOGY: "Sube un archivo para empezar. La alineación arranca sola y tarda desde unos "
+                   "segundos hasta pocos minutos, según el tamaño de tu ontología.",
+    MODE_LAW: "Sube tu ley (.txt o PDF) para empezar. Tarda más que con una ontología: la IA "
+              "lee la ley por partes (unos minutos para una ley del tamaño del GDPR).",
+    MODE_BOTH: "Sube tu ontología y tu ley para empezar; arranca sola cuando estén las dos. "
+               "Tarda casi lo mismo que alinear solo tu ontología.",
+}
+MODE_RUNNING = {MODE_ONTOLOGY: "Alineando tu ontología…",
+                MODE_LAW: "Convirtiendo tu ley en una ontología alineada…",
+                MODE_BOTH: "Alineando tu ontología y buscando sus artículos en la ley…"}
+FILE_NAMES = {KIND_ONTOLOGY: "tu ontología", KIND_LAW: "tu ley"}
 
 # Wording of the states shown to the person (codes from user_alignment), in display order.
 STATE_LABELS = {ua.INHERITED_ALIGNED: "Validada en la base",
@@ -83,13 +119,47 @@ def align(name: str, data: bytes, *, progress=None, base=None, targets=None,
     return ws.id
 
 
+def run(mode: str, files: dict[str, tuple[str, bytes]], **kwargs) -> str:
+    """The flow of ``mode`` for the uploaded ``files`` ({kind: (name, bytes)}); returns the
+    workspace id. ``kwargs``: progress, base, targets, embed_fn, llm, chroma_path, sleep_fn."""
+    if mode not in MODES:
+        raise WorkspaceError(f"Modo desconocido: {mode}")
+    missing = [FILE_NAMES[k] for k in MODE_FILES[mode] if not files.get(k)]
+    if missing:
+        raise WorkspaceError(f"Falta subir {' y '.join(missing)}.")
+    if mode == MODE_ONTOLOGY:
+        return align(*files[KIND_ONTOLOGY], **kwargs)
+    common = dict(fmt=DEFAULT_FORMAT, cfg=workspace_cfg(), **kwargs)
+    if mode == MODE_LAW:
+        from src.core.law_profile import align_law
+        ws, _manifest, _zip = align_law(*files[KIND_LAW], **common)
+    else:
+        from src.alignment.law_evidence import align_with_law
+        ws, _manifest, _zip = align_with_law(*files[KIND_ONTOLOGY], *files[KIND_LAW], **common)
+    return ws.id
+
+
+def ready(mode: str, files: dict[str, tuple[str, bytes] | None]) -> bool:
+    """Every file the mode needs was uploaded."""
+    return all(files.get(k) for k in MODE_FILES[mode])
+
+
+def missing_text(mode: str, files: dict[str, tuple[str, bytes] | None]) -> str:
+    """What the page says while it waits for the files."""
+    given = [k for k in MODE_FILES[mode] if files.get(k)]
+    if mode == MODE_BOTH and len(given) == 1:
+        other = KIND_LAW if given[0] == KIND_ONTOLOGY else KIND_ONTOLOGY
+        return f"Falta {FILE_NAMES[other]}: la alineación arranca cuando estén las dos."
+    return MODE_WAIT[mode]
+
+
 def error_message(exc: Exception) -> str:
     """What the person reads when something fails (Spanish, no traceback)."""
     if isinstance(exc, (WorkspaceError, ConversionError)):
         return str(exc)
     if isinstance(exc, FileNotFoundError):
-        return ("El sistema todavía no tiene su base construida (faltan los archivos del "
-                f"Sprint 4-5): {exc}")
+        return ("El sistema todavía no tiene su base construida (falta un archivo de los "
+                f"Sprints 3-5): {exc}")
     return f"No se pudo alinear la ontología: {type(exc).__name__}: {exc}"
 
 
@@ -110,8 +180,12 @@ def view(ws_id: str) -> dict:
     s = manifest["summary"]
     by = s["by_status"]
     decider = manifest.get("decider") or {}
+    mode = ws.manifest.get("mode") or MODE_ONTOLOGY
+    evidence = manifest.get("law_evidence")
     return {
         "id": ws.id,
+        "mode": mode,
+        "mode_label": MODES.get(mode, mode),
         "file": manifest["uploaded_file"],
         "created": manifest["created"],
         "version": manifest.get("alignment_version"),
@@ -127,8 +201,81 @@ def view(ws_id: str) -> dict:
         "iri_generated": manifest.get("ontology_iri_generated", False),
         "labels": labels_caption(manifest.get("labels")),
         "labels_note": _labels_note(manifest.get("labels")),
-        "rows": table_rows(_rows(ws)),
+        "profile": profile_caption(manifest.get("profile")),
+        "extraction_note": extraction_note(_law_concepts(ws) if mode == MODE_LAW else None),
+        "core": bool(manifest["files"].get("core")),
+        "evidence": evidence_caption(evidence),
+        "rows": table_rows(_rows(ws), with_law=evidence is not None),
     }
+
+
+def _law_concepts(ws) -> dict | None:
+    from src.core.law_concepts import load_result
+    return load_result(ws)
+
+
+def _n(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
+def profile_caption(profile: dict | None) -> str | None:
+    """What the "Una ley" mode built from the law (S7-T10), in one line."""
+    if not profile:
+        return None
+    accepted = profile.get("law_concepts") or {}
+    extracted = _n(accepted.get("concepts", 0), "concepto", "conceptos")
+    kinds = (f"{_n(profile['classes'], 'clase', 'clases')} y "
+             f"{_n(profile['properties'], 'propiedad', 'propiedades')}")
+    text = (f"De {profile['law']}: la IA extrajo {extracted} y la regla aceptó "
+            f"{accepted.get('accepted', 0)} ({kinds})")
+    repeated, rejected = accepted.get("repeated", 0), accepted.get("rejected", 0)
+    left = [_n(n, one, many) for n, one, many in ((repeated, "repetido", "repetidos"),
+                                                  (rejected, "rechazado", "rechazados")) if n]
+    if left:
+        verb = "entró" if repeated + rejected == 1 else "entraron"
+        text += f"; {' y '.join(left)} no {verb}"
+    built = (f"{_n(profile['reused'], 'reutiliza', 'reutilizan')} conceptos de OntoPriv-Core, "
+             f"{_n(profile['linked'], 'se enlaza', 'se enlazan')} con él y "
+             f"{_n(profile['new'], 'es nuevo', 'son nuevos')}")
+    return f"{text}. Con ellos se armó tu ontología: {built}."
+
+
+def extraction_note(concepts: dict | None) -> str | None:
+    """A warning only when the AI did not read the whole law (S7-T09)."""
+    x = (concepts or {}).get("extraction") or {}
+    if not x or x.get("complete"):
+        return None
+    ai = concepts.get("ai") or {}
+    what = (f"la IA leyó {x['articles_processed']} de {x['articles_total']} artículos de la ley "
+            f"(faltan {len(x['pending_articles'])})")
+    if not ai.get("available"):
+        return (f"La IA no estuvo disponible: {what}. Vuelve a subir el archivo cuando la IA "
+                "esté disponible para completar tu ontología.")
+    if ai.get("quota_exhausted"):
+        return (f"Se agotó la cuota diaria de la IA: {what}. Vuelve a subir el archivo mañana "
+                "para seguir (lo ya leído no se repite).")
+    if ai.get("call_limit_reached"):
+        return (f"Se llegó al límite de llamadas a la IA de esta subida: {what}. Vuelve a subir "
+                "el archivo para seguir (lo ya leído no se repite).")
+    return (f"La IA falló en algunos lotes: {what}. Vuelve a subir el archivo para "
+            "intentarlo de nuevo.")
+
+
+def evidence_caption(evidence: dict | None) -> str | None:
+    """What the "Mi ontología y una ley" mode found in the law (S7-T11), in one line."""
+    if not evidence:
+        return None
+    if not evidence["links"]:
+        return (f"Ningún concepto tiene artículos de {evidence['law']} lo bastante cercanos para "
+                "revisarlos.")
+    have = "concepto tiene" if evidence["concepts"] == 1 else "conceptos tienen"
+    return (f"Artículos de {evidence['law']} para revisar: {evidence['with_evidence']} de "
+            f"{evidence['concepts']} {have} artículos cercanos "
+            f"({_n(evidence['links'], 'enlace', 'enlaces')} a "
+            f"{_n(evidence['articles_cited'], 'artículo distinto', 'artículos distintos')}). "
+            "Están en la columna "
+            "«Artículos de la ley» de la tabla y en alignment.csv; no entran a la ontología, "
+            "porque la búsqueda sola no es lo bastante precisa: revísalos.")
 
 
 def labels_caption(labels: dict | None) -> str | None:
@@ -189,12 +336,13 @@ def _decided_by(r: dict) -> str:
     return who
 
 
-def table_rows(rows: list[dict]) -> list[dict]:
-    """Rows for the read-only table, in Spanish, in the order of the states."""
+def table_rows(rows: list[dict], with_law: bool = False) -> list[dict]:
+    """Rows for the read-only table, in Spanish, in the order of the states; ``with_law`` adds
+    the articles of the law to review ("Mi ontología y una ley", S7-T11)."""
     out = []
     for r in rows:
         score = r.get("score")
-        out.append({
+        row = {
             "Concepto": r.get("concept_name"),
             "Etiqueta (es)": r.get("label_es") or "",
             "Etiqueta (en)": r.get("label_en") or "",
@@ -205,7 +353,10 @@ def table_rows(rows: list[dict]) -> list[dict]:
             "Confianza de la IA": r.get("confidence") or "",
             "Decidido por": _decided_by(r),
             "Justificación": r.get("justification") or "",
-        })
+        }
+        if with_law:
+            row["Artículos de la ley"] = r.get("law_evidence") or ""
+        out.append(row)
     order = {label: i for i, label in enumerate(dict.fromkeys(STATE_LABELS.values()))}
     return sorted(out, key=lambda r: (order.get(r["Estado"], 99), (r["Concepto"] or "").lower()))
 
