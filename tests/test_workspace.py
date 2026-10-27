@@ -1,5 +1,3 @@
-"""S6-T04: one workspace per upload, never mixed with the system base (S7-T07: the steps
-depend on what the workspace holds)."""
 from __future__ import annotations
 
 import hashlib
@@ -10,9 +8,9 @@ from pathlib import Path
 import pytest
 
 from src.workspace import store
-from src.workspace.store import (BASE_DIRS, DONE, ERROR, EVIDENCE_STEPS, EXTRACT_STEPS, KIND_LAW,
-                                 KIND_ONTOLOGY, LAW_STEPS, MANIFEST_FILE, PENDING, PROFILE_STEPS,
-                                 STEPS, WorkspaceError, check_root,
+from src.workspace.store import (BASE_DIRS, DEFINITION_STEPS, DONE, ERROR, EVIDENCE_STEPS,
+                                 EXTRACT_STEPS, KIND_LAW, KIND_ONTOLOGY, LAW_STEPS, MANIFEST_FILE,
+                                 PENDING, PROFILE_STEPS, STEPS, WorkspaceError, check_root,
                                  list_workspaces, load_workspace, open_law, open_ontology,
                                  open_upload, safe_file_name, slugify, steps_for, workspace_id,
                                  workspace_settings)
@@ -94,8 +92,10 @@ def test_the_steps_depend_on_what_the_workspace_holds(cfg):
     assert PROFILE_STEPS == ("profile",)
     # solo ley: the law (S7-T07), its concepts (S7-T09), the profile and its alignment (S7-T10)
     assert steps_for("law") == LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + STEPS
-    assert steps_for("ontology+law") == LAW_STEPS + STEPS[:4] + EVIDENCE_STEPS + STEPS[4:]
-    assert EVIDENCE_STEPS == ("evidence",) and STEPS[4:] == ("write", "package")
+    assert steps_for("ontology+law") == (LAW_STEPS + STEPS[:1] + DEFINITION_STEPS + STEPS[1:4]
+                                         + EVIDENCE_STEPS + STEPS[4:])
+    assert DEFINITION_STEPS == ("definitions",) and EVIDENCE_STEPS == ("evidence",)
+    assert STEPS[4:] == ("write", "package")
     law = open_law("Ley.txt", b"Art. 1.- Objeto.", cfg=cfg)
     assert law.manifest["mode"] == "law"
     assert list(law.manifest["steps"]) == list(steps_for("law"))

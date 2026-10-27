@@ -23,8 +23,7 @@ MODE_FILES = {MODE_ONTOLOGY: (KIND_ONTOLOGY,), MODE_LAW: (KIND_LAW,),
 MODE_HELP = {
     MODE_ONTOLOGY: "¿Ya tienes una ontología y quieres alinearla con el DPV?",
     MODE_LAW: "¿Quieres crear una ontología a partir de un texto legal?",
-    MODE_BOTH: "¿Tienes las dos y quieres ver los artículos de la ley más cercanos a cada "
-               "concepto?",
+    MODE_BOTH: "¿Tienes las dos y quieres que la ley complete las definiciones de tu ontología?",
 }
 MODE_ICONS = {MODE_ONTOLOGY: ":material/schema:", MODE_LAW: ":material/gavel:",
               MODE_BOTH: ":material/join_inner:"}
@@ -36,23 +35,23 @@ MODE_WAIT = {
                    "según su tamaño.",
     MODE_LAW: "Arranca sola al subir tu ley. Tarda más que con una ontología: la IA la lee por "
               "partes (unos minutos para una ley del tamaño del GDPR).",
-    MODE_BOTH: "Arranca sola cuando estén los dos archivos. Tarda casi lo mismo que alinear "
-               "solo tu ontología.",
+    MODE_BOTH: "Arranca sola cuando estén los dos archivos. Si a tu ontología le faltan "
+               "definiciones, la IA las busca en la ley: tarda unos minutos más.",
 }
 # What happens with the files (the "¿Qué sucede con mis datos?" box of steps 1 and 2).
 DATA_NOTE = (
     "- Lo que subes se guarda en un espacio de trabajo propio en el servidor. Si subes el mismo "
     "archivo otra vez, se reutiliza lo ya calculado.\n"
     "- Para decidir la alineación y completar las etiquetas, el sistema envía a la IA (Gemini, "
-    "de Google) los nombres, las etiquetas y las definiciones de tus conceptos. Si eliges "
-    "«Una ley», también le envía el texto de la ley, por partes.\n"
-    "- Tu archivo nunca se modifica: la alineación y las etiquetas van en módulos aparte que lo "
-    "importan.\n"
+    "de Google) los nombres, las etiquetas y las definiciones de tus conceptos. Si subes una "
+    "ley, también le envía su texto, por partes.\n"
+    "- Tu archivo nunca se modifica: la alineación, las etiquetas y las definiciones van en "
+    "módulos aparte que lo importan.\n"
     "- La base del sistema (OntoPriv y la LOPDP) no cambia con lo que subes."
 )
 MODE_RUNNING = {MODE_ONTOLOGY: "Alineando tu ontología…",
                 MODE_LAW: "Convirtiendo tu ley en una ontología alineada…",
-                MODE_BOTH: "Alineando tu ontología y buscando sus artículos en la ley…"}
+                MODE_BOTH: "Alineando tu ontología con ayuda de la ley…"}
 FILE_NAMES = {KIND_ONTOLOGY: "tu ontología", KIND_LAW: "tu ley"}
 
 # Wording of the states shown to the person (codes from user_alignment), in display order.
@@ -176,6 +175,7 @@ def view(ws_id: str) -> dict:
     decider = manifest.get("decider") or {}
     mode = ws.manifest.get("mode") or MODE_ONTOLOGY
     evidence = manifest.get("law_evidence")
+    definitions = manifest.get("law_definitions")
     return {
         "id": ws.id,
         "mode": mode,
@@ -196,10 +196,13 @@ def view(ws_id: str) -> dict:
         "labels": labels_caption(manifest.get("labels")),
         "labels_note": _labels_note(manifest.get("labels")),
         "profile": profile_caption(manifest.get("profile")),
-        "extraction_note": extraction_note(_law_concepts(ws) if mode == MODE_LAW else None),
+        "extraction_note": extraction_note(_law_concepts(ws) if mode != MODE_ONTOLOGY else None),
         "core": bool(manifest["files"].get("core")),
         "evidence": evidence_caption(evidence),
-        "rows": table_rows(_rows(ws), with_law=evidence is not None),
+        "definitions": definitions_caption(definitions),
+        "definitions_note": definitions_note(definitions),
+        "rows": table_rows(_rows(ws), with_law=evidence is not None,
+                           with_definitions=bool((definitions or {}).get("added"))),
     }
 
 
@@ -269,7 +272,56 @@ def evidence_caption(evidence: dict | None) -> str | None:
             f"{_n(evidence['articles_cited'], 'artículo distinto', 'artículos distintos')}). "
             "Están en la columna "
             "«Artículos de la ley» de la tabla y en alignment.csv; no entran a la ontología, "
-            "porque la búsqueda sola no es lo bastante precisa: revísalos.")
+            "porque la búsqueda sola no es lo bastante precisa: revísalos."
+            + (f" En {_n(evidence['cited_by_ai'], 'concepto', 'conceptos')} el artículo es el "
+               "que citó la IA al sacar su definición de la ley (citado)."
+               if evidence.get("cited_by_ai") else ""))
+
+
+def definitions_caption(defined: dict | None) -> str | None:
+    """What the law did for the definitions ("Mi ontología y una ley"), in one line."""
+    if not defined or defined["skipped"] == "disabled":
+        return None
+    if defined["skipped"]:
+        return (f"Definiciones: tu ontología ya las tenía casi todas ({defined['with_own']} de "
+                f"{defined['concepts']}), así que no hizo falta buscarlas en {defined['law']}.")
+    text = (f"Definiciones de {defined['law']}: a {defined['missing']} de "
+            f"{defined['concepts']} conceptos les faltaba")
+    sources = [_n(n, one, many) + what for n, one, many, what in (
+        (defined["law_concept"], "salió", "salieron", " de conceptos de la ley"),
+        (defined["articles"], "la escribió", "las escribió", " la IA con sus artículos")) if n]
+    text += "; " + " y ".join(sources) if sources else "; la ley no dio ninguna"
+    if defined["not_applicable"]:
+        one = defined["not_applicable"] == 1
+        text += (f" ({_n(defined['not_applicable'], 'no aplica', 'no aplican')}: la ley no "
+                 f"{'lo' if one else 'los'} define)")
+    if defined["added"]:
+        text += ". Van en un módulo aparte, cada una con su artículo"
+    used = defined.get("to_decider") or 0
+    if used:
+        text += (f", y el decisor usó {'una' if used == 1 else used} para alinear lo que no "
+                 "heredaste de la base")
+    return text + "."
+
+
+def definitions_note(defined: dict | None) -> str | None:
+    """A warning only when concepts were left waiting for their definition."""
+    pending = (defined or {}).get("pending") or 0
+    if not pending:
+        return None
+    ai = defined.get("ai") or {}
+    what = f"{pending} conceptos quedaron sin su definición de la ley"
+    if not ai.get("available"):
+        return (f"La IA no estuvo disponible: {what}. Vuelve a subir los archivos cuando la IA "
+                "esté disponible para completarlas.")
+    if ai.get("quota_exhausted"):
+        return (f"Se agotó la cuota diaria de la IA: {what}. Vuelve a subir los archivos mañana "
+                "(lo ya definido no se repite).")
+    if ai.get("call_limit_reached"):
+        return (f"Se llegó al límite de llamadas a la IA de esta subida: {what}. Vuelve a subir "
+                "los archivos para seguir (lo ya definido no se repite).")
+    return (f"La IA falló en algunos lotes: {what}. Vuelve a subir los archivos para "
+            "intentarlo de nuevo.")
 
 
 def labels_caption(labels: dict | None) -> str | None:
@@ -330,9 +382,11 @@ def _decided_by(r: dict) -> str:
     return who
 
 
-def table_rows(rows: list[dict], with_law: bool = False) -> list[dict]:
+def table_rows(rows: list[dict], with_law: bool = False,
+               with_definitions: bool = False) -> list[dict]:
     """Rows for the read-only table, in Spanish, in the order of the states; ``with_law`` adds
-    the articles of the law to review ("Mi ontología y una ley", S7-T11)."""
+    the articles of the law to review and ``with_definitions`` the definitions it gave ("Mi
+    ontología y una ley")."""
     out = []
     for r in rows:
         score = r.get("score")
@@ -348,6 +402,8 @@ def table_rows(rows: list[dict], with_law: bool = False) -> list[dict]:
             "Decidido por": _decided_by(r),
             "Justificación": r.get("justification") or "",
         }
+        if with_definitions:
+            row["Definición de la ley"] = r.get("law_definition") or ""
         if with_law:
             row["Artículos de la ley"] = r.get("law_evidence") or ""
         out.append(row)
@@ -388,7 +444,8 @@ def summary_line(v: dict) -> str:
 
 def notes(v: dict) -> list[str]:
     """The AI warnings, shown under the banner: they change what the person gets."""
-    return [n for n in (v["extraction_note"], v["ai_note"], v["labels_note"]) if n]
+    return [n for n in (v["extraction_note"], v.get("definitions_note"), v["ai_note"],
+                        v["labels_note"]) if n]
 
 
 def summary_captions(v: dict) -> list[str]:
@@ -398,7 +455,7 @@ def summary_captions(v: dict) -> list[str]:
            f"({v['validated_mappings']} de la base y {v['accepted_mappings']} aceptadas por la "
            f"regla) · {v['suggested']} sugeridas fuera de la ontología · versión {v['version']}"]
     out += [line for line in (v["profile"], f"Regla: {v['rule']}." if v["rule"] else None,
-                              v["labels"]) if line]
+                              v["labels"], v.get("definitions")) if line]
     if v["iri_generated"]:
         out.append("Tu ontología no declaraba un IRI de ontología: se le asignó uno en la copia "
                    "del paquete (tu archivo original no cambia).")
@@ -420,12 +477,14 @@ def suggested_rows(rows: list[dict]) -> list[dict]:
 
 
 def evidence_rows(rows: list[dict]) -> list[dict]:
-    """One row per concept with the articles of the law to review ("Mi ontología y una ley")."""
+    """One row per concept with what the law says of it, to review ("Mi ontología y una ley"):
+    the definition it gave (when there is that column) and its articles."""
+    columns = ["Concepto", "Estado", "Definición de la ley", "Artículos de la ley"]
     out = {}
     for r in rows:
-        if r.get("Artículos de la ley") and r["Concepto"] not in out:
-            out[r["Concepto"]] = {"Concepto": r["Concepto"], "Estado": r["Estado"],
-                                  "Artículos de la ley": r["Artículos de la ley"]}
+        if (r.get("Artículos de la ley") or r.get("Definición de la ley")) \
+                and r["Concepto"] not in out:
+            out[r["Concepto"]] = {c: r[c] for c in columns if c in r}
     return list(out.values())
 
 

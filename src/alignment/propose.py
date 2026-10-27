@@ -1,39 +1,3 @@
-"""Automatic alignment of what an upload did not inherit: the decider and its fixed rule (S7-T06).
-
-After S6-T05 every user concept that is the same as a base concept carries the decision a
-person validated. Until Sprint 6 the rest got the best DPV candidate above a threshold, typed
-by the AI, in a module of proposals "no validadas". Since Sprint 7 the alignment is automatic
-and a calibrated rule decides (architecture of October 2026):
-
-1. Knowledge (S7-T01): the ChromaDB collections "dpv" and "decisions" are checked and built
-   only if they are missing or stale (``build_knowledge``).
-2. Decider (S7-T04): for each pending concept, its 10 hybrid DPV candidates and the 4 closest
-   decided base concepts as precedents; the LLM chooses a candidate or "ninguno", with a SKOS
-   relation, a confidence and one sentence. No law article (S7-T05: it lowered the precision).
-   Answers are cached in the workspace (``work/decider-cache.jsonl``): uploading the same file
-   again, or after a quota stop, never repeats a call.
-3. Fixed rule (``decider.rule``, S7-T05): high confidence, score >= 0.5, any relation but
-   relatedMatch for classes, never for concepts that are only properties. What it accepts is
-   "aceptada automáticamente"; "ninguno" with high confidence is "sin correspondencia".
-   What the LLM said with high confidence but the rule left out is a SUGGESTION: it is never
-   written into the ontology; it is shown so the person can comment on it (Sprint 10).
-4. Rule without AI: a concept the AI could not decide (no API key, ``--sin-ia``, quota) gets
-   the Sprint 6 rule: its first candidate if the score reaches ``auto.threshold`` (0.75, 78 %
-   precision without the AI filter in the S6 calibration), untyped (``rdfs:seeAlso``); a
-   concept that is only a property gets nothing, as with the rule. The result says how many;
-   uploading again with the AI available decides them.
-
-Every entry carries who decided it (``rule`` or ``rule_without_ai``; the inherited ones are
-``base``) and its version (1: the first alignment; the comments of Sprint 10 make new ones).
-The result goes to ``work/alignment-decisions.json``. A result of another method (the
-``proposals.json`` of v0.6.0), of another rule or with undecided concepts while the AI is
-available is recomputed by the next upload, almost for free thanks to the cache.
-
-The Sprint 6 proposer (``build_candidates``, ``mark_for_ai``, ``ask_ai``, ``decide``) is kept
-as it was: the S6-T09 external check measures it.
-
-CLI: ``py -m src.alignment.propose ARCHIVO [--sin-ia]`` (runs S6-T05 first if needed).
-"""
 from __future__ import annotations
 
 import argparse
@@ -76,15 +40,17 @@ DECIDED_BY_LABELS = {"base": "persona (base)", BY_RULE: "regla",
 
 # --------------------------------------------------------------------------- inputs
 
-def pending_concepts(ws, inherited: dict) -> list:
+def pending_concepts(ws, inherited: dict, definitions: dict | None = None) -> list:
     """User classes and properties that inherited nothing, as SourceConcepts (individuals are
     never aligned; a property also counts when the base had no concept of its kind, which the
-    inheritance reports with the same reason as an individual)."""
+    inheritance reports with the same reason as an individual). ``definitions``: those the law
+    gave to the concepts that had none ("ontología + ley")."""
+    from src.alignment.law_definitions import with_definitions
     keys = {n["key"] for n in inherited.get("not_inherited", [])}
     report = load_ontology(ws.input_path())
     sources = build_alignment_sources(report, proposals={})   # never the LOPDP proposals
-    return replace(sources, concepts=[c for c in sources.concepts
-                                      if c.key in keys and set(c.kinds) & _ALIGNABLE])
+    concepts = [c for c in sources.concepts if c.key in keys and set(c.kinds) & _ALIGNABLE]
+    return replace(sources, concepts=with_definitions(concepts, definitions))
 
 
 def load_dpv_targets(cfg: dict | None = None):
@@ -239,10 +205,10 @@ def decision_summary(entries: list[dict], ai: dict, rule, threshold: float) -> d
             "rule": rule.label(), "threshold_without_ai": threshold, "ai": ai}
 
 
-def is_current(result: dict | None, cfg: dict | None = None,
-               use_llm: bool | None = None) -> bool:
-    """True if a saved result can be reused: same method and rule, and, when the AI is to be
-    used, no concept left without its decision."""
+def is_current(result: dict | None, cfg: dict | None = None, use_llm: bool | None = None,
+               law_definitions: str | None = None) -> bool:
+    """True if a saved result can be reused: same method, rule and definitions from the law
+    (their fingerprint), and, when the AI is to be used, no concept left without its decision."""
     if not result or result.get("method") != METHOD:
         return False
     settings = auto_settings(cfg)
@@ -251,6 +217,7 @@ def is_current(result: dict | None, cfg: dict | None = None,
     return (result.get("method_version") == METHOD_VERSION
             and result.get("rule") == rule_settings(cfg).as_dict()
             and result.get("threshold_without_ai") == settings["threshold"]
+            and result.get("law_definitions") == law_definitions
             and not (use_llm and result["summary"].get("pending_ai")))
 
 
@@ -260,6 +227,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     """Run S7-T06 for a workspace whose inheritance (S6-T05) is done; save and mark steps."""
     from src.alignment.decider import CACHE_FILE, PROMPT, decide as decide_all
     from src.alignment.decider import rule_settings, settings_from_config
+    from src.alignment import law_definitions as ld
     from src.alignment.inherit import load_result
     from src.alignment.knowledge import build_knowledge
     from src.workspace.store import DONE, ERROR, RUNNING
@@ -270,9 +238,10 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     if inherited is None:
         raise ValueError("Primero hay que heredar lo validado (paso S6-T05).")
 
+    definitions = ld.load_result(ws)
     ws.mark_step("candidates", RUNNING)
     try:
-        sources = pending_concepts(ws, inherited)
+        sources = pending_concepts(ws, inherited, definitions)
         if sources.concepts:
             targets = targets if targets is not None else load_dpv_targets(cfg)
             build_knowledge(cfg, embed_fn=embed_fn, targets=targets, base=base,
@@ -309,6 +278,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     result = {"method": METHOD, "method_version": METHOD_VERSION,
               "alignment_version": ALIGNMENT_VERSION, "rule": rule.as_dict(),
               "threshold_without_ai": settings["threshold"], "prompt": PROMPT.manifest(),
+              "law_definitions": ld.fingerprint(definitions),
               "summary": decision_summary(entries, ai, rule, settings["threshold"]),
               "entries": entries}
     (ws.work_dir / RESULT_FILE).write_text(json.dumps(result, indent=2, ensure_ascii=False),

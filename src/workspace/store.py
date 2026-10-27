@@ -1,32 +1,3 @@
-"""One workspace (folder) per user upload, apart from the system base (S6-T04).
-
-Until Sprint 5 everything was built from the fixed inputs (OntoPriv + LOPDP + DPV) and written
-to fixed paths (data/output, data/review). From Sprint 6 a person uploads their own ontology;
-its intermediate files and results must never overwrite the base. Each upload therefore gets
-its own folder under ``workspaces.dir`` (config.yaml, default ``data/workspaces``, ignored by
-git):
-
-    data/workspaces/<id>/
-        workspace.json   what was uploaded, its characterization and the state of each step
-        input/           the uploaded file(s), byte for byte
-        work/            intermediate files (candidates, AI cache) of the later tasks
-        output/          what the person downloads (modules, manifest, CSV, zips)
-
-The id is ``<name>-<hash>``: a readable slug of the file name plus the first 8 hex digits of
-the SHA-256 of the contents. Uploading the same file again opens the same workspace (and keeps
-what was already computed); a different file, even with the same name, gets a new one. The
-decisions of a workspace use ``source_id = "upload:<id>"`` so they never mix with the base
-(``ontopriv+lopdp``, Sprint 5).
-
-The workspace can hold an ontology (mode "solo ontología", Sprint 6) and a law text (modes
-"solo ley" and "ley + ontología", Sprint 7); the id then covers every uploaded file. The steps
-of a workspace depend on what it holds: those of the ontology, those of the law (S7-T07:
-segment and index it), or both. In the "solo ley" mode the profile built from the law
-(S7-T10) becomes the ontology of the workspace: it is saved in ``input/`` next to the law and
-its entry is marked ``generated_from: "law"``, so the steps of the ontology run on it.
-
-CLI: ``py -m src.workspace.store ARCHIVO`` creates (or reopens) the workspace of a file.
-"""
 from __future__ import annotations
 
 import argparse
@@ -51,16 +22,14 @@ KIND_ONTOLOGY = "ontology"
 KIND_LAW = "law"
 LAW_SUFFIXES = (".txt", ".pdf")
 
-# Steps of the "solo ontología" flow, in order (filled by S6-T05..T08; "labels": S7-T08), of an
-# uploaded law (S7-T07) and, in the "solo ley" mode, of the concepts the AI extracts from it
-# (S7-T09) and of the profile built with them (S7-T10), which then follows the flow of STEPS.
-# In "ley + ontología" the law is segmented and indexed, the ontology follows STEPS, and the
-# evidence of the law (S7-T11) comes in just before writing.
 STEPS = ("inherit", "candidates", "propose", "labels", "write", "package")
 LAW_STEPS = ("segment", "index")
 EXTRACT_STEPS = ("extract", "accept")
-PROFILE_STEPS = ("profile",)                    # S7-T10: then the steps of STEPS on the profile
-EVIDENCE_STEPS = ("evidence",)                  # S7-T11: "ley + ontología", before writing
+PROFILE_STEPS = ("profile",)                    # "solo ley": then the steps of STEPS
+DEFINITION_STEPS = ("definitions",)             # "ley + ontología": right after inheriting
+EVIDENCE_STEPS = ("evidence",)                  # "ley + ontología": before writing
+ALL_STEPS = (STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + DEFINITION_STEPS
+             + EVIDENCE_STEPS)
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
                "propose": "Proponer correspondencias",
                "labels": "Completar las etiquetas en español e inglés",
@@ -70,6 +39,7 @@ STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidato
                "extract": "Extraer los conceptos de la ley con la IA",
                "accept": "Aceptar los conceptos por regla",
                "profile": "Armar el perfil de la ley sobre OntoPriv-Core",
+               "definitions": "Completar las definiciones con la ley",
                "evidence": "Buscar en la ley los artículos de cada concepto"}
 PENDING, RUNNING, DONE, ERROR = "pending", "running", "done", "error"
 STATUS_LABELS = {PENDING: "pendiente", RUNNING: "en curso", DONE: "hecho", ERROR: "error"}
@@ -88,8 +58,8 @@ def steps_for(mode: str | None) -> tuple[str, ...]:
     if mode == "law":
         return LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + STEPS
     if mode == "ontology+law":
-        before = tuple(s for s in STEPS if s not in ("write", "package"))
-        return LAW_STEPS + before + EVIDENCE_STEPS + ("write", "package")
+        return (LAW_STEPS + STEPS[:1] + DEFINITION_STEPS + STEPS[1:4] + EVIDENCE_STEPS
+                + STEPS[4:])
     return STEPS
 
 
@@ -216,7 +186,7 @@ class Workspace:
     def mark_step(self, name: str, status: str, detail: str | None = None,
                   **extra) -> None:
         """Record the state of a step (pending/running/done/error) and save the manifest."""
-        if name not in STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + EVIDENCE_STEPS:
+        if name not in ALL_STEPS:
             raise WorkspaceError(f"Paso desconocido: {name}")
         if status not in (PENDING, RUNNING, DONE, ERROR):
             raise WorkspaceError(f"Estado desconocido: {status}")
@@ -375,7 +345,7 @@ def _run(argv: list[str] | None = None) -> int:
 
 __all__ = ["Workspace", "WorkspaceError", "open_upload", "open_ontology", "open_law",
            "load_workspace", "list_workspaces", "workspace_id", "slugify", "STEPS", "LAW_STEPS",
-           "EXTRACT_STEPS", "PROFILE_STEPS", "EVIDENCE_STEPS", "steps_for"]
+           "EXTRACT_STEPS", "PROFILE_STEPS", "DEFINITION_STEPS", "EVIDENCE_STEPS", "steps_for"]
 
 if __name__ == "__main__":
     raise SystemExit(_run())
