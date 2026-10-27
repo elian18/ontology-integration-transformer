@@ -1,49 +1,3 @@
-"""The alignment decider: retrieve -> decide with precedents -> fixed rule (S7-T04).
-
-Until Sprint 6 the AI only saw the best DPV candidate of the concepts above the threshold and
-only gave it a SKOS type: the threshold, not the AI, decided. The measurement of S7-T03 showed
-the limit of that design: the right term is the best candidate in 92 of 173 concepts, but it
-is among the first 10 in 154. The decider lets the AI CHOOSE among them.
-
-For every concept that did not inherit a decision:
-
-1. RETRIEVE (the "R" of RAG, no LLM):
-   - its N DPV candidates (``decider.candidates``, 10) from the source chosen in S7-T03
-     (``decider.candidate_source``: the hybrid ranking), each with its definition and parents;
-   - its ``decider.precedents`` (4) closest decided base concepts from the ChromaDB collection
-     "decisions" (S7-T01), with what a person decided: term and relation, or "sin
-     correspondencia". The concept itself and every base concept that is "the same" (the
-     leak control of S7-T03) are never shown, and only concepts of a compatible kind are;
-   - optionally, the law article that supports it (``evidence_fn``; S7-T05 and S7-T11).
-   The scores are NOT shown to the LLM (it would just follow the rank 1).
-2. DECIDE (the "G"): the prompt ``src/ai/prompts/decide.v1.txt``, in batches of
-   ``decider.batch_size`` concepts per call, temperature 0, JSON mode (Gemini accepts it,
-   S7-T02). Per concept the LLM returns: the chosen candidate or "ninguno", the SKOS relation,
-   a confidence (alta | media | baja) and one sentence in Spanish. Answers are checked: a term
-   that is not one of the concept's candidates is rejected, never written.
-3. FIXED RULE (``apply_rule``): deterministic and explainable. Its parameters (which
-   confidences are accepted, a minimum score, which SKOS relations are accepted for classes and
-   for properties) are calibrated in S7-T05, not invented here. What the rule leaves out but
-   the LLM said with high confidence is a SUGGESTION (``suggested``): it is never written into
-   the ontology; it is shown so that a person can comment on it (Sprint 10).
-
-The rule used in production (S7-T06) is ``decider.rule`` of config.yaml (``rule_settings``),
-the one S7-T05 chose: high confidence, score >= 0.5, every SKOS relation but relatedMatch for
-classes, never automatic for concepts that are only properties.
-
-Free tier, as in Sprints 3-6: pause between calls, call limit per run, one retry after a 429
-or a 503, stop cleanly when the quota is exhausted. Every answer is cached by CONTENT (prompt,
-model, the generation settings that differ from temperature 0, and everything the LLM saw), so
-a re-run never spends a call twice and an interrupted run resumes where it stopped; a change of
-prompt, model, temperature, candidates or precedents makes a new call. With ``max_calls`` 0 (no
-AI) only the cache answers. Each decision keeps its provenance for PROV-O (Sprint 10):
-candidates, precedents, article, prompt version and model.
-
-The LLM, the embedder and the evidence are injected: the fast tests use fakes.
-
-CLI: ``py -m src.alignment.decider --base 10`` decides 10 base concepts as if they were new
-(1 call) and compares them with your decisions.
-"""
 from __future__ import annotations
 
 import argparse
@@ -72,7 +26,7 @@ from src.core.dpv_proximity import _trim
 from src.core.extract import _is_quota_error
 
 PROMPT_VERSION = 1
-PROMPT = load_prompt("decide", PROMPT_VERSION)
+PROMPT = load_prompt("decide", PROMPT_VERSION)       # production: decide_prompt(cfg)
 CACHE_FILE = "decider-cache.jsonl"
 NONE_ANSWER = "ninguno"
 CONFIDENCE_LEVELS = ("alta", "media", "baja")
@@ -175,6 +129,15 @@ def _relations(value, *, allow_same: bool):
         raise ValueError("Valores inválidos en decider.rule de config.yaml: las relaciones "
                          f"deben ser una lista de {', '.join(SKOS_ALL)}.")
     return tuple(value)
+
+
+def decide_prompt(cfg: dict | None = None):
+    """The version of the prompt production uses (``decider.prompt_version``, default 1)."""
+    if cfg is None:
+        from src.config import load_config
+        cfg = load_config()
+    version = int(((cfg or {}).get("decider", {}) or {}).get("prompt_version", PROMPT_VERSION))
+    return PROMPT if version == PROMPT_VERSION else load_prompt("decide", version)
 
 
 def rule_settings(cfg: dict | None = None) -> RuleSettings:
@@ -379,8 +342,9 @@ def generation_settings(llm) -> dict:
     return out
 
 
-def cache_key(body: str, model: str | None, generation: dict | None = None) -> str:
-    content = {"prompt": PROMPT.sha256, "model": model, "body": body}
+def cache_key(body: str, model: str | None, generation: dict | None = None,
+              prompt=None) -> str:
+    content = {"prompt": (prompt or PROMPT).sha256, "model": model, "body": body}
     if generation:
         content["generation"] = generation
     payload = json.dumps(content, ensure_ascii=False, sort_keys=True)
@@ -483,12 +447,14 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
            forbidden: dict[str, set] | None = None, evidence_fn=None, use_precedents: bool = True,
            cache_path: str | Path | None = None, chroma_path=None, target_vectors=None,
            model_name: str | None = None, embedding_model: str | None = None,
-           sleep_fn=time.sleep, cfg: dict | None = None) -> DecideReport:
+           sleep_fn=time.sleep, cfg: dict | None = None, prompt=None) -> DecideReport:
     """Retrieve, decide (LLM, cached, in batches) and validate, for every concept.
 
     With ``settings.max_calls`` 0 no LLM is needed: the cached answers are used and the rest
-    stays pending (the model name for the cache comes from LLM_MODEL)."""
+    stays pending (the model name for the cache comes from LLM_MODEL). ``prompt``: a version
+    of ``decide`` (default: v1; production passes ``decide_prompt(cfg)``)."""
     from src.alignment.knowledge import embedding_model_name
+    prompt = prompt or PROMPT
     settings = settings or settings_from_config(cfg)
     embedding_model = embedding_model or embedding_model_name()      # also loads .env
     if llm is None and settings.max_calls > 0:        # lazy: the fast tests need no key
@@ -521,7 +487,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
         item = _Item(concept=c, candidates=scored.get(c.key, []), precedents=precedents,
                      evidence=evidence_fn(c) if evidence_fn else None)
         item.body = concept_body(item, settings)
-        item.cache_key = cache_key(item.body, model_name, generation)
+        item.cache_key = cache_key(item.body, model_name, generation, prompt)
         items.append(item)
 
     cache = load_cache(cache_path)
@@ -549,7 +515,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
         raw, err = None, None
         for attempt in range(2):                      # one retry after a 429 or a 503
             try:
-                raw = llm.ask(prompt=PROMPT.text, context=context,
+                raw = llm.ask(prompt=prompt.text, context=context,
                               max_tokens=settings.max_tokens, json_mode=True) or ""
                 err = None
                 break
@@ -585,7 +551,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
             fields = validate_answer(ans, item)
             answers[item.cache_key] = fields
             new_entries.append({"cache_key": item.cache_key, "concept_key": item.concept.key,
-                                "answer": fields, "raw": ans, "prompt": PROMPT.manifest(),
+                                "answer": fields, "raw": ans, "prompt": prompt.manifest(),
                                 "model": model_name, "created": now})
         _append_cache(cache_path, new_entries)
 
@@ -596,7 +562,7 @@ def decide(concepts, targets, *, llm=None, embed_fn=None, settings: DeciderSetti
                 "best_score": item.candidates[0][1] if item.candidates else None,
                 "precedents": [p["key"] for p in item.precedents],
                 "evidence_article": (item.evidence or {}).get("number"),
-                "prompt": PROMPT.manifest(), "model": model_name}
+                "prompt": prompt.manifest(), "model": model_name}
         if not item.candidates:
             report.decisions.append(Decision(status=STATUS_NO_CANDIDATES, **base))
             continue

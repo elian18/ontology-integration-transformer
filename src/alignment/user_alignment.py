@@ -360,7 +360,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         rows = concept_rows(inherited, decisions, labels, evidence, definitions)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
-        prompts = {"decide": DECIDE_PROMPT.manifest()}
+        prompts = {"decide": decisions.get("prompt") or DECIDE_PROMPT.manifest()}
         if labels:
             prompts["labels"] = labels["prompt"]
         entry = ws.manifest["inputs"]["ontology"]
