@@ -43,6 +43,7 @@ auto:
   use_llm: true               # S7-T06: the decider asks the LLM; false = only the cache and the rule without AI
   llm_max_calls: 20           # Sprint 6 proposer (S6-T09 check): AI calls per run, 15 concepts per call
 decider:                      # S7-T03..T06: the alignment decider (retrieve -> decide with precedents -> fixed rule)
+  prompt_version: 1           # decide.vN.txt used in production; a new version is adopted with py -m src.alignment.prompt_lab --tabla
   candidate_source: hybrid    # where its DPV candidates come from: hybrid | dpv | dpv_rerank (chosen by py -m src.alignment.benchmark)
   candidates: 10              # DPV candidates it sees per concept (Sprint 6: only the best one)
   precedents: 4               # S7-T04: closest decided base concepts shown as precedents (collection "decisions")

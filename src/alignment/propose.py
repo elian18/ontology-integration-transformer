@@ -207,14 +207,15 @@ def decision_summary(entries: list[dict], ai: dict, rule, threshold: float) -> d
 
 def is_current(result: dict | None, cfg: dict | None = None, use_llm: bool | None = None,
                law_definitions: str | None = None) -> bool:
-    """True if a saved result can be reused: same method, rule and definitions from the law
-    (their fingerprint), and, when the AI is to be used, no concept left without its decision."""
+    """True if a saved result can be reused: same method, prompt, rule and definitions from the
+    law (their fingerprint), and, when the AI is to be used, no concept left undecided."""
     if not result or result.get("method") != METHOD:
         return False
     settings = auto_settings(cfg)
     use_llm = settings["use_llm"] if use_llm is None else use_llm
-    from src.alignment.decider import rule_settings
+    from src.alignment.decider import decide_prompt, rule_settings
     return (result.get("method_version") == METHOD_VERSION
+            and (result.get("prompt") or {}).get("sha256") == decide_prompt(cfg).sha256
             and result.get("rule") == rule_settings(cfg).as_dict()
             and result.get("threshold_without_ai") == settings["threshold"]
             and result.get("law_definitions") == law_definitions
@@ -225,7 +226,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
                           targets=None, cfg: dict | None = None, sleep_fn=None, base=None,
                           chroma_path=None) -> dict:
     """Run S7-T06 for a workspace whose inheritance (S6-T05) is done; save and mark steps."""
-    from src.alignment.decider import CACHE_FILE, PROMPT, decide as decide_all
+    from src.alignment.decider import CACHE_FILE, decide as decide_all, decide_prompt
     from src.alignment.decider import rule_settings, settings_from_config
     from src.alignment import law_definitions as ld
     from src.alignment.inherit import load_result
@@ -233,6 +234,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     from src.workspace.store import DONE, ERROR, RUNNING
     settings = auto_settings(cfg)
     rule = rule_settings(cfg)
+    prompt = decide_prompt(cfg)
     use_llm = settings["use_llm"] if use_llm is None else use_llm
     inherited = load_result(ws)
     if inherited is None:
@@ -263,7 +265,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
             kwargs = {"sleep_fn": sleep_fn} if sleep_fn is not None else {}
             report = decide_all(sources.concepts, targets, llm=llm, embed_fn=embed_fn,
                                 settings=run, cache_path=ws.work_dir / CACHE_FILE,
-                                chroma_path=chroma_path, cfg=cfg, **kwargs)
+                                chroma_path=chroma_path, cfg=cfg, prompt=prompt, **kwargs)
             decisions = report.decisions
             ai.update(model=decisions[0].model if decisions else None, calls=report.calls,
                       cached=report.cached)
@@ -277,7 +279,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
         raise
     result = {"method": METHOD, "method_version": METHOD_VERSION,
               "alignment_version": ALIGNMENT_VERSION, "rule": rule.as_dict(),
-              "threshold_without_ai": settings["threshold"], "prompt": PROMPT.manifest(),
+              "threshold_without_ai": settings["threshold"], "prompt": prompt.manifest(),
               "law_definitions": ld.fingerprint(definitions),
               "summary": decision_summary(entries, ai, rule, settings["threshold"]),
               "entries": entries}
