@@ -1,48 +1,3 @@
-"""Write the aligned ontology of an upload and package it in the chosen format (S6-T07, S7-T06,
-S7-T08).
-
-Closes the back-end of the "solo ontología" mode: upload -> inherit (S6-T05) -> decide
-(S7-T06, ``propose``) -> labels es/en (S7-T08, ``src.transform.labels``) -> write + package
-(this module). Everything is written inside the workspace (``data/workspaces/<id>/output``);
-nothing of the base is touched.
-
-What is written (same design as Sprint 5: the user's ontology is never edited, the alignment
-lives in a separate module that imports it):
-
-1. ``<name>-dpv-alignment``: ONE module with every correspondence that counts (since S7-T06 the
-   alignment is automatic and a calibrated rule decides; until v0.6.0 the automatic ones went
-   to a module of proposals "no validadas"). Each SKOS triple carries an ``owl:Axiom``
-   annotation with who decided it (``#decidedBy``: "base", "regla" or "regla sin IA"), its
-   version (``owl:versionInfo``, 1 in this sprint) and an ``rdfs:comment`` in Spanish:
-   - inherited from the base (a person decided it in Sprint 5): ``dct:source`` = the base
-     concept, "Heredada de Data_Owner (mismo nombre); decisión validada por ...";
-   - accepted by the rule: its score (``#confidence``) and the LLM's justification;
-   - accepted by the rule without AI: untyped, so ``rdfs:seeAlso`` (claims no SKOS relation).
-   "Sin correspondencia" writes nothing (as in Sprint 5); SUGGESTIONS are never written.
-   It also imports the labels module, so opening it shows the labels in both languages.
-2. ``<name>-labels`` (S7-T08, only when something was added): the Spanish and English labels
-   the ontology lacked, written by the AI; it imports the user's ontology.
-3. ``alignment-manifest.json`` (counts, settings, rule, prompt, models, base used, version) and
-   ``alignment.csv`` (one row per concept of the user's ontology with what happened to it,
-   suggestions included, so the person can comment on them in Sprint 10, and its labels). In
-   the "ley + ontología" mode (S7-T11, ``src.alignment.law_evidence``) the CSV also gives the
-   articles of the uploaded law closest to each concept, to review them; they are not written
-   to the ontology (no rule reached the 75 % precision on GDPRtEXT).
-
-The module ``owl:imports`` the user's ontology by its IRI and references the DPV by IRI only.
-If the uploaded ontology declares no ``owl:Ontology`` IRI, one is generated
-(``http://www.semanticweb.org/uploads/<workspace id>``) and added to a copy of it in
-``output/``, because an import needs an IRI; the manifest says so.
-
-The package (``build_user_package``) holds the modules and the user's ontology converted to the
-chosen format, the catalog for Protégé, the manifest, the CSV and a LEEME.txt; the JSON-LD one
-carries the Protégé note measured in S6-T03. When the ontology imports OntoPriv-Core (the
-profile of the "solo ley" mode, S7-T10, ``src.core.law_profile``), a copy of the core goes into
-``output/`` and into the package, so that the import resolves.
-
-CLI: ``py -m src.alignment.user_alignment ARCHIVO [--formato turtle] [--sin-ia]`` runs the
-whole back-end for one file and writes the zip into the workspace.
-"""
 from __future__ import annotations
 
 import argparse
@@ -59,6 +14,7 @@ from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 from src.alignment import propose as dec
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
+from src.alignment import law_definitions as ld
 from src.alignment import law_evidence as ev
 from src.alignment.propose import load_result as decisions_result
 from src.core.emit import CORE_FILE, CORE_IRI
@@ -97,7 +53,7 @@ WRITTEN = (INHERITED_ALIGNED, ACCEPTED)          # the statuses that put triples
 _FROM_DECIDER = {dec.ACCEPTED: ACCEPTED, dec.SUGGESTED: SUGGESTED, dec.NO_MATCH: RULE_NO_MATCH,
                  dec.NO_PROPOSAL: NO_PROPOSAL, dec.UNDECIDED: UNDECIDED}
 CSV_COLUMNS = ["concept_iri", "concept_name", "label_es", "label_en", "labels_added",
-               "law_evidence",
+               "law_evidence", "law_definition", "law_definition_source",
                "status", "estado", "decided_by", "validated",
                "relation", "dpv_iri", "dpv_name", "score", "confidence", "method",
                "base_concept", "reviewer", "justification", "version"]
@@ -110,7 +66,8 @@ def stems(ws) -> dict[str, str]:
     the module of v0.6.0, only to remove it from an old workspace)."""
     base = Path(ws.manifest["inputs"]["ontology"]["stored_as"]).stem
     return {"ontology": base, "alignment": f"{base}-dpv-alignment",
-            "labels": f"{base}{lab.MODULE_SUFFIX}", "proposals": f"{base}-dpv-proposals",
+            "labels": f"{base}{lab.MODULE_SUFFIX}",
+            "definitions": f"{base}{ld.MODULE_SUFFIX}", "proposals": f"{base}-dpv-proposals",
             "core": Path(CORE_FILE).stem}
 
 
@@ -171,9 +128,9 @@ def _annotate(g: Graph, s, p, o, comment: str, extra: list[tuple] = ()) -> None:
 
 def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_iri: str,
                     name: str, created: str, source: Graph | None = None,
-                    labels_iri: str | None = None) -> Graph:
+                    labels_iri: str | None = None, definitions_iri: str | None = None) -> Graph:
     """The module: inherited correspondences + the ones the rule accepted (never suggestions);
-    it imports the user's ontology and, when there is one, the labels module."""
+    it imports the user's ontology and, when there are, the labels and definitions modules."""
     decisions = decisions or {}
     version = decisions.get("alignment_version", dec.ALIGNMENT_VERSION)
     g = Graph()
@@ -184,8 +141,9 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
             "por una persona en el Sprint 5) y aceptadas automáticamente por la regla del "
             "decisor (S7-T05). Las sugeridas no se escriben. El DPV se referencia por IRI, no "
             "se importa.", created, version)
-    if labels_iri:
-        g.add((URIRef(iri), OWL.imports, URIRef(labels_iri)))
+    for extra in (labels_iri, definitions_iri):
+        if extra:
+            g.add((URIRef(iri), OWL.imports, URIRef(extra)))
     ns = iri.rstrip("#/")
     g.bind("alignment", Namespace(ns + "#"), override=True)
     by = _annotation_property(g, URIRef(ns + "#decidedBy"), "decidido por",
@@ -235,9 +193,9 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
 # --------------------------------------------------------------------------- rows
 
 def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = None,
-                 evidence: dict | None = None) -> list[dict]:
+                 evidence: dict | None = None, definitions: dict | None = None) -> list[dict]:
     """One row per concept of the user's ontology (aligned ones: one row per mapping), with its
-    labels in Spanish and English after S7-T08 and the articles of the law (S7-T11)."""
+    labels in Spanish and English, the articles of the law and the definition it gave."""
     version = (decisions or {}).get("alignment_version", dec.ALIGNMENT_VERSION)
     rows = []
     for item in inherited.get("inherited", []):
@@ -267,10 +225,15 @@ def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = 
             rows.append({"concept_iri": n["key"], "concept_name": n["name"],
                          "status": NOT_ALIGNABLE, "validated": False})
     named, articles = lab.by_key(labels), ev.by_key(evidence)
+    defined, law = ld.by_key(definitions), ((definitions or {}).get("law") or {}).get("file")
     for r in rows:
         r["estado"] = STATUS_LABELS[r["status"]]
         if r["concept_iri"] in articles:
             r["law_evidence"] = ev.evidence_text(articles[r["concept_iri"]])
+        given = defined.get(r["concept_iri"])
+        if given is not None:
+            r.update(law_definition=given["definition"],
+                     law_definition_source=ld.source_text(given, law))
         entry = named.get(r["concept_iri"])
         if entry is not None:
             final = lab.final_labels(entry)
@@ -362,9 +325,24 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         elif label_file.exists():
             label_file.unlink()                        # nothing added any more
 
+        definitions = ld.load_result(ws)
+        definitions_iri = module_iri(onto_iri, ld.MODULE_SUFFIX)
+        definition_graph = (ld.definitions_graph(definitions, iri=definitions_iri,
+                                                 onto_iri=onto_iri, name=display, created=created)
+                            if definitions else None)
+        definition_file = out / f"{names['definitions']}.ttl"
+        if definition_graph is not None:
+            definition_file.write_bytes(serialize(definition_graph, MASTER_FORMAT))
+            files["definitions"] = f"output/{names['definitions']}.ttl"
+            modules["definitions"] = definitions_iri
+            triples["definitions"] = len(definition_graph)
+        elif definition_file.exists():
+            definition_file.unlink()
+
         graph = alignment_graph(inherited, decisions, iri=iri, onto_iri=onto_iri, name=display,
                                 created=created, source=user_graph,
-                                labels_iri=modules.get("labels"))
+                                labels_iri=modules.get("labels"),
+                                definitions_iri=modules.get("definitions"))
         (out / f"{names['alignment']}.ttl").write_bytes(serialize(graph, MASTER_FORMAT))
         files["alignment"] = f"output/{names['alignment']}.ttl"
         triples = {"alignment": len(graph), **triples}
@@ -378,8 +356,8 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         if stale.exists():
             stale.unlink()                             # module of proposals of v0.6.0
 
-        evidence = ev.load_result(ws)                  # "ley + ontología": only the CSV
-        rows = concept_rows(inherited, decisions, labels, evidence)
+        evidence = ev.load_result(ws)                  # "ontología + ley": only the CSV
+        rows = concept_rows(inherited, decisions, labels, evidence, definitions)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
         prompts = {"decide": DECIDE_PROMPT.manifest()}
@@ -396,6 +374,18 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
                        "law_concepts": concepts.get("summary"),
                        "extraction": concepts.get("extraction")}
             prompts["extract"] = concepts.get("prompt")
+        defined = None
+        if definitions:
+            defined = {**definitions["summary"], "law": definitions["law"]["file"],
+                       "language": definitions["law"]["language"],
+                       "skipped": definitions["skipped"], "ai": definitions["ai"],
+                       "law_concepts": ({k: definitions["law_concepts"][k]
+                                         for k in ("summary", "extraction", "ai")}
+                                        if definitions["law_concepts"] else None)}
+            if not definitions["skipped"]:
+                prompts["define"] = definitions["prompt"]
+            if definitions["law_concepts"]:
+                prompts["extract"] = definitions["law_concepts"]["prompt"]
         manifest = {
             "workspace": ws.id, "source_id": ws.source_id, "created": created,
             "uploaded_file": display, "ontology_iri": onto_iri,
@@ -408,6 +398,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             "decider": decisions.get("summary"),
             "labels": ({**labels["summary"], "glossary": labels["glossary"],
                         "ai": labels["ai"]} if labels else None),
+            "law_definitions": defined,
             "law_evidence": ({**evidence["summary"], "law": evidence["law"],
                               "settings": evidence["settings"]} if evidence else None),
             "recomputed": recomputed,
@@ -429,10 +420,14 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             ] + (["El módulo de etiquetas agrega, con su idioma, las etiquetas en español e "
                   "inglés que le faltaban a la ontología (las escribió la IA); ninguna etiqueta "
                   "original cambia."] if "labels" in modules else [])
+            + ([ld.module_note(defined)] if "definitions" in modules else [])
             + ([f"La columna law_evidence de alignment.csv trae los artículos de "
                 f"{evidence['law']} más cercanos a cada concepto (búsqueda semántica), para "
                 "revisarlos; no entran a la ontología: en GDPRtEXT ninguna regla llegó al 75 % "
-                "de precisión (S7-T11)."] if evidence else []),
+                "de precisión (S7-T11)."
+                + (" Para los conceptos que tomaron la definición de un concepto de la ley son "
+                   "los artículos que citó la IA (citado)."
+                   if evidence["summary"].get("cited_by_ai") else "")] if evidence else []),
         }
         (out / MANIFEST_FILE).write_text(json.dumps(manifest, indent=2, ensure_ascii=False),
                                          encoding="utf-8")
@@ -505,6 +500,15 @@ def _readme_for(manifest: dict):
             text.append(f"  - {labels['pending']} conceptos quedaron sin sus etiquetas en español "
                         "o inglés (la IA no las completó): vuelve a subir el archivo para "
                         "completarlas.")
+        defined = manifest.get("law_definitions") or {}
+        if manifest["files"].get("definitions"):
+            text.append(f"  - {_included(package, manifest['files']['definitions'])}: "
+                        f"{ld.added_text(defined, 'tu ontología')}; cada una cita su artículo. "
+                        "Tus definiciones no cambian.")
+        if defined.get(ld.PENDING):
+            text.append(f"  - {defined[ld.PENDING]} conceptos quedaron sin su definición de la "
+                        "ley (la IA no la completó): vuelve a subir los archivos para "
+                        "completarlas.")
         if s.get("suggested"):
             text.append(f"  - {s['suggested']} sugeridas: la IA las dio con confianza alta "
                         f"pero la regla no las acepta; NO están en la ontología, solo en "
@@ -534,6 +538,9 @@ def _readme_for(manifest: dict):
                         f"({evidence['links']} en total, con su distancia), encontrados por "
                         "búsqueda semántica: son para que los revises; no entran a la "
                         "ontología.")
+            if evidence.get("cited_by_ai"):
+                text.append(f"    En {evidence['cited_by_ai']} de ellos el artículo es el que "
+                            "citó la IA al sacar su definición de la ley (citado).")
         text += [
             "",
             "El DPV no se importa: sus términos se referencian por IRI (https://w3id.org/dpv#).",
@@ -551,9 +558,10 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
     onto_iri = manifest["ontology_iri"]
     modules = [Module(manifest["modules"]["alignment"], ws.path / manifest["files"]["alignment"],
                       names["alignment"])]
-    if manifest["modules"].get("labels"):
-        modules.append(Module(manifest["modules"]["labels"], ws.path / manifest["files"]["labels"],
-                              names["labels"]))
+    for extra in ("labels", "definitions"):
+        if manifest["modules"].get(extra):
+            modules.append(Module(manifest["modules"][extra], ws.path / manifest["files"][extra],
+                                  names[extra]))
     modules.append(Module(onto_iri, ws.path / manifest["files"]["ontology"], names["ontology"]))
     if manifest["modules"].get("core"):
         modules.append(Module(manifest["modules"]["core"], ws.path / manifest["files"]["core"],
@@ -600,12 +608,19 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     from src.alignment.propose import is_current, propose_for_workspace
     from src.workspace.store import STEP_LABELS
     say = progress or (lambda label: None)
-    ran = {"inherit": False, "decider": False, "labels": False, "evidence": False}
+    with_law = ws.manifest.get("mode") == "ontology+law"
+    ran = {"inherit": False, "definitions": False, "decider": False, "labels": False,
+           "evidence": False}
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
         inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
         ran["inherit"] = True
-    if not is_current(decisions_result(ws), cfg, use_llm):
+    if with_law and not ld.is_current(ld.load_result(ws), ws, cfg, use_llm):
+        ld.definitions_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm, cfg=cfg,
+                                     sleep_fn=sleep_fn, progress=progress)
+        ran["definitions"] = True
+    definitions = ld.fingerprint(ld.load_result(ws))
+    if not is_current(decisions_result(ws), cfg, use_llm, definitions):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
                               targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,
@@ -615,8 +630,7 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
         ran["labels"] = True
-    if (ws.manifest.get("mode") == "ontology+law"
-            and not ev.is_current(ev.load_result(ws), cfg)):
+    if with_law and not ev.is_current(ev.load_result(ws), cfg, definitions):
         say(STEP_LABELS["evidence"])
         ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
         ran["evidence"] = True
@@ -687,6 +701,17 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
         available = (labels.get("ai") or {}).get("available")
         lines.append("  IA de las etiquetas: "
                      + (f"{REUSED} ({text})" if available and reused("labels") else text))
+    defined = manifest.get("law_definitions")
+    if defined:
+        lines.append(f"  {ld.summary_line(defined)}"
+                     + (f" (módulo {manifest['files']['definitions']}, "
+                        f"{manifest['triples']['definitions']} tripletas)"
+                        if manifest["files"].get("definitions") else "")
+                     + (" (de la corrida anterior)" if reused("definitions") else ""))
+        if not defined["skipped"]:
+            text = ld.ai_line(defined)
+            lines.append("  IA de las definiciones: "
+                         + (f"{REUSED} ({text})" if reused("definitions") else text))
     evidence = manifest.get("law_evidence")
     if evidence:
         lines.append(f"  Evidencia de {evidence['law']}: {evidence['with_evidence']} de "

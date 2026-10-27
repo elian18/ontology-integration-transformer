@@ -1,5 +1,3 @@
-"""S7-T07: the law of an upload is cleaned, split into articles and indexed in the ChromaDB of
-its own workspace (never in the base one), only when something changed."""
 from __future__ import annotations
 
 import hashlib
@@ -69,9 +67,9 @@ def test_a_law_workspace_has_the_law_steps(ws, cfg):
         "segment", "index", "extract", "accept"]                       # S7-T09, then S7-T10
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", b"@prefix ex: <http://e.org/> .\n"),
                         "law": ("l.txt", LAW.encode("utf-8"))}, cfg=cfg)
-    assert [r["step"] for r in both.progress()] == [                   # S7-T11
-        "segment", "index", "inherit", "candidates", "propose", "labels", "evidence", "write",
-        "package"]
+    assert [r["step"] for r in both.progress()] == [
+        "segment", "index", "inherit", "definitions", "candidates", "propose", "labels",
+        "evidence", "write", "package"]
 
 
 def test_segment_and_index_a_law(ws):

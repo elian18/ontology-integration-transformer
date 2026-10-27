@@ -1,0 +1,7 @@
+Te entrego articulos de una ley de proteccion de datos personales, cada uno con su numero, y conceptos de una ontologia que no tienen definicion, cada uno con un id (C1, C2...), su nombre tecnico, su tipo, su etiqueta si la tiene y los numeros de los articulos de la ley mas cercanos a el. La ley esta en {idioma}.
+Para CADA concepto escribe una definicion basada SOLO en sus articulos. Reglas:
+- Usa solo lo que dicen los articulos de ese concepto: no agregues conocimiento externo ni requisitos que el texto no tenga.
+- La definicion es UNA oracion en {idioma}, de 10 a 40 palabras, que diga que es el concepto (para una propiedad, que relacion expresa y entre que conceptos). No repitas el nombre tecnico ni cites el numero del articulo.
+- Si sus articulos no dicen que es el concepto (solo lo mencionan de paso o tratan de otra cosa), deja la definicion vacia: es una respuesta valida y es mejor que una definicion inventada.
+- "article" es el numero del articulo en que te basaste, uno de los de ese concepto.
+Devuelve SOLO un objeto JSON con la clave "definitions": una lista con un objeto por concepto, con estas claves exactas: "concept" (el id, p. ej. C1), "definition" (la definicion, o "" si sus articulos no lo definen) y "article" (el numero del articulo, o null si la definicion esta vacia).

@@ -71,3 +71,14 @@ extraction:                   # S7-T09: the LLM extracts the concepts of an uplo
 law_evidence:                 # S7-T11: "ley + ontología": articles of the uploaded law closest to each concept, in alignment.csv for a person to review them (Sprint 10); not written to the ontology (the decider does not see the law: S7-T05, 64,1 % vs 75,0 %)
   top_k: 3                    # py -m src.alignment.law_evidence --calibrar (GDPRtEXT + GDPR): no rule reaches 75 % (best: 1 article up to 0.30, 73,9 % on 23 links; cross-validation 64,5 %). For the review: the most coverage with the fewest links, the correct article among them for 53 of 80 concepts
   max_distance: 0.55          # maximum cosine distance of an article: 222 links for the 80 concepts (240 without maximum, same coverage)
+law_definitions:              # "ontología + ley": the law gives the definitions the ontology lacks (module <name>-definitions); the decider receives them
+  enabled: true
+  min_missing: 0.10           # only when 10 % or more of the concepts have no definition (GDPRtEXT: 4 of 235, no AI)
+  from_law_concepts: true     # 1. the definition of the law concept with the same name or label, or very similar (the AI extracts them: prompt extract.v2)
+  from_articles: true         # 2. the rest: the AI writes it from its closest articles, or says it does not apply (prompt define.v1)
+  articles_per_concept: 3     # closest articles shown per concept
+  article_chars: 1200         # length of each article
+  batch_size: 10              # concepts per LLM call
+  max_calls: 30               # LLM calls per run (free tier shared: 500/day); re-run to continue (cache)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_tokens: 8192            # max answer length per call

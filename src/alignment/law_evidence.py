@@ -1,43 +1,3 @@
-"""The "ley + ontología" mode: the uploaded law gives each concept of the uploaded ontology
-the articles closest to it, for a person to review them (S7-T11).
-
-A person uploads their ontology AND a law. The ontology is aligned with the DPV exactly as in
-"Alinear mi ontología" (S7-T06, S7-T08). The law does not change those decisions: measured in
-S7-T05, giving the decider the article of the law lowered its precision on the base from
-75,0 % to 64,1 % with the chosen rule, so the decider keeps the setting it was calibrated with.
-What the law adds is EVIDENCE (step "evidence"): for each class and property, the articles of
-the law closest in meaning to it (name, label and definition, the text the alignment embeds),
-searched in the index of the law that S7-T07 built in the workspace. They go to the column
-``law_evidence`` of ``alignment.csv`` ("art. 17 (0,32); art. 4 (0,41)", with the cosine
-distance), for the person to confirm them in the comments of Sprint 10. They are NOT written to
-the ontology, because no rule reached the precision the project asks of what enters it
-automatically (the same treatment as the suggestions of the decider).
-
-The calibration (``py -m src.alignment.law_evidence --calibrar``, no LLM) uses an external
-ontology that already says where each concept is defined: GDPRtEXT links 80 of its 235
-concepts to 38 articles of the GDPR (``rdfs:isDefinedBy`` -> ``...#article4-1``: 127 links to
-paragraphs, 113 concept-article pairs). With the GDPR uploaded as the law, a link is correct
-when its article is one of those (recitals do not count: the law is indexed by article). The
-grid and the criterion were fixed BEFORE measuring (as the decider rule, S7-T05): ``top_k`` in
-1, 2, 3 and a maximum distance in 0.30 .. 0.60 or none; among the rules with at least
-``MIN_LINKS`` links and precision >= ``auto.min_precision`` (75 %), the one with the highest
-coverage (concepts with a correct article); ties go to the rule with fewer links. The optimism
-of choosing on the same 80 concepts is measured with cross-validation (chosen on one random
-half, measured on the other, 100 times, seed 7). Precision is a LOWER bound: GDPRtEXT names
-the articles that define a concept (6, 4, 9 and 5 are the most frequent), and the search often
-gives another article about the same topic: for Consent it gives first article 7 ("Conditions
-for consent") while GDPRtEXT points to 4 and 6; for Processor, article 28 ("Processor") while
-GDPRtEXT points to 4.
-
-Result (S7-T11): no rule reaches 75 % (the best, 1 article up to 0.30: 73,9 % on 23 links;
-cross-validation 64,5 %), so the articles stay in the CSV. For the review the rule in
-``law_evidence`` of config.yaml is the one with the highest coverage and the fewest links
-(``review_rule``): 3 articles up to 0.55, the correct one among them for 53 of the 80 concepts.
-
-CLI: ``py -m src.alignment.law_evidence --calibrar`` and
-``py -m src.alignment.law_evidence ONTOLOGIA LEY [--formato turtle] [--sin-ia]`` (the whole
-mode).
-"""
 from __future__ import annotations
 
 import argparse
@@ -278,7 +238,11 @@ def load_result(ws) -> dict | None:
 
 
 def evidence_for_workspace(ws, *, embed_fn=None, cfg: dict | None = None) -> dict:
-    """The evidence of every class and property of the ontology; save it; mark the step."""
+    """The evidence of every class and property of the ontology; save it; mark the step.
+
+    A concept that took the definition of a concept of the law gets the articles the AI cited
+    for it; the rest, the closest ones (searched with the definitions the law gave them)."""
+    from src.alignment import law_definitions as ld
     from src.alignment.inherit import user_concepts
     from src.ingest.law_upload import chroma_path, current_articles
     from src.workspace.store import DONE, ERROR, RUNNING
@@ -286,18 +250,27 @@ def evidence_for_workspace(ws, *, embed_fn=None, cfg: dict | None = None) -> dic
     ws.mark_step("evidence", RUNNING)
     try:
         articles = current_articles(ws)
-        concepts = user_concepts(ws.input_path())
-        hits = search(concepts, path=chroma_path(ws), embed_fn=embed_fn, n=settings.top_k)
+        definitions = ld.load_result(ws)
+        concepts = ld.with_definitions(user_concepts(ws.input_path()), definitions)
+        cited = ld.cited_articles(definitions)
+        titles = {a["number"]: a["title"] or "" for a in articles["articles"]}
+        hits = search([c for c in concepts if c.key not in cited], path=chroma_path(ws),
+                      embed_fn=embed_fn, n=settings.top_k)
         entries = [{"key": c.key, "name": c.name,
-                    "articles": select(hits[c.key], settings.top_k, settings.max_distance)}
+                    "articles": ([{"number": n, "title": titles.get(n, ""), "distance": None,
+                                   "cited": True} for n in cited[c.key][:settings.top_k]]
+                                 if c.key in cited
+                                 else select(hits[c.key], settings.top_k, settings.max_distance))}
                    for c in concepts]
-        cited = sorted({a["number"] for e in entries for a in e["articles"]})
+        numbers = sorted({a["number"] for e in entries for a in e["articles"]})
         result = {"method_version": METHOD_VERSION, "settings": settings.__dict__,
                   "law": articles["file"], "law_articles": articles["n_articles"],
+                  "law_definitions": ld.fingerprint(definitions),
                   "summary": {"concepts": len(entries),
                               "with_evidence": sum(bool(e["articles"]) for e in entries),
                               "links": sum(len(e["articles"]) for e in entries),
-                              "articles_cited": len(cited)},
+                              "articles_cited": len(numbers),
+                              "cited_by_ai": sum(e["key"] in cited for e in entries)},
                   "entries": entries}
         (ws.work_dir / RESULT_FILE).write_text(json.dumps(result, indent=2, ensure_ascii=False),
                                                encoding="utf-8")
@@ -311,9 +284,11 @@ def evidence_for_workspace(ws, *, embed_fn=None, cfg: dict | None = None) -> dic
     return result
 
 
-def is_current(result: dict | None, cfg: dict | None = None) -> bool:
+def is_current(result: dict | None, cfg: dict | None = None,
+               law_definitions: str | None = None) -> bool:
     return (bool(result) and result.get("method_version") == METHOD_VERSION
-            and result["settings"] == evidence_settings(cfg).__dict__)
+            and result["settings"] == evidence_settings(cfg).__dict__
+            and result.get("law_definitions") == law_definitions)
 
 
 def by_key(result: dict | None) -> dict[str, list[dict]]:
@@ -325,8 +300,10 @@ def _decimal(value: float) -> str:
 
 
 def evidence_text(articles: list[dict]) -> str:
-    """For the CSV: "art. 17 (0,32); art. 4 (0,41)"."""
-    return "; ".join(f"art. {a['number']} ({_decimal(a['distance'])})" for a in articles)
+    """For the CSV: "art. 17 (0,32); art. 4 (0,41)", or "art. 4 (citado)" when the AI cited it."""
+    return "; ".join(f"art. {a['number']} "
+                     + ("(citado)" if a.get("cited") else f"({_decimal(a['distance'])})")
+                     for a in articles)
 
 
 # --------------------------------------------------------------------------- whole mode
@@ -335,8 +312,8 @@ def align_with_law(onto_name: str, onto_data: bytes, law_name: str, law_data: by
                    fmt: str = "turtle", use_llm: bool | None = None, embed_fn=None, llm=None,
                    cfg: dict | None = None, base=None, targets=None, progress=None,
                    chroma_path=None, sleep_fn=None):
-    """Upload an ontology and a law -> segment and index the law -> the alignment flow of
-    S7-T06/T08 with the evidence step before writing (into alignment.csv) -> zip."""
+    """Upload an ontology and a law -> segment and index the law -> the alignment flow, with
+    the definitions of the law after inheriting and the evidence before writing -> zip."""
     from src.alignment.user_alignment import align_workspace
     from src.ingest.law_upload import prepare_law
     from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, open_upload
@@ -357,8 +334,9 @@ def _run(argv: list[str] | None = None) -> int:
     from src.transform.convert import ConversionError, output_format
     from src.workspace.store import WorkspaceError
     parser = argparse.ArgumentParser(prog="py -m src.alignment.law_evidence",
-                                     description="Modo ley + ontología: evidencia de la ley "
-                                                 "para cada concepto (S7-T11).")
+                                     description="Modo ontología + ley: la ley completa las "
+                                                 "definiciones y da los artículos de cada "
+                                                 "concepto.")
     parser.add_argument("files", nargs="*", help="ONTOLOGIA LEY")
     parser.add_argument("--calibrar", action="store_true",
                         help="calibrar la evidencia con GDPRtEXT + GDPR (sin LLM)")

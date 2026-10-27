@@ -1,7 +1,3 @@
-"""S6-T07 + S7-T06 + S7-T08: the aligned ontology of an upload (ONE module: inherited
-correspondences and the ones the rule accepted, each annotated with who decided it and its
-version; suggestions never written), the module of the labels es/en the ontology lacked, its
-manifest and CSV, and the zip in every format with a catalog that resolves the imports."""
 from __future__ import annotations
 
 import csv
@@ -321,8 +317,8 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     assert ("  Etiquetas es/en: 0 conceptos ya las tenían; la IA agregó 4 en español y 4 en "
             "inglés (módulo output/mi-gdpr-labels.ttl, 14 tripletas)\n") in text
     assert "  IA de las etiquetas: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
-    assert m["recomputed"] == {"inherit": True, "decider": True, "labels": True,
-                               "evidence": False}
+    assert m["recomputed"] == {"inherit": True, "definitions": False, "decider": True,
+                               "labels": True, "evidence": False}
     decider_line = [line for line in text.splitlines() if "IA del decisor" in line][0]
     assert decider_line.startswith("  IA del decisor: ") and ua.REUSED not in text
     calls = (embed.calls, llm.calls)
