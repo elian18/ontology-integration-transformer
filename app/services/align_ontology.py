@@ -1,30 +1,8 @@
-"""Bridge for the "Alinear con el DPV" page (S6-T08, S7-T06, S7-T08, S7-T12): the user's flow
-in the web, in the three modes of the system.
-
-The person picks what to upload (S7-T12) and only uploads; everything else is automatic:
-
-- "Mi ontología" (``ontology``): the workspace (S6-T04), inheriting the validated decisions
-  (S6-T05), the decider and its calibrated rule for the rest (S7-T06), the labels in Spanish
-  and English that the ontology lacked (S7-T08), writing the modules and the zip (S6-T07):
-  ``src.alignment.user_alignment.align_upload``.
-- "Una ley" (``law``): the law is split into articles and indexed (S7-T07), the AI extracts its
-  concepts and a rule accepts them (S7-T09), they become a profile that imports OntoPriv-Core
-  (S7-T10) and the profile goes through the same flow: ``src.core.law_profile.align_law``.
-- "Mi ontología y una ley" (``ontology+law``): the ontology is aligned as in the first mode and
-  each concept gets the articles of the law closest to it, to review them; they do not enter
-  the ontology (S7-T11): ``src.alignment.law_evidence.align_with_law``.
-
-This adapter turns the results into what the page shows: a few numbers, what was done with
-the law, a read-only table per concept and the zip in the chosen format.
-
-Nothing here asks the person to review. The ontology holds what a person decided while building
-the base and what the rule accepted; the suggestions (high confidence, left out by the rule)
-are only shown, so the person can comment on them later (Sprint 10).
-"""
 from __future__ import annotations
 
 import csv
 import io
+from functools import partial
 
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
@@ -41,21 +19,37 @@ MODE_ONTOLOGY, MODE_LAW, MODE_BOTH = KIND_ONTOLOGY, KIND_LAW, "ontology+law"
 MODES = {MODE_ONTOLOGY: "Mi ontología", MODE_LAW: "Una ley", MODE_BOTH: "Mi ontología y una ley"}
 MODE_FILES = {MODE_ONTOLOGY: (KIND_ONTOLOGY,), MODE_LAW: (KIND_LAW,),
               MODE_BOTH: (KIND_ONTOLOGY, KIND_LAW)}
+# Step 1 of the assistant (S8-T01): the question and the icon of each card.
 MODE_HELP = {
-    MODE_ONTOLOGY: "Tu ontología se alinea con el DPV tal como está.",
-    MODE_LAW: "La IA saca los conceptos de la ley y el sistema arma con ellos una ontología "
-              "sobre OntoPriv-Core, ya alineada.",
-    MODE_BOTH: "Tu ontología se alinea igual que en el primer modo y, además, cada concepto "
-               "trae los artículos de la ley más cercanos, para que los revises.",
+    MODE_ONTOLOGY: "¿Ya tienes una ontología y quieres alinearla con el DPV?",
+    MODE_LAW: "¿Quieres crear una ontología a partir de un texto legal?",
+    MODE_BOTH: "¿Tienes las dos y quieres ver los artículos de la ley más cercanos a cada "
+               "concepto?",
 }
+MODE_ICONS = {MODE_ONTOLOGY: ":material/schema:", MODE_LAW: ":material/gavel:",
+              MODE_BOTH: ":material/join_inner:"}
+# Step 2: the uploaders and the line under them while they wait.
+UPLOAD_LABELS = {KIND_ONTOLOGY: "Tu ontología (.rdf, .owl, .ttl o .jsonld)",
+                 KIND_LAW: "Tu ley (.txt o .pdf)"}
 MODE_WAIT = {
-    MODE_ONTOLOGY: "Sube un archivo para empezar. La alineación arranca sola y tarda desde unos "
-                   "segundos hasta pocos minutos, según el tamaño de tu ontología.",
-    MODE_LAW: "Sube tu ley (.txt o PDF) para empezar. Tarda más que con una ontología: la IA "
-              "lee la ley por partes (unos minutos para una ley del tamaño del GDPR).",
-    MODE_BOTH: "Sube tu ontología y tu ley para empezar; arranca sola cuando estén las dos. "
-               "Tarda casi lo mismo que alinear solo tu ontología.",
+    MODE_ONTOLOGY: "Arranca sola al subir tu ontología. Tarda de unos segundos a pocos minutos, "
+                   "según su tamaño.",
+    MODE_LAW: "Arranca sola al subir tu ley. Tarda más que con una ontología: la IA la lee por "
+              "partes (unos minutos para una ley del tamaño del GDPR).",
+    MODE_BOTH: "Arranca sola cuando estén los dos archivos. Tarda casi lo mismo que alinear "
+               "solo tu ontología.",
 }
+# What happens with the files (the "¿Qué sucede con mis datos?" box of steps 1 and 2).
+DATA_NOTE = (
+    "- Lo que subes se guarda en un espacio de trabajo propio en el servidor. Si subes el mismo "
+    "archivo otra vez, se reutiliza lo ya calculado.\n"
+    "- Para decidir la alineación y completar las etiquetas, el sistema envía a la IA (Gemini, "
+    "de Google) los nombres, las etiquetas y las definiciones de tus conceptos. Si eliges "
+    "«Una ley», también le envía el texto de la ley, por partes.\n"
+    "- Tu archivo nunca se modifica: la alineación y las etiquetas van en módulos aparte que lo "
+    "importan.\n"
+    "- La base del sistema (OntoPriv y la LOPDP) no cambia con lo que subes."
+)
 MODE_RUNNING = {MODE_ONTOLOGY: "Alineando tu ontología…",
                 MODE_LAW: "Convirtiendo tu ley en una ontología alineada…",
                 MODE_BOTH: "Alineando tu ontología y buscando sus artículos en la ley…"}
@@ -378,3 +372,74 @@ def download(ws_id: str, fmt: str) -> dict:
 def zip_names(data: bytes) -> list[str]:
     import zipfile
     return zipfile.ZipFile(io.BytesIO(data)).namelist()
+
+
+# ------------------------------------------------------------------ step 3 of the assistant (S8-T01)
+
+REVIEW_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Confianza de la IA",
+                  "Justificación"]
+
+
+def summary_line(v: dict) -> str:
+    """The line of the success banner: what was uploaded and what came out."""
+    return (f"{v['file']} · {_n(v['concepts'], 'concepto', 'conceptos')} · "
+            f"{_n(v['mappings'], 'correspondencia', 'correspondencias')} con el DPV")
+
+
+def notes(v: dict) -> list[str]:
+    """The AI warnings, shown under the banner: they change what the person gets."""
+    return [n for n in (v["extraction_note"], v["ai_note"], v["labels_note"]) if n]
+
+
+def summary_captions(v: dict) -> list[str]:
+    """The lines of the "Resumen" tab, under the five numbers."""
+    out = [f"{v['mode_label']} · {_n(v['concepts'], 'concepto', 'conceptos')} · "
+           f"{_n(v['mappings'], 'correspondencia', 'correspondencias')} en la ontología "
+           f"({v['validated_mappings']} de la base y {v['accepted_mappings']} aceptadas por la "
+           f"regla) · {v['suggested']} sugeridas fuera de la ontología · versión {v['version']}"]
+    out += [line for line in (v["profile"], f"Regla: {v['rule']}." if v["rule"] else None,
+                              v["labels"]) if line]
+    if v["iri_generated"]:
+        out.append("Tu ontología no declaraba un IRI de ontología: se le asignó uno en la copia "
+                   "del paquete (tu archivo original no cambia).")
+    return out
+
+
+def package_caption(v: dict) -> str:
+    """The line under the four download buttons."""
+    core = " y OntoPriv-Core, que tu ontología importa" if v["core"] else ""
+    return (f"Cada .zip trae tu ontología con sus módulos{core}, alignment.csv y un catálogo "
+            "para abrirla en Protégé. Protégé 5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL "
+            "o Turtle.")
+
+
+def suggested_rows(rows: list[dict]) -> list[dict]:
+    """What the AI proposed with high confidence and the rule left out ("Para revisar")."""
+    return [{c: r.get(c, "") for c in REVIEW_COLUMNS}
+            for r in filter_rows(rows, STATE_LABELS[ua.SUGGESTED])]
+
+
+def evidence_rows(rows: list[dict]) -> list[dict]:
+    """One row per concept with the articles of the law to review ("Mi ontología y una ley")."""
+    out = {}
+    for r in rows:
+        if r.get("Artículos de la ley") and r["Concepto"] not in out:
+            out[r["Concepto"]] = {"Concepto": r["Concepto"], "Estado": r["Estado"],
+                                  "Artículos de la ley": r["Artículos de la ley"]}
+    return list(out.values())
+
+
+def package_bytes(ws_id: str, fmt: str, cfg: dict | None = None) -> bytes:
+    """The zip of ``ws_id`` in ``fmt``, built now (what a download button calls when clicked)."""
+    return ua.build_user_package(load_workspace(ws_id, cfg=cfg), fmt).data
+
+
+def download_options(ws_id: str) -> list[dict]:
+    """The four download buttons of step 3, one per format: the short name on the button
+    ("OWL"), the full one in its help ("OWL (RDF/XML)"). Nothing is built here: ``data`` is a
+    function that Streamlit calls only when the person clicks that button."""
+    cfg = workspace_cfg()
+    ws = load_workspace(ws_id, cfg=cfg)
+    return [{"key": key, "label": label.split(" (")[0], "help": label,
+             "file_name": ua.package_name(ws, key),
+             "data": partial(package_bytes, ws_id, key, cfg)} for key, label in FORMATS]
