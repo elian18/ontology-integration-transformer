@@ -1,9 +1,11 @@
-"""S6-T08 + S7-T06 + S7-T08 + S7-T12: the "Alinear con el DPV" page (service + the page with
-AppTest), in its three modes: "Mi ontología", "Una ley" and "Mi ontología y una ley".
+"""S6-T08 + S7-T06 + S7-T08 + S7-T12 + S8-T01: the "Asistente de alineación" page (service +
+the page with AppTest), in its three modes: "Mi ontología", "Una ley" and "Mi ontología y una
+ley", and its three steps: choose, upload, download.
 
 AppTest cannot drive a file uploader, so the upload itself is tested through the service
-(``align`` and ``run``) and the page is run with the workspace id already in the session,
-exactly what the page stores after an upload."""
+(``align`` and ``run``), step 3 is run with the workspace id already in the session (exactly
+what the page stores after an upload) and the ``live`` fixture replaces the uploader with one
+that returns the files of the test."""
 from __future__ import annotations
 
 import importlib
@@ -123,6 +125,12 @@ def test_the_modes_and_what_each_one_needs():
     assert svc.MODES == {"ontology": "Mi ontología", "law": "Una ley",
                          "ontology+law": "Mi ontología y una ley"}
     assert set(svc.MODE_HELP) == set(svc.MODE_WAIT) == set(svc.MODE_RUNNING) == set(svc.MODES)
+    assert set(svc.MODE_ICONS) == set(svc.MODES)
+    assert all(q.startswith("¿") and q.endswith("?") for q in svc.MODE_HELP.values())
+    assert all(t.startswith("Arranca sola") for t in svc.MODE_WAIT.values())
+    assert svc.UPLOAD_LABELS == {"ontology": "Tu ontología (.rdf, .owl, .ttl o .jsonld)",
+                                 "law": "Tu ley (.txt o .pdf)"}
+    assert "Gemini" in svc.DATA_NOTE and "nunca se modifica" in svc.DATA_NOTE
     one = ("a.ttl", b"x")
     assert svc.ready("ontology", {"ontology": one}) and not svc.ready("ontology", {})
     assert svc.ready("law", {"law": one}) and not svc.ready("law", {"ontology": one})
@@ -319,14 +327,69 @@ def test_a_workspace_of_v060_asks_to_upload_again(aligned):
         svc.view(aligned[0])
 
 
-def test_page_is_first_in_the_navigation():
+def test_step_3_texts():
+    v = {"file": "Mi GDPR.ttl", "concepts": 1, "mappings": 1, "validated_mappings": 1,
+         "accepted_mappings": 0, "suggested": 0, "version": 1, "mode_label": "Mi ontología",
+         "extraction_note": None, "ai_note": "nota de la IA", "labels_note": "nota de etiquetas",
+         "profile": None, "rule": None, "labels": None, "iri_generated": True, "core": False}
+    assert svc.summary_line(v) == "Mi GDPR.ttl · 1 concepto · 1 correspondencia con el DPV"
+    assert svc.notes(v) == ["nota de la IA", "nota de etiquetas"]
+    captions = svc.summary_captions(v)
+    assert captions[0] == ("Mi ontología · 1 concepto · 1 correspondencia en la ontología (1 de "
+                           "la base y 0 aceptadas por la regla) · 0 sugeridas fuera de la "
+                           "ontología · versión 1")
+    assert len(captions) == 2 and captions[1].startswith("Tu ontología no declaraba un IRI")
+    assert "OntoPriv-Core" not in svc.package_caption(v)
+    assert "y OntoPriv-Core, que tu ontología importa," in svc.package_caption({**v, "core": True})
+    assert "Protégé 5.6 no abre JSON-LD" in svc.package_caption(v)
+
+
+def test_the_four_zips_are_built_only_when_asked(aligned, monkeypatch):
+    ws_id, _ = aligned
+    built, real = [], svc.ua.build_user_package
+    monkeypatch.setattr(svc.ua, "build_user_package",
+                        lambda ws, fmt: built.append(fmt) or real(ws, fmt))
+    options = svc.download_options(ws_id)
+    assert [(o["key"], o["help"]) for o in options] == svc.FORMATS
+    assert [o["label"] for o in options] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert options[1]["help"] == "OWL (RDF/XML)"
+    assert [o["file_name"] for o in options] == [f"mi-gdpr-alineada-{k}.zip"
+                                                 for k, _ in svc.FORMATS]
+    assert built == []                                    # nothing built until a click
+    for o in options:
+        names = svc.zip_names(o["data"]())
+        assert "alignment.csv" in names and "catalog-v001.xml" in names
+    assert built == [k for k, _ in svc.FORMATS]
+
+
+def test_what_is_left_to_review(aligned):
+    v = svc.view(aligned[0])
+    suggested = svc.suggested_rows(v["rows"])
+    assert len(suggested) == 1 and list(suggested[0]) == svc.REVIEW_COLUMNS
+    assert suggested[0]["Relación"] == "skos:relatedMatch"
+    assert svc.evidence_rows(v["rows"]) == []
+
+
+def test_the_articles_to_review_come_once_per_concept(both_aligned):
+    rows = svc.view(both_aligned[0])["rows"]
+    evidence = svc.evidence_rows(rows)
+    assert len(rows) == 5 and len(evidence) == 4          # Consent has two correspondences
+    assert list(evidence[0]) == ["Concepto", "Estado", "Artículos de la ley"]
+    assert len({r["Concepto"] for r in evidence}) == 4
+
+
+def test_the_assistant_is_the_default_page_of_the_menu():
     text = (ROOT / "app/app.py").read_text(encoding="utf-8")
-    assert '"Tu ontología": [' in text and '"Construcción de la base": [' in text
+    assert 'title="Asistente de alineación"' in text and text.count("default=True") == 1
+    assert text.index("views/align_ontology.py") < text.index("default=True")
     assert text.index("views/align_ontology.py") < text.index("views/inputs.py")
-    assert 'title="Alinear con el DPV"' in text
+    assert "views/home.py" not in text and not (ROOT / "app/views/home.py").exists()
 
 
 # ------------------------------------------------------------------ the page (AppTest)
+
+TITLE = "Transforma y alinea tu ontología de privacidad"
+
 
 @pytest.fixture
 def page(cfg, monkeypatch):  # noqa: F811
@@ -349,52 +412,79 @@ def _uploader_ids(at) -> list[str]:
     return [e.proto.id for e in at.get("file_uploader")]
 
 
-def test_page_without_upload_explains_what_to_do(page):
+def _boxes(at) -> list[str]:
+    """Labels of the expanders (AppTest lists an expander with an icon as a status box)."""
+    return [e.label for e in [*at.expander, *at.status]]
+
+
+def _pick(at, mode: str) -> None:
+    at.button(key=f"align_pick_{mode}").click().run()
+
+
+def _titles(at) -> list[str]:
+    return [t.value for t in at.title]
+
+
+def test_step_1_asks_what_the_person_has(page):
     at = page()
     at.run()
     assert not at.exception
-    assert any("Sube un archivo para empezar" in i.value for i in at.info)
+    assert _titles(at) == [TITLE]
+    picks = [b for b in at.button if b.key.startswith("align_pick_")]
+    assert [b.key for b in picks] == [f"align_pick_{m}" for m in svc.MODES]
+    assert {b.label for b in picks} == {"Empezar"}
+    text = " ".join(m.value for m in at.markdown)
+    for mode, label in svc.MODES.items():
+        assert label in text and svc.MODE_HELP[mode] in text
+    assert "¿Qué sucede con mis datos?" in _boxes(at)
+    assert not _uploaders(at) and not at.download_button and not at.info
+
+
+def test_step_2_asks_for_the_files_of_the_mode(page):
+    at = page()
+    at.run()
+    _pick(at, "law")
+    assert not at.exception
+    assert _titles(at) == ["Una ley"]
+    assert _uploaders(at) == ["Tu ley (.txt o .pdf)"]
+    assert [c.value for c in at.caption] == [svc.MODE_WAIT["law"]]
+    at.button(key="align_back").click().run()
+    assert _titles(at) == [TITLE] and not _uploaders(at)
+    _pick(at, "ontology+law")
+    assert _titles(at) == ["Mi ontología y una ley"]
+    assert _uploaders(at) == ["Tu ontología (.rdf, .owl, .ttl o .jsonld)", "Tu ley (.txt o .pdf)"]
+    assert [c.value for c in at.caption] == [svc.MODE_WAIT["ontology+law"]]
     assert not at.download_button
-    mode = at.radio(key="align_mode")
-    assert mode.options == ["Mi ontología", "Una ley", "Mi ontología y una ley"]
-    assert mode.value == "ontology"
-    assert _uploaders(at) == ["Tu ontología: RDF/XML (.rdf, .owl), Turtle (.ttl) o JSON-LD "
-                              "(.jsonld)"]
 
 
-def test_each_mode_asks_for_its_files(page):
-    at = page()
-    at.run()
-    at.radio(key="align_mode").set_value("law").run()
-    assert not at.exception
-    assert _uploaders(at) == ["Tu ley: texto (.txt) o PDF"]
-    assert [i.value for i in at.info] == [svc.MODE_WAIT["law"]]
-    at.radio(key="align_mode").set_value("ontology+law").run()
-    assert _uploaders(at) == ["Tu ontología: RDF/XML (.rdf, .owl), Turtle (.ttl) o JSON-LD "
-                              "(.jsonld)", "Tu ley: texto (.txt) o PDF"]
-    assert [i.value for i in at.info] == [svc.MODE_WAIT["ontology+law"]]
-
-
-def test_changing_the_mode_gives_new_uploaders(page):
+def test_going_back_gives_new_uploaders(page):
     """Streamlit keeps the file of an uploader that was hidden for one run; with the same key,
     coming back to a mode would start a long run (and AI calls) with a file the person no
-    longer sees."""
+    longer sees (S7-T12)."""
     at = page()
     at.run()
+    _pick(at, "ontology")
     first = _uploader_ids(at)
     at.run()
-    assert _uploader_ids(at) == first                        # same mode: same uploader
-    at.radio(key="align_mode").set_value("law").run()
-    at.radio(key="align_mode").set_value("ontology").run()
+    assert _uploader_ids(at) == first                     # same step: same uploader
+    at.button(key="align_back").click().run()
+    assert not _uploader_ids(at)
+    _pick(at, "ontology")
     assert len(_uploader_ids(at)) == 1 and _uploader_ids(at) != first
     assert at.session_state["align_round"] == 3
 
 
-def test_page_shows_the_result_and_the_download(page, aligned):
+def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     at = page()
     at.session_state["align_ws"] = aligned[0]
     at.run()
-    assert not at.exception
+    assert not at.exception and not at.warning
+    assert at.success[0].proto.title == "Tu ontología está lista"
+    assert at.success[0].value == "Mi GDPR.ttl · 4 conceptos · 3 correspondencias con el DPV"
+    assert [d.label for d in at.download_button] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in at.download_button)
+    assert any("Protégé 5.6 no abre JSON-LD" in c.value for c in at.caption)
+    assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar"]
     assert [m.label for m in at.metric] == ["Validadas en la base", "Aceptadas automáticamente",
                                             "Sugeridas", "Sin correspondencia", "Sin propuesta"]
     assert [m.value for m in at.metric] == ["1", "1", "1", "1", "0"]
@@ -403,15 +493,12 @@ def test_page_shows_the_result_and_the_download(page, aligned):
     assert any(c.value.startswith("Regla: confianza alta") for c in at.caption)
     assert any(c.value.startswith("Etiquetas en español e inglés: 0 conceptos ya las tenían; "
                                   "la IA completó las de 4") for c in at.caption)
-    assert not at.warning
-    assert at.radio(key="align_fmt").value == "Turtle"
-    assert at.download_button[0].label == "Descargar ontología alineada (Turtle, .zip)"
-    assert any("mi-gdpr-dpv-alignment.ttl" in c.value for c in at.caption)
-    at.radio(key="align_fmt").set_value("JSON-LD").run()
-    assert at.download_button[0].label == "Descargar ontología alineada (JSON-LD, .zip)"
-    assert any("Protégé 5.6 no abre JSON-LD" in i.value for i in at.info)
+    assert not at.get("balloons")                         # only right after a new alignment
     at.selectbox(key="align_filter").set_value("Validada en la base").run()
     assert len(at.dataframe[0].value) == 2
+    assert list(at.dataframe[1].value.columns) == svc.REVIEW_COLUMNS     # "Para revisar"
+    at.button(key="align_again").click().run()           # "Alinear otro archivo"
+    assert _titles(at) == [TITLE] and "align_ws" not in at.session_state
 
 
 def test_page_warns_when_the_ai_left_labels_pending(page, env, targets, monkeypatch):
@@ -434,11 +521,11 @@ def test_page_shows_what_was_built_from_a_law(page, law_aligned):
     at.session_state["align_ws"] = law_aligned[0]
     at.run()
     assert not at.exception
+    assert at.success[0].value.startswith("Perfil de Ley de prueba.txt · 5 conceptos")
     captions = [c.value for c in at.caption]
     assert any(c.startswith("Una ley · 5 conceptos") for c in captions)
     assert any(c.startswith("De Ley de prueba.txt: la IA extrajo 6 conceptos") for c in captions)
-    assert any("El paquete incluye OntoPriv-Core, que tu ontología importa." in c
-               for c in captions)
+    assert any("y OntoPriv-Core, que tu ontología importa" in c for c in captions)
     assert not at.warning
     from src.core.law_concepts import RESULT_FILE
     from src.workspace.store import load_workspace
@@ -462,19 +549,19 @@ def test_page_shows_the_articles_to_review(page, both_aligned):
     assert any(c.startswith("Mi ontología y una ley · 4 conceptos") for c in captions)
     assert any(c.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in captions)
     assert not any("OntoPriv-Core" in c for c in captions)
-    assert "Artículos de la ley" in list(at.dataframe[0].value.columns)
+    columns = [list(d.value.columns) for d in at.dataframe]
+    assert "Artículos de la ley" in columns[0]                           # "Conceptos"
+    assert ["Concepto", "Estado", "Artículos de la ley"] in columns      # "Para revisar"
 
 
-def test_home_presents_the_three_modes():
+def test_the_assistant_opens_by_default():
     pytest.importorskip("streamlit.testing.v1")
     from streamlit.testing.v1 import AppTest
-    at = AppTest.from_file(str(ROOT / "app/app.py"), default_timeout=30)    # home: default page
+    at = AppTest.from_file(str(ROOT / "app/app.py"), default_timeout=30)
     at.run()
     assert not at.exception
-    text = " ".join(m.value for m in at.markdown)
-    for label in svc.MODES.values():
-        assert f"**{label}**" in text
-    assert "Alinear con el DPV" in text
+    assert _titles(at) == [TITLE]
+    assert len([b for b in at.button if b.key.startswith("align_pick_")]) == 3
 
 
 class _Upload:
@@ -515,30 +602,40 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     page, uploads = live
     at = page()
     at.run()
-    at.radio(key="align_mode").set_value("ontology+law").run()
+    _pick(at, "ontology+law")
     uploads["ontology"] = ("Mi GDPR.ttl", TTL.encode("utf-8"))
     at.run()
-    assert [i.value for i in at.info] == [
+    assert [c.value for c in at.caption] == [
         "Falta tu ley: la alineación arranca cuando estén las dos."]
-    assert not at.download_button
+    assert not at.download_button and not at.status[1:]
     uploads["law"] = ("ley.txt", LAW_E2E.encode("utf-8"))
     at.run()
-    assert not at.exception and not at.error
-    assert any(c.value.startswith("Mi ontología y una ley · 4 conceptos") for c in at.caption)
+    assert not at.exception and not at.error and not at.warning
+    assert at.success[0].value.startswith("Mi GDPR.ttl · 4 conceptos")
+    assert [d.label for d in at.download_button] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert any(c.value.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in at.caption)
-    assert at.download_button[0].label == "Descargar ontología alineada (Turtle, .zip)"
     assert at.session_state["align_ws"].startswith("mi-gdpr-")
+    assert len(at.get("balloons")) == 1                   # a clean new alignment
+    at.run()
+    assert not at.get("balloons")                         # only once
 
 
-def test_the_page_says_why_it_could_not_finish(live):
+def test_a_failure_is_shown_and_not_repeated(live, monkeypatch):
     page, uploads = live
+    view_svc = importlib.import_module("services.align_ontology")
+    calls, real = [], view_svc.run
+    monkeypatch.setattr(view_svc, "run", lambda *a, **k: calls.append(1) or real(*a, **k))
     at = page()
     at.run()
-    at.radio(key="align_mode").set_value("law").run()
+    _pick(at, "law")
     uploads["law"] = ("ley.docx", b"texto")
     at.run()
     assert not at.exception and not at.download_button
     assert [e.value for e in at.error] == ["El texto de ley debe ser .txt o .pdf (llegó '.docx')."]
+    at.run()                                              # any rerun: the same file waits
+    assert len(calls) == 1 and len(at.error) == 1
+    at.button(key="align_retry").click().run()           # the person asks for it
+    assert len(calls) == 2 and len(at.error) == 1
 
 
 def test_page_reports_a_broken_workspace(page):
@@ -547,6 +644,8 @@ def test_page_reports_a_broken_workspace(page):
     at.run()
     assert not at.exception
     assert any("No existe el espacio de trabajo" in e.value for e in at.error)
+    at.button(key="align_again").click().run()
+    assert _titles(at) == [TITLE]
 
 
 def test_upload_limit_matches_the_workspace_limit():
