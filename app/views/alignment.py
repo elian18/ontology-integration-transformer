@@ -1,30 +1,25 @@
-"""Alignment view: review the DPV correspondences (Sprint 5, S5-T05) + candidates table (S4-T10).
-
-Tab "Revisar correspondencias": one card per concept with its DPV candidates. For each one the
-person CHOOSES the SKOS type (empty by default: the AI type is shown only as a suggestion) and
-approves or discards it; they can also search another DPV term or mark the concept as having no
-DPV counterpart. Every click goes to the decisions log (S5-T01) through
-services.mapping_review. Tab "Confirmar propuestas del asistente" (S5-T08): the assistant's
-proposals for the concepts still open, as an editable table per family; nothing is recorded
-until the person confirms the batch, and then in their name with the proposal as provenance.
-Tab "Grafo alineado" (S5-T07): writes the aligned graph once nothing is pending and offers it
-for download (the graph, the manifest, the CSV and a zip that opens in Protégé). S6-T03: the
-person picks the format of that zip (RDF/XML, OWL, Turtle or JSON-LD).
-Tab "Tabla de candidatos": the Sprint 4 table, unchanged."""
 import pandas as pd
 import streamlit as st
 from services import alignment
+from services import base_access as access
 from services import mapping_review as mr
 from services import alignment_graph as ag
 
+can_edit = access.editable()
+
 st.header("Alineación con el DPV")
-st.write(
-    "Para cada concepto (de OntoPriv o nuevo de la IA) están los 3 términos del DPV más "
-    "parecidos. **Tú eliges el tipo SKOS** y apruebas o descartas cada uno; el tipo que "
-    "propone la IA es solo una sugerencia (en la medición del Sprint 4 acertó el 25 %). Si "
-    "ninguno sirve, busca otro término del DPV o marca el concepto como **sin "
-    "correspondencia**. Cada decisión queda registrada con tu nombre y la fecha."
-)
+if can_edit:
+    st.write(
+        "Para cada concepto (de OntoPriv o nuevo de la IA) están los 3 términos del DPV más "
+        "parecidos. **Tú eliges el tipo SKOS** y apruebas o descartas cada uno; el tipo que "
+        "propone la IA es solo una sugerencia (en la medición del Sprint 4 acertó el 25 %). Si "
+        "ninguno sirve, busca otro término del DPV o marca el concepto como **sin "
+        "correspondencia**. Cada decisión queda registrada con tu nombre y la fecha."
+    )
+else:
+    st.write("Las correspondencias con el DPV que una persona decidió para cada concepto de la "
+             "base (OntoPriv + LOPDP).")
+    st.info(access.READ_ONLY_NOTE, icon=":material/lock:")
 
 
 @st.cache_resource(show_spinner="Cargando el DPV para la búsqueda…")
@@ -45,9 +40,10 @@ flash_warn = st.session_state.pop("mr_flash_warn", None)
 if flash_warn:
     st.warning(flash_warn)
 
-if "reviewer" not in st.session_state:
-    st.session_state["reviewer"] = state["settings"]["reviewer"]
-st.text_input("Revisor (queda registrado en cada decisión)", key="reviewer")
+if can_edit:
+    if "reviewer" not in st.session_state:
+        st.session_state["reviewer"] = state["settings"]["reviewer"]
+    st.text_input("Revisor (queda registrado en cada decisión)", key="reviewer")
 reviewer = st.session_state.get("reviewer", "")
 
 tab_review, tab_assist, tab_graph, tab_table = st.tabs(["Revisar correspondencias",
@@ -82,7 +78,8 @@ with tab_review:
 
     st.divider()
     f1, f2, f3, f4 = st.columns([1, 1, 1.4, 1.6])
-    status_label = f1.selectbox("Estado", list(mr.STATUS_FILTERS))
+    status_label = f1.selectbox("Estado", list(mr.STATUS_FILTERS),
+                                index=0 if can_edit else list(mr.STATUS_FILTERS).index("Todos"))
     origin_label = f2.selectbox("Origen", list(mr.ORIGIN_FILTERS))
     family = f3.selectbox("Familia (OntoPriv)", ["Todas"] + mr.families(state))
     query = f4.text_input("Buscar", placeholder="concepto, etiqueta o término del DPV")
@@ -159,69 +156,71 @@ with tab_review:
                         rel = f" como {mr.relation_text(card['relation'])}" if card["relation"] else ""
                         st.success(f"{card['state_label'].capitalize()}{rel} · por {card['reviewer']}")
 
-                    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
-                    choice = c1.selectbox("Tipo SKOS", list(relations), index=None,
-                                          placeholder="elige el tipo SKOS",
-                                          key=f"rel_{selected}_{i}",
-                                          label_visibility="collapsed")
-                    if c2.button("Aprobar", key=f"ok_{selected}_{i}", type="primary",
-                                 width="stretch", disabled=choice is None):
-                        ok, msg = mr.apply_approve(state, selected, card["dpv_iri"],
-                                                   relations[choice], reviewer)
-                        _done(ok, msg)
-                    if c3.button("Descartar", key=f"no_{selected}_{i}", width="stretch",
-                                 disabled=card["state"] == "rejected"):
-                        ok, msg = mr.apply_reject(state, selected, card["dpv_iri"], reviewer)
-                        _done(ok, msg)
-                    if c4.button("Deshacer", key=f"undo_{selected}_{i}", width="stretch",
-                                 disabled=card["state"] == "pending"):
-                        ok, msg = mr.apply_undo(state, selected, reviewer, card["dpv_iri"])
-                        _done(ok, msg)
-
-            with st.expander("Buscar otro término del DPV (fuera de los 3 candidatos)"):
-                text = st.text_input("Texto a buscar (en inglés)", key=f"q_{selected}",
-                                     placeholder="p. ej. impact assessment, turnover")
-                if text.strip():
-                    targets = _dpv_targets()
-                    hits = mr.search(state, targets, selected, text) if targets else []
-                    if not hits:
-                        st.caption("Sin resultados compatibles con el tipo del concepto.")
-                    else:
-                        by_iri = {t.iri: t for t in hits}
-                        iri = st.selectbox("Término del DPV", list(by_iri),
-                                           format_func=lambda x: f"{by_iri[x].name} · "
-                                                                 f"{by_iri[x].label}",
-                                           key=f"hit_{selected}")
-                        if by_iri[iri].definition:
-                            st.caption(by_iri[iri].definition)
-                        s1, s2 = st.columns([2, 1])
-                        s_choice = s1.selectbox("Tipo SKOS", list(relations), index=None,
-                                                placeholder="elige el tipo SKOS",
-                                                key=f"srel_{selected}")
-                        if s2.button("Aprobar este término", key=f"sok_{selected}",
-                                     type="primary", width="stretch", disabled=s_choice is None):
-                            ok, msg = mr.apply_approve(state, selected, iri,
-                                                       relations[s_choice], reviewer,
-                                                       target=by_iri[iri])
+                    if can_edit:
+                        c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
+                        choice = c1.selectbox("Tipo SKOS", list(relations), index=None,
+                                              placeholder="elige el tipo SKOS",
+                                              key=f"rel_{selected}_{i}",
+                                              label_visibility="collapsed")
+                        if c2.button("Aprobar", key=f"ok_{selected}_{i}", type="primary",
+                                     width="stretch", disabled=choice is None):
+                            ok, msg = mr.apply_approve(state, selected, card["dpv_iri"],
+                                                       relations[choice], reviewer)
+                            _done(ok, msg)
+                        if c3.button("Descartar", key=f"no_{selected}_{i}", width="stretch",
+                                     disabled=card["state"] == "rejected"):
+                            ok, msg = mr.apply_reject(state, selected, card["dpv_iri"], reviewer)
+                            _done(ok, msg)
+                        if c4.button("Deshacer", key=f"undo_{selected}_{i}", width="stretch",
+                                     disabled=card["state"] == "pending"):
+                            ok, msg = mr.apply_undo(state, selected, reviewer, card["dpv_iri"])
                             _done(ok, msg)
 
-            note = st.text_input("Nota (opcional, se guarda con 'Sin correspondencia')",
-                                 key=f"note_{selected}")
-            n1, n2, n3 = st.columns(3)
-            if status == mr.STATUS_NO_MATCH:
-                if n1.button("Deshacer 'sin correspondencia'", width="stretch"):
-                    ok, msg = mr.apply_undo(state, selected, reviewer)
-                    _done(ok, msg)
-            elif n1.button("Sin correspondencia en el DPV", width="stretch",
-                           disabled=status == mr.STATUS_ALIGNED):
-                ok, msg = mr.apply_no_match(state, selected, reviewer, note=note)
-                _done(ok, msg, mr.next_pending(state, after_key=selected))
-            if n2.button("Listo · siguiente pendiente", type="primary", width="stretch",
-                         disabled=status == mr.STATUS_PENDING):
-                nxt = mr.next_pending(state, after_key=selected)
-                if nxt:
-                    st.session_state["mr_selected"] = nxt
-                st.rerun()
+            if can_edit:
+                with st.expander("Buscar otro término del DPV (fuera de los 3 candidatos)"):
+                    text = st.text_input("Texto a buscar (en inglés)", key=f"q_{selected}",
+                                         placeholder="p. ej. impact assessment, turnover")
+                    if text.strip():
+                        targets = _dpv_targets()
+                        hits = mr.search(state, targets, selected, text) if targets else []
+                        if not hits:
+                            st.caption("Sin resultados compatibles con el tipo del concepto.")
+                        else:
+                            by_iri = {t.iri: t for t in hits}
+                            iri = st.selectbox("Término del DPV", list(by_iri),
+                                               format_func=lambda x: f"{by_iri[x].name} · "
+                                                                     f"{by_iri[x].label}",
+                                               key=f"hit_{selected}")
+                            if by_iri[iri].definition:
+                                st.caption(by_iri[iri].definition)
+                            s1, s2 = st.columns([2, 1])
+                            s_choice = s1.selectbox("Tipo SKOS", list(relations), index=None,
+                                                    placeholder="elige el tipo SKOS",
+                                                    key=f"srel_{selected}")
+                            if s2.button("Aprobar este término", key=f"sok_{selected}",
+                                         type="primary", width="stretch", disabled=s_choice is None):
+                                ok, msg = mr.apply_approve(state, selected, iri,
+                                                           relations[s_choice], reviewer,
+                                                           target=by_iri[iri])
+                                _done(ok, msg)
+
+                note = st.text_input("Nota (opcional, se guarda con 'Sin correspondencia')",
+                                     key=f"note_{selected}")
+                n1, n2, n3 = st.columns(3)
+                if status == mr.STATUS_NO_MATCH:
+                    if n1.button("Deshacer 'sin correspondencia'", width="stretch"):
+                        ok, msg = mr.apply_undo(state, selected, reviewer)
+                        _done(ok, msg)
+                elif n1.button("Sin correspondencia en el DPV", width="stretch",
+                               disabled=status == mr.STATUS_ALIGNED):
+                    ok, msg = mr.apply_no_match(state, selected, reviewer, note=note)
+                    _done(ok, msg, mr.next_pending(state, after_key=selected))
+                if n2.button("Listo · siguiente pendiente", type="primary", width="stretch",
+                             disabled=status == mr.STATUS_PENDING):
+                    nxt = mr.next_pending(state, after_key=selected)
+                    if nxt:
+                        st.session_state["mr_selected"] = nxt
+                    st.rerun()
         st.caption(f"Registro de decisiones: {state['log_path']}")
 
 with tab_assist:
@@ -229,14 +228,15 @@ with tab_assist:
     if assist is None:
         st.info("No hay propuestas del asistente (data/review/assistant-proposals.json).")
     else:
-        st.warning(
-            "Estas son **propuestas del asistente, no decisiones**. Nada entra al registro "
-            "hasta que confirmas el lote; entonces queda **a tu nombre**, con la nota "
-            "«propuesta del asistente confirmada» y la propuesta original como procedencia. "
-            "Lee cada fila (término del DPV, tipo SKOS y razón): si no te convence, cambia el "
-            "tipo, márcala «Sin correspondencia» o déjala en «Omitir» y revísala luego en la "
-            "pestaña «Revisar correspondencias»."
-        )
+        if can_edit:
+            st.warning(
+                "Estas son **propuestas del asistente, no decisiones**. Nada entra al registro "
+                "hasta que confirmas el lote; entonces queda **a tu nombre**, con la nota "
+                "«propuesta del asistente confirmada» y la propuesta original como procedencia. "
+                "Lee cada fila (término del DPV, tipo SKOS y razón): si no te convence, cambia el "
+                "tipo, márcala «Sin correspondencia» o déjala en «Omitir» y revísala luego en la "
+                "pestaña «Revisar correspondencias»."
+            )
         meta, prov = assist["metadata"], assist["provenance"]
         st.caption(f"Propuestas de: {meta.get('assistant') or '-'} · "
                    f"{meta.get('created_at') or '-'} · {assist['path']}")
@@ -245,7 +245,9 @@ with tab_assist:
         k2.metric("Revisados por ti solo", prov["reviewed_by_person"])
         k3.metric("Confirmados desde propuestas", prov["confirmed_from_assistant"])
         k4.metric("Cambiados por ti", prov["changed_by_person"])
-        if not assist["open"]:
+        if not can_edit:
+            st.info(access.READ_ONLY_NOTE, icon=":material/lock:")
+        elif not assist["open"]:
             st.success("No quedan propuestas abiertas: todos sus conceptos ya tienen decisión.")
         else:
             fams = mr.proposal_families(assist)
@@ -296,19 +298,24 @@ with tab_assist:
                     st.error(msg)
 
 with tab_graph:
-    st.write(
-        "Cuando no queda nada por validar, escribe el grafo con las correspondencias "
-        "aprobadas. Es un módulo aparte que importa el perfil de Ecuador (y este el núcleo); "
-        "el DPV no se importa, se referencia por IRI. El núcleo y el perfil no cambian."
-    )
+    if can_edit:
+        st.write(
+            "Cuando no queda nada por validar, escribe el grafo con las correspondencias "
+            "aprobadas. Es un módulo aparte que importa el perfil de Ecuador (y este el núcleo); "
+            "el DPV no se importa, se referencia por IRI. El núcleo y el perfil no cambian."
+        )
+    else:
+        st.write("El grafo alineado de la base: un módulo aparte que importa el perfil de "
+                 "Ecuador (y este el núcleo). Descárgalo en el formato que necesites.")
     paths = mr.default_paths()
     ready = ag.readiness(state)
     (st.success if ready["ready"] else st.info)(ready["message"])
-    if st.button("Escribir grafo alineado", type="primary", disabled=not ready["ready"],
-                 key="ag_write"):
-        with st.spinner("Escribiendo el grafo…"):
-            ok, msg = ag.write_graph(paths)
-        (st.success if ok else st.error)(msg)
+    if can_edit:
+        if st.button("Escribir grafo alineado", type="primary", disabled=not ready["ready"],
+                     key="ag_write"):
+            with st.spinner("Escribiendo el grafo…"):
+                ok, msg = ag.write_graph(paths)
+            (st.success if ok else st.error)(msg)
 
     if not ag.graph_exists(paths):
         st.caption("Todavía no se ha escrito el grafo.")
