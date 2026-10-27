@@ -1,4 +1,3 @@
-"""S5-T03: the "Aprobar conceptos IA" page (service logic + the page itself with AppTest)."""
 import importlib
 import json
 import sys
@@ -162,15 +161,28 @@ def page(tmp_path, monkeypatch):
     app_dir = str(ROOT / "app")
     if app_dir not in sys.path:
         sys.path.insert(0, app_dir)
-    # The view imports "services.concept_review" (app/ on sys.path, as app/app.py does), which is
-    # a different module object from "app.services.concept_review"; patch the one the view uses.
-    # Imported by name at run time because app/ is only on the path while the tests run.
-    view_service = importlib.import_module("services.concept_review")
+    view_service = importlib.import_module("services.concept_review")   # the module the view uses
+    monkeypatch.setenv("EDITABLE_BASE", "1")
     cand, log = _files(tmp_path)
     monkeypatch.setattr(view_service, "default_paths",
                         lambda: {"candidates": cand, "log": log})
     at = AppTest.from_file(str(ROOT / "app/views/concept_review.py"), default_timeout=30)
     return at, log
+
+
+def test_without_the_switch_the_page_is_read_only(page, monkeypatch):
+    at, log = page
+    monkeypatch.delenv("EDITABLE_BASE")
+    at.run()
+    assert not at.exception
+    assert at.subheader[0].value == "DataBreachNotice"
+    assert at.info[0].value.startswith("Solo lectura")
+    assert at.selectbox[0].value == "Todos"                     # the base is already reviewed
+    assert [b.label for b in at.button] == ["Siguiente pendiente"]
+    assert [t.label for t in at.text_input] == ["Buscar"] and not at.radio
+    at.selectbox[2].set_value("ai:Consent").run()
+    assert at.subheader[0].value == "Consent" and not at.warning
+    assert read_log(log) == []
 
 
 def test_page_shows_the_first_pending_concept(page):

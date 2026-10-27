@@ -1,5 +1,3 @@
-"""S5-T05: the review card of the "Alineación DPV" page (service logic + the page with AppTest).
-S5-T08: the tab that confirms the assistant proposals in batches."""
 import importlib
 import json
 import sys
@@ -255,20 +253,36 @@ def page(tmp_path, monkeypatch):
     app_dir = str(ROOT / "app")
     if app_dir not in sys.path:
         sys.path.insert(0, app_dir)
-    # The view imports "services.*" (app/ on sys.path, as app/app.py does): patch those modules.
-    view_mr = importlib.import_module("services.mapping_review")
+    view_mr = importlib.import_module("services.mapping_review")       # the modules the view uses
     view_al = importlib.import_module("services.alignment")
     cand, log, dpv = _files(tmp_path)
     props = tmp_path / "review" / PROPOSALS_FILE
     monkeypatch.setattr(view_mr, "default_paths",
                         lambda: {"candidates": cand, "log": log, "dpv": dpv, "proposals": props})
     monkeypatch.setattr(view_al, "_output_dir", lambda: tmp_path)
+    monkeypatch.setenv("EDITABLE_BASE", "1")
     at = AppTest.from_file(str(ROOT / "app/views/alignment.py"), default_timeout=30)
     return at, log
 
 
 def _button(at, label):
     return next(b for b in at.button if b.label == label)
+
+
+def test_without_the_switch_the_page_is_read_only(page, monkeypatch):
+    at, log = page
+    monkeypatch.delenv("EDITABLE_BASE")
+    before = [d.target for d in read_log(log)]
+    at.run()
+    assert not at.exception
+    assert at.subheader[0].value == "ImpactAssessment"
+    assert at.info[0].value.startswith("Solo lectura")
+    assert at.selectbox[0].value == "Todos"                     # the base is already reviewed
+    assert [b.label for b in at.button] == ["Siguiente pendiente"]
+    assert "reviewer" not in [t.key for t in at.text_input]
+    assert not [s for s in at.selectbox if s.key and s.key.startswith(("rel_", "srel_"))]
+    assert [c.label for c in at.checkbox] == ["Solo el mejor candidato"]   # no assistant table
+    assert [d.target for d in read_log(log)] == before
 
 
 def test_page_shows_the_first_pending_concept_with_empty_types(page):

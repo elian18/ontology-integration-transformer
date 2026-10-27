@@ -1,11 +1,3 @@
-"""S6-T08 + S7-T06 + S7-T08 + S7-T12 + S8-T01: the "Asistente de alineación" page (service +
-the page with AppTest), in its three modes: "Mi ontología", "Una ley" and "Mi ontología y una
-ley", and its three steps: choose, upload, download.
-
-AppTest cannot drive a file uploader, so the upload itself is tested through the service
-(``align`` and ``run``), step 3 is run with the workspace id already in the session (exactly
-what the page stores after an upload) and the ``live`` fixture replaces the uploader with one
-that returns the files of the test."""
 from __future__ import annotations
 
 import importlib
@@ -382,7 +374,7 @@ def test_the_assistant_is_the_default_page_of_the_menu():
     text = (ROOT / "app/app.py").read_text(encoding="utf-8")
     assert 'title="Asistente de alineación"' in text and text.count("default=True") == 1
     assert text.index("views/align_ontology.py") < text.index("default=True")
-    assert text.index("views/align_ontology.py") < text.index("views/inputs.py")
+    assert text.index("views/align_ontology.py") < text.index('"Herramientas de construcción"')
     assert "views/home.py" not in text and not (ROOT / "app/views/home.py").exists()
 
 

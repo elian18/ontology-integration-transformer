@@ -1,6 +1,3 @@
-"""S5-T07: the "Grafo alineado" tab writes the graph only when nothing is pending and offers the
-files and the Protégé zip for download (service logic + the page with AppTest). S6-T03: the zip
-comes in the format the person picks."""
 import importlib
 import io
 import json
@@ -90,6 +87,7 @@ def page(tmp_path, monkeypatch):
         sys.path.insert(0, app_dir)
     view_mr = importlib.import_module("services.mapping_review")
     view_al = importlib.import_module("services.alignment")
+    monkeypatch.setenv("EDITABLE_BASE", "1")
 
     def make(leave_pending=False):
         paths = _files(tmp_path, leave_pending=leave_pending)
@@ -123,6 +121,16 @@ def test_write_from_the_page_and_download(page):
     metrics = {m.label: m.value for m in at.metric}
     assert metrics["Correspondencias SKOS"] == "3" and metrics["Conceptos nuevos"] == "1"
     assert [d.target for d in read_log(paths["log"])].count("mapping") == 4   # log untouched
+
+def test_without_the_switch_the_graph_is_only_downloaded(page, monkeypatch):
+    at, paths = page()
+    ag.write_graph(paths, CFG)
+    monkeypatch.delenv("EDITABLE_BASE")
+    at.run()
+    assert not at.exception
+    assert "ag_write" not in [b.key for b in at.button]
+    assert at.download_button[0].label == "Descargar paquete para Protégé (RDF/XML, .zip)"
+
 
 # ---------------------------------------------------------------- S6-T03: format of the zip
 def test_service_offers_the_zip_in_each_format(tmp_path):
