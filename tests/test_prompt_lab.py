@@ -151,6 +151,20 @@ def _d(**kw):
     return Decision(**{**base, **kw})
 
 
+def test_an_answer_outside_the_candidates_shows_the_term_it_named():
+    item = RefItem(key="k", name="Application", status="no_match")
+    d = _d(status="invalid", confidence="alta", candidates=[DPV + "Applicability"],
+           justification="Sigue al precedente.",
+           issues=["el término 'hasApplicability' no está entre los candidatos"])
+    e = lab.example(d, item, None, {DPV + "Applicability": "Applicability"}, {})
+    assert e["answer"]["dpv"] == "hasApplicability" and e["answer"]["outside_candidates"]
+    assert ("   Respondió: hasApplicability (no está entre sus candidatos), confianza alta. "
+            "«Sigue al precedente.»") in lab._example_lines(1, e)
+    assert lab.written_term(_d(status="invalid", issues=[])) is None
+    plain = lab.example(_d(none=True, confidence="alta"), item, None, {}, {})
+    assert plain["answer"]["dpv"] == "ninguno" and not plain["answer"]["outside_candidates"]
+
+
 def test_classify_every_kind_of_error():
     aligned = RefItem(key="k", name="n", status="aligned", terms={"T": "skos:exactMatch"})
     no_match = RefItem(key="k", name="n", status="no_match")
@@ -299,11 +313,13 @@ def test_the_message_shows_a_sample_of_each_kind_of_error():
 
 # ------------------------------------------------------------------ adopting
 
-def _result(version, half, precision, f1, complete=True):
+def _result(version, half, precision, f1, complete=True, proposals=10, correct=8, aligned=87,
+            variant=""):
     prompt = load_prompt("decide", version)
-    return {"prompt": prompt.manifest(), "half": half, "complete": complete,
-            "score": {"precision": precision, "f1": f1, "proposals": 10, "correct": 8,
-                      "coverage": 0.1}}
+    return {"prompt": prompt.manifest(), "half": half, "complete": complete, "variant": variant,
+            "score": {"precision": precision, "f1": f1, "proposals": proposals,
+                      "correct": correct, "coverage": round(correct / aligned, 4),
+                      "aligned": aligned}}
 
 
 def test_verdict_needs_the_test_half_the_floor_and_three_points_more():
@@ -320,24 +336,30 @@ def test_verdict_needs_the_test_half_the_floor_and_three_points_more():
 
 
 def test_the_table_compares_the_versions_and_says_what_to_adopt(env):
-    runs = {(1, DEV): _result(1, DEV, 0.74, 0.40), (1, TEST): _result(1, TEST, 0.75, 0.42),
-            (2, DEV): _result(2, DEV, 0.78, 0.46), (2, TEST): _result(2, TEST, 0.77, 0.46)}
+    runs = {(1, "", DEV): _result(1, DEV, 0.74, 0.40), (1, "", TEST): _result(1, TEST, 0.75, 0.42),
+            (2, "", DEV): _result(2, DEV, 0.78, 0.46), (2, "", TEST): _result(2, TEST, 0.77, 0.46)}
     text = lab.render_table(runs, 1, 0.75)
     assert "v1 (en uso)" in text and "\n  v2 " in text
     assert ("v2 frente a v1: SE ADOPTA (precisión 77,0 % (>= 75,0 %); F1 +4,0 puntos (>= +3)). "
             "Cambia decider.prompt_version a 2 en config/config.yaml.") in text
-    runs[(2, TEST)] = _result(2, TEST, 0.70, 0.46)
+    runs[(2, "", TEST)] = _result(2, TEST, 0.70, 0.46)
     assert "v2 frente a v1: no se adopta" in lab.render_table(runs, 1, 0.75)
-    del runs[(2, TEST)]
+    del runs[(2, "", TEST)]
     assert "v2 frente a v1" not in lab.render_table(runs, 1, 0.75)
-    runs[(2, DEV)]["prompt"]["sha256"] = "editado"
+    runs[(2, "", DEV)]["prompt"]["sha256"] = "editado"
     assert "(el prompt cambió: vuelve a correrla)" in lab.render_table(runs, 1, 0.75)
+    assert "Definiciones de la ley" not in lab.render_table(runs, 1, 0.75)
 
 
 def test_load_runs_reads_what_save_wrote(env):
     save_run(_run(env), env.folder)
     save_run(_run(env, version=2), env.folder)
-    assert sorted(lab.load_runs(env.folder)) == [(1, DEV), (2, DEV)]
+    assert sorted(lab.load_runs(env.folder)) == [(1, "", DEV), (2, "", DEV)]
+    old = env.folder / "decide-v1-desarrollo.json"               # saved before the variants
+    data = json.loads(old.read_text(encoding="utf-8"))
+    del data["variant"]
+    old.write_text(json.dumps(data), encoding="utf-8")
+    assert (1, "", DEV) in lab.load_runs(env.folder)
 
 
 # ------------------------------------------------------------------ production
@@ -389,3 +411,160 @@ def test_cli_prints_the_table(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert out.startswith("Banco de prompts (decide): tus 552 decisiones en dos mitades")
     assert "v1 (en uso)" in out
+
+
+# ------------------------------------------------------------------ the definitions of the law
+
+LAW_DEFINITIONS = {"Holder": "Persona natural titular de los datos personales.",
+                   "PersonalDetail": "Dato que identifica a una persona en un formulario."}
+
+
+def _without_definitions(env):
+    for name in LAW_DEFINITIONS:
+        env.inputs.concepts[EX + name].definition = None
+
+
+def _definitions(entries=None):
+    entries = [{"key": EX + n, "name": n, "kinds": ["class"], "for_decider": False,
+                "status": "articles", "definition": d, "article": 4, "articles": [4, 1],
+                "law_concept": None} for n, d in LAW_DEFINITIONS.items()] \
+        if entries is None else entries
+    return {"law": {"file": "lopdp.pdf", "language": "es", "segmenter_version": 1},
+            "skipped": None, "summary": {"pending": 0}, "entries": entries}
+
+
+def test_with_the_definitions_the_decider_sees_them(env):
+    _without_definitions(env)
+    half = _where("Holder")
+    llm = LabLLM()
+    plain = _run(env, half=half, llm=llm)
+    calls = llm.calls
+    run = run_half(env.inputs, 1, half, llm=llm, embed_fn=Embed(), budget=5,
+                   cache_path=env.cache, chroma_path=env.chroma, sleep_fn=lambda s: None,
+                   cfg=env.cfg, base=env.base, definitions=_definitions())
+    assert run["variant"] == lab.DEFINITIONS and plain["variant"] == ""
+    assert llm.calls > calls                                    # new bodies: asked again
+    assert f"Definicion: {LAW_DEFINITIONS['Holder']}" in llm.contexts[-1]
+    assert run["definitions"]["law"] == "lopdp.pdf" and run["definitions"]["added"] == 2
+    assert run["definitions"]["in_half"] == sum(_where(n) == half for n in LAW_DEFINITIONS)
+    holder = run["examples"][NONE_WRONG][0]
+    assert holder["definition"] == LAW_DEFINITIONS["Holder"]
+    path = save_run(run, env.folder)
+    assert path.name == f"decide-v1-definiciones-{half}.json"
+    assert not list(env.folder.glob("*gemini*"))                # never iterated on
+    assert (1, lab.DEFINITIONS, half) in lab.load_runs(env.folder)
+    text = lab.render_run(run, env.folder, {(1, "", half): plain}, 1)
+    assert text.startswith(f"Banco de prompts: decide.v1 con las definiciones de la ley en la "
+                           f"mitad de {half}")
+    assert "Frente a v1 sin definiciones en esta mitad: precisión" in text
+
+
+def test_definitions_that_add_nothing_are_refused(env):
+    with pytest.raises(ValueError, match="no dio ninguna definición"):
+        run_half(env.inputs, 1, DEV, llm=LabLLM(), embed_fn=Embed(), budget=5,
+                 cache_path=env.cache, chroma_path=env.chroma, sleep_fn=lambda s: None,
+                 cfg=env.cfg, base=env.base, definitions=_definitions([]))
+
+
+def test_the_definitions_are_judged_on_the_552_decisions():
+    plain = [_result(1, DEV, 0.84, 0.44, proposals=31, correct=26, aligned=87),
+             _result(1, TEST, 0.68, 0.41, proposals=37, correct=25, aligned=86)]
+    assert lab.combined(plain) == {"proposals": 68, "correct": 51, "aligned": 173,
+                                   "precision": 0.75, "coverage": 0.2948, "f1": 0.4232}
+    better = [_result(1, DEV, 0, 0, proposals=34, correct=28, variant=lab.DEFINITIONS),
+              _result(1, TEST, 0, 0, proposals=36, correct=27, aligned=86,
+                      variant=lab.DEFINITIONS)]
+    result = lab.definitions_verdict(plain, better, 0.75)
+    assert result["adopt"] is True and result["after"]["correct"] == 55
+    assert result["reason"] == "precisión 78,6 % (>= 75,0 %); cobertura 29,5 % -> 31,8 %"
+    worse = [_result(1, DEV, 0, 0, proposals=40, correct=28),
+             _result(1, TEST, 0, 0, proposals=40, correct=27, aligned=86)]
+    assert lab.definitions_verdict(plain, worse, 0.75)["adopt"] is False   # 68,8 %
+    same = [_result(1, DEV, 0, 0, proposals=31, correct=26),
+            _result(1, TEST, 0, 0, proposals=37, correct=25, aligned=86)]
+    assert lab.definitions_verdict(plain, same, 0.75)["adopt"] is False    # no more coverage
+    assert lab.definitions_verdict(plain, [better[0], None], 0.75)["adopt"] is None
+    late = [better[0], {**better[1], "complete": False}]
+    assert lab.definitions_verdict(plain, late, 0.75)["adopt"] is None
+
+
+def test_the_table_says_whether_the_definitions_help():
+    runs = {(1, "", DEV): _result(1, DEV, 0.84, 0.44, proposals=31, correct=26),
+            (1, "", TEST): _result(1, TEST, 0.68, 0.41, proposals=37, correct=25, aligned=86),
+            (1, lab.DEFINITIONS, DEV): _result(1, DEV, 0.82, 0.46, proposals=34, correct=28,
+                                               variant=lab.DEFINITIONS)}
+    text = lab.render_table(runs, 1, 0.75)
+    assert "\n  v1 + definiciones " in text
+    assert ("Definiciones de la ley con v1 (las 552 decisiones): faltan mitades: corre las dos, "
+            "con y sin definiciones") in text
+    runs[(1, lab.DEFINITIONS, TEST)] = _result(1, TEST, 0.75, 0.43, proposals=36, correct=27,
+                                               aligned=86, variant=lab.DEFINITIONS)
+    assert "(las 552 decisiones): AYUDAN (precisión 78,6 %" in lab.render_table(runs, 1, 0.75)
+    runs[(1, lab.DEFINITIONS, TEST)] = _result(1, TEST, 0.6, 0.4, proposals=46, correct=27,
+                                               aligned=86, variant=lab.DEFINITIONS)
+    assert ("no ayudan (precisión 68,8 % (< 75,0 %); cobertura 29,5 % -> 31,8 %): quedan en el "
+            "módulo de definiciones, pero el decisor no debería recibirlas.") in \
+        lab.render_table(runs, 1, 0.75)
+    assert "v1 + definiciones frente" not in lab.render_table(runs, 1, 0.75)
+
+
+def test_prepare_the_definitions_with_the_steps_of_mode_3(env, targets):  # noqa: F811
+    from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, open_upload
+    from tests.test_law_definitions import LAW, TTL, LawEmbed, LawLLM
+    cfg = {**env.cfg, "law_definitions": {"pause_seconds": 0},       # off: the lab turns it on
+           "extraction": {"pause_seconds": 0}}
+    ws = open_upload({KIND_ONTOLOGY: ("onto.ttl", TTL.encode("utf-8")),
+                      KIND_LAW: ("ley.txt", LAW.encode("utf-8"))}, cfg=cfg)
+    seen = []
+    _, waiting = lab.prepare_definitions(cfg, budget=0, ws=ws, llm=LawLLM(),
+                                         embed_fn=LawEmbed(), sleep_fn=lambda s: None,
+                                         progress=seen.append)
+    assert waiting["summary"]["pending"] == 2 and waiting["settings"]["max_calls"] == 0
+    with pytest.raises(ValueError, match="Faltan 2 definiciones: vuelve a correr"):
+        lab.load_definitions(ws)
+    assert "Faltan definiciones: vuelve a correr" in lab.render_definitions(waiting, ws)
+    llm = LawLLM()
+    _, ready = lab.prepare_definitions(cfg, budget=5, ws=ws, llm=llm, embed_fn=LawEmbed(),
+                                       sleep_fn=lambda s: None)
+    assert ready["summary"]["added"] == 3 and lab.load_definitions(ws) == ready
+    assert ready["settings"]["enabled"] and ready["settings"]["max_calls"] == 5
+    assert llm.asked == ["Pizza", "Erasure"]                    # extraction: from the cache
+    text = lab.render_definitions(ready, ws)
+    assert "a 4 de 5 conceptos les faltaba; 2 de conceptos de la ley" in text
+    assert "Ahora: py -m src.alignment.prompt_lab --con-definiciones" in text
+    calls = llm.calls
+    lab.prepare_definitions(cfg, budget=5, ws=ws, llm=llm, embed_fn=LawEmbed())
+    assert llm.calls == calls                                   # current: nothing again
+
+
+def test_definitions_must_be_prepared_first(env, targets):  # noqa: F811
+    from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, open_upload
+    from tests.test_law_definitions import LAW, TTL
+    ws = open_upload({KIND_ONTOLOGY: ("onto.ttl", TTL.encode("utf-8")),
+                      KIND_LAW: ("ley.txt", LAW.encode("utf-8"))}, cfg=env.cfg)
+    with pytest.raises(ValueError, match="Primero prepara las definiciones"):
+        lab.load_definitions(ws)
+
+
+def test_the_definitions_workspace_is_ontopriv_and_the_lopdp(tmp_path):
+    (tmp_path / "onto.ttl").write_text(
+        "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n<http://e.org/o> a owl:Ontology .\n",
+        encoding="utf-8")
+    (tmp_path / "ley.txt").write_text("Artículo 1°. Objeto. Algo.\n", encoding="utf-8")
+    cfg = {"workspaces": {"dir": str(tmp_path / "ws")},
+           "inputs": {"ontology": str(tmp_path / "onto.ttl"),
+                      "legal_text": str(tmp_path / "ley.txt")}}
+    ws = lab.definitions_workspace(cfg)
+    assert ws.manifest["mode"] == "ontology+law" and lab.definitions_workspace(cfg).id == ws.id
+    with pytest.raises(FileNotFoundError, match="Falta"):
+        lab.definitions_workspace({**cfg, "inputs": {"ontology": str(tmp_path / "x.ttl")}})
+
+
+def test_cli_asks_to_prepare_the_definitions_first(env, monkeypatch, capsys):
+    from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, open_upload
+    from tests.test_law_definitions import LAW, TTL
+    ws = open_upload({KIND_ONTOLOGY: ("onto.ttl", TTL.encode("utf-8")),
+                      KIND_LAW: ("ley.txt", LAW.encode("utf-8"))}, cfg=env.cfg)
+    monkeypatch.setattr(lab, "definitions_workspace", lambda cfg=None: ws)
+    assert lab._run(["--con-definiciones"]) == 1
+    assert "Error: Primero prepara las definiciones" in capsys.readouterr().out

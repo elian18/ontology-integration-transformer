@@ -240,7 +240,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     if inherited is None:
         raise ValueError("Primero hay que heredar lo validado (paso S6-T05).")
 
-    definitions = ld.load_result(ws)
+    definitions = ld.for_decider(ld.load_result(ws), cfg)
     ws.mark_step("candidates", RUNNING)
     try:
         sources = pending_concepts(ws, inherited, definitions)
