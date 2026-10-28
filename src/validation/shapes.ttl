@@ -1,0 +1,299 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix shp:  <http://www.semanticweb.org/ontology-integration-transformer/shapes#> .
+
+# Shape rules of what the system writes. They run on the downloaded package (the ontology and
+# its modules) without inference and with SHACL-AF (pyshacl advanced=True: LangStringShape uses
+# a SPARQL target). DpvTermShape needs the "rdfs:isDefinedBy" triples of vocab/dpv.ttl in the
+# data graph.
+
+shp: a owl:Ontology ;
+    rdfs:label "Reglas de forma (SHACL) de la ontología alineada"@es ;
+    owl:versionInfo "1" ;
+    sh:declare
+        [ sh:prefix "rdf" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ],
+        [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ],
+        [ sh:prefix "owl" ; sh:namespace "http://www.w3.org/2002/07/owl#"^^xsd:anyURI ],
+        [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ],
+        [ sh:prefix "dct" ; sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] .
+
+shp:Mappings a sh:PropertyGroup ;
+    rdfs:label "Correspondencias con el DPV"@es ;
+    sh:order 1 .
+
+shp:Texts a sh:PropertyGroup ;
+    rdfs:label "Etiquetas y definiciones"@es ;
+    sh:order 2 .
+
+shp:Package a sh:PropertyGroup ;
+    rdfs:label "Paquete"@es ;
+    sh:order 3 .
+
+shp:Completeness a sh:PropertyGroup ;
+    rdfs:label "Completitud"@es ;
+    sh:order 4 .
+
+# ------------------------------------------------------------------ mappings to the DPV
+
+shp:DpvTermShape a sh:NodeShape ;
+    rdfs:label "El término del DPV existe"@es ;
+    rdfs:comment "Cada correspondencia que apunta al DPV (https://w3id.org/dpv#) usa un término que existe en el DPV 2.x de vocab/dpv.ttl, no uno inventado o renombrado."@es ;
+    sh:group shp:Mappings ;
+    sh:order 1 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch,
+        skos:relatedMatch, rdfs:seeAlso ;
+    sh:property [
+        sh:path [ sh:alternativePath ( skos:exactMatch skos:closeMatch skos:broadMatch
+                                       skos:narrowMatch skos:relatedMatch rdfs:seeAlso ) ] ;
+        sh:or ( shp:OutsideDpv shp:DpvTerm ) ;
+        sh:message "Apunta a un término que no está en el DPV."@es ] .
+
+shp:OutsideDpv a sh:NodeShape ;
+    sh:not [ sh:nodeKind sh:IRI ; sh:pattern "^https://w3id[.]org/dpv#" ] .
+
+shp:DpvTerm a sh:NodeShape ;
+    sh:property [ sh:path rdfs:isDefinedBy ; sh:minCount 1 ] .
+
+# SKOS integrity conditions S27 and S46: exactMatch excludes broadMatch, narrowMatch and
+# relatedMatch; relatedMatch excludes broadMatch and narrowMatch.
+shp:MappingConflictShape a sh:NodeShape ;
+    rdfs:label "Las relaciones SKOS no se contradicen"@es ;
+    rdfs:comment "Un concepto no tiene con el mismo término dos relaciones que SKOS declara incompatibles (condiciones S27 y S46): exactMatch con broadMatch, narrowMatch o relatedMatch, ni relatedMatch con broadMatch o narrowMatch."@es ;
+    sh:group shp:Mappings ;
+    sh:order 2 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf skos:exactMatch, skos:relatedMatch ;
+    sh:property [
+        sh:path skos:exactMatch ;
+        sh:disjoint skos:broadMatch, skos:narrowMatch, skos:relatedMatch ;
+        sh:message "Con el mismo término es exactMatch y también broadMatch, narrowMatch o relatedMatch, que SKOS declara incompatibles."@es ] ,
+    [
+        sh:path skos:relatedMatch ;
+        sh:disjoint skos:broadMatch, skos:narrowMatch ;
+        sh:message "Con el mismo término es relatedMatch y también broadMatch o narrowMatch, que SKOS declara incompatibles."@es ] .
+
+shp:AlignedConceptShape a sh:NodeShape ;
+    rdfs:label "El concepto alineado está en la ontología"@es ;
+    rdfs:comment "Cada concepto que tiene una correspondencia SKOS está declarado (rdf:type) en la ontología o en sus módulos."@es ;
+    sh:group shp:Mappings ;
+    sh:order 3 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch,
+        skos:relatedMatch ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:minCount 1 ;
+        sh:message "Tiene una correspondencia pero no está declarado en la ontología."@es ] .
+
+shp:MappingAnnotationShape a sh:NodeShape ;
+    rdfs:label "Cada anotación de una correspondencia está completa"@es ;
+    rdfs:comment "La anotación (owl:Axiom) de una correspondencia con el DPV describe una tripleta que está en el módulo y dice quién la decidió (base, regla o regla sin IA) y su versión."@es ;
+    sh:group shp:Mappings ;
+    sh:order 4 ;
+    sh:severity sh:Violation ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes shp: ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this rdf:type owl:Axiom ;
+                      owl:annotatedProperty ?property ;
+                      owl:annotatedTarget ?term .
+                FILTER (?property IN (skos:exactMatch, skos:closeMatch, skos:broadMatch,
+                                      skos:narrowMatch, skos:relatedMatch, rdfs:seeAlso))
+                FILTER (isIRI(?term) && STRSTARTS(STR(?term), "https://w3id.org/dpv#"))
+            }""" ] ;
+    sh:property [
+        sh:path owl:versionInfo ;
+        sh:minCount 1 ;
+        sh:message "La correspondencia no dice su versión."@es ] ;
+    sh:sparql [
+        sh:prefixes shp: ;
+        sh:message "{?problem}"@es ;
+        sh:select """
+            SELECT $this ?value ?problem WHERE {
+                $this owl:annotatedSource ?source ;
+                      owl:annotatedProperty ?property ;
+                      owl:annotatedTarget ?value .
+                BIND (EXISTS { ?source ?property ?value } AS ?asserted)
+                BIND (EXISTS {
+                          $this ?by ?who .
+                          FILTER (STRENDS(STR(?by), "#decidedBy")
+                                  && STR(?who) IN ("base", "regla", "regla sin IA")) } AS ?attributed)
+                FILTER (!?asserted || !?attributed)
+                BIND (IF(!?asserted, "Anota una correspondencia que no está en el módulo.",
+                         "La correspondencia no dice quién la decidió (base, regla o regla sin IA).")
+                      AS ?problem)
+            }""" ] .
+
+# ------------------------------------------------------------------ labels and definitions
+
+shp:LabelShape a sh:NodeShape ;
+    rdfs:label "Cada etiqueta es un texto con su idioma"@es ;
+    rdfs:comment "Cada rdfs:label es un texto no vacío con etiqueta de idioma (@es, @en…)."@es ;
+    sh:group shp:Texts ;
+    sh:order 1 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf rdfs:label ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype rdf:langString ;
+        sh:message "La etiqueta no tiene idioma."@es ] ,
+    [
+        sh:path rdfs:label ;
+        sh:pattern "[^ ]" ;
+        sh:message "La etiqueta está vacía."@es ] .
+
+shp:DefinitionShape a sh:NodeShape ;
+    rdfs:label "Cada definición es un texto con su idioma"@es ;
+    rdfs:comment "Cada skos:definition es un texto no vacío con etiqueta de idioma."@es ;
+    sh:group shp:Texts ;
+    sh:order 2 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf skos:definition ;
+    sh:property [
+        sh:path skos:definition ;
+        sh:datatype rdf:langString ;
+        sh:message "La definición no tiene idioma."@es ] ,
+    [
+        sh:path skos:definition ;
+        sh:pattern "[^ ]" ;
+        sh:message "La definición está vacía."@es ] .
+
+shp:LawDefinitionShape a sh:NodeShape ;
+    rdfs:label "Cada definición tomada de la ley dice su artículo"@es ;
+    rdfs:comment "La anotación (owl:Axiom) de una definición tomada de la ley describe una definición que está en la ontología, dice de qué artículo sale (dct:source «<ley>, art. N») y va en un concepto que no tenía definición."@es ;
+    sh:group shp:Texts ;
+    sh:order 3 ;
+    sh:severity sh:Violation ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes shp: ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this rdf:type owl:Axiom ;
+                      owl:annotatedProperty skos:definition .
+            }""" ] ;
+    sh:property [
+        sh:path dct:source ;
+        sh:qualifiedValueShape [ sh:nodeKind sh:Literal ; sh:pattern ", art[.] [0-9]+$" ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "La definición no dice de qué artículo de la ley sale (dct:source «<ley>, art. N»)."@es ] ;
+    sh:sparql [
+        sh:prefixes shp: ;
+        sh:message "{?problem}"@es ;
+        sh:select """
+            SELECT $this ?value ?problem WHERE {
+                $this owl:annotatedSource ?source ;
+                      owl:annotatedTarget ?value .
+                BIND (EXISTS { ?source skos:definition ?value } AS ?asserted)
+                BIND (EXISTS {
+                          ?source skos:definition|rdfs:comment ?other .
+                          FILTER (?other != ?value && isLiteral(?other)
+                                  && REGEX(STR(?other), "[^ ]")) } AS ?repeated)
+                FILTER (!?asserted || ?repeated)
+                BIND (IF(!?asserted, "Anota una definición que no está en la ontología.",
+                         "El concepto ya tenía una definición: la de la ley solo va donde falta.")
+                      AS ?problem)
+            }""" ] .
+
+# RDF 1.1: a literal of type rdf:langString always has a language tag.
+shp:LangStringShape a sh:NodeShape ;
+    rdfs:label "Ningún texto rdf:langString sin idioma"@es ;
+    rdfs:comment "Un texto marcado como rdf:langString lleva su idioma; RDF 1.1 no admite uno sin él (lo deja Protégé al exportar algunos valores)."@es ;
+    sh:group shp:Texts ;
+    sh:order 4 ;
+    sh:severity sh:Violation ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes shp: ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+                ?this ?path ?value .
+                FILTER (isLiteral(?value) && datatype(?value) = rdf:langString && lang(?value) = "")
+            }""" ] ;
+    sh:sparql [
+        sh:prefixes shp: ;
+        sh:message "Su valor de {?property} está marcado como rdf:langString pero no tiene idioma."@es ;
+        sh:select """
+            SELECT $this ?path ?value ?property WHERE {
+                $this ?path ?value .
+                FILTER (isLiteral(?value) && datatype(?value) = rdf:langString && lang(?value) = "")
+                BIND (REPLACE(STR(?path), "^.*[#/]", "") AS ?property)
+            }""" ] .
+
+# ------------------------------------------------------------------ the package
+
+shp:ImportShape a sh:NodeShape ;
+    rdfs:label "Cada importación viene en el paquete"@es ;
+    rdfs:comment "Cada owl:imports apunta a una ontología incluida en el paquete, para que Protégé lo abra sin buscar en internet."@es ;
+    sh:group shp:Package ;
+    sh:order 1 ;
+    sh:severity sh:Violation ;
+    sh:targetSubjectsOf owl:imports ;
+    sh:sparql [
+        sh:prefixes shp: ;
+        sh:message "Importa {?value}, que no viene en el paquete."@es ;
+        sh:select """
+            SELECT $this ?value WHERE {
+                $this owl:imports ?value .
+                FILTER NOT EXISTS { ?value rdf:type owl:Ontology }
+                FILTER NOT EXISTS { ?ontology owl:versionIRI ?value }
+            }""" ] .
+
+# ------------------------------------------------------------------ completeness (warnings)
+# Concepts: the classes and properties outside the standard vocabularies, the same ones the
+# system aligns (src/alignment/sources.py, KNOWN_VOCAB_NAMESPACES).
+
+shp:NotAConcept a sh:NodeShape ;
+    sh:or (
+        [ sh:nodeKind sh:BlankNode ]
+        [ sh:pattern "^(https://w3id[.]org/dpv|http://www[.]w3[.]org/(2004/02/skos/core#|2002/07/owl#|1999/02/22-rdf-syntax-ns#|2000/01/rdf-schema#|2001/XMLSchema#|ns/prov#|ns/odrl/2/)|http://xmlns[.]com/foaf/0[.]1/|http://purl[.]org/dc/(terms|elements/1[.]1)/|https?://schema[.]org/)" ] ) .
+
+shp:SpanishLabelShape a sh:NodeShape ;
+    rdfs:label "Cada concepto tiene etiqueta en español"@es ;
+    rdfs:comment "Cada clase y propiedad tiene una rdfs:label o skos:prefLabel en español (las que faltan las agrega el módulo de etiquetas)."@es ;
+    sh:group shp:Completeness ;
+    sh:order 1 ;
+    sh:severity sh:Warning ;
+    sh:targetClass owl:Class, rdfs:Class, owl:ObjectProperty, owl:DatatypeProperty ;
+    sh:or ( shp:NotAConcept [
+        sh:property [
+            sh:path [ sh:alternativePath ( rdfs:label skos:prefLabel ) ] ;
+            sh:qualifiedValueShape [ sh:languageIn ( "es" ) ; sh:pattern "[^ ]" ] ;
+            sh:qualifiedMinCount 1 ] ] ) ;
+    sh:message "No tiene etiqueta en español."@es .
+
+shp:EnglishLabelShape a sh:NodeShape ;
+    rdfs:label "Cada concepto tiene etiqueta en inglés"@es ;
+    rdfs:comment "Cada clase y propiedad tiene una rdfs:label o skos:prefLabel en inglés (las que faltan las agrega el módulo de etiquetas)."@es ;
+    sh:group shp:Completeness ;
+    sh:order 2 ;
+    sh:severity sh:Warning ;
+    sh:targetClass owl:Class, rdfs:Class, owl:ObjectProperty, owl:DatatypeProperty ;
+    sh:or ( shp:NotAConcept [
+        sh:property [
+            sh:path [ sh:alternativePath ( rdfs:label skos:prefLabel ) ] ;
+            sh:qualifiedValueShape [ sh:languageIn ( "en" ) ; sh:pattern "[^ ]" ] ;
+            sh:qualifiedMinCount 1 ] ] ) ;
+    sh:message "No tiene etiqueta en inglés."@es .
+
+shp:DefinitionCompletenessShape a sh:NodeShape ;
+    rdfs:label "Cada concepto tiene definición"@es ;
+    rdfs:comment "Cada clase y propiedad tiene una skos:definition o un rdfs:comment (en el modo ontología + ley, el módulo de definiciones agrega las que la ley permite)."@es ;
+    sh:group shp:Completeness ;
+    sh:order 3 ;
+    sh:severity sh:Warning ;
+    sh:targetClass owl:Class, rdfs:Class, owl:ObjectProperty, owl:DatatypeProperty ;
+    sh:or ( shp:NotAConcept [
+        sh:property [
+            sh:path [ sh:alternativePath ( skos:definition rdfs:comment ) ] ;
+            sh:qualifiedValueShape [ sh:nodeKind sh:Literal ; sh:pattern "[^ ]" ] ;
+            sh:qualifiedMinCount 1 ] ] ) ;
+    sh:message "No tiene definición."@es .
