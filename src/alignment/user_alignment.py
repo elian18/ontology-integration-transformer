@@ -376,7 +376,10 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             prompts["extract"] = concepts.get("prompt")
         defined = None
         if definitions:
+            sent = ld.for_decider(definitions, cfg) is not None
             defined = {**definitions["summary"], "law": definitions["law"]["file"],
+                       "sent_to_decider": sent,
+                       "to_decider": definitions["summary"]["to_decider"] if sent else 0,
                        "language": definitions["law"]["language"],
                        "skipped": definitions["skipped"], "ai": definitions["ai"],
                        "law_concepts": ({k: definitions["law_concepts"][k]
@@ -619,8 +622,9 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         ld.definitions_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm, cfg=cfg,
                                      sleep_fn=sleep_fn, progress=progress)
         ran["definitions"] = True
-    definitions = ld.fingerprint(ld.load_result(ws))
-    if not is_current(decisions_result(ws), cfg, use_llm, definitions):
+    definitions = ld.load_result(ws)
+    if not is_current(decisions_result(ws), cfg, use_llm,
+                      ld.fingerprint(ld.for_decider(definitions, cfg))):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
                               targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,
@@ -630,7 +634,7 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
         ran["labels"] = True
-    if with_law and not ev.is_current(ev.load_result(ws), cfg, definitions):
+    if with_law and not ev.is_current(ev.load_result(ws), cfg, ld.fingerprint(definitions)):
         say(STEP_LABELS["evidence"])
         ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
         ran["evidence"] = True

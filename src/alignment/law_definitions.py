@@ -42,6 +42,7 @@ class DefinitionSettings:
     min_missing: float = 0.10
     from_law_concepts: bool = True
     from_articles: bool = True
+    to_decider: bool = True
     articles_per_concept: int = 3
     article_chars: int = 1200
     batch_size: int = 10
@@ -61,6 +62,7 @@ def definition_settings(cfg: dict | None = None) -> DefinitionSettings:
         min_missing=float(block.get("min_missing", d.min_missing)),
         from_law_concepts=bool(block.get("from_law_concepts", d.from_law_concepts)),
         from_articles=bool(block.get("from_articles", d.from_articles)),
+        to_decider=bool(block.get("to_decider", d.to_decider)),
         articles_per_concept=int(block.get("articles_per_concept", d.articles_per_concept)),
         article_chars=int(block.get("article_chars", d.article_chars)),
         batch_size=int(block.get("batch_size", d.batch_size)),
@@ -447,7 +449,8 @@ def is_current(result: dict | None, ws, cfg: dict | None = None,
     if not result or result.get("method_version") != METHOD_VERSION:
         return False
     settings = definition_settings(cfg)
-    if (result["settings"] != asdict(settings) or result["prompt"]["sha256"] != PROMPT.sha256
+    if (_computed(result["settings"]) != _computed(asdict(settings))
+            or result["prompt"]["sha256"] != PROMPT.sha256
             or result["law"]["segmenter_version"] != SEGMENTER_VERSION):
         return False
     if result["skipped"]:
@@ -458,6 +461,16 @@ def is_current(result: dict | None, ws, cfg: dict | None = None,
         if not lc.is_current(law, cfg, use_llm) or result["law_concepts_digest"] != law_digest(law):
             return False
     return not (use_llm and result["summary"][PENDING])
+
+
+def _computed(settings: dict) -> dict:
+    """The settings that change the definitions (not where they go)."""
+    return {k: v for k, v in settings.items() if k != "to_decider"}
+
+
+def for_decider(result: dict | None, cfg: dict | None = None) -> dict | None:
+    """The definitions the decider receives: none when ``law_definitions.to_decider`` is off."""
+    return result if definition_settings(cfg).to_decider else None
 
 
 def by_key(result: dict | None) -> dict[str, dict]:
@@ -583,7 +596,9 @@ def module_note(block: dict) -> str:
     text = (f"El módulo de definiciones agrega {added_text(block)}; cada una cita su artículo y "
             "ninguna definición original cambia.")
     used = block["to_decider"]
-    if used:
+    if block.get("sent_to_decider") is False:
+        text += " El decisor no las recibe: en las 552 decisiones no mejoraron la alineación."
+    elif used:
         text += (f" El decisor usó {'la' if used == 1 else 'las'} de "
                  f"{counted(used, 'concepto que no heredó', 'conceptos que no heredaron')} su "
                  "alineación.")

@@ -1,0 +1,14 @@
+Te entrego conceptos de una ontologia de proteccion de datos, cada uno con un id (C1, C2...), su nombre, tipo, etiqueta y definicion; a veces un articulo de la ley como evidencia; una lista numerada de candidatos del Data Privacy Vocabulary (DPV) con su definicion y sus padres en el DPV; y, cuando los hay, precedentes: decisiones que una persona tomo antes en conceptos parecidos de otra ontologia.
+Para CADA concepto elige UNO de sus candidatos, el que mejor le corresponde, o "ninguno" si ninguno trata de lo mismo. Reglas:
+- Elige solo entre los candidatos de ese concepto y copia su nombre exacto (lo que esta antes de la primera barra). No inventes terminos.
+- Los precedentes muestran el criterio de la persona. Si un precedente es el mismo tipo de caso, sigue su criterio (termino y relacion). Si conceptos parecidos quedaron sin correspondencia, considera "ninguno".
+- "ninguno" es una respuesta valida y frecuente: muchos conceptos de una ley (plazos, sanciones, condiciones, pasos de un procedimiento) no tienen un termino propio en el DPV, aunque compartan palabras con algun candidato.
+- Precaucion con los terminos generales: si un candidato del DPV es muy amplio y el concepto de la ley tiene matices, contextos o condiciones propias, NO lo fuerces con exactMatch ni confianza "alta". Prefiere un candidato mas especifico, elige una relacion mas debil (closeMatch, broadMatch, relatedMatch), baja la confianza a "media" o responde "ninguno".
+- La relacion va DEL concepto HACIA el candidato elegido:
+  exactMatch: significan lo mismo en cualquier contexto.
+  closeMatch: casi lo mismo, con matices de alcance o condiciones propias de la ley.
+  broadMatch: el candidato es MAS GENERAL y abarca al concepto (por ejemplo, un derecho concreto frente al termino general de los derechos).
+  narrowMatch: el candidato es MAS ESPECIFICO, un caso particular del concepto.
+  relatedMatch: hay una relacion concreta que puedes nombrar, pero ninguno contiene al otro.
+- confidence: "alta" si las definiciones lo sostienen con claridad o un precedente es el mismo caso; "media" si es plausible pero tienes dudas; "baja" si es debil. Tambien se usa "alta" cuando estas seguro de que no hay correspondencia.
+Devuelve SOLO un objeto JSON con la clave "decisions": una lista con un objeto por concepto, con estas claves exactas: "concept" (el id, p. ej. C1), "dpv" (el nombre del candidato elegido, o "ninguno"), "relation" (exactMatch, closeMatch, broadMatch, narrowMatch o relatedMatch; vacio si elegiste "ninguno"), "confidence" (alta, media o baja) y "justification" (una sola oracion en espanol que se apoye en las definiciones, en el articulo o en un precedente, sin mencionar el id).

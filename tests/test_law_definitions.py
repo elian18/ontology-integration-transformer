@@ -142,6 +142,8 @@ def test_settings():
                                                  "from_articles": False, "max_calls": 0}})
     assert (s.enabled, s.min_missing, s.from_law_concepts, s.from_articles, s.max_calls) == (
         True, 0.2, True, False, 0)
+    assert s.to_decider and not definition_settings(
+        {"law_definitions": {"to_decider": False}}).to_decider
     for bad in ({"min_missing": 1.5}, {"articles_per_concept": 0}, {"batch_size": 0},
                 {"article_chars": 50}, {"max_calls": -1}, {"max_tokens": 10}):
         with pytest.raises(ValueError, match="bloque law_definitions"):
@@ -158,6 +160,7 @@ def test_ten_percent_or_more_missing_asks_the_law():
 def test_the_project_turns_it_on():
     s = definition_settings()
     assert s.enabled and s.from_law_concepts and s.from_articles and s.min_missing == 0.10
+    assert not s.to_decider                                  # S8-T05: they did not help it
 
 
 def test_the_prompt_is_ascii_and_names_the_language():
@@ -356,8 +359,8 @@ def test_the_law_completes_the_definitions(env, tmp_path):
     assert ("  - mi-gdpr-definitions.ttl: 3 definiciones que le faltaban a tu ontología, "
             "tomadas de ley.txt (2 de conceptos de la ley y 1 escrita por la IA con sus "
             "artículos); cada una cita su artículo. Tus definiciones no cambian.") in readme
-    assert ("    En 2 de ellos el artículo es el que citó la IA al sacar su definición de la ley "
-            "(citado).\n") in readme
+    assert ("    En 2 de ellos el artículo es el que citó la IA al sacar su definición de la "
+            "ley (citado).\n") in readme
     lines = render_console(ws, m, run.zip).splitlines()
     assert ("  Definiciones de ley.txt: a 4 de 5 conceptos les faltaba; 2 de conceptos de la "
             "ley, 1 escrita por la IA con los artículos, 1 no aplica (módulo "
@@ -566,3 +569,30 @@ def test_the_workspace_of_a_law_alone_has_no_definitions_step(env):
     both = open_upload({KIND_ONTOLOGY: ("o.ttl", TTL.encode("utf-8")),
                         KIND_LAW: ("ley.txt", LAW.encode("utf-8"))}, cfg=env.cfg)
     assert [s["label"] for s in both.progress()][3] == "Completar las definiciones con la ley"
+
+
+def test_off_for_the_decider_they_stay_in_the_module_and_the_evidence(env):
+    run = _align(env, LawLLM())
+    off = {**env.cfg, "law_definitions": {**CFG["law_definitions"], "to_decider": False}}
+    llm, seen = LawLLM(), []
+    _, m, _ = align_workspace(run.ws, **{**_kw(env), "cfg": off, "llm": llm,
+                                         "progress": seen.append})
+    assert not m["recomputed"]["definitions"]                 # the same definitions
+    assert m["recomputed"]["decider"] and not m["recomputed"]["evidence"]
+    decided = "\n".join(c for c in llm.contexts if "Candidatos DPV" in c)
+    assert decided and DEFINED["Erasure"] not in decided
+    assert EXTRACTED[2][0]["definition"] not in decided
+    d = m["law_definitions"]
+    assert d["sent_to_decider"] is False and d["to_decider"] == 0 and d["added"] == 3
+    assert m["modules"]["definitions"] and ld.load_result(run.ws)["summary"]["to_decider"] == 2
+    note = [n for n in m["notes"] if n.startswith("El módulo de definiciones")][0]
+    assert note.endswith("El decisor no las recibe: en las 552 decisiones no mejoraron la "
+                         "alineación.")
+    assert _csv(run.ws)["DataController"]["law_evidence"] == "art. 2 (citado)"
+    from src.alignment.propose import load_result
+    assert load_result(run.ws)["law_definitions"] is None
+    calls = llm.calls
+    align_workspace(run.ws, **{**_kw(env), "cfg": off, "llm": llm})
+    assert llm.calls == calls                                  # current again: nothing asked
+    monkeypatched = svc.definitions_caption(d)
+    assert "el decisor usó" not in monkeypatched
