@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pyshacl
-from rdflib import BNode, Graph
+from rdflib import BNode, Graph, Literal
 from rdflib.namespace import RDF, RDFS, SH
 
 SHAPES_FILE = Path(__file__).with_name("shapes.ttl")
@@ -45,10 +45,12 @@ def _id(node) -> str:
     return str(node).rsplit("#", 1)[-1]
 
 
-def _text(node) -> str | None:
+def node_text(node) -> str | None:
     if node is None:
         return None
-    return f"_:{node}" if isinstance(node, BNode) else str(node)
+    if isinstance(node, BNode):
+        return f"_:{node}"
+    return node.n3() if isinstance(node, Literal) else str(node)
 
 
 def rules(shapes: Graph | None = None) -> list[Rule]:
@@ -91,16 +93,16 @@ def check(data: Graph, shapes: Graph | None = None) -> list[Finding]:
         findings.append(Finding(
             rule=rule_of(g, report.value(result, SH.sourceShape)),
             severity=SEVERITIES[report.value(result, SH.resultSeverity)],
-            focus=_text(report.value(result, SH.focusNode)),
+            focus=node_text(report.value(result, SH.focusNode)),
             message=str(report.value(result, SH.resultMessage) or ""),
-            path=None if isinstance(path, BNode) else _text(path),
-            value=_text(report.value(result, SH.value))))
+            path=None if isinstance(path, BNode) else node_text(path),
+            value=node_text(report.value(result, SH.value))))
     return sorted(findings, key=lambda f: (f.rule, f.focus, f.message))
 
 
 # --------------------------------------------------------------------------- console
 
-def _local(node: str) -> str:
+def local_name(node: str) -> str:
     if node.startswith("_:"):
         return "(nodo sin nombre)"
     return node.rstrip("#/").rsplit("#", 1)[-1].rsplit("/", 1)[-1]
@@ -135,7 +137,7 @@ def render_findings(findings: list[Finding], catalog: list[Rule], files: list[Pa
         n = by_rule.get(rule.id, 0)
         lines.append(f"  [{'ok' if n == 0 else rule.severity}] {rule.name}: {n}")
         for f in [f for f in findings if f.rule == rule.id][:EXAMPLES]:
-            lines.append(f"       {_local(f.focus)}: {f.message}")
+            lines.append(f"       {local_name(f.focus)}: {f.message}")
     return "\n".join(lines)
 
 
