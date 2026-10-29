@@ -212,6 +212,25 @@ def test_both_halves_decide_every_concept_with_the_production_rule(env):
     assert dev["rule"] == dc.rule_settings(env.cfg).label()
 
 
+def test_a_half_never_takes_a_forbidden_precedent(env, monkeypatch):
+    holder = EX + "Holder"
+    items = [RefItem(**{**i.__dict__, "forbidden": {"http://base#Holder": "same_label"}})
+             if i.key == holder else i for i in _reference().items]
+    inputs = EvalInputs(references={REF_BASE: Reference("base", items)},
+                        concepts=env.inputs.concepts, targets=env.inputs.targets, baseline=None)
+    seen = {}
+
+    def spy(concepts, targets, **kw):
+        seen.update(kw["forbidden"])
+        return dc.decide(concepts, targets, **kw)
+
+    monkeypatch.setattr(lab, "decide", spy)
+    lab.decide_half(inputs, decide_prompt(env.cfg), _where("Holder"), llm=LabLLM(),
+                    embed_fn=Embed(), budget=5, cache_path=env.cache, chroma_path=env.chroma,
+                    sleep_fn=lambda s: None, cfg=env.cfg, base=env.base)
+    assert seen[holder] == {"http://base#Holder"}
+
+
 def test_an_example_has_what_gemini_needs(env):
     run = _run(env, half=_where("Holder"))
     e = run["examples"][NONE_WRONG][0]
