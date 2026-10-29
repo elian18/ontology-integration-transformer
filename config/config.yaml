@@ -84,3 +84,9 @@ law_definitions:              # "ontología + ley": the law gives the definition
   max_calls: 30               # LLM calls per run (free tier shared: 500/day); re-run to continue (cache)
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 8192            # max answer length per call
+validation:                   # S8-T07/T08: the inspectors of form (SHACL, src/validation/shapes.ttl) and logic (reasoner)
+  engine: auto                # auto: Apache Jena when Java 21+ and jena_home are there, else owlrl (OWL 2 RL in Python); jena | owlrl to force one
+  jena_home: "tools/apache-jena-6.2.0"   # the Jena 6.2.0 download, extracted (lib/*.jar); ignored by git (README)
+  java: "java"                # Java 21 or later (Jena 6)
+  reasoner: owl-micro         # Jena rule reasoner: rdfs | owl-micro | owl-mini | owl. On the base: owl-micro 2,6 s; owl-mini did not finish in 15 min
+  timeout_seconds: 300        # longer than this: owlrl instead (or an error with engine: jena)
