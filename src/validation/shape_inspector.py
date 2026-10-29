@@ -51,6 +51,7 @@ class Part:
     origin: str
     graph: Graph
     sha256: str = ""
+    path: Path | None = None
 
 
 # --------------------------------------------------------------------------- the parts
@@ -61,7 +62,7 @@ def _sha256(path: Path) -> str:
 
 def _part(kind: str, path: Path, origin: str, shown: str) -> Part:
     from src.transform.convert import load_graph
-    return Part(kind, shown, origin, load_graph(path), _sha256(path))
+    return Part(kind, shown, origin, load_graph(path), _sha256(path), path)
 
 
 def workspace_parts(ws) -> list[Part]:
@@ -314,7 +315,7 @@ def render_log(report: dict, examples: int | None = None) -> str:
     return "\n".join(lines)
 
 
-def _open(target: str, cfg: dict):
+def open_workspace(target: str, cfg: dict):
     from src.workspace.store import MANIFEST_FILE, load_workspace
     path = Path(target)
     if (path / MANIFEST_FILE).exists():
@@ -343,7 +344,7 @@ def _run(argv: list[str] | None = None) -> int:
             from src.alignment.inherit import base_paths
             folder = base_paths(cfg)["candidates"].parent
         else:
-            ws = _open(args.workspace, cfg)
+            ws = open_workspace(args.workspace, cfg)
             report = inspect_workspace(ws, cfg)
             folder = ws.work_dir
     except (FileNotFoundError, ValueError, WorkspaceError, ConversionError) as exc:
