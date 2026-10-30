@@ -197,6 +197,35 @@ def gemini_file(version: int) -> str:
     return f"{PROMPT_NAME}-v{version}-{DEV}-para-gemini.txt"
 
 
+def decide_half(inputs, prompt, half: str = DEV, *, llm=None, embed_fn=None,
+                budget: int = DEFAULT_BUDGET, cache_path=None, chroma_path=None,
+                sleep_fn=time.sleep, cfg: dict | None = None, base=None,
+                definitions: dict | None = None):
+    """One half of the 552 decisions decided with ``prompt`` and the production rule:
+    (part, concepts it saw, report, accepted, base). ``definitions``: those the law gave."""
+    from src.alignment import law_definitions as ld
+    from src.alignment.inherit import load_base
+    from src.alignment.knowledge import build_knowledge
+    if half not in HALVES:
+        raise ValueError(f"La mitad debe ser {DEV} o {TEST}.")
+    part = split(inputs.references[REF_BASE], inputs.concepts)[half]
+    concepts = [inputs.concepts[i.key] for i in part.items if i.key in inputs.concepts]
+    if definitions is not None:
+        if not ld.added(definitions):
+            raise ValueError("La ley no dio ninguna definición: corre primero "
+                             "--preparar-definiciones.")
+        concepts = ld.with_definitions(concepts, definitions)
+    base = base if base is not None else load_base(cfg=cfg)
+    build_knowledge(cfg, embed_fn=embed_fn, targets=inputs.targets, base=base, path=chroma_path)
+    report = decide(concepts, inputs.targets, llm=llm, embed_fn=embed_fn,
+                    settings=replace(settings_from_config(cfg), max_calls=budget),
+                    forbidden={i.key: set(i.forbidden) for i in part.items},
+                    cache_path=cache_path, chroma_path=chroma_path, sleep_fn=sleep_fn, cfg=cfg,
+                    prompt=prompt)
+    accepted = apply_rule(report.decisions, **rule_settings(cfg).kwargs())
+    return part, concepts, report, accepted, base
+
+
 def run_half(inputs, version: int, half: str = DEV, *, llm=None, embed_fn=None,
              budget: int = DEFAULT_BUDGET, cache_path=None, chroma_path=None,
              sleep_fn=time.sleep, cfg: dict | None = None, base=None,
@@ -205,32 +234,15 @@ def run_half(inputs, version: int, half: str = DEV, *, llm=None, embed_fn=None,
     with ``definitions`` (a result of ``law_definitions``), as the "ontología + ley" mode does:
     the concepts without a definition take the one the law gave them."""
     from src.alignment import law_definitions as ld
-    from src.alignment.inherit import load_base
-    from src.alignment.knowledge import build_knowledge
-    if half not in HALVES:
-        raise ValueError(f"La mitad debe ser {DEV} o {TEST}.")
     prompt = prompt_version(version)
     problems, _ = check_prompt(prompt.text)
     if problems:
         raise ValueError(f"El prompt {PROMPT_NAME}.v{version} no sirve: {'; '.join(problems)}.")
-    reference = inputs.references[REF_BASE]
-    part = split(reference, inputs.concepts)[half]
-    concepts = [inputs.concepts[i.key] for i in part.items if i.key in inputs.concepts]
-    if definitions is not None:
-        if not ld.added(definitions):
-            raise ValueError("La ley no dio ninguna definición: corre primero "
-                             "--preparar-definiciones.")
-        concepts = ld.with_definitions(concepts, definitions)
+    part, concepts, report, accepted, base = decide_half(
+        inputs, prompt, half, llm=llm, embed_fn=embed_fn, budget=budget, cache_path=cache_path,
+        chroma_path=chroma_path, sleep_fn=sleep_fn, cfg=cfg, base=base, definitions=definitions)
     used = {c.key: c for c in concepts}
-    base = base if base is not None else load_base(cfg=cfg)
-    build_knowledge(cfg, embed_fn=embed_fn, targets=inputs.targets, base=base, path=chroma_path)
-    report = decide(concepts, inputs.targets, llm=llm, embed_fn=embed_fn,
-                    settings=replace(settings_from_config(cfg), max_calls=budget),
-                    forbidden={i.key: set(i.forbidden) for i in part.items},
-                    cache_path=cache_path, chroma_path=chroma_path, sleep_fn=sleep_fn, cfg=cfg,
-                    prompt=prompt)
     rule = rule_settings(cfg)
-    accepted = apply_rule(report.decisions, **rule.kwargs())
     names = {t.iri: t.name for t in inputs.targets.targets}
     decided = {c.key: c for c in base.concepts}
     by_key = {d.key: d for d in report.decisions}
