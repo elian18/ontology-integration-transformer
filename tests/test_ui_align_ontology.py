@@ -419,6 +419,16 @@ def _titles(at) -> list[str]:
     return [t.value for t in at.title]
 
 
+def _frame(at, column: str):
+    """The first table of the page with ``column`` (the validation panel has its own)."""
+    return next(d.value for d in at.dataframe if column in d.value.columns)
+
+
+def _zips(at) -> list[str]:
+    return [d.label for d in at.download_button if d.key.startswith("align_dl_") and
+            d.key != "align_dl_log"]
+
+
 def test_step_1_asks_what_the_person_has(page):
     at = page()
     at.run()
@@ -475,7 +485,7 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     assert not at.exception and not at.warning
     assert at.success[0].proto.title == "Tu ontología está lista"
     assert at.success[0].value == "Mi GDPR.ttl · 4 conceptos · 3 correspondencias con el DPV"
-    assert [d.label for d in at.download_button] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in at.download_button)
     assert any("Protégé 5.6 no abre JSON-LD" in c.value for c in at.caption)
     assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar"]
@@ -489,8 +499,8 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
                                   "la IA completó las de 4") for c in at.caption)
     assert not at.get("balloons")                         # only right after a new alignment
     at.selectbox(key="align_filter").set_value("Validada en la base").run()
-    assert len(at.dataframe[0].value) == 2
-    assert list(at.dataframe[1].value.columns) == svc.REVIEW_COLUMNS     # "Para revisar"
+    assert len(_frame(at, "Etiqueta (es)")) == 2                          # "Conceptos"
+    assert svc.REVIEW_COLUMNS in [list(d.value.columns) for d in at.dataframe]  # sugeridas
     at.button(key="align_again").click().run()           # "Alinear otro archivo"
     assert _titles(at) == [TITLE] and "align_ws" not in at.session_state
 
@@ -544,8 +554,10 @@ def test_page_shows_the_articles_to_review(page, both_aligned):
     assert any(c.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in captions)
     assert not any("OntoPriv-Core" in c for c in captions)
     columns = [list(d.value.columns) for d in at.dataframe]
-    assert "Artículos de la ley" in columns[0]                           # "Conceptos"
-    assert ["Concepto", "Estado", "Artículos de la ley"] in columns      # "Para revisar"
+    assert "Artículos de la ley" in _frame(at, "Etiqueta (es)").columns  # "Conceptos"
+    assert ["Concepto", "Estado", "Artículos de la ley"] in columns      # its own tab
+    assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar",
+                                          svc.LAW_TAB]
 
 
 def test_the_assistant_opens_by_default():
@@ -606,7 +618,7 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     at.run()
     assert not at.exception and not at.error and not at.warning
     assert at.success[0].value.startswith("Mi GDPR.ttl · 4 conceptos")
-    assert [d.label for d in at.download_button] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert any(c.value.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in at.caption)
     assert at.session_state["align_ws"].startswith("mi-gdpr-")
     assert len(at.get("balloons")) == 1                   # a clean new alignment

@@ -1,25 +1,6 @@
-"""Page "Asistente de alineación" (S8-T01; before S8 the page "Alinear con el DPV" of S6-T08,
-S7-T06, S7-T08 and S7-T12): the user's flow, as little to do as possible, in three steps kept
-in st.session_state, one screen each.
-
-1. "¿Qué tienes?": one card per mode ("Mi ontología", "Una ley", "Mi ontología y una ley").
-2. The uploader(s) of that mode. The alignment starts on its own when the files of the mode are
-   there, with a progress box that names each step. An error is shown outside the box, and the
-   same files do not start again until the person asks for it ("Intentar de nuevo"), so a
-   failure never spends AI calls in a loop.
-3. The result: a banner, the AI warnings (always visible: they change what the person gets),
-   four download buttons (one zip per format, each built only when clicked) and, below, tabs
-   with the numbers, the table per concept and what is left to review. The validation panel
-   (S8-T09) goes between the downloads and the tabs.
-
-"Cambiar de opción" and "Alinear otro archivo" go back to step 1 and the next uploaders are NEW
-ones (S7-T12): Streamlit keeps the file of an uploader that was hidden, and with the same key
-coming back would start a long run (and AI calls) with a file the person no longer sees.
-Uploading the same files again reuses what was already computed (S6-T04). Nothing to review:
-the ontology holds what a person decided while building the base and what the calibrated rule
-accepted; the suggestions and the articles of the law are only shown (comments: Sprint 10).
-"""
+# Asistente de alineación: three steps kept in st.session_state, one screen each.
 import hashlib
+from functools import partial
 
 import pandas as pd
 import streamlit as st
@@ -161,21 +142,59 @@ def _concepts_tab(v: dict) -> None:
 
 
 def _review_tab(v: dict) -> None:
+    flagged = (v["validation"] or {}).get("flagged") or []
+    if flagged:
+        st.markdown(f"**Marcadas por la IA revisora ({len(flagged)})**")
+        st.caption("Están en tu ontología (la regla las aceptó); la IA explica por qué el "
+                   "término del DPV podría no tratar de lo mismo.")
+        st.dataframe(pd.DataFrame(flagged), hide_index=True, width="stretch")
     suggested = svc.suggested_rows(v["rows"])
     if suggested:
         st.markdown(f"**Sugeridas por la IA ({len(suggested)})**")
         st.caption("La IA las propuso con confianza alta, pero la regla no las aceptó: no están "
                    "en tu ontología.")
         st.dataframe(pd.DataFrame(suggested), hide_index=True, width="stretch")
-    if v["evidence"]:
-        st.markdown("**Artículos de la ley para cada concepto**")
-        st.caption(v["evidence"])
-        evidence = svc.evidence_rows(v["rows"])
-        if evidence:
-            st.dataframe(pd.DataFrame(evidence), hide_index=True, width="stretch")
-    if not suggested and not v["evidence"]:
+    if not flagged and not suggested:
         st.info("No hay nada pendiente de revisar.")
     st.caption("Todo esto también está en alignment.csv, dentro del .zip.")
+
+
+def _law_tab(v: dict) -> None:
+    st.caption(v["evidence"])
+    evidence = svc.evidence_rows(v["rows"])
+    if evidence:
+        st.dataframe(pd.DataFrame(evidence), hide_index=True, width="stretch")
+
+
+def _validation(v: dict) -> None:
+    val = v["validation"]
+    st.markdown("**Validación**")
+    with st.container(border=True):
+        if val is None:
+            st.caption(svc.NO_VALIDATION)
+            return
+        st.markdown(f"{val['badge']} {val['headline']}")
+        for col, card in zip(st.columns(len(val["cards"])), val["cards"]):
+            with col:
+                st.markdown(f"**{card['title']}** {card['badge']}")
+                st.markdown(card["text"])
+                st.caption(card["caption"])
+        with st.expander("¿Qué revisa cada uno?"):
+            for title, text in svc.VALIDATION_HELP.items():
+                st.markdown(f"**{title}.** {text}")
+        with st.expander("Ver el detalle"):
+            if val["rules"]:
+                st.markdown("**Forma: reglas con hallazgos**")
+                st.dataframe(pd.DataFrame(val["rules"]), hide_index=True, width="stretch")
+            if val["kinds"]:
+                st.markdown("**Lógica: tipos de hallazgo**")
+                st.dataframe(pd.DataFrame(val["kinds"]), hide_index=True, width="stretch")
+            if not val["rules"] and not val["kinds"]:
+                st.caption("La forma y la lógica no tienen hallazgos.")
+            st.download_button(f"Descargar el detalle ({val['log_file']})",
+                               data=partial(svc.validation_log, v["id"], svc.workspace_cfg()),
+                               file_name=val["log_file"], mime="text/plain", key="align_dl_log",
+                               on_click="ignore", icon=":material/description:")
 
 
 def step_result(ws_id: str) -> None:
@@ -200,14 +219,20 @@ def step_result(ws_id: str) -> None:
                             mime="application/zip", key=f"align_dl_{d['key']}", help=d["help"],
                             on_click="ignore", icon=":material/download:", width="stretch")
     st.caption(svc.package_caption(v))
-    # S8-T09: the validation panel (SHACL + reasoner) goes here.
-    summary, concepts, review = st.tabs(["Resumen", "Conceptos", "Para revisar"])
-    with summary:
+    _validation(v)
+    names = ["Resumen", "Conceptos", "Para revisar"]
+    if v["evidence"]:
+        names.append(svc.LAW_TAB)
+    tabs = st.tabs(names)
+    with tabs[0]:
         _summary_tab(v)
-    with concepts:
+    with tabs[1]:
         _concepts_tab(v)
-    with review:
+    with tabs[2]:
         _review_tab(v)
+    if v["evidence"]:
+        with tabs[3]:
+            _law_tab(v)
     st.button("Alinear otro archivo", key="align_again", icon=":material/restart_alt:",
               on_click=_restart)
 
