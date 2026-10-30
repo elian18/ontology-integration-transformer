@@ -856,3 +856,211 @@ pruebas en verde sin las marcadas `slow` (770 en total).
   - hay correspondencias para revisar en los comentarios: una heredada de la base
     (`NationalDatabaseRegistry` → `ProtectionOfNationalSecurity`) y una aceptada en el GDPR
     (`EmploymentContext` `exactMatch` `ProcessingContext`).
+
+---
+
+## v0.8.0 — Sprint 8 (Refactorización del front-end + validación estructural)
+
+**Entregable:** el **Asistente de alineación** lleva al usuario por tres pantallas (qué tiene,
+sus archivos y el resultado), y en la del resultado muestra la validación estructural de lo que
+descarga. La forma se revisa con SHACL (pySHACL), la lógica con el razonador de Apache Jena
+(owlrl si no hay Java) y una IA revisora explica las correspondencias que aceptó la regla. En las
+subidas reales el sistema no escribió ninguna violación ni contradicción nueva: lo que sale en
+ámbar ya estaba en la ontología del usuario o en la base. La validación nunca bloquea la
+descarga.
+
+### Qué se construyó
+- `app/views/align_ontology.py` + `app/services/align_ontology.py` (S8-T01) — el asistente por
+  pasos. Primero pregunta "¿Qué tienes?" con una tarjeta por modo. Después pide los archivos de
+  ese modo y arranca solo. Al final muestra el resultado con cuatro botones de descarga (un .zip
+  por formato, que se arma solo al hacer clic) y las pestañas Resumen, Conceptos y Para revisar.
+  Se borraron las páginas Insumos y Artículos con su código y sus pruebas.
+- `app/app.py` + `app/services/base_access.py` (S8-T02) — las páginas que construyen la base van
+  aparte, en "Herramientas de construcción". Las que escriben en ella (Aprobar conceptos IA y
+  Alineación DPV) solo muestran sus botones con `EDITABLE_BASE=1` en `.env`.
+- `src/alignment/law_definitions.py` + prompt `define.v1` (S8-T03) — en "Mi ontología y una
+  ley", si a 10 % o más de los conceptos les falta definición, la ley se la da. Primero se busca
+  el concepto de la ley con el mismo nombre o etiqueta (o muy parecido). Si no lo hay, la IA
+  escribe la definición con los artículos más cercanos o dice que no aplica. Las definiciones van
+  al módulo `<nombre>-definitions`, cada una con `dct:source` hacia su artículo; las del usuario
+  no cambian.
+- `src/alignment/prompt_lab.py` (S8-T04) — banco de pruebas de los prompts del decisor. Divide
+  las 552 decisiones en dos mitades fijas (semilla 2026) y clasifica cada error. Además prepara
+  un mensaje para pedirle a Gemini una versión mejor (`decide-vN-desarrollo-para-gemini.txt`).
+  Una versión se adopta solo con la mitad de prueba: precisión de 75 % o más y F1 al menos
+  3 puntos sobre la versión en uso.
+- Prompts `decide.v2` a `decide.v4` y comparación con las definiciones de la ley (S8-T05); ver
+  Resultados.
+- `src/validation/shapes.ttl` + `shapes.py` (S8-T06) — 12 reglas SHACL en cuatro grupos:
+  - correspondencias: el término del DPV existe, las relaciones SKOS no se contradicen, el
+    concepto alineado está en la ontología y cada anotación dice quién decidió y su versión;
+  - textos: etiquetas y definiciones con idioma, y la definición tomada de la ley cita su
+    artículo;
+  - paquete: cada importación viene en el .zip;
+  - completitud (avisos): etiqueta en español, etiqueta en inglés y definición.
+- `src/validation/shape_inspector.py` (S8-T07) — corre las reglas sobre la base o sobre un
+  espacio de trabajo y dice de dónde viene cada hallazgo: nuevo (lo escribió el sistema), de la
+  ontología del usuario o de la base. Guarda `shacl-report.json` y `shacl-log.txt`.
+- `src/validation/logic_inspector.py` + `JenaCheck.java` (S8-T08) — el razonador de Apache Jena
+  6.2.0 (OWL Micro, Java 21 o superior) corre en modo de archivo único; sin Java ni Jena se usa
+  owlrl (OWL 2 RL en Python). Razona dos veces, sobre todo y sobre lo heredado, para separar lo
+  nuevo de lo que ya estaba. Guarda `reasoner-report.json` y `reasoner-log.txt`.
+- `src/validation/ai_auditor.py` + prompt `audit.v1` (S8-T09) — una segunda IA lee cada
+  correspondencia que aceptó la regla: el concepto con su definición y el término del DPV con la
+  suya y sus padres. Dice si es coherente, dudosa o incoherente, qué relación usaría y, en una
+  oración, por qué. Con `--medir` se compara con las 552 decisiones.
+- `src/validation/upload_validation.py` + `src/alignment/user_alignment.py` (S8-T10) — cada subida
+  suma tres pasos: la IA revisa las aceptadas antes de escribir, y después se validan la forma y
+  la lógica.
+  - El .zip trae `validation.json`, `validation-log.txt` y una sección "Validación" en el LEEME.
+  - `alignment.csv` suma las columnas `ai_review`, `ai_relation` y `ai_explanation`.
+  - Si un inspector falla, el paso queda en error y la descarga sigue.
+  - La consola acepta `--espacio` para volver a correr una subida de cualquier modo.
+- Panel de validación del asistente (S8-T11) — va entre las descargas y las pestañas:
+  - el color general, con una frase que dice qué mirar;
+  - una tarjeta por inspector (Forma, Lógica, IA revisora), con su color, sus cifras y el
+    motor que corrió;
+  - una explicación de qué revisa cada uno, el detalle por regla y la descarga de
+    `validation-log.txt`.
+
+  En "Para revisar" aparece primero lo que marcó la IA revisora, y los artículos de la ley
+  pasan a su propia pestaña, "Lo que dice la ley de cada concepto".
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **La refactorización del front-end va primero**, para poner los paneles de los Sprints 8 a 10
+  en la pantalla nueva sin rehacerla.
+- **Colores del panel:**
+  - rojo: solo lo nuevo que escribió el sistema;
+  - ámbar: avisos o hallazgos heredados (ya estaban en la ontología del usuario o en la base);
+  - verde: nada que revisar.
+
+  Ningún color bloquea la descarga.
+- **Razonador:** Apache Jena como principal y owlrl de respaldo; el panel dice cuál corrió. Se usa
+  OWL Micro porque en la base tarda 2,6 s, mientras que OWL Mini no terminó en 15 minutos. Jena 6
+  necesita Java 21 o superior (probado con Java 24) y se descarga una vez en `tools/` (git lo
+  ignora).
+- **Las definiciones de la ley no van al decisor.** El criterio, fijado antes de medir, era
+  adoptarlas solo si la precisión seguía en 75 % o más y la cobertura subía. Con ellas la
+  precisión bajó de 75,0 % a 71,0 % y la cobertura de 29,5 % a 28,3 %. Se quedan en su módulo
+  (completan la ontología) y en la evidencia de `alignment.csv`.
+- **Se queda el prompt `decide.v1`:** ninguna versión nueva superó a v1 en la mitad de
+  desarrollo, así que no se corrieron en la de prueba.
+- **La IA revisora solo explica.** El criterio, fijado antes de medir, era dejar fuera lo que
+  marca solo si la precisión subía 5 puntos o más perdiendo como máximo el 10 % de las correctas.
+  No se cumplió (ver Resultados).
+- **No se rehace la base para reponer los axiomas anónimos de OntoPriv** que el Sprint 3 dejó
+  fuera (5 `owl:AllDisjointClasses` y 38 reglas SWRL); queda como limitación.
+
+### Resultados
+**Prompts del decisor (S8-T04, S8-T05)**, con la regla de producción, en las dos mitades de las
+552 decisiones (276 conceptos cada una). Cada celda dice propuestas / correctas / precisión /
+cobertura / F1:
+
+| Versión | Qué cambia | Mitad de desarrollo | Mitad de prueba |
+|---|---|---|---|
+| **v1 (en uso)** | — | 31 / 26 / 83,9 % / 29,9 % / 44,1 % | 37 / 25 / 67,6 % / 29,1 % / 40,6 % |
+| v1 + definiciones | el decisor ve las definiciones que dio la ley | 31 / 24 / 77,4 % / 27,6 % / 40,7 % | 38 / 25 / 65,8 % / 29,1 % / 40,3 % |
+| v2 | el mismo contenido, ordenado en secciones (rol, fuentes, tarea, reglas, salida) | 36 / 24 / 66,7 % / 27,6 % / 39,0 % | — |
+| v3 | prohíbe copiar un término de los precedentes que no esté entre los candidatos | 35 / 25 / 71,4 % / 28,7 % / 41,0 % | — |
+| v4 | pide no forzar `exactMatch` con términos del DPV muy generales | 31 / 20 / 64,5 % / 23,0 % / 33,9 % | — |
+
+- v1 en las 552 decisiones: 68 aceptadas y 51 correctas (75,0 %), con cobertura de 29,5 %, igual
+  que en S7-T05. La distancia entre las dos mitades (83,9 % y 67,6 %) muestra cuánto cambia la
+  precisión cuando se mide con 30 o 40 propuestas.
+
+**Definiciones de la ley (S8-T03)**, OntoPriv + LOPDP en "Mi ontología y una ley":
+- A 526 de los 527 conceptos les faltaba definición. La ley dio 191: 22 de conceptos de la ley y
+  169 escritas por la IA con sus artículos. Otras 331 no aplican y 4 respuestas fueron inválidas,
+  en 51 llamadas; siguen faltando 335.
+- GDPRtEXT no gasta IA: solo a 4 de sus 235 conceptos les falta definición, menos del 10 %.
+
+**Validación de la base (S8-T06 a S8-T08):** OntoPriv-Core, el perfil de Ecuador y la alineación
+(4321 tripletas). Nada es nuevo: el sistema no agregó ninguna violación ni contradicción.
+
+| Inspector | Heredado de OntoPriv | Avisos |
+|---|---|---|
+| Forma (pySHACL 0.40.1, 2,0 s) | 1 (un `rdf:langString` sin idioma) | 1605: 1580 de OntoPriv (etiquetas y definiciones que faltan) y 25 del sistema (la etiqueta en inglés de los 25 conceptos de la IA) |
+| Lógica (Jena, OWL Micro, 2,6 s) | 830: 419 individuos en clases disjuntas, 408 valores de objeto en propiedades de datos y 3 literales de otro tipo | 1310 |
+| Lógica (owlrl 7.6.2, 17,2 s) | 419 individuos en clases disjuntas | 0 |
+
+- OntoPriv es inconsistente. Sobre OntoPriv sola, owlrl encuentra 2785 conflictos porque usa sus
+  `owl:AllDisjointClasses`; sobre la base, que no conserva esos axiomas, encuentra 419.
+- Completitud de la base (552 conceptos): 25 tienen etiqueta en español, ninguno en inglés y 26
+  tienen definición. En cada subida, el módulo de etiquetas y el de definiciones completan las
+  que faltan.
+
+**Subidas reales (S8-T10):**
+
+| Subida | Forma | Lógica (Jena) | IA revisora |
+|---|---|---|---|
+| GDPRtEXT + GDPR ("Mi ontología y una ley") | ámbar: 0 nuevas, 232 heredadas (etiquetas sin idioma), 4 avisos | verde: 0 (se descartan 1052 comparaciones con el rango `rdfs:Literal`) | ámbar: 11 incoherentes y 1 dudosa de 80 aceptadas |
+| Ley 1581 de 2012, Colombia ("Una ley") | ámbar: 0 nuevas, 1 heredada (de la base), 740 avisos | ámbar: 0 nuevas, 255 heredadas de OntoPriv-Core, 1243 avisos | verde: las 3 aceptadas son coherentes |
+
+- La validación suma de 7 a 9 s por subida. Una subida repetida no vuelve a llamar a la IA:
+  GDPRtEXT dio 0 llamadas y 80 respuestas desde la caché.
+
+**IA revisora (S8-T09)**, medida con las 68 correspondencias que la regla acepta en las 552
+decisiones (51 iguales a la decisión de la persona y 17 distintas), en 7 llamadas:
+
+| Dejar fuera | Distintas atrapadas | Correctas perdidas | Precisión | Criterio (+5 puntos) |
+|---|---|---|---|---|
+| incoherente | 3 de 17 | 3 de 51 | 75,0 % → 77,4 % | no cumple |
+| incoherente o dudosa | 3 de 17 | 5 de 51 | 75,0 % → 76,7 % | no cumple |
+
+- Las 17 distintas son casi siempre aciertos parciales: la familia correcta con otra
+  granularidad, como `VitalInterest` en lugar de `VitalInterestOfNaturalPerson`. Una revisión de
+  coherencia no las distingue.
+- Dos de las tres falsas alarmas confunden `broadMatch` con "no son equivalentes"; por ejemplo,
+  `Deceased_persons_data` → `PersonalData`.
+- Relación SKOS en las 51 correctas: el decisor coincide con la persona en 32 y la IA revisora
+  en 28.
+
+### Cómo usar
+Consola:
+
+    py -m src.alignment.prompt_lab --mitad desarrollo --version N    # mide decide.vN
+    py -m src.alignment.prompt_lab --tabla                         # compara las versiones
+    py -m src.alignment.prompt_lab --preparar-definiciones         # la LOPDP define OntoPriv
+    py -m src.validation.shapes ARCHIVOS...                        # las reglas SHACL sobre archivos
+    py -m src.validation.shape_inspector --base | ESPACIO          # forma, con el origen de cada hallazgo
+    py -m src.validation.logic_inspector --base | ESPACIO [--motor jena|owlrl]
+    py -m src.validation.ai_auditor --medir | ESPACIO [--sin-ia]
+    py -m src.alignment.user_alignment ONTOLOGIA | --espacio ESPACIO [--sin-ia]
+
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+El **Asistente de alineación** es la página de inicio; las páginas de la base están en
+"Herramientas de construcción".
+
+### Pruebas
+Archivos nuevos o ampliados en este sprint: `tests/test_ui_align_ontology.py`,
+`test_ui_base_access.py`, `test_law_definitions.py`, `test_prompt_lab.py`,
+`test_validation_shapes.py`, `test_validation_shape_inspector.py`,
+`test_validation_logic_inspector.py` (con Jena real cuando hay Java 21 o superior y Jena en
+`tools/`), `test_validation_ai_auditor.py`, `test_validation_upload.py` y
+`test_ui_validation_panel.py`. Las pruebas del flujo usan owlrl para ser rápidas; Jena tiene sus
+propias pruebas. Cada tarea pasó por pruebas de mutación. Suite del proyecto: 911 pruebas en
+verde sin las marcadas `slow` (924 en total).
+
+### Alcance y pendientes
+- **Sprint 9 (validación SPARQL):** las preguntas de competencia como consultas `.rq` en Jena,
+  con un panel de pasa / no pasa en la pantalla del resultado.
+- **Sprint 10 (comentarios del usuario y trazabilidad):**
+  - el material ya está en `alignment.csv`: las sugeridas, las propiedades (nunca automáticas),
+    los artículos para revisar y ahora lo que marcó la IA revisora, con su explicación;
+  - compartir la caché de la IA entre espacios de trabajo;
+  - decidir si entra el botón "Confirmar esta versión".
+- **Limitaciones para la tesis:**
+  - la referencia (las 552 decisiones del Sprint 5) es ruidosa: la mayoría se confirmó en lote, y
+    las métricas medidas contra ella deben leerse con cautela;
+  - la base perdió los axiomas anónimos de OntoPriv (5 `owl:AllDisjointClasses` y 38 reglas
+    SWRL), así que el razonador no ve esas restricciones;
+  - Jena y owlrl no cuentan lo mismo (830 y 419 hallazgos heredados en la base), porque cubren
+    perfiles distintos de OWL; ninguno exige OWL 2 DL, que OntoPriv no cumple;
+  - iterar el prompt no mejoró la alineación, ni darle al decisor las definiciones de la ley,
+    ni dejar fuera lo que marca la IA revisora; los tres son resultados medidos con un criterio
+    fijado antes;
+  - la IA revisora confunde a veces una relación más general (`broadMatch`) con una
+    incoherencia.
