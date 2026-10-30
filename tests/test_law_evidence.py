@@ -354,7 +354,9 @@ def test_align_with_law_end_to_end(env, tmp_path):
                     "Heredar lo validado", "Buscar candidatos del DPV",
                     "Completar las etiquetas en español e inglés",
                     "Buscar en la ley los artículos de cada concepto",
-                    "Escribir la ontología alineada", "Preparar la descarga"]
+                    "La IA revisa las correspondencias aceptadas",
+                    "Escribir la ontología alineada", "Validar la forma (SHACL)",
+                    "Validar la lógica (razonador)", "Preparar la descarga"]
     assert ws.manifest["mode"] == "ontology+law"
     assert all(s["status"] == DONE for s in ws.progress())
     e = m["law_evidence"]

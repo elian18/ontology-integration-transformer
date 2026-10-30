@@ -52,8 +52,9 @@ LABELS = ["Separar la ley en artículos", "Indexar los artículos de la ley",
           "Heredar lo validado", "Extraer los conceptos de la ley con la IA",
           "Aceptar los conceptos por regla", "Completar las definiciones con la ley",
           "Buscar candidatos del DPV", "Completar las etiquetas en español e inglés",
-          "Buscar en la ley los artículos de cada concepto", "Escribir la ontología alineada",
-          "Preparar la descarga"]
+          "Buscar en la ley los artículos de cada concepto",
+          "La IA revisa las correspondencias aceptadas", "Escribir la ontología alineada",
+          "Validar la forma (SHACL)", "Validar la lógica (razonador)", "Preparar la descarga"]
 
 
 class LawEmbed(Embed):
@@ -317,7 +318,7 @@ def test_the_law_completes_the_definitions(env, tmp_path):
     assert (d[LAW_CONCEPT], d[ARTICLES], d[NOT_APPLICABLE], d[PENDING]) == (2, 1, 1, 0)
     assert d["law"] == "ley.txt" and d["language"] == "es" and d["skipped"] is None
     assert d["law_concepts"]["summary"]["accepted"] == 2
-    assert set(m["settings"]["prompts"]) == {"decide", "labels", "define", "extract"}
+    assert set(m["settings"]["prompts"]) == {"decide", "labels", "define", "extract", "audit"}
     assert m["settings"]["prompts"]["define"]["sha256"] == ld.PROMPT.sha256
     assert ws.step("definitions")["detail"] == (
         "3 definiciones de la ley (2 de conceptos de la ley y 1 escrita por la IA con los "
@@ -370,7 +371,7 @@ def test_the_law_completes_the_definitions(env, tmp_path):
 
     calls = llm.calls
     again = _align(env, llm)
-    assert llm.calls == calls and again.seen == LABELS[:2] + LABELS[-2:]   # nothing asked again
+    assert llm.calls == calls and again.seen == LABELS[:2] + LABELS[-4:]   # nothing asked again
     assert not again.manifest["recomputed"]["definitions"]
     assert any(line.startswith("  Definiciones de ley.txt") and
                line.endswith("(de la corrida anterior)")

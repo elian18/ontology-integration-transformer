@@ -87,7 +87,8 @@ def test_law_and_both_modes_are_accepted(cfg):
 
 def test_the_steps_depend_on_what_the_workspace_holds(cfg):
     assert steps_for("ontology") == STEPS and steps_for(None) == STEPS
-    assert STEPS == ("inherit", "candidates", "propose", "labels", "write", "package")  # S7-T08
+    assert STEPS == ("inherit", "candidates", "propose", "labels", "audit", "write", "shapes",
+                     "logic", "package")                                     # S8-T10
     assert LAW_STEPS == ("segment", "index") and EXTRACT_STEPS == ("extract", "accept")
     assert PROFILE_STEPS == ("profile",)
     # solo ley: the law (S7-T07), its concepts (S7-T09), the profile and its alignment (S7-T10)
@@ -95,7 +96,7 @@ def test_the_steps_depend_on_what_the_workspace_holds(cfg):
     assert steps_for("ontology+law") == (LAW_STEPS + STEPS[:1] + DEFINITION_STEPS + STEPS[1:4]
                                          + EVIDENCE_STEPS + STEPS[4:])
     assert DEFINITION_STEPS == ("definitions",) and EVIDENCE_STEPS == ("evidence",)
-    assert STEPS[4:] == ("write", "package")
+    assert STEPS[4:] == ("audit", "write", "shapes", "logic", "package")
     law = open_law("Ley.txt", b"Art. 1.- Objeto.", cfg=cfg)
     assert law.manifest["mode"] == "law"
     assert list(law.manifest["steps"]) == list(steps_for("law"))

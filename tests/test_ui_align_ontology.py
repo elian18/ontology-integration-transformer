@@ -77,7 +77,9 @@ def test_align_runs_every_step_and_names_them(aligned):
     assert ws_id.startswith("mi-gdpr-")
     assert seen == ["Heredar lo validado", "Buscar candidatos del DPV",
                     "Completar las etiquetas en español e inglés",
-                    "Escribir la ontología alineada", "Preparar la descarga"]
+                    "La IA revisa las correspondencias aceptadas",
+                    "Escribir la ontología alineada", "Validar la forma (SHACL)",
+                    "Validar la lógica (razonador)", "Preparar la descarga"]
 
 
 def test_view_has_the_numbers_and_the_table(aligned):

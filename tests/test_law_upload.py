@@ -69,7 +69,7 @@ def test_a_law_workspace_has_the_law_steps(ws, cfg):
                         "law": ("l.txt", LAW.encode("utf-8"))}, cfg=cfg)
     assert [r["step"] for r in both.progress()] == [
         "segment", "index", "inherit", "definitions", "candidates", "propose", "labels",
-        "evidence", "write", "package"]
+        "evidence", "audit", "write", "shapes", "logic", "package"]
 
 
 def test_segment_and_index_a_law(ws):

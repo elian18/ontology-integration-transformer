@@ -90,3 +90,10 @@ validation:                   # S8-T07/T08: the inspectors of form (SHACL, src/v
   java: "java"                # Java 21 or later (Jena 6)
   reasoner: owl-micro         # Jena rule reasoner: rdfs | owl-micro | owl-mini | owl. On the base: owl-micro 2,6 s; owl-mini did not finish in 15 min
   timeout_seconds: 300        # longer than this: owlrl instead (or an error with engine: jena)
+audit:                        # S8-T09/T10: in each upload the AI reviews the correspondences the rule accepted (prompt audit.v1). It only explains: on the 552 decisions (--medir) leaving out the flagged ones went 75.0 -> 77.4 % precision (+5 points needed)
+  enabled: true               # false: the uploads are not reviewed by the AI
+  batch_size: 10              # correspondences per LLM call
+  max_calls: 10               # LLM calls per upload (free tier shared: 500/day); re-run to continue (cache)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_tokens: 4096            # max answer length per call
+  definition_chars: 400       # length of each definition shown to the AI

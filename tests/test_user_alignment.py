@@ -309,7 +309,9 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     w, m, path = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append, **kw)
     assert seen == ["Heredar lo validado", "Buscar candidatos del DPV",
                     "Completar las etiquetas en español e inglés",
-                    "Escribir la ontología alineada", "Preparar la descarga"]
+                    "La IA revisa las correspondencias aceptadas",
+                    "Escribir la ontología alineada", "Validar la forma (SHACL)",
+                    "Validar la lógica (razonador)", "Preparar la descarga"]
     assert path.name == "mi-gdpr-alineada-rdfxml.zip" and path.exists()
     assert all(s["status"] == DONE for s in w.progress())
     assert m["modules"]["labels"] == LABELS and m["labels"]["pending"] == 0
@@ -318,7 +320,7 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
             "inglés (módulo output/mi-gdpr-labels.ttl, 14 tripletas)\n") in text
     assert "  IA de las etiquetas: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
     assert m["recomputed"] == {"inherit": True, "definitions": False, "decider": True,
-                               "labels": True, "evidence": False}
+                               "labels": True, "evidence": False, "audit": True}
     decider_line = [line for line in text.splitlines() if "IA del decisor" in line][0]
     assert decider_line.startswith("  IA del decisor: ") and ua.REUSED not in text
     calls = (embed.calls, llm.calls)
@@ -326,7 +328,8 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     w2, m2, path2 = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), progress=seen.append,
                                  **{**kw, "fmt": "jsonld"})
     assert w2.path == w.path and (embed.calls, llm.calls) == calls     # nothing recomputed
-    assert seen == ["Escribir la ontología alineada", "Preparar la descarga"]
+    assert seen == ["Escribir la ontología alineada", "Validar la forma (SHACL)",
+                    "Validar la lógica (razonador)", "Preparar la descarga"]
     assert path2.name == "mi-gdpr-alineada-jsonld.zip"
     assert not any(m2["recomputed"].values())
     again = ua.render_console(w2, m2, path2)                           # S7-T13: says so

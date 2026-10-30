@@ -39,11 +39,22 @@ Interfaz web (demostrador):
 
     py -m streamlit run app/app.py
 
+Alinear una ontología por consola (igual que la web: cada subida se valida con la forma,
+la lógica y la IA revisora; el detalle va en el .zip, en `validation-log.txt`):
+
+    py -m src.alignment.user_alignment data/input/sample.ttl
+
 Validación de la base o de un espacio de trabajo (forma con SHACL, lógica con el razonador):
 
     py -m src.validation.shape_inspector --base
     py -m src.validation.logic_inspector --base
     py -m src.validation.logic_inspector ESPACIO --motor owlrl
+
+La IA revisa las correspondencias que aceptó la regla (solo explica; `--medir` la compara con
+las 552 decisiones de la base):
+
+    py -m src.validation.ai_auditor ESPACIO
+    py -m src.validation.ai_auditor --medir
 
 ## Pruebas
     py -m pytest -q                  # suite completa
