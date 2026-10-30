@@ -7,6 +7,10 @@ from functools import partial
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
+from src.validation import ai_auditor as au
+from src.validation import upload_validation as uv
+from src.validation.shapes import VIOLATION
+from src.validation.shape_inspector import AMBER, BASE, GREEN, NEW, ONTOLOGY, RED
 from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, WorkspaceError, load_workspace
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
@@ -82,6 +86,31 @@ STATE_HELP = {
     "No se alinea": "Individuos (ejemplos de datos): no se alinean, igual que en la base.",
 }
 DECIDED_BY = {"base": "base", "rule": "regla", "rule_without_ai": "regla sin IA"}
+
+# The validation panel of step 3 (S8-T11): one color per inspector, never a blocked download.
+LIGHTS = {GREEN: ("green", "Verde"), AMBER: ("orange", "Ámbar"), RED: ("red", "Rojo"),
+          uv.NOT_RUN: ("gray", "Sin revisar"), uv.FAILED: ("gray", "No corrió")}
+CARD_TITLES = {uv.SHAPES: "Forma (SHACL)", uv.LOGIC: "Lógica (razonador)",
+               uv.AUDIT: "IA revisora"}
+VALIDATION_HELP = {
+    "Forma (SHACL)": "12 reglas sobre lo que se entrega: que cada término del DPV exista, que "
+                     "las relaciones SKOS no se contradigan, que cada correspondencia diga quién "
+                     "la decidió y que cada etiqueta y definición tenga su idioma. Los avisos "
+                     "son recomendaciones, como un concepto sin definición.",
+    "Lógica (razonador)": "Apache Jena (o owlrl si no hay Java) busca contradicciones, como un "
+                          "individuo en dos clases disjuntas o un valor de un tipo que no "
+                          "corresponde.",
+    "IA revisora": "Lee cada correspondencia que aceptó la regla y dice si el término del DPV "
+                   "trata de lo mismo que tu concepto. Solo explica: no quita nada de lo "
+                   "aceptado.",
+    "Colores": "rojo: algo que escribió el sistema rompe una regla; ámbar: avisos o hallazgos "
+               "heredados (ya estaban en tu ontología o en la base del sistema); verde: nada "
+               "que revisar. Ningún color bloquea la descarga.",
+}
+NO_VALIDATION = ("Esta alineación es anterior a la validación: vuelve a subir el archivo para "
+                 "validarla (lo ya calculado no se repite).")
+FLAGGED_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Veredicto", "Explicación"]
+LAW_TAB = "Lo que dice la ley de cada concepto"
 
 # The five numbers at the top of the page (their labels are plural) and their states.
 METRICS = {"Validadas en la base": (ua.INHERITED_ALIGNED,),
@@ -203,6 +232,7 @@ def view(ws_id: str) -> dict:
         "definitions_note": definitions_note(definitions),
         "rows": table_rows(_rows(ws), with_law=evidence is not None,
                            with_definitions=bool((definitions or {}).get("added"))),
+        "validation": validation_view(ws),
     }
 
 
@@ -401,6 +431,7 @@ def table_rows(rows: list[dict], with_law: bool = False,
             "Confianza de la IA": r.get("confidence") or "",
             "Decidido por": _decided_by(r),
             "Justificación": r.get("justification") or "",
+            "Revisión de la IA": r.get("ai_review") or "",
         }
         if with_definitions:
             row["Definición de la ley"] = r.get("law_definition") or ""
@@ -502,3 +533,124 @@ def download_options(ws_id: str) -> list[dict]:
     return [{"key": key, "label": label.split(" (")[0], "help": label,
              "file_name": ua.package_name(ws, key),
              "data": partial(package_bytes, ws_id, key, cfg)} for key, label in FORMATS]
+
+# ------------------------------------------------------------------ validation panel (S8-T11)
+
+def badge(status: str) -> str:
+    color, label = LIGHTS[status]
+    return f":{color}-badge[{label}]"
+
+
+def card_text(key: str, block: dict) -> str:
+    """Two short lines per inspector (markdown)."""
+    if block["status"] == uv.FAILED:
+        return f"No pudo correr  \n{block['error']}"
+    if key != uv.AUDIT:
+        what = "Reglas rotas" if key == uv.SHAPES else "Contradicciones"
+        return (f"{what}: {block['new']} nuevas · {block['inherited']} heredadas  \n"
+                f"Avisos: {block['warnings']}")
+    if "summary" not in block:
+        return "No se hizo la revisión"
+    s = block["summary"]
+    if not s["accepted"]:
+        return "Nada que revisar  \nLa regla no aceptó ninguna correspondencia"
+    if block["status"] == uv.NOT_RUN:
+        why = block["ai"].get("error") or next(iter(block["ai"].get("errors") or []), "")
+        return f"No revisó las {s['accepted']} aceptadas  \n{why}".rstrip()
+    text = (f"Incoherentes: {s['incoherente']} · dudosas: {s['dudosa']}  \n"
+            f"De {_n(s['accepted'], 'aceptada', 'aceptadas')} por la regla")
+    return text + (f" · sin revisar: {s['pending']}" if s["pending"] else "")
+
+
+def card_caption(key: str, block: dict) -> str:
+    if key == uv.AUDIT:
+        prompt = block.get("prompt")
+        return (f"prompt {prompt['name']}.v{prompt['version']} · " if prompt else "") + \
+            "solo explica"
+    return block.get("engine") or ""
+
+
+def validation_headline(result: dict) -> str:
+    ins = result["inspectors"]
+    if result["status"] == RED:
+        return ("El sistema escribió algo que rompe una regla: mira el detalle. La descarga "
+                "sigue disponible.")
+    audit = ins[uv.AUDIT]
+    if result["status"] == GREEN:
+        text = "Ninguna regla se rompe y el razonador no encontró contradicciones."
+        if audit["status"] == GREEN and (audit.get("summary") or {}).get("accepted"):
+            text += " La IA revisora no marcó nada."
+        elif audit["status"] == uv.NOT_RUN:
+            text += " La IA no revisó las correspondencias aceptadas."
+        return text
+    parts = []
+    inherited = sum(ins[k].get("inherited", 0) for k in (uv.SHAPES, uv.LOGIC))
+    warnings = sum(ins[k].get("warnings", 0) for k in (uv.SHAPES, uv.LOGIC))
+    flagged = len(audit.get("flagged") or [])
+    if inherited:
+        parts.append(f"{_n(inherited, 'hallazgo heredado', 'hallazgos heredados')} (ya estaban "
+                     "en tu ontología o en la base del sistema)")
+    if warnings:
+        parts.append(f"{_n(warnings, 'aviso', 'avisos')} (recomendaciones, como conceptos sin "
+                     "definición)")
+    if flagged:
+        parts.append(f"{_n(flagged, 'correspondencia', 'correspondencias')} que la IA revisora "
+                     "marcó para que las mires")
+    failed = [CARD_TITLES[k] for k, b in ins.items() if b["status"] == uv.FAILED]
+    if failed:
+        parts.append("no pudo correr: " + ", ".join(failed))
+    return ("Nada de lo que escribió el sistema rompe una regla. Para mirar: " + "; ".join(parts)
+            + ".")
+
+
+def _rule_rows(ws, block: dict) -> list[dict]:
+    from src.validation.shape_inspector import load_result
+    report = load_result(ws) if block["status"] != uv.FAILED else None
+    rows = []
+    for r in ((report or {}).get("summary") or {}).get("rules", {}).values():
+        if r[NEW] + r[ONTOLOGY] + r[BASE]:
+            rows.append({"Regla": r["name"],
+                         "Tipo": "regla" if r["severity"] == VIOLATION else "aviso",
+                         "Nuevas": r[NEW], "Heredadas": r[ONTOLOGY] + r[BASE]})
+    return rows
+
+
+def _kind_rows(ws, block: dict) -> list[dict]:
+    from src.validation.logic_inspector import load_result
+    report = load_result(ws) if block["status"] != uv.FAILED else None
+    rows = []
+    for k in ((report or {}).get("summary") or {}).get("kinds", {}).values():
+        if k["errors"] + k["warnings"]:
+            rows.append({"Tipo": k["label"], "Contradicciones": k["errors"],
+                         "Avisos": k["warnings"], "Nuevas": k[NEW],
+                         "Heredadas": k[ONTOLOGY] + k[BASE]})
+    return rows
+
+
+def flagged_rows(result: dict | None) -> list[dict]:
+    """What the AI reviewer marked, with why ("Para revisar")."""
+    flagged = ((result or {}).get("inspectors", {}).get(uv.AUDIT) or {}).get("flagged") or []
+    first = sorted(flagged, key=lambda f: (f["verdict"] != au.INCOHERENT, f["name"].lower()))
+    return [dict(zip(FLAGGED_COLUMNS, (f["name"], f["dpv_name"], f["relation"] or "",
+                                       f["verdict"], f["explanation"] or "")))
+            for f in first]
+
+
+def validation_view(ws) -> dict | None:
+    """The panel: the overall color, one card per inspector and the detail tables."""
+    result = uv.load_result(ws)
+    if result is None:
+        return None
+    ins = result["inspectors"]
+    return {"status": result["status"], "badge": badge(result["status"]),
+            "headline": validation_headline(result),
+            "cards": [{"key": k, "title": CARD_TITLES[k], "badge": badge(b["status"]),
+                       "text": card_text(k, b), "caption": card_caption(k, b)}
+                      for k, b in ins.items()],
+            "rules": _rule_rows(ws, ins[uv.SHAPES]), "kinds": _kind_rows(ws, ins[uv.LOGIC]),
+            "flagged": flagged_rows(result), "log_file": uv.LOG_FILE}
+
+
+def validation_log(ws_id: str, cfg: dict | None = None) -> bytes:
+    """validation-log.txt of ``ws_id`` (what its download button calls when clicked)."""
+    return (load_workspace(ws_id, cfg=cfg).output_dir / uv.LOG_FILE).read_bytes()
