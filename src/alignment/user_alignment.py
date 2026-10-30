@@ -5,6 +5,7 @@ import csv
 import hashlib
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from src.core.emit import CORE_FILE, CORE_IRI
 from src.transform import labels as lab
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
 from src.transform.package import CATALOG_FILE, Module, Package, package_modules
+from src.validation import ai_auditor as au
 
 DPV = Namespace("https://w3id.org/dpv#")
 GENERATED_IRI_BASE = "http://www.semanticweb.org/uploads/"
@@ -56,7 +58,8 @@ CSV_COLUMNS = ["concept_iri", "concept_name", "label_es", "label_en", "labels_ad
                "law_evidence", "law_definition", "law_definition_source",
                "status", "estado", "decided_by", "validated",
                "relation", "dpv_iri", "dpv_name", "score", "confidence", "method",
-               "base_concept", "reviewer", "justification", "version"]
+               "base_concept", "reviewer", "justification", "ai_review", "ai_relation",
+               "ai_explanation", "version"]
 
 
 # --------------------------------------------------------------------------- names and IRIs
@@ -193,9 +196,11 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
 # --------------------------------------------------------------------------- rows
 
 def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = None,
-                 evidence: dict | None = None, definitions: dict | None = None) -> list[dict]:
+                 evidence: dict | None = None, definitions: dict | None = None,
+                 audit: dict | None = None) -> list[dict]:
     """One row per concept of the user's ontology (aligned ones: one row per mapping), with its
-    labels in Spanish and English, the articles of the law and the definition it gave."""
+    labels in Spanish and English, the articles of the law, the definition it gave and what
+    the AI reviewer said of the accepted ones."""
     version = (decisions or {}).get("alignment_version", dec.ALIGNMENT_VERSION)
     rows = []
     for item in inherited.get("inherited", []):
@@ -226,8 +231,13 @@ def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = 
                          "status": NOT_ALIGNABLE, "validated": False})
     named, articles = lab.by_key(labels), ev.by_key(evidence)
     defined, law = ld.by_key(definitions), ((definitions or {}).get("law") or {}).get("file")
+    reviewed = au.by_key(audit)
     for r in rows:
         r["estado"] = STATUS_LABELS[r["status"]]
+        review = reviewed.get(r["concept_iri"])        # only the accepted ones are reviewed
+        if review:
+            r.update(ai_review=review["verdict"], ai_relation=review["ai_relation"],
+                     ai_explanation=review["explanation"])
         if r["concept_iri"] in articles:
             r["law_evidence"] = ev.evidence_text(articles[r["concept_iri"]])
         given = defined.get(r["concept_iri"])
@@ -357,12 +367,15 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             stale.unlink()                             # module of proposals of v0.6.0
 
         evidence = ev.load_result(ws)                  # "ontología + ley": only the CSV
-        rows = concept_rows(inherited, decisions, labels, evidence, definitions)
+        audit = au.current_result(ws)
+        rows = concept_rows(inherited, decisions, labels, evidence, definitions, audit)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
         prompts = {"decide": decisions.get("prompt") or DECIDE_PROMPT.manifest()}
         if labels:
             prompts["labels"] = labels["prompt"]
+        if audit:
+            prompts["audit"] = audit["prompt"]
         entry = ws.manifest["inputs"]["ontology"]
         profile = None
         if entry.get("generated_from") == "law":
@@ -404,6 +417,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             "law_definitions": defined,
             "law_evidence": ({**evidence["summary"], "law": evidence["law"],
                               "settings": evidence["settings"]} if evidence else None),
+            "ai_audit": ({**audit["summary"], "ai": audit["ai"]} if audit else None),
             "recomputed": recomputed,
             "settings": {"inheritance": inherited.get("settings"),
                          "rule": decisions.get("rule"),
@@ -424,6 +438,10 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
                   "inglés que le faltaban a la ontología (las escribió la IA); ninguna etiqueta "
                   "original cambia."] if "labels" in modules else [])
             + ([ld.module_note(defined)] if "definitions" in modules else [])
+            + (["La IA revisora leyó las correspondencias aceptadas por la regla: su veredicto "
+                "y su explicación están en las columnas ai_review y ai_explanation de "
+                "alignment.csv. Solo explica; no cambia lo aceptado (S8-T09: dejar fuera las "
+                "que marca no subió la precisión lo suficiente)."] if audit else [])
             + ([f"La columna law_evidence de alignment.csv trae los artículos de "
                 f"{evidence['law']} más cercanos a cada concepto (búsqueda semántica), para "
                 "revisarlos; no entran a la ontología: en GDPRtEXT ninguna regla llegó al 75 % "
@@ -462,7 +480,18 @@ def _included(package: Package, path: str) -> str | None:
     return next((f for f in package.included if Path(f).stem == Path(path).stem), None)
 
 
-def _readme_for(manifest: dict):
+def _validation_lines(validation: dict | None) -> list[str]:
+    from src.validation import upload_validation as uv
+    if not validation:
+        return []
+    return ["", uv.summary_lines(validation)[0],
+            "  (rojo: el sistema escribió algo que rompe una regla; ámbar: avisos o lo que ya "
+            "traía tu ontología; verde: nada que revisar)"] + [
+        f"  - {uv.inspector_text(k, b)}" for k, b in validation["inspectors"].items()] + [
+        f"  - {uv.LOG_FILE}: el detalle de cada hallazgo; {uv.RESULT_FILE}: las cifras."]
+
+
+def _readme_for(manifest: dict, validation: dict | None = None):
     def readme(package: Package) -> str:
         s = manifest["summary"]
         main = package.main_file or ""
@@ -544,6 +573,7 @@ def _readme_for(manifest: dict):
             if evidence.get("cited_by_ai"):
                 text.append(f"    En {evidence['cited_by_ai']} de ellos el artículo es el que "
                             "citó la IA al sacar su definición de la ley (citado).")
+        text += _validation_lines(validation)
         text += [
             "",
             "El DPV no se importa: sus términos se referencian por IRI (https://w3id.org/dpv#).",
@@ -569,8 +599,14 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
     if manifest["modules"].get("core"):
         modules.append(Module(manifest["modules"]["core"], ws.path / manifest["files"]["core"],
                               names["core"]))
+    from src.validation import upload_validation as uv
     extras = {MANIFEST_FILE: ws.output_dir / MANIFEST_FILE, CSV_FILE: ws.output_dir / CSV_FILE}
-    return package_modules(modules, fmt, extras=extras, readme=_readme_for(manifest))
+    validation = uv.load_result(ws)
+    if validation:
+        extras.update({uv.RESULT_FILE: ws.output_dir / uv.RESULT_FILE,
+                       uv.LOG_FILE: ws.output_dir / uv.LOG_FILE})
+    return package_modules(modules, fmt, extras=extras,
+                           readme=_readme_for(manifest, validation))
 
 
 def write_package(ws, fmt: str | OutputFormat = "turtle") -> Path:
@@ -588,7 +624,8 @@ def write_package(ws, fmt: str | OutputFormat = "turtle") -> Path:
 def align_upload(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool | None = None,
                  embed_fn=None, llm=None, cfg: dict | None = None, base=None, targets=None,
                  progress=None, chroma_path=None, sleep_fn=None):
-    """Upload -> inherit -> decide -> labels -> write -> package. Steps already done are reused.
+    """Upload -> inherit -> decide -> labels -> AI review -> write -> validate -> package. Steps
+    already done are reused.
 
     The decision is redone when it is not current (another method, as in v0.6.0, another
     rule, or concepts the AI could not decide while it is available), and so are the labels
@@ -613,7 +650,7 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     say = progress or (lambda label: None)
     with_law = ws.manifest.get("mode") == "ontology+law"
     ran = {"inherit": False, "definitions": False, "decider": False, "labels": False,
-           "evidence": False}
+           "evidence": False, "audit": False}
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
         inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
@@ -638,8 +675,18 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         say(STEP_LABELS["evidence"])
         ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
         ran["evidence"] = True
+    if not au.is_current(au.load_result(ws), ws, cfg, use_llm):
+        say(STEP_LABELS["audit"])
+        try:
+            au.audit_workspace(ws, cfg, llm=llm, use_llm=use_llm, targets=targets,
+                               sleep_fn=sleep_fn or time.sleep)
+            ran["audit"] = True
+        except Exception:                              # noqa: BLE001 - the step says the error
+            pass                                       # a failed review never blocks the zip
     say(STEP_LABELS["write"])
     manifest = write_user_alignment(ws, cfg=cfg, core=core, recomputed=ran)
+    from src.validation.upload_validation import validate_workspace
+    validate_workspace(ws, cfg, progress=say)
     say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return ws, manifest, path
@@ -717,6 +764,12 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
             lines.append("  IA de las definiciones: "
                          + (f"{REUSED} ({text})" if reused("definitions") else text))
     evidence = manifest.get("law_evidence")
+    audit = manifest.get("ai_audit")
+    if audit:
+        text = au.ai_text(audit["ai"])
+        lines.append("  IA de la revisión: " + (f"{REUSED} ({text})"
+                                                if audit["ai"].get("available")
+                                                and reused("audit") else text))
     if evidence:
         lines.append(f"  Evidencia de {evidence['law']}: {evidence['with_evidence']} de "
                      f"{evidence['concepts']} conceptos con artículos para revisar "
@@ -728,6 +781,11 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
     if manifest["files"].get("core"):
         lines.append(f"  Núcleo OntoPriv-Core incluido: {manifest['files']['core']} "
                      f"({manifest['triples']['core']} tripletas)")
+    from src.validation import upload_validation as uv
+    validation = uv.load_result(ws)
+    if validation:
+        lines += [f"  {line}" for line in uv.summary_lines(validation)]
+        lines.append(f"    Detalle: output/{uv.LOG_FILE}")
     if zip_path is not None:
         lines.append(f"  Paquete: {zip_path}")
     return "\n".join(lines)
@@ -738,20 +796,32 @@ def _run(argv: list[str] | None = None) -> int:
     from src.workspace.store import WorkspaceError
     parser = argparse.ArgumentParser(
         prog="py -m src.alignment.user_alignment",
-        description="Alinea una ontología subida con el DPV, completa sus etiquetas es/en y la "
-                    "empaqueta (S7-T08).")
-    parser.add_argument("file", help="ontología .rdf, .owl, .ttl o .jsonld")
+        description="Alinea una ontología subida con el DPV, completa sus etiquetas es/en, la "
+                    "valida y la empaqueta (S8-T10).")
+    parser.add_argument("file", nargs="?", help="ontología .rdf, .owl, .ttl o .jsonld")
+    parser.add_argument("--espacio", help="volver a correr un espacio de trabajo ya subido, de "
+                                          "cualquier modo (su id o su carpeta)")
     parser.add_argument("--formato", default="turtle", help="rdfxml, owl, turtle o jsonld")
     parser.add_argument("--sin-ia", action="store_true", help="no llamar al LLM")
     args = parser.parse_args(argv)
-    path = Path(args.file)
-    if not path.exists():
-        print(f"Error: no existe el archivo {path}")
+    if bool(args.file) == bool(args.espacio):
+        print("Error: indica un archivo o --espacio.")
         return 1
+    use_llm = False if args.sin_ia else None
     try:
         output_format(args.formato)
-        ws, manifest, zip_path = align_upload(path.name, path.read_bytes(), fmt=args.formato,
-                                              use_llm=False if args.sin_ia else None)
+        if args.espacio:
+            from src.config import load_config
+            from src.validation.shape_inspector import open_workspace
+            ws = open_workspace(args.espacio, load_config())
+            ws, manifest, zip_path = align_workspace(ws, fmt=args.formato, use_llm=use_llm)
+        else:
+            path = Path(args.file)
+            if not path.exists():
+                print(f"Error: no existe el archivo {path}")
+                return 1
+            ws, manifest, zip_path = align_upload(path.name, path.read_bytes(), fmt=args.formato,
+                                                  use_llm=use_llm)
     except (WorkspaceError, ConversionError, FileNotFoundError, ValueError) as exc:
         print(f"Error: {exc}")
         return 1

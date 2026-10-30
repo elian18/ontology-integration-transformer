@@ -50,7 +50,9 @@ CFG = {"auto": {"threshold": 0.6, "use_llm": True, "llm_max_calls": 5},
        "alignment": {"top_k": 3, "weight_lexical": 0.4, "weight_semantic": 0.6,
                      "justify_batch_size": 15, "justify_pause_seconds": 0},
        "decider": {"candidates": 3, "precedents": 2, "batch_size": 10, "pause_seconds": 0},
-       "labels": {"pause_seconds": 0}}
+       "labels": {"pause_seconds": 0},
+       "validation": {"engine": "owlrl"},           # fast: Jena has its own tests
+       "audit": {"pause_seconds": 0}}
 
 
 class Embed:
@@ -109,7 +111,8 @@ LABELS_ES = {"Consent": "Consentimiento", "PersonalData": "Dato personal",
 class DeciderLLM:
     """Answers like the decider's LLM: the term of ``answers`` if it is a candidate, otherwise
     'ninguno' with high confidence. To the labels prompt (S7-T08) it answers the Spanish label
-    of ``LABELS_ES`` ("Etiqueta de <name>" for the others) and the name split into words."""
+    of ``LABELS_ES`` ("Etiqueta de <name>" for the others) and the name split into words; to
+    the reviewer (S8-T09), "coherente"."""
 
     def __init__(self, answers=None, error=None, model="modelo-de-prueba"):
         self.answers = ANSWERS if answers is None else answers
@@ -127,6 +130,13 @@ class DeciderLLM:
                 out.append({"concept": block.split(" ===", 1)[0], "en": _humanize(name),
                             "es": LABELS_ES.get(name, f"Etiqueta de {name}")})
             return json.dumps({"labels": out}, ensure_ascii=False)
+        if '"reviews"' in prompt:
+            for block in context.split("=== ")[1:]:
+                name = re.search(r"^Concepto: (\S+) \(", block, re.M).group(1)
+                out.append({"concept": block.split(" ===", 1)[0], "verdict": "coherente",
+                            "relation": "exactMatch",
+                            "explanation": f"Revisión de prueba para {name}."})
+            return json.dumps({"reviews": out}, ensure_ascii=False)
         for block in context.split("=== ")[1:]:
             cid = block.split(" ===", 1)[0]
             name = re.search(r"^Concepto: (\S+) \(", block, re.M).group(1)

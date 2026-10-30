@@ -92,7 +92,7 @@ def test_end_to_end_on_gdprtext(tmp_path, real_base):
         GDPRTEXT.name, GDPRTEXT.read_bytes(), fmt="turtle", base=real_base,
         embed_fn=_orthogonal_embed, llm=llm, cfg=cfg, progress=seen.append,
         chroma_path=tmp_path / "chroma", sleep_fn=lambda s: None)
-    assert len(seen) == 5 and all(s["status"] == DONE for s in ws.progress())
+    assert len(seen) == 8 and all(s["status"] == DONE for s in ws.progress())
 
     inherited = load_result(ws)
     same_name = [i for i in inherited["inherited"] if i["method"] == METHOD_SAME_NAME]

@@ -331,10 +331,35 @@ def evaluate(cfg: dict | None = None, *, llm=None, decider_llm=None, embed_fn=No
 
 # --------------------------------------------------------------------------- one upload
 
-def audit_workspace(ws, cfg: dict | None = None, *, llm=None, use_llm: bool = True,
-                    targets=None, sleep_fn=time.sleep) -> dict:
-    """Review the correspondences the rule accepted in an upload (never the inherited ones,
-    which a person decided)."""
+def fingerprint(entries: list[dict]) -> str:
+    rows = sorted((e["key"], e["dpv_iri"], e.get("relation") or "") for e in entries)
+    return hashlib.sha256(json.dumps(rows).encode("utf-8")).hexdigest()
+
+
+def _accepted(decisions: dict) -> list[dict]:
+    return [e for e in decisions["entries"] if e["status"] == "accepted"]
+
+
+def _use_llm(cfg: dict | None, use_llm: bool | None) -> bool:
+    from src.alignment.calibrate import auto_settings
+    return auto_settings(cfg)["use_llm"] if use_llm is None else use_llm
+
+
+def is_current(result: dict | None, ws, cfg: dict | None = None,
+               use_llm: bool | None = None) -> bool:
+    """A saved review can be reused: same prompt, same accepted correspondences and, when the
+    AI is to be used, none left without review."""
+    from src.alignment.propose import load_result as decisions_result
+    decisions = decisions_result(ws)
+    if not result or decisions is None or result["prompt"]["sha256"] != PROMPT.sha256:
+        return False
+    if result.get("decisions") != fingerprint(_accepted(decisions)):
+        return False
+    return not (_use_llm(cfg, use_llm) and audit_settings(cfg).enabled
+                and result["summary"]["pending"])
+
+
+def _audit(ws, cfg, llm, use_llm, targets, sleep_fn) -> dict:
     from src.alignment import law_definitions as ld
     from src.alignment.inherit import load_result as inherited_result
     from src.alignment.propose import load_dpv_targets, load_result, pending_concepts
@@ -342,16 +367,21 @@ def audit_workspace(ws, cfg: dict | None = None, *, llm=None, use_llm: bool = Tr
     if result is None:
         raise ValueError("Primero hay que decidir la alineación de esta subida.")
     settings = audit_settings(cfg)
-    accepted = [e for e in result["entries"] if e["status"] == "accepted"]
+    accepted = _accepted(result)
     sources = pending_concepts(ws, inherited_result(ws) or {}, ld.load_result(ws))
     concepts = {c.key: c for c in sources.concepts}
     targets = targets if targets is not None else load_dpv_targets(cfg)
     items = [item_for(concepts[e["key"]], e["dpv_iri"], e.get("relation"), targets)
              for e in accepted if e["key"] in concepts]
-    available = use_llm and settings.enabled
+    available = _use_llm(cfg, use_llm) and settings.enabled
+    error = None if available else ("IA desactivada (--sin-ia)" if settings.enabled
+                                    else "desactivada en config.yaml (audit.enabled)")
     if available and llm is None and items:
-        from src.ai.llm_client import LLMClient
-        llm = LLMClient()
+        try:
+            from src.ai.llm_client import LLMClient
+            llm = LLMClient()
+        except KeyError as exc:                        # LLM_API_KEY / LLM_MODEL missing
+            available, error = False, f"Falta la variable {exc} en .env"
     report = ask_audit(items, llm=llm if available else None, settings=settings,
                        cache_path=ws.work_dir / CACHE_FILE, sleep_fn=sleep_fn)
     entries = []
@@ -364,13 +394,45 @@ def audit_workspace(ws, cfg: dict | None = None, *, llm=None, use_llm: bool = Tr
     count = {v: sum(e["verdict"] == v for e in entries) for v in (*VERDICTS, INVALID)}
     out = {"prompt": PROMPT.manifest(),
            "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+           "decisions": fingerprint(accepted),
            "summary": {"accepted": len(items), **count,
                        "pending": sum(e["verdict"] is None for e in entries)},
-           "ai": report.ai(available), "entries": entries}
+           "ai": {**report.ai(available), **({"error": error} if error else {})},
+           "entries": entries}
     ws.work_dir.mkdir(parents=True, exist_ok=True)
     (ws.work_dir / RESULT_FILE).write_text(json.dumps(out, indent=2, ensure_ascii=False),
                                            encoding="utf-8")
     return out
+
+
+def audit_workspace(ws, cfg: dict | None = None, *, llm=None, use_llm: bool | None = None,
+                    targets=None, sleep_fn=time.sleep) -> dict:
+    """Review the correspondences the rule accepted in an upload (never the inherited ones,
+    which a person decided); it explains, it never changes what the rule accepted."""
+    from src.workspace.store import DONE, ERROR, RUNNING
+    ws.mark_step("audit", RUNNING)
+    try:
+        out = _audit(ws, cfg, llm, use_llm, targets, sleep_fn)
+    except Exception as exc:
+        ws.mark_step("audit", ERROR, str(exc)[:300])
+        raise
+    s = out["summary"]
+    ws.mark_step("audit", DONE, summary_text(s), incoherent=s[INCOHERENT], doubtful=s[DOUBTFUL],
+                 pending=s["pending"])
+    return out
+
+
+def current_result(ws) -> dict | None:
+    """The saved review if it is of the correspondences accepted now (else None)."""
+    from src.alignment.propose import load_result as decisions_result
+    result, decisions = load_result(ws), decisions_result(ws)
+    if result is None or decisions is None:
+        return None
+    return result if result.get("decisions") == fingerprint(_accepted(decisions)) else None
+
+
+def by_key(result: dict | None) -> dict[str, dict]:
+    return {e["key"]: e for e in (result or {}).get("entries", [])}
 
 
 def load_result(ws) -> dict | None:
@@ -386,7 +448,7 @@ def _pct(value) -> str:
 
 def ai_text(ai: dict) -> str:
     if not ai.get("available"):
-        return "no usada"
+        return "no usada" + (f" ({ai['error']})" if ai.get("error") else "")
     text = f"{ai['calls']} llamadas, {ai['cached']} desde la caché, {ai['invalid']} inválidas"
     if ai.get("quota_exhausted"):
         text += " (cuota agotada: vuelve a correr mañana)"
@@ -438,16 +500,21 @@ def render_evaluation(result: dict) -> str:
     return "\n".join(lines)
 
 
-def render_workspace(result: dict, ws_id: str) -> str:
+def summary_text(s: dict) -> str:
+    return (f"Coherentes {s[COHERENT]} · dudosas {s[DOUBTFUL]} · incoherentes {s[INCOHERENT]}"
+            + (f" · inválidas {s[INVALID]}" if s[INVALID] else "")
+            + (f" · sin revisar {s['pending']}" if s["pending"] else ""))
+
+
+def render_workspace(result: dict, ws_id: str, examples: int | None = EXAMPLES) -> str:
     s = result["summary"]
     lines = [f"Revisión de la IA del espacio {ws_id}: {s['accepted']} correspondencias "
              "aceptadas por la regla",
              f"  IA: {ai_text(result['ai'])}",
-             f"  Coherentes {s[COHERENT]} · dudosas {s[DOUBTFUL]} · incoherentes {s[INCOHERENT]}"
-             + (f" · inválidas {s[INVALID]}" if s[INVALID] else "")
-             + (f" · sin revisar {s['pending']}" if s["pending"] else "")]
+             f"  {summary_text(s)}"]
     for v in (INCOHERENT, DOUBTFUL):
-        for e in [e for e in result["entries"] if e["verdict"] == v][:EXAMPLES]:
+        found = [e for e in result["entries"] if e["verdict"] == v]
+        for e in found[:examples] if examples is not None else found:
             lines.append(f"    [{v}] {e['name']} -> {e['dpv_name']} "
                          f"({e['relation'] or 'sin tipo'}): {e['explanation'] or ''}".rstrip())
     return "\n".join(lines)
