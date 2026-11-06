@@ -44,6 +44,35 @@ def test_build_downloads_produces_valid_rdfxml():
     assert isinstance(downloads["moved_to_profile"], list)
 
 
+def test_the_downloads_bring_the_repairs():
+    import json
+    downloads = core_module.build_downloads()
+    if downloads is None:
+        pytest.skip("OntoPriv base no disponible en data/input/")
+    repairs = downloads["repairs"]
+    assert repairs["filename"] == "core-repairs.json"
+    assert repairs["counts"] == {"several_domains": 84, "several_ranges": 35, "double_type": 34}
+    assert json.loads(repairs["bytes"])["counts"] == repairs["counts"]
+
+
+def test_the_page_says_what_was_repaired(monkeypatch):
+    from pathlib import Path
+    from streamlit.testing.v1 import AppTest
+    root = Path(__file__).resolve().parents[1]
+    if core_module.build_downloads() is None:
+        pytest.skip("OntoPriv base no disponible en data/input/")
+    monkeypatch.syspath_prepend(str(root / "app"))
+    at = AppTest.from_file(str(root / "app/views/core_module.py"), default_timeout=120).run()
+    assert not at.exception
+    at.button[0].click().run()
+    assert not at.exception
+    text = " ".join(c.value for c in at.caption)
+    assert ("Reparaciones al armar los dos archivos (el archivo de OntoPriv no se toca): 84 "
+            "propiedades con varios dominios y 35 con varios rangos pasan a uno solo, la unión "
+            "de esas clases (P19 de OOPS!); 34 propiedades que eran de objeto y de datos a la "
+            "vez se quedan con el tipo que muestra su uso.") in text
+
+
 def test_proposed_concepts_reads_the_file(tmp_path):
     import json
     payload = {
