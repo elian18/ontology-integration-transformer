@@ -286,6 +286,62 @@ def test_is_current(env):
     assert not is_current(r, changed)
 
 
+def test_is_current_also_asks_for_the_same_core(env):
+    ws = _extracted(env)
+    concepts = json.loads((ws.work_dir / CONCEPTS_FILE).read_text(encoding="utf-8"))
+    r = profile_for_workspace(ws, base=env.base, embed_fn=Embed(), cfg=env.cfg)
+    core = lp.load_core(env.cfg)
+    assert r["core_sha256"] == lp.core_digest(core)
+    assert is_current(r, concepts, core)
+    other = Graph().parse(data=CORE_TTL, format="turtle")
+    other.remove((URIRef(ONTO + "Other"), RDF.type, OWL.DatatypeProperty))
+    assert not is_current(r, concepts, other)
+    old = {k: v for k, v in r.items() if k != "core_sha256"}        # built in the Sprint 8
+    assert not is_current(old, concepts, core) and is_current(old, concepts)
+
+
+def test_core_digest_ignores_blank_node_names_and_the_format(tmp_path):
+    ttl = (f"@prefix owl: <http://www.w3.org/2002/07/owl#> .\n"
+           f"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"
+           f"<{ONTO}p> rdfs:domain [ a owl:Class ; owl:unionOf ( <{ONTO}A> <{ONTO}B> ) ] .\n")
+    one, two = Graph().parse(data=ttl, format="turtle"), Graph().parse(data=ttl, format="turtle")
+    assert set(one) != set(two)                                   # other blank node names
+    assert lp.core_digest(one) == lp.core_digest(two)
+    one.serialize(tmp_path / "c.rdf", format="xml")
+    assert lp.core_digest(Graph().parse(tmp_path / "c.rdf")) == lp.core_digest(two)
+    two.add((URIRef(ONTO + "p"), RDFS.label, Literal("p")))
+    assert lp.core_digest(one) != lp.core_digest(two)
+
+
+def test_a_new_core_rebuilds_the_profile_without_asking_the_ai_again(env):
+    from src.alignment.user_alignment import align_workspace
+    out = Path(env.cfg["outputs"]["dir"])
+    def write_core(types):                         # as OntoPriv: a class punned as property
+        ttl = CORE_TTL.replace(f"<{ONTO}Consent> a owl:Class .", f"<{ONTO}Consent> a {types} .")
+        Graph().parse(data=ttl, format="turtle").serialize(out / CORE_FILE, format="xml")
+    write_core("owl:Class, owl:ObjectProperty, owl:DatatypeProperty")
+    llm = LawLLM()
+    ws, _, _ = align_law("Ley de prueba.txt", LAW.encode("utf-8"), llm=llm, **_kw(env))
+    consent = URIRef(ONTO + "Consent")
+    assert (consent, RDF.type, OWL.DatatypeProperty) in Graph().parse(ws.input_path())
+    calls = llm.calls
+    write_core("owl:Class, owl:ObjectProperty")               # the repaired core (S9-T02)
+    seen = []                                       # as "--espacio" does: the profile first
+    _, m, path = align_workspace(ws, llm=llm, progress=seen.append, **_kw(env))
+    assert seen[:2] == ["Armar el perfil de la ley sobre OntoPriv-Core", "Heredar lo validado"]
+    assert llm.calls == calls                    # still a class and a property: caches answer
+    profile = Graph().parse(ws.input_path())
+    assert (consent, RDF.type, OWL.DatatypeProperty) not in profile
+    assert {(consent, RDF.type, OWL.Class), (consent, RDF.type, OWL.ObjectProperty)} <= set(
+        profile)
+    assert lp.load_result(ws)["core_sha256"] == lp.core_digest(lp.load_core(env.cfg))
+    assert m["triples"]["core"] == 6 and path.exists()
+    seen = []
+    align_workspace(ws, llm=llm, progress=seen.append, **_kw(env))
+    assert "Armar el perfil de la ley sobre OntoPriv-Core" not in seen      # same core
+    assert lp.refresh_profile(ws, cfg=env.cfg) is False
+
+
 # ------------------------------------------------------------------ the whole mode
 
 def test_align_law_end_to_end(env, tmp_path):
@@ -343,9 +399,10 @@ def test_align_law_end_to_end(env, tmp_path):
 def test_a_core_already_loaded_is_used(env):
     core = Graph().parse(data=CORE_TTL, format="turtle")
     core.remove((URIRef(ONTO + "Other"), None, None))
-    _, m, _ = align_law("Ley de prueba.txt", LAW.encode("utf-8"), llm=LawLLM(), core=core,
-                        **_kw(env))
+    ws, m, _ = align_law("Ley de prueba.txt", LAW.encode("utf-8"), llm=LawLLM(), core=core,
+                         **_kw(env))
     assert m["triples"]["core"] == len(core) == 3
+    assert lp.load_result(ws)["core_sha256"] == lp.core_digest(core)   # the profile used it too
 
 
 def test_a_new_extraction_rebuilds_the_profile(env):

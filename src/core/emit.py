@@ -13,7 +13,8 @@ is reported, so the human can review what left the core.
 
 Each named class, property and individual ends up in exactly one file; the profile file is the
 only one that references the core. Files are RDF/XML (the Sprint 3 output format); Turtle and
-JSON-LD come later, in the transformation sprints.
+JSON-LD come later, in the transformation sprints. Since S9-T02 both modules get the two
+repairs of ``src.core.repair`` (core-repairs.json says what changed and why).
 """
 from __future__ import annotations
 
@@ -27,6 +28,8 @@ from rdflib.namespace import RDF, RDFS, OWL
 
 from src.ingest.ontology_loader import OntologyReport
 from src.core.split import ModularSplit, assign_modules, CORE, PROFILE, _HARD_PREDICATES
+from src.core.repair import (DOUBLE_TYPE, REPAIRS_FILE, RULES, counts as repair_counts,
+                             kept_types, repair_module)
 
 CORE_IRI = "http://www.semanticweb.org/ontopriv-core"
 PROFILE_IRI = "http://www.semanticweb.org/profiles/ecuador-lopdp"
@@ -45,6 +48,8 @@ class MaterializeResult:
     moved_to_profile: list[str] = field(default_factory=list)   # local names moved for autonomy
     counts: dict = field(default_factory=dict)
     dangling_core_refs: list[dict] = field(default_factory=list)  # should be empty after cleaning
+    repairs: list[dict] = field(default_factory=list)             # S9-T02, one entry per change
+    repairs_path: str = ""
 
 
 def _local(uri) -> str:
@@ -124,7 +129,7 @@ def _new_ontology_header(module_graph: Graph, onto_iri: str, imports: str | None
 def materialize_modules(report: OntologyReport, split: ModularSplit | None = None,
                         out_dir: str | Path = "data/output",
                         core_iri: str = CORE_IRI, profile_iri: str = PROFILE_IRI,
-                        auto_move: bool = True) -> MaterializeResult:
+                        auto_move: bool = True, repair: bool = True) -> MaterializeResult:
     """Write the core and profile RDF/XML files from the split, with a standalone core."""
     if report.graph is None:
         raise ValueError("El reporte de la ontologia no trae grafo cargado.")
@@ -149,6 +154,11 @@ def materialize_modules(report: OntologyReport, split: ModularSplit | None = Non
 
     project_ns = _project_namespaces(split)
     dangling = _dangling_core_refs(core_graph, project_ns)
+    repairs: list[dict] = []
+    if repair:                    # after the split, which reads the first domain of a property
+        decisions = kept_types(g)
+        repairs = ([{**c, "module": CORE} for c in repair_module(core_graph, decisions)]
+                   + [{**c, "module": PROFILE} for c in repair_module(profile_graph, decisions)])
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -170,14 +180,21 @@ def materialize_modules(report: OntologyReport, split: ModularSplit | None = Non
         "moved_to_profile_for_autonomy": moved,
         "counts": counts,
         "dangling_core_refs": dangling,
+        "repairs": repair_counts(repairs) if repair else None,
     }
+    repairs_path = ""
+    if repair:
+        repairs_path = str(out_dir / REPAIRS_FILE)
+        Path(repairs_path).write_text(json.dumps({"rules": RULES, "counts": repair_counts(repairs),
+                                                  "changes": repairs}, indent=2,
+                                                 ensure_ascii=False), encoding="utf-8")
     manifest_path = out_dir / MANIFEST_FILE
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
     return MaterializeResult(
         core_path=str(core_path), profile_path=str(profile_path), manifest_path=str(manifest_path),
         core_iri=core_iri, profile_iri=profile_iri, moved_to_profile=moved,
-        counts=counts, dangling_core_refs=dangling,
+        counts=counts, dangling_core_refs=dangling, repairs=repairs, repairs_path=repairs_path,
     )
 
 
@@ -198,6 +215,18 @@ def render_console(result: MaterializeResult) -> str:
             lines.append(f"    - {ref['subject']} --{ref['predicate']}--> {ref['object']}")
     else:
         lines.append("  Nucleo autonomo: sin referencias colgadas.")
+    if result.repairs_path:
+        n = repair_counts(result.repairs)
+        kept = sum(1 for r in result.repairs if r["rule"] == DOUBLE_TYPE
+                   and r["kept"] == "propiedad de datos")
+        lines.append("  Reparaciones (no tocan el archivo de OntoPriv):")
+        lines.append(f"    - {n['several_domains']} propiedades con varios dominios: ahora uno, "
+                     "la unión de esas clases (P19 de OOPS!)")
+        lines.append(f"    - {n['several_ranges']} propiedades con varios rangos: ahora uno, la "
+                     "unión de esas clases (P19 de OOPS!)")
+        lines.append(f"    - {n['double_type']} propiedades de objeto y de datos a la vez: se "
+                     f"quedan con un tipo ({n['double_type'] - kept} de objeto, {kept} de datos)")
+        lines.append(f"    Detalle: {result.repairs_path}")
     lines.append(f"  Manifiesto: {result.manifest_path}")
     return "\n".join(lines)
 

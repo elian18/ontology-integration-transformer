@@ -223,8 +223,8 @@ needs_base = pytest.mark.skipif(not all(p.exists() for p in BASE_FILES),
 @needs_base
 def test_the_real_base_with_owlrl(tmp_path):
     report = inspect_base(out_dir=tmp_path, engine=OWLRL)
-    assert report["summary"]["errors"] == {NEW: 0, ONTOLOGY: 419, BASE: 0}
-    assert report["summary"]["kinds"]["disjoint"]["errors"] == 419
+    assert report["summary"]["errors"] == {NEW: 0, ONTOLOGY: 1, BASE: 0}   # 419 unrepaired
+    assert report["summary"]["kinds"]["disjoint"]["errors"] == 1
     assert report["status"] == YELLOW
     assert [p["file"] for p in report["inherited_parts"]] == ["data/input/ontopriv.rdf"]
     assert (tmp_path / REPORT_FILE).exists() and (tmp_path / LOG_FILE).exists()
@@ -236,8 +236,10 @@ def test_the_real_base_with_jena(tmp_path):
     report = inspect_base(out_dir=tmp_path, engine=JENA)
     s = report["summary"]
     assert s["errors"][NEW] == 0 and s["warnings"][NEW] == 0
-    assert s["kinds"]["disjoint"]["errors"] == 419                # the same as owlrl
-    assert s["errors"][ONTOLOGY] == 830 and s["warnings"][ONTOLOGY] == 1310
+    assert s["kinds"]["disjoint"]["errors"] == 1                  # the same as owlrl
+    assert {k: s["kinds"][k]["errors"] for k in ("object_value", "literal_type", "other")} == {
+        "object_value": 2, "literal_type": 2, "other": 0}
+    assert s["errors"][ONTOLOGY] == 5 and s["warnings"][ONTOLOGY] == 1303   # 830 unrepaired
     assert report["status"] == YELLOW
 
 

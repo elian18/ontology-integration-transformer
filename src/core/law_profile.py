@@ -36,6 +36,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from rdflib import Graph, Literal, Namespace, URIRef
+from rdflib.compare import to_canonical_graph
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 
 from src.core.emit import CORE_FILE, CORE_IRI
@@ -64,6 +65,13 @@ def load_core(cfg: dict | None = None) -> Graph:
     if not path.exists():
         raise FileNotFoundError(f"No está el núcleo OntoPriv-Core de la base: {path}")
     return Graph().parse(path)
+
+
+def core_digest(core: Graph) -> str:
+    """Fingerprint of OntoPriv-Core with its blank nodes in canonical form (S9-T02): the profile
+    copies the core's declarations, so a new core makes the profile stale."""
+    lines = sorted(to_canonical_graph(core).serialize(format="nt").splitlines())
+    return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
 
 
 def core_entities(core: Graph) -> set[str]:
@@ -237,7 +245,7 @@ def profile_for_workspace(ws, *, base=None, embed_fn=None, cfg: dict | None = No
             "original_name": f"Perfil de {law_file}", "stored_as": stored, "format": "Turtle",
             "generated_from": KIND_LAW, "content_sha256": sha}
         result = {"method_version": METHOD_VERSION, "profile_iri": profile_iri(ws),
-                  "concepts_sha256": concepts_digest(concepts),
+                  "concepts_sha256": concepts_digest(concepts), "core_sha256": core_digest(core),
                   "core_iri": CORE_IRI, "law": law_file, "language": language,
                   "file": f"input/{stored}", "triples": len(graph),
                   "summary": summarize(entries), "entries": entries}
@@ -266,11 +274,27 @@ def concepts_digest(concepts: dict) -> str:
     return hashlib.sha256(json.dumps(accepted, ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
-def is_current(result: dict | None, concepts: dict | None) -> bool:
-    """The profile is current when this method built it from the same accepted concepts."""
+def is_current(result: dict | None, concepts: dict | None, core: Graph | None = None) -> bool:
+    """The profile is current when this method built it from the same accepted concepts (and,
+    given ``core``, from the same OntoPriv-Core)."""
     if not result or not concepts or result.get("method_version") != METHOD_VERSION:
         return False
+    if core is not None and result.get("core_sha256") != core_digest(core):
+        return False
     return result["concepts_sha256"] == concepts_digest(concepts)
+
+
+def refresh_profile(ws, *, base=None, embed_fn=None, cfg: dict | None = None,
+                    core: Graph | None = None, progress=None) -> bool:
+    """Build the profile again if its concepts or OntoPriv-Core changed; True when it did."""
+    from src.core.law_concepts import load_result as law_concepts
+    from src.workspace.store import STEP_LABELS
+    core = core if core is not None else load_core(cfg)
+    if is_current(load_result(ws), law_concepts(ws), core):
+        return False
+    (progress or (lambda label: None))(STEP_LABELS["profile"])
+    profile_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg, core=core)
+    return True
 
 
 # --------------------------------------------------------------------------- whole mode
@@ -281,16 +305,14 @@ def align_law(name: str, data: bytes, *, fmt: str = "turtle", use_llm: bool | No
     """Upload a law -> segment and index -> extract and accept -> profile -> the alignment
     flow of S7-T06/T08 -> zip. Returns the workspace, the manifest and the zip path."""
     from src.alignment.user_alignment import align_workspace
-    from src.core.law_concepts import load_result as law_concepts, prepare_law_concepts
+    from src.core.law_concepts import prepare_law_concepts
     from src.ingest.law_upload import prepare_law
-    from src.workspace.store import STEP_LABELS, open_law
+    from src.workspace.store import open_law
     ws = open_law(name, data, cfg=cfg)
     say = progress or (lambda label: None)
     prepare_law(ws, embed_fn=embed_fn, progress=say)
     prepare_law_concepts(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn, progress=say)
-    if not is_current(load_result(ws), law_concepts(ws)):
-        say(STEP_LABELS["profile"])
-        profile_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg, core=core)
+    # align_workspace builds the profile first (refresh_profile), then the alignment flow
     return align_workspace(ws, fmt=fmt, use_llm=use_llm, embed_fn=embed_fn, llm=llm, cfg=cfg,
                            base=base, targets=targets, progress=progress,
                            chroma_path=chroma_path, sleep_fn=sleep_fn, core=core)

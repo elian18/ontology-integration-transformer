@@ -651,6 +651,10 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     with_law = ws.manifest.get("mode") == "ontology+law"
     ran = {"inherit": False, "definitions": False, "decider": False, "labels": False,
            "evidence": False, "audit": False}
+    if ws.manifest.get("mode") == "law":     # the profile copies declarations of OntoPriv-Core
+        from src.core.law_profile import load_core, refresh_profile
+        core = core if core is not None else load_core(cfg)
+        refresh_profile(ws, base=base, embed_fn=embed_fn, cfg=cfg, core=core, progress=say)
     if inherited_result(ws) is None:
         say(STEP_LABELS["inherit"])
         inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)

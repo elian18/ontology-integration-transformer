@@ -66,3 +66,14 @@ if downloads:
         st.download_button("Descargar perfil (RDF/XML)", data=profile["bytes"],
                            file_name=profile["filename"], mime="application/rdf+xml",
                            use_container_width=True)
+    repairs = downloads["repairs"]
+    n = repairs["counts"]
+    st.caption(
+        f"Reparaciones al armar los dos archivos (el archivo de OntoPriv no se toca): "
+        f"{n['several_domains']} propiedades con varios dominios y {n['several_ranges']} con "
+        f"varios rangos pasan a uno solo, la unión de esas clases (P19 de OOPS!); "
+        f"{n['double_type']} propiedades que eran de objeto y de datos a la vez se quedan con "
+        f"el tipo que muestra su uso.")
+    st.download_button("Descargar detalle de las reparaciones (JSON)", data=repairs["bytes"],
+                       file_name=repairs["filename"], mime="application/json",
+                       use_container_width=True)

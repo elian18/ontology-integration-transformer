@@ -10,6 +10,7 @@ from src.config import load_config
 from src.ingest.ontology_loader import load_ontology
 from src.core.split import assign_modules, split_summary
 from src.core.emit import materialize_modules
+from src.core.repair import counts as repair_counts
 from src.core.extract import PROPOSALS_FILE
 
 # Same name the extractor writes; imported so both sides can never drift apart.
@@ -69,12 +70,15 @@ def build_downloads() -> dict | None:
         core_bytes = Path(result.core_path).read_bytes()
         profile_bytes = Path(result.profile_path).read_bytes()
         manifest_bytes = Path(result.manifest_path).read_bytes()
+        repairs_bytes = Path(result.repairs_path).read_bytes()      # S9-T02
     return {
         "core": {"filename": Path(result.core_path).name, "bytes": core_bytes,
                  "entities": result.counts["core"]["seeds"], "triples": result.counts["core"]["triples"]},
         "profile": {"filename": Path(result.profile_path).name, "bytes": profile_bytes,
                     "entities": result.counts["profile"]["seeds"], "triples": result.counts["profile"]["triples"]},
         "manifest": {"filename": Path(result.manifest_path).name, "bytes": manifest_bytes},
+        "repairs": {"filename": Path(result.repairs_path).name, "bytes": repairs_bytes,
+                    "counts": repair_counts(result.repairs)},
         "moved_to_profile": result.moved_to_profile,
         "core_iri": result.core_iri, "profile_iri": result.profile_iri,
     }
