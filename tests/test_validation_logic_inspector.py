@@ -12,7 +12,7 @@ from src.validation import logic_inspector as li
 from src.validation.logic_inspector import (JENA, LOG_FILE, OWLRL, REPORT_FILE, Settings,
                                             choose_engine, inspect, inspect_base, java_version,
                                             kind_of, settings)
-from src.validation.shape_inspector import AMBER, BASE, GREEN, NEW, ONTOLOGY, RED, Part
+from src.validation.shape_inspector import BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW, Part
 from tests.test_validation_shape_inspector import _workspace
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -225,7 +225,7 @@ def test_the_real_base_with_owlrl(tmp_path):
     report = inspect_base(out_dir=tmp_path, engine=OWLRL)
     assert report["summary"]["errors"] == {NEW: 0, ONTOLOGY: 419, BASE: 0}
     assert report["summary"]["kinds"]["disjoint"]["errors"] == 419
-    assert report["status"] == AMBER
+    assert report["status"] == YELLOW
     assert [p["file"] for p in report["inherited_parts"]] == ["data/input/ontopriv.rdf"]
     assert (tmp_path / REPORT_FILE).exists() and (tmp_path / LOG_FILE).exists()
 
@@ -238,7 +238,7 @@ def test_the_real_base_with_jena(tmp_path):
     assert s["errors"][NEW] == 0 and s["warnings"][NEW] == 0
     assert s["kinds"]["disjoint"]["errors"] == 419                # the same as owlrl
     assert s["errors"][ONTOLOGY] == 830 and s["warnings"][ONTOLOGY] == 1310
-    assert report["status"] == AMBER
+    assert report["status"] == YELLOW
 
 
 def test_the_cli(tmp_path, capsys):

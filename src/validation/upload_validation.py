@@ -7,7 +7,7 @@ from src.validation import ai_auditor as au
 from src.validation import logic_inspector as li
 from src.validation import shape_inspector as si
 from src.validation.shapes import counted
-from src.validation.shape_inspector import AMBER, BASE, GREEN, NEW, ONTOLOGY, RED
+from src.validation.shape_inspector import BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW
 
 RESULT_FILE = "validation.json"
 LOG_FILE = "validation-log.txt"
@@ -23,8 +23,8 @@ def overall(statuses) -> str:
     statuses = list(statuses)
     if RED in statuses:
         return RED
-    if AMBER in statuses or FAILED in statuses:
-        return AMBER
+    if YELLOW in statuses or FAILED in statuses:
+        return YELLOW
     return GREEN
 
 
@@ -33,7 +33,7 @@ def audit_status(audit: dict | None) -> str:
         return NOT_RUN
     s = audit["summary"]
     if s[au.INCOHERENT] or s[au.DOUBTFUL]:
-        return AMBER
+        return YELLOW
     if s["accepted"] and s["pending"] == s["accepted"]:
         return NOT_RUN
     return GREEN
@@ -125,7 +125,13 @@ def _failed(key: str, block: dict) -> str:
 
 def load_result(ws) -> dict | None:
     path = ws.output_dir / RESULT_FILE
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    if not path.exists():
+        return None
+    result = json.loads(path.read_text(encoding="utf-8"))
+    result["status"] = si.current_color(result["status"])          # an S8 result: "ámbar"
+    for block in result.get("inspectors", {}).values():
+        block["status"] = si.current_color(block["status"])
+    return result
 
 
 # --------------------------------------------------------------------------- console / README

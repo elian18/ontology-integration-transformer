@@ -5,7 +5,7 @@ import pytest
 from app.services import align_ontology as svc
 from src.validation import ai_auditor as au
 from src.validation import upload_validation as uv
-from src.validation.shape_inspector import AMBER, GREEN, RED
+from src.validation.shape_inspector import GREEN, RED, YELLOW
 from src.workspace.store import load_workspace
 from tests.test_alignment_propose import TTL, DeciderLLM, Embed, env, targets  # noqa: F401
 from tests.test_ui_align_ontology import _boxes, cfg, page  # noqa: F401
@@ -19,8 +19,8 @@ def _align(env, targets, llm=None):  # noqa: F811
 
 
 @pytest.fixture
-def amber(env, targets, monkeypatch):  # noqa: F811
-    """An upload whose validation is amber: 3 concepts without definition, PersonalData
+def yellow(env, targets, monkeypatch):  # noqa: F811
+    """An upload whose validation is yellow: 3 concepts without definition, PersonalData
     marked by the AI reviewer."""
     monkeypatch.setattr(svc, "workspace_cfg", lambda: env.cfg)
     return _align(_real_dpv(env), targets, FlaggingLLM())
@@ -38,18 +38,18 @@ def red(env, targets, monkeypatch):  # noqa: F811
 def _audit(**kw):
     summary = {"accepted": 4, au.COHERENT: 2, au.DOUBTFUL: 1, au.INCOHERENT: 1, au.INVALID: 0,
                "pending": 0, **kw.pop("summary", {})}
-    return {"status": AMBER, "summary": summary, "ai": {"available": True},
+    return {"status": YELLOW, "summary": summary, "ai": {"available": True},
             "prompt": au.PROMPT.manifest(), "flagged": [{}, {}], **kw}
 
 
 def test_the_badge_of_each_status():
-    assert [svc.badge(s) for s in (GREEN, AMBER, RED, uv.NOT_RUN, uv.FAILED)] == [
-        ":green-badge[Verde]", ":orange-badge[Ámbar]", ":red-badge[Rojo]",
+    assert [svc.badge(s) for s in (GREEN, YELLOW, RED, uv.NOT_RUN, uv.FAILED)] == [
+        ":green-badge[Verde]", ":yellow-badge[Amarillo]", ":red-badge[Rojo]",
         ":gray-badge[Sin revisar]", ":gray-badge[No corrió]"]
 
 
 def test_the_text_of_each_card():
-    shapes = {"status": AMBER, "engine": "pySHACL 0.40.1", "new": 0, "inherited": 232,
+    shapes = {"status": YELLOW, "engine": "pySHACL 0.40.1", "new": 0, "inherited": 232,
               "warnings": 4}
     assert svc.card_text(uv.SHAPES, shapes) == ("Reglas rotas: 0 nuevas · 232 heredadas  \n"
                                                 "Avisos: 4")
@@ -73,9 +73,9 @@ def test_the_text_of_each_card():
 
 
 def test_the_headline_says_what_to_look_at():
-    shapes = {"status": AMBER, "new": 0, "inherited": 232, "warnings": 4}
+    shapes = {"status": YELLOW, "new": 0, "inherited": 232, "warnings": 4}
     logic = {"status": GREEN, "new": 0, "inherited": 0, "warnings": 0}
-    result = {"status": AMBER, "inspectors": {uv.SHAPES: shapes, uv.LOGIC: logic,
+    result = {"status": YELLOW, "inspectors": {uv.SHAPES: shapes, uv.LOGIC: logic,
                                               uv.AUDIT: _audit()}}
     assert svc.validation_headline(result) == (
         "Nada de lo que escribió el sistema rompe una regla. Para mirar: 232 hallazgos "
@@ -106,13 +106,13 @@ def test_the_headline_says_what_to_look_at():
 
 # ------------------------------------------------------------------ the panel of an upload
 
-def test_the_panel_of_an_upload(amber):
-    v = svc.view(amber)
+def test_the_panel_of_an_upload(yellow):
+    v = svc.view(yellow)
     val = v["validation"]
-    assert (val["status"], val["badge"]) == (AMBER, ":orange-badge[Ámbar]")
+    assert (val["status"], val["badge"]) == (YELLOW, ":yellow-badge[Amarillo]")
     assert [(c["title"], c["badge"]) for c in val["cards"]] == [
-        ("Forma (SHACL)", ":orange-badge[Ámbar]"), ("Lógica (razonador)", ":green-badge[Verde]"),
-        ("IA revisora", ":orange-badge[Ámbar]")]
+        ("Forma (SHACL)", ":yellow-badge[Amarillo]"), ("Lógica (razonador)", ":green-badge[Verde]"),
+        ("IA revisora", ":yellow-badge[Amarillo]")]
     assert val["rules"] == [{"Regla": "Cada concepto tiene definición", "Tipo": "aviso",
                              "Nuevas": 0, "Heredadas": 3}]
     assert val["kinds"] == []
@@ -122,8 +122,29 @@ def test_the_panel_of_an_upload(amber):
     assert list(val["flagged"][0]) == svc.FLAGGED_COLUMNS
     review = {r["Concepto"]: r["Revisión de la IA"] for r in v["rows"]}
     assert review["PersonalData"] == au.INCOHERENT and review["DataController"] == ""
-    log = svc.validation_log(amber, svc.workspace_cfg()).decode("utf-8")
-    assert log.startswith(f"Validación del espacio {amber}: ámbar")
+    log = svc.validation_log(yellow, svc.workspace_cfg()).decode("utf-8")
+    assert log.startswith(f"Validación del espacio {yellow}: amarillo")
+
+
+def test_an_upload_validated_in_the_sprint_8_shows_yellow(yellow):
+    ws = load_workspace(yellow, cfg=svc.workspace_cfg())
+    path = ws.output_dir / uv.RESULT_FILE
+    path.write_text(path.read_text(encoding="utf-8").replace(f'"{YELLOW}"', '"ámbar"'),
+                    encoding="utf-8")                          # as the Sprint 8 saved it
+    assert '"ámbar"' in path.read_text(encoding="utf-8")
+    val = svc.view(yellow)["validation"]
+    assert (val["status"], val["badge"]) == (YELLOW, ":yellow-badge[Amarillo]")
+    assert [c["badge"] for c in val["cards"]] == [":yellow-badge[Amarillo]",
+                                                   ":green-badge[Verde]",
+                                                   ":yellow-badge[Amarillo]"]
+    assert svc.badge("ámbar") == ":yellow-badge[Amarillo]"
+
+
+def test_the_colors_are_a_traffic_light():
+    help_text = svc.VALIDATION_HELP["Colores"]
+    assert [w for w in ("rojo:", "amarillo:", "verde:", "gris:") if w in help_text] == [
+        "rojo:", "amarillo:", "verde:", "gris:"]
+    assert "ámbar" not in help_text and "ámbar" not in str(svc.LIGHTS)
 
 
 def test_a_red_panel_still_lets_the_person_download(red):
@@ -147,10 +168,10 @@ def test_the_incoherent_ones_come_first():
     assert svc.flagged_rows(None) == []
 
 
-def test_an_upload_from_before_the_validation(amber):
-    ws = load_workspace(amber, cfg=svc.workspace_cfg())
+def test_an_upload_from_before_the_validation(yellow):
+    ws = load_workspace(yellow, cfg=svc.workspace_cfg())
     (ws.output_dir / uv.RESULT_FILE).unlink()
-    assert svc.view(amber)["validation"] is None
+    assert svc.view(yellow)["validation"] is None
 
 
 def test_the_detail_counts_what_comes_from_the_base(monkeypatch):
@@ -161,31 +182,31 @@ def test_the_detail_counts_what_comes_from_the_base(monkeypatch):
             "nuevo": 1, "ontología": 0, "base": 2}
     monkeypatch.setattr(si, "load_result", lambda ws: {"summary": {"rules": {"R": rule}}})
     monkeypatch.setattr(li, "load_result", lambda ws: {"summary": {"kinds": {"K": kind}}})
-    ok = {"status": AMBER}
+    ok = {"status": YELLOW}
     assert svc._rule_rows(None, ok) == [{"Regla": rule["name"], "Tipo": "regla", "Nuevas": 0,
                                          "Heredadas": 3}]
     assert svc._kind_rows(None, ok) == [{"Tipo": kind["label"], "Contradicciones": 3,
                                          "Avisos": 0, "Nuevas": 1, "Heredadas": 2}]
 
 
-def test_a_failed_inspector_has_no_stale_detail(amber):
-    ws = load_workspace(amber, cfg=svc.workspace_cfg())
+def test_a_failed_inspector_has_no_stale_detail(yellow):
+    ws = load_workspace(yellow, cfg=svc.workspace_cfg())
     block = {"status": uv.FAILED, "error": "x"}
     assert svc._rule_rows(ws, block) == [] and svc._kind_rows(ws, block) == []
 
 
 # ------------------------------------------------------------------ the page (AppTest)
 
-def test_the_page_shows_the_panel_and_what_the_ai_marked(page, amber):
+def test_the_page_shows_the_panel_and_what_the_ai_marked(page, yellow):
     at = page()
-    at.session_state["align_ws"] = amber
+    at.session_state["align_ws"] = yellow
     at.run()
     assert not at.exception
     text = [m.value for m in at.markdown]
     assert "**Validación**" in text
-    assert any(t.startswith(":orange-badge[Ámbar] Nada de lo que escribió el sistema")
+    assert any(t.startswith(":yellow-badge[Amarillo] Nada de lo que escribió el sistema")
                for t in text)
-    assert "**Forma (SHACL)** :orange-badge[Ámbar]" in text
+    assert "**Forma (SHACL)** :yellow-badge[Amarillo]" in text
     assert "**Lógica (razonador)** :green-badge[Verde]" in text
     assert "Contradicciones: 0 nuevas · 0 heredadas  \nAvisos: 0" in text
     assert {"¿Qué revisa cada uno?", "Ver el detalle"} <= set(_boxes(at))
@@ -211,11 +232,11 @@ def test_the_page_of_a_red_upload(page, red):
     assert len([d for d in at.download_button if d.key != "align_dl_log"]) == 4
 
 
-def test_the_page_of_an_upload_from_before_the_validation(page, amber):
-    ws = load_workspace(amber, cfg=svc.workspace_cfg())
+def test_the_page_of_an_upload_from_before_the_validation(page, yellow):
+    ws = load_workspace(yellow, cfg=svc.workspace_cfg())
     (ws.output_dir / uv.RESULT_FILE).unlink()
     at = page()
-    at.session_state["align_ws"] = amber
+    at.session_state["align_ws"] = yellow
     at.run()
     assert not at.exception
     assert svc.NO_VALIDATION in [c.value for c in at.caption]

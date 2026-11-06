@@ -24,7 +24,7 @@ def _targets():
 def _restart(mode: str | None = None) -> None:
     """Go to step 1 (``mode`` None) or to step 2 of ``mode``: new uploaders, nothing computed."""
     ss["align_round"] = ss.get("align_round", 0) + 1
-    for key in ("align_key", "align_ws", "align_failed", "align_new"):
+    for key in ("align_key", "align_ws", "align_failed"):
         ss.pop(key, None)
     if mode is None:
         ss.pop("align_mode", None)
@@ -116,7 +116,7 @@ def step_upload(mode: str) -> None:
         ss["align_failed"] = (key, error)
         _failed(error)
         return
-    ss["align_key"], ss["align_ws"], ss["align_new"] = key, ws_id, True
+    ss["align_key"], ss["align_ws"] = key, ws_id
     st.rerun()
 
 
@@ -211,8 +211,6 @@ def step_result(ws_id: str) -> None:
                icon=":material/check_circle:")
     for note in warnings:
         st.warning(note, icon=":material/warning:")
-    if ss.pop("align_new", False) and not warnings:      # once, right after a clean alignment
-        st.balloons()
     st.markdown("**Descárgala en el formato que necesites**")
     for col, d in zip(st.columns(len(downloads)), downloads):
         col.download_button(d["label"], data=d["data"], file_name=d["file_name"],

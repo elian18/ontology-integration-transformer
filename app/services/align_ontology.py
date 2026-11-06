@@ -10,7 +10,8 @@ from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
 from src.validation import ai_auditor as au
 from src.validation import upload_validation as uv
 from src.validation.shapes import VIOLATION
-from src.validation.shape_inspector import AMBER, BASE, GREEN, NEW, ONTOLOGY, RED
+from src.validation.shape_inspector import (BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW,
+                                            current_color)
 from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, WorkspaceError, load_workspace
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
@@ -87,8 +88,9 @@ STATE_HELP = {
 }
 DECIDED_BY = {"base": "base", "rule": "regla", "rule_without_ai": "regla sin IA"}
 
-# The validation panel of step 3 (S8-T11): one color per inspector, never a blocked download.
-LIGHTS = {GREEN: ("green", "Verde"), AMBER: ("orange", "Ámbar"), RED: ("red", "Rojo"),
+# The validation panel of step 3 (S8-T11): a traffic light per inspector (S9-T01), plus gray
+# when it did not run; no color blocks the download.
+LIGHTS = {GREEN: ("green", "Verde"), YELLOW: ("yellow", "Amarillo"), RED: ("red", "Rojo"),
           uv.NOT_RUN: ("gray", "Sin revisar"), uv.FAILED: ("gray", "No corrió")}
 CARD_TITLES = {uv.SHAPES: "Forma (SHACL)", uv.LOGIC: "Lógica (razonador)",
                uv.AUDIT: "IA revisora"}
@@ -103,9 +105,10 @@ VALIDATION_HELP = {
     "IA revisora": "Lee cada correspondencia que aceptó la regla y dice si el término del DPV "
                    "trata de lo mismo que tu concepto. Solo explica: no quita nada de lo "
                    "aceptado.",
-    "Colores": "rojo: algo que escribió el sistema rompe una regla; ámbar: avisos o hallazgos "
-               "heredados (ya estaban en tu ontología o en la base del sistema); verde: nada "
-               "que revisar. Ningún color bloquea la descarga.",
+    "Colores": "rojo: algo que escribió el sistema rompe una regla; amarillo: avisos o "
+               "hallazgos heredados (ya estaban en tu ontología o en la base del sistema); "
+               "verde: nada que revisar; gris: el inspector no corrió o no se revisó. Ningún "
+               "color bloquea la descarga.",
 }
 NO_VALIDATION = ("Esta alineación es anterior a la validación: vuelve a subir el archivo para "
                  "validarla (lo ya calculado no se repite).")
@@ -537,7 +540,7 @@ def download_options(ws_id: str) -> list[dict]:
 # ------------------------------------------------------------------ validation panel (S8-T11)
 
 def badge(status: str) -> str:
-    color, label = LIGHTS[status]
+    color, label = LIGHTS[current_color(status)]
     return f":{color}-badge[{label}]"
 
 
