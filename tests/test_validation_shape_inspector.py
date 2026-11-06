@@ -9,8 +9,8 @@ import pytest
 from rdflib import Graph
 
 from src.validation import shape_inspector as si
-from src.validation.shape_inspector import (AMBER, BASE, GREEN, KIND_BASE, LOG_FILE, NEW,
-                                            ONTOLOGY, RED, REPORT_FILE, Part, inspect,
+from src.validation.shape_inspector import (BASE, GREEN, KIND_BASE, LOG_FILE, NEW, ONTOLOGY,
+                                            RED, REPORT_FILE, YELLOW, Part, inspect,
                                             inspect_base, inspect_workspace, load_result,
                                             status_of, workspace_parts)
 from src.workspace.store import load_workspace
@@ -121,8 +121,8 @@ def test_what_the_profile_restates_of_the_core_is_the_systems():
 def test_status():
     zero = {NEW: 0, ONTOLOGY: 0, BASE: 0}
     assert status_of({"violations": zero, "warnings": zero}) == GREEN
-    assert status_of({"violations": zero, "warnings": {**zero, BASE: 2}}) == AMBER
-    assert status_of({"violations": {**zero, ONTOLOGY: 1}, "warnings": zero}) == AMBER
+    assert status_of({"violations": zero, "warnings": {**zero, BASE: 2}}) == YELLOW
+    assert status_of({"violations": {**zero, ONTOLOGY: 1}, "warnings": zero}) == YELLOW
     assert status_of({"violations": {**zero, NEW: 1}, "warnings": zero}) == RED
 
 
@@ -167,11 +167,11 @@ def test_the_log_lists_everything_and_the_console_a_few():
             "(100,0 %), definición 1 (33,3 %)") in log
     assert ("    [rojo] Cada etiqueta es un texto con su idioma: 2 (1 nuevo, 1 de tu "
             "ontología)") in log
-    assert ("    [ámbar] Ningún texto rdf:langString sin idioma: 2 (1 de tu ontología, 1 de "
+    assert ("    [amarillo] Ningún texto rdf:langString sin idioma: 2 (1 de tu ontología, 1 de "
             "la base)") in log
-    assert ("    [ámbar] Cada concepto tiene definición: 3 (1 nuevo, 1 de tu ontología, 1 de "
+    assert ("    [amarillo] Cada concepto tiene definición: 3 (1 nuevo, 1 de tu ontología, 1 de "
             "la base)") in log
-    assert "    [ámbar] Cada importación viene en el paquete: 1 (1 de tu ontología)" in log
+    assert "    [amarillo] Cada importación viene en el paquete: 1 (1 de tu ontología)" in log
     assert "    [ok] Cada definición tomada de la ley dice su artículo: 0" in log
     assert ("         X: Su valor de note está marcado como rdf:langString pero no tiene "
             "idioma. [de la base]") in log
@@ -199,7 +199,7 @@ def test_the_upload_of_ontology_and_law(env, tmp_path):  # noqa: F811
     assert {p["kind"]: p["origin"] for p in report["parts"]}["ontology"] == ONTOLOGY
     first = report["parts"][0]
     assert first["sha256"] == hashlib.sha256((run.ws.path / first["file"]).read_bytes()).hexdigest()
-    assert report["status"] == AMBER
+    assert report["status"] == YELLOW
     assert report["summary"]["violations"] == {NEW: 0, ONTOLOGY: 1, BASE: 0}   # "erasure"
     assert report["summary"]["warnings"] == {NEW: 0, ONTOLOGY: 1, BASE: 0}     # Pizza
     assert report["completeness"] == {"concepts": 5, "label_es": 5, "label_en": 5,
@@ -261,7 +261,7 @@ def test_the_cli(tmp_path, capsys, monkeypatch):
     assert si._run([str(path)]) == 0
     out = capsys.readouterr().out
     assert out.startswith("Inspector de forma (SHACL) del espacio mi-ley-1234")
-    assert "  Resultado: ámbar: 0 violaciones nuevas, 0 heredadas, 3 advertencias" in out
+    assert "  Resultado: amarillo: 0 violaciones nuevas, 0 heredadas, 3 advertencias" in out
     assert f"  Guardado en: {path / 'work' / REPORT_FILE} y {path / 'work' / LOG_FILE}" in out
     assert (path / "work" / LOG_FILE).exists()
     monkeypatch.chdir(tmp_path)
@@ -282,7 +282,7 @@ BASE_FILES = [ROOT / "data" / "output" / name for name in
 @pytest.mark.skipif(not all(p.exists() for p in BASE_FILES), reason="Falta la base en data/output")
 def test_the_real_base(tmp_path):
     report = inspect_base(out_dir=tmp_path)
-    assert report["status"] == AMBER
+    assert report["status"] == YELLOW
     assert report["summary"]["violations"] == {NEW: 0, ONTOLOGY: 1, BASE: 0}
     assert report["summary"]["rules"]["LangStringShape"][ONTOLOGY] == 1
     assert report["completeness"] == {"concepts": 552, "label_es": 25, "label_en": 0,

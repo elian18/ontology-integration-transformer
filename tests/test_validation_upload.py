@@ -5,14 +5,16 @@ import json
 import sys
 import types
 import zipfile
+from types import SimpleNamespace
 
 from src.alignment import inherit as inh
 from src.alignment import propose as prop
 from src.alignment import user_alignment as ua
 from src.validation import ai_auditor as au
 from src.validation import logic_inspector as li
+from src.validation import shape_inspector as si
 from src.validation import upload_validation as uv
-from src.validation.shape_inspector import AMBER, GREEN, RED
+from src.validation.shape_inspector import GREEN, RED, YELLOW
 from src.validation.upload_validation import FAILED, NOT_RUN, audit_status, overall
 from src.workspace.store import DONE, ERROR
 from tests.test_alignment_propose import TTL, DeciderLLM, Embed, env, targets  # noqa: F401
@@ -56,11 +58,11 @@ def _csv(w) -> dict:
 
 # ------------------------------------------------------------------ the colors
 
-def test_the_worst_color_wins_and_a_failure_is_amber():
+def test_the_worst_color_wins_and_a_failure_is_yellow():
     assert overall([GREEN, GREEN, NOT_RUN]) == GREEN
-    assert overall([GREEN, AMBER, GREEN]) == AMBER
-    assert overall([GREEN, FAILED, NOT_RUN]) == AMBER
-    assert overall([AMBER, RED, FAILED]) == RED
+    assert overall([GREEN, YELLOW, GREEN]) == YELLOW
+    assert overall([GREEN, FAILED, NOT_RUN]) == YELLOW
+    assert overall([YELLOW, RED, FAILED]) == RED
 
 
 def test_the_color_of_the_ai_review():
@@ -69,11 +71,22 @@ def test_the_color_of_the_ai_review():
                             au.INVALID: 0, "pending": 0, **kw}}
     assert audit_status(None) == NOT_RUN
     assert audit_status(s(**{au.COHERENT: 3})) == GREEN
-    assert audit_status(s(**{au.COHERENT: 2, au.INCOHERENT: 1})) == AMBER
-    assert audit_status(s(**{au.COHERENT: 2, au.DOUBTFUL: 1})) == AMBER
+    assert audit_status(s(**{au.COHERENT: 2, au.INCOHERENT: 1})) == YELLOW
+    assert audit_status(s(**{au.COHERENT: 2, au.DOUBTFUL: 1})) == YELLOW
     assert audit_status(s(pending=3)) == NOT_RUN                  # the AI reviewed nothing
     assert audit_status(s(**{au.COHERENT: 2}, pending=1)) == GREEN
     assert audit_status(s(accepted=0)) == GREEN                   # nothing to review
+
+
+def test_a_result_saved_in_the_sprint_8_reads_as_yellow(tmp_path):
+    old = {"workspace": "w", "status": si.OLD_YELLOW,
+           "inspectors": {uv.SHAPES: {"status": si.OLD_YELLOW}, uv.LOGIC: {"status": GREEN},
+                          uv.AUDIT: {"status": uv.NOT_RUN}}}
+    (tmp_path / uv.RESULT_FILE).write_text(json.dumps(old, ensure_ascii=False), encoding="utf-8")
+    v = uv.load_result(SimpleNamespace(output_dir=tmp_path))
+    assert v["status"] == YELLOW == "amarillo"
+    assert [b["status"] for b in v["inspectors"].values()] == [YELLOW, GREEN, uv.NOT_RUN]
+    assert si.current_color(RED) == RED and si.current_color(uv.FAILED) == uv.FAILED
 
 
 # ------------------------------------------------------------------ each upload
@@ -83,30 +96,32 @@ def test_each_upload_is_validated_and_the_zip_says_so(env, targets):  # noqa: F8
     v = uv.load_result(w)
     shapes, logic, audit = (v["inspectors"][k] for k in (uv.SHAPES, uv.LOGIC, uv.AUDIT))
     assert (shapes["status"], shapes["new"], shapes["inherited"], shapes["warnings"]) == (
-        AMBER, 0, 0, 3)                                           # 3 concepts without definition
+        YELLOW, 0, 0, 3)                                           # 3 concepts without definition
     assert (logic["status"], logic["consistent"], logic["new"]) == (GREEN, True, 0)
     assert logic["engine"] == f"owlrl {li.version('owlrl')}, OWL 2 RL en Python"
     assert audit["status"] == GREEN and audit["summary"]["accepted"] == 1
-    assert v["status"] == AMBER
-    assert w.step("shapes")["status"] == DONE and w.step("shapes")["result"] == AMBER
+    assert v["status"] == YELLOW
+    assert w.step("shapes")["status"] == DONE and w.step("shapes")["result"] == YELLOW
     assert w.step("logic")["detail"] == ("verde: 0 inconsistencias nuevas, 0 heredadas, "
                                          "0 advertencias")
     assert w.step("audit")["detail"] == "Coherentes 1 · dudosas 0 · incoherentes 0"
     names = zipfile.ZipFile(path).namelist()
     assert uv.RESULT_FILE in names and uv.LOG_FILE in names
     readme = zipfile.ZipFile(path).read("LEEME.txt").decode("utf-8")
-    assert "\nValidación: ámbar (no bloquea la descarga)\n" in readme
-    assert (f"  - Forma (pySHACL {li.version('pyshacl')}): ámbar · 0 violaciones nuevas, "
+    assert "\nValidación: amarillo (no bloquea la descarga)\n" in readme
+    assert (f"  - Forma (pySHACL {li.version('pyshacl')}): amarillo · 0 violaciones nuevas, "
             "0 heredadas, 3 advertencias\n") in readme
     assert ("  - IA revisora (audit.v1): verde · 0 incoherentes y 0 dudosas de 1 aceptada por "
             "la regla; solo explica, no cambia lo aceptado\n") in readme
     log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
-    assert log.startswith(f"Validación del espacio {w.id}: ámbar\n\nInspector de forma (SHACL)")
+    assert log.startswith(f"Validación del espacio {w.id}: amarillo\n\nInspector de forma (SHACL)")
     assert "Inspector de lógica (razonador)" in log and "Revisión de la IA del espacio" in log
     text = ua.render_console(w, m, path)
     assert "  IA de la revisión: 1 llamadas, 0 desde la caché, 0 inválidas\n" in text
-    assert "\n  Validación: ámbar (no bloquea la descarga)\n    Forma (pySHACL" in text
+    assert "\n  Validación: amarillo (no bloquea la descarga)\n    Forma (pySHACL" in text
     assert "\n    Detalle: output/validation-log.txt\n" in text
+    saved = (w.output_dir / uv.RESULT_FILE).read_text(encoding="utf-8")
+    assert not any(si.OLD_YELLOW in t for t in (saved, readme, log, text))   # S9-T01
     row = _csv(w)["PersonalData"]
     assert (row["ai_review"], row["ai_relation"], row["ai_explanation"]) == (
         au.COHERENT, "exactMatch", "Revisión de prueba para PersonalData.")
@@ -126,7 +141,7 @@ def test_the_review_flags_and_is_reused_while_nothing_changes(env, targets):  # 
     llm = FlaggingLLM()
     w, m, _ = _align(_real_dpv(env), targets, llm=llm)
     audit = uv.load_result(w)["inspectors"][uv.AUDIT]
-    assert audit["status"] == AMBER and audit["flagged"] == [{
+    assert audit["status"] == YELLOW and audit["flagged"] == [{
         "name": "PersonalData", "dpv_name": "PersonalData", "relation": "exactMatch",
         "verdict": au.INCOHERENT, "ai_relation": "closeMatch",
         "explanation": "Trata de otra cosa."}]
@@ -191,7 +206,7 @@ def test_a_failed_check_never_blocks_the_download(env, targets, monkeypatch):  #
     v = uv.load_result(w)
     assert v["inspectors"][uv.LOGIC] == {"status": FAILED, "error": "Java no responde"}
     assert v["inspectors"][uv.AUDIT] == {"status": NOT_RUN}
-    assert v["status"] == AMBER and m["ai_audit"] is None
+    assert v["status"] == YELLOW and m["ai_audit"] is None
     assert w.step("logic")["status"] == ERROR and w.step("logic")["detail"] == "Java no responde"
     assert path.exists() and w.step("package")["status"] == DONE
     log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
@@ -214,19 +229,19 @@ def test_the_text_of_each_inspector():
     assert uv.inspector_text(uv.AUDIT, failed).endswith("aceptadas por la regla: 429 cuota")
     assert uv.inspector_text(uv.AUDIT, {**block, "ai": {"available": True}}).endswith(
         "regla: sin respuesta")
-    flagged = {**block, "status": AMBER, "summary": {**block["summary"], au.COHERENT: 1,
+    flagged = {**block, "status": YELLOW, "summary": {**block["summary"], au.COHERENT: 1,
                                                      au.INCOHERENT: 1, au.DOUBTFUL: 1,
                                                      "pending": 1}}
     assert uv.inspector_text(uv.AUDIT, flagged) == (
-        "IA revisora (audit.v1): ámbar · 1 incoherente y 1 dudosa de 4 aceptadas por la regla, "
+        "IA revisora (audit.v1): amarillo · 1 incoherente y 1 dudosa de 4 aceptadas por la regla, "
         "1 sin revisar; solo explica, no cambia lo aceptado")
     none = {**block, "status": GREEN, "summary": {**block["summary"], "accepted": 0}}
     assert uv.inspector_text(uv.AUDIT, none) == (
         "IA revisora (audit.v1): verde · la regla no aceptó ninguna correspondencia que revisar")
-    logic = {"status": AMBER, "engine": "Apache Jena 6.2.0, OWL Micro", "new": 0,
+    logic = {"status": YELLOW, "engine": "Apache Jena 6.2.0, OWL Micro", "new": 0,
              "inherited": 255, "warnings": 1}
     assert uv.inspector_text(uv.LOGIC, logic) == (
-        "Lógica (Apache Jena 6.2.0, OWL Micro): ámbar · 0 inconsistencias nuevas, "
+        "Lógica (Apache Jena 6.2.0, OWL Micro): amarillo · 0 inconsistencias nuevas, "
         "255 heredadas, 1 advertencia")
 
 
@@ -241,7 +256,7 @@ def test_cli_runs_a_workspace_again(env, targets, tmp_path, monkeypatch, capsys)
     w, _, _ = _align(_real_dpv(env), targets)
     assert ua._run(["--espacio", w.id, "--sin-ia"]) == 0
     out = capsys.readouterr().out
-    assert "  Validación: ámbar (no bloquea la descarga)\n" in out
+    assert "  Validación: amarillo (no bloquea la descarga)\n" in out
     assert f"  IA de la revisión: {ua.REUSED} (1 llamadas, 0 desde la caché" in out
     assert ua._run([]) == 1 and ua._run(["x.ttl", "--espacio", w.id]) == 1
     assert "Error: indica un archivo o --espacio." in capsys.readouterr().out
@@ -262,7 +277,7 @@ def test_the_blocks_of_each_inspector():
     assert uv.shapes_block(shape_report) == {
         "status": RED, "engine": "pySHACL 0.40.1", "new": 1, "inherited": 5, "warnings": 9,
         "completeness": {"concepts": 1}, "seconds": 0.5}
-    logic_report = {"status": AMBER, "consistent": False, "seconds": 2.1,
+    logic_report = {"status": YELLOW, "consistent": False, "seconds": 2.1,
                     "engine": {"name": li.JENA, "version": "6.2.0", "reasoner": "owl-micro",
                                "java": "24.0.2"},
                     "summary": {"errors": {**counts, "nuevo": 0}, "warnings": counts}}

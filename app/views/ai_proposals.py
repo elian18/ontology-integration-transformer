@@ -1,16 +1,17 @@
-"""AI proposals view (Sprint 3, S3-T08): concepts the AI proposes for the profile.
+"""AI proposals view (Sprint 3, S3-T08): the concepts the AI proposed for the profile.
 
 Presentation only; the data comes from services.core_module.proposed_concepts(), which reads
-the file written by the extraction (S3-T05). These are proposals in a "por validar" state:
-nothing here has entered any ontology. Approving and aligning them is the alignment sprint."""
+the file written by the extraction (S3-T05). The list is shown as the AI wrote it; the person's
+decision on each concept (Sprint 5) is on the "Aprobar conceptos IA" page."""
 import streamlit as st
 from services import core_module
 
 st.header("Conceptos propuestos por la IA")
 st.write(
-    "Conceptos que la IA extrajo del texto de la ley y propone para el perfil, cada uno con el "
-    "artículo del que proviene. Están **por validar**: nada de esto ha entrado a la ontología. "
-    "Revisarlos y alinearlos es el siguiente sprint."
+    "Conceptos que la IA extrajo del texto de la ley y propuso para el perfil, cada uno con el "
+    "artículo del que proviene. Es la lista tal como la escribió la IA: la decisión sobre cada "
+    "uno (aprobarlo, descartarlo o marcarlo como ya existente en OntoPriv) se tomó una sola vez "
+    "al construir la base y se ve en **Aprobar conceptos IA**."
 )
 
 proposed = core_module.proposed_concepts()
@@ -57,4 +58,4 @@ rows = [
     for c in concepts
 ]
 st.dataframe(rows, use_container_width=True, hide_index=True)
-st.caption("Estado: por validar · fuente: " + (proposed["source"] or "ley"))
+st.caption("Lista original de la IA · fuente: " + (proposed["source"] or "ley"))

@@ -497,7 +497,7 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     assert any(c.value.startswith("Regla: confianza alta") for c in at.caption)
     assert any(c.value.startswith("Etiquetas en español e inglés: 0 conceptos ya las tenían; "
                                   "la IA completó las de 4") for c in at.caption)
-    assert not at.get("balloons")                         # only right after a new alignment
+    assert not at.get("balloons")                         # no balloons
     at.selectbox(key="align_filter").set_value("Validada en la base").run()
     assert len(_frame(at, "Etiqueta (es)")) == 2                          # "Conceptos"
     assert svc.REVIEW_COLUMNS in [list(d.value.columns) for d in at.dataframe]  # sugeridas
@@ -621,9 +621,7 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert any(c.value.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in at.caption)
     assert at.session_state["align_ws"].startswith("mi-gdpr-")
-    assert len(at.get("balloons")) == 1                   # a clean new alignment
-    at.run()
-    assert not at.get("balloons")                         # only once
+    assert not at.get("balloons")                         # no balloons, even when new
 
 
 def test_a_failure_is_shown_and_not_repeated(live, monkeypatch):

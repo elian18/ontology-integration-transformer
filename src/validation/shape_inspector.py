@@ -18,7 +18,8 @@ from src.validation import shapes as sh
 REPORT_FILE = "shacl-report.json"
 LOG_FILE = "shacl-log.txt"
 NEW, ONTOLOGY, BASE = "nuevo", "ontología", "base"
-RED, AMBER, GREEN = "rojo", "ámbar", "verde"
+RED, YELLOW, GREEN = "rojo", "amarillo", "verde"
+OLD_YELLOW = "ámbar"                       # results saved before S9-T01 say "ámbar"
 KIND_BASE, KIND_WORKSPACE = "base", "workspace"
 EXAMPLES = 3
 
@@ -158,11 +159,16 @@ def _shapes_info(shapes) -> dict:
             "version": str(shapes.value(URIRef(sh.SHAPES_NS), OWL.versionInfo) or "")}
 
 
+def current_color(status: str) -> str:
+    """The color as it is named today ("ámbar" in a result saved in the Sprint 8 is yellow)."""
+    return YELLOW if status == OLD_YELLOW else status
+
+
 def status_of(summary: dict) -> str:
     if summary["violations"][NEW]:
         return RED
     if sum(summary["violations"].values()) or sum(summary["warnings"].values()):
-        return AMBER
+        return YELLOW
     return GREEN
 
 
@@ -304,7 +310,7 @@ def render_log(report: dict, examples: int | None = None) -> str:
     for rule_id, row in s["rules"].items():
         n = row[NEW] + row[ONTOLOGY] + row[BASE]
         mark = "ok" if n == 0 else (RED if row["severity"] == sh.VIOLATION and row[NEW]
-                                    else AMBER)
+                                    else YELLOW)
         lines.append(f"    [{mark}] {row['name']}: {n}" + (f" ({_counts(row, kind)})" if n else ""))
         shown = [f for f in report["findings"] if f["rule"] == rule_id]
         for f in shown[:examples] if examples is not None else shown:

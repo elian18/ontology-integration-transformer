@@ -14,8 +14,8 @@ from pathlib import Path
 from rdflib import Graph
 
 from src.validation import shape_inspector as si
-from src.validation.shape_inspector import (AMBER, BASE, GREEN, KIND_BASE, KIND_WORKSPACE, NEW,
-                                            ONTOLOGY, RED, Part)
+from src.validation.shape_inspector import (BASE, GREEN, KIND_BASE, KIND_WORKSPACE, NEW,
+                                            ONTOLOGY, RED, YELLOW, Part)
 from src.validation.shapes import counted, local_name
 
 REPORT_FILE = "reasoner-report.json"
@@ -183,7 +183,7 @@ def status_of(summary: dict) -> str:
     if summary["errors"][NEW]:
         return RED
     if sum(summary["errors"].values()) or sum(summary["warnings"].values()):
-        return AMBER
+        return YELLOW
     return GREEN
 
 
@@ -325,7 +325,7 @@ def render_log(report: dict, examples: int | None = None) -> str:
         n = row["errors"] + row["warnings"]
         if n == 0:
             continue
-        mark = RED if row[NEW] and row["errors"] else AMBER
+        mark = RED if row[NEW] and row["errors"] else YELLOW
         parts = [f"{row[w]} {si.origin_text(w, kind, row[w])}" for w in (NEW, ONTOLOGY, BASE)
                  if row[w]]
         what = "advertencias" if row["errors"] == 0 else "inconsistencias"
