@@ -392,9 +392,15 @@ def test_a_failed_question_engine_is_gray_and_never_blocks_the_download(env, tar
     assert "  Preguntas: no se pudo correr (Jena falló: OutOfMemoryError)" in uv.summary_lines(v)
     log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
     assert "Preguntas: no se pudo correr (Jena falló: OutOfMemoryError)" in log
-    view = ao.validation_view(w)                       # the gray card comes with S9-T07
-    assert [c["key"] for c in view["cards"]] == [uv.SHAPES, uv.LOGIC, uv.AUDIT]
-    assert view["headline"].endswith("no pudo correr: Preguntas.")
+    view = ao.validation_view(w)                       # a gray card, the download goes on
+    assert [(c["key"], c["badge"]) for c in view["cards"]] == [
+        (uv.SHAPES, ":yellow-badge[Amarillo]"), (uv.LOGIC, ":green-badge[Verde]"),
+        (uv.QUESTIONS, ":gray-badge[No corrió]"), (uv.AUDIT, ":green-badge[Verde]")]
+    assert view["cards"][2]["text"] == "No pudo correr  \nJena falló: OutOfMemoryError"
+    assert view["questions"] == {"caption": "Las preguntas no pudieron correr: Jena falló: "
+                                            "OutOfMemoryError. Esto no bloquea la descarga.",
+                                 "rows": []}
+    assert view["headline"].endswith("no pudo correr: Preguntas (SPARQL).")
 
 
 def test_the_headline_counts_the_questions_to_look_at():
@@ -409,8 +415,8 @@ def test_the_headline_counts_the_questions_to_look_at():
                                                       qs.NOT_APPLICABLE: 0}}}}
     assert ao.validation_headline(result) == (
         "Nada de lo que escribió el sistema rompe una regla. Para mirar: 1 pregunta de "
-        "competencia que tu ontología no responde; 2 preguntas de competencia que no se pudo "
-        "responder.")
+        "competencia que tu ontología no responde; 2 preguntas de competencia que no se "
+        "pudieron responder.")
 
 
 def test_the_questions_of_each_mode(env, tmp_path, monkeypatch):  # noqa: F811

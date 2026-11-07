@@ -489,7 +489,8 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in at.download_button)
     assert any("Protégé 5.6 no abre JSON-LD" in c.value for c in at.caption)
-    assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar"]
+    assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar",
+                                          svc.QUESTIONS_TAB]
     assert [m.label for m in at.metric] == ["Validadas en la base", "Aceptadas automáticamente",
                                             "Sugeridas", "Sin correspondencia", "Sin propuesta"]
     assert [m.value for m in at.metric] == ["1", "1", "1", "1", "0"]
@@ -558,7 +559,7 @@ def test_page_shows_the_articles_to_review(page, both_aligned):
     assert "Artículos de la ley" in _frame(at, "Etiqueta (es)").columns  # "Conceptos"
     assert ["Concepto", "Estado", "Artículos de la ley"] in columns      # its own tab
     assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar",
-                                          svc.LAW_TAB]
+                                          svc.QUESTIONS_TAB, svc.LAW_TAB]
 
 
 def test_the_assistant_opens_by_default():
