@@ -1,0 +1,15 @@
+# P05 · ¿A partir de qué edad una persona puede dar su consentimiento explícito para el tratamiento de sus datos personales?
+# La edad (onto:age) de los titulares que pueden dar su consentimiento explícito
+# (onto:can_give_explicit_consent_to_treatment verdadero).
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+PREFIX onto: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#>
+PREFIX op:   <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#>
+SELECT DISTINCT ?concept ?value WHERE {
+  ?concept onto:can_give_explicit_consent_to_treatment true ;
+           onto:age ?value .
+}
