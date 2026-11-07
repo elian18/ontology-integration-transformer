@@ -1,6 +1,7 @@
 # Competency questions answered with SPARQL (S9-T04): Apache Jena runs the .rq queries without
 # inference (rdflib when there is no Java) and each answer is judged by the rule of the catalog.
-# Every upload answers the generic questions of its mode (S9-T05).
+# Every upload answers the generic questions of its mode (S9-T05); the AI says why the yellow
+# ones are yellow (S9-T06).
 from __future__ import annotations
 
 import argparse
@@ -17,6 +18,7 @@ from rdflib.namespace import RDF, XSD
 
 from src.validation import logic_inspector as li
 from src.validation import question_catalog as qc
+from src.validation import question_explainer as qe
 from src.validation.shape_inspector import GREEN, YELLOW
 
 QUERIES_DIR = Path(__file__).with_name("queries")
@@ -259,7 +261,8 @@ def compare(runs: dict, ids: list[str], one: str, other: str) -> list[dict]:
 
 
 def inspect_base(cfg: dict | None = None, *, engine: str | None = None,
-                 java: str | None = None, out_dir: str | Path | None = None) -> dict:
+                 java: str | None = None, out_dir: str | Path | None = None, llm=None,
+                 use_llm: bool | None = False, sleep_fn=time.sleep) -> dict:
     from src.alignment.inherit import base_paths
     from src.config import load_config
     cfg = cfg if cfg is not None else load_config()
@@ -277,20 +280,22 @@ def inspect_base(cfg: dict | None = None, *, engine: str | None = None,
                 for q in results if q["id"] in paper}
     formats = {name: compare(runs, ids, BASE_SET, name) for name in sets
                if name.startswith(BASE_SET + "-")}
+    folder = Path(out_dir) if out_dir else base_paths(cfg)["candidates"].parent
+    folder.mkdir(parents=True, exist_ok=True)
+    explained = qe.explain(catalog, results, runs[BASE_SET]["answers"], cfg=cfg, llm=llm,
+                           use_llm=use_llm, cache_path=folder / qe.CACHE_FILE, sleep_fn=sleep_fn)
     report = {
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "engine": used, "seconds": seconds,
         "catalog": {"file": _shown(qc.CATALOG_FILE), "version": catalog.version,
                     "sha256": catalog.sha256},
         "files": [_shown(f) for f in sets[BASE_SET]], "triples": runs[BASE_SET]["triples"],
-        "results": results, "summary": summary(results),
+        "results": results, "summary": summary(results), "explanations": explained,
         "original": {"files": [_shown(f) for f in sets[ORIGINAL_SET]],
                      "differences": compare(runs, paper, BASE_SET, ORIGINAL_SET),
                      "colors": original},
         "formats": {name.removeprefix(BASE_SET + "-"): diff for name, diff in formats.items()},
     }
-    folder = Path(out_dir) if out_dir else base_paths(cfg)["candidates"].parent
-    folder.mkdir(parents=True, exist_ok=True)
     (folder / REPORT_FILE).write_text(json.dumps(report, ensure_ascii=False, indent=2),
                                       encoding="utf-8")
     (folder / LOG_FILE).write_text(render_log(report) + "\n", encoding="utf-8")
@@ -314,7 +319,8 @@ def workspace_files(ws, cfg: dict | None = None) -> list[Path]:
 
 
 def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
-                      java: str | None = None) -> dict:
+                      java: str | None = None, *, llm=None, use_llm: bool | None = False,
+                      sleep_fn=time.sleep) -> dict:
     """The generic questions on an upload: the ones its mode cannot answer do not apply."""
     catalog = qc.load_catalog(qc.CATALOG_FILE)
     mode = ws.manifest.get("mode") or "ontology"
@@ -327,6 +333,9 @@ def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
     answers = runs[WORKSPACE_SET]["answers"]
     results = [{**judge(q, answers.get(q.id)), "applies": True} if q in applies
                else not_applicable(q, mode) for q in generic]
+    ws.work_dir.mkdir(parents=True, exist_ok=True)
+    explained = qe.explain(catalog, results, answers, cfg=cfg, llm=llm, use_llm=use_llm,
+                           cache_path=ws.work_dir / qe.CACHE_FILE, sleep_fn=sleep_fn)
     report = {"workspace": ws.id, "mode": mode,
               "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "engine": used, "seconds": round(time.perf_counter() - start, 2),
@@ -335,8 +344,8 @@ def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
               "files": [f.relative_to(ws.path).as_posix() if f.is_relative_to(ws.path)
                         else _shown(f) for f in files],
               "triples": runs[WORKSPACE_SET]["triples"], "results": results,
-              "summary": summary(results), "status": status_of(results)}
-    ws.work_dir.mkdir(parents=True, exist_ok=True)
+              "summary": summary(results), "status": status_of(results),
+              "explanations": explained}
     (ws.work_dir / REPORT_FILE).write_text(json.dumps(report, ensure_ascii=False, indent=2),
                                            encoding="utf-8")
     (ws.work_dir / LOG_FILE).write_text(render_workspace(report) + "\n", encoding="utf-8")
@@ -398,7 +407,14 @@ def _head(title: str, report: dict) -> list[str]:
             f"  Archivos ({report['triples']} tripletas):",
             *(f"    - {f}" for f in report["files"]),
             f"  Resultado: {counts_text(report['summary'], len(report['results']))} "
-            f"({report['seconds']} s)"]
+            f"({report['seconds']} s)",
+            f"  IA que explica las amarillas (prompt {prompt_name(report)}): "
+            f"{qe.ai_text(report['explanations'])}"]
+
+
+def prompt_name(report: dict) -> str:
+    p = report["explanations"]["prompt"]
+    return f"{p['name']}.v{p['version']}"
 
 
 def _question_lines(rows: list[dict]) -> list[str]:
@@ -406,7 +422,13 @@ def _question_lines(rows: list[dict]) -> list[str]:
     for r in rows:
         mark = NOT_APPLICABLE if not r.get("applies", True) else r["color"]
         lines += [f"    [{mark}] {r['id']} {r['question']}", f"         {answer_text(r)}"]
+        if r.get("explanation"):
+            lines.append(f"         {why_text(r)}")
     return lines
+
+
+def why_text(r: dict) -> str:
+    return f"Por qué{' (IA)' if r['explained_by'] == qe.AI else ''}: {r['explanation']}"
 
 
 def render_workspace(report: dict) -> str:
@@ -455,7 +477,10 @@ def _run(argv: list[str] | None = None) -> int:
     parser.add_argument("workspace", nargs="?", help="id o carpeta del espacio de trabajo")
     parser.add_argument("--base", action="store_true", help="responder sobre la base del sistema")
     parser.add_argument("--motor", choices=(JENA, RDFLIB), help="forzar Jena o rdflib")
+    parser.add_argument("--sin-ia", action="store_true",
+                        help="no pedirle a la IA que explique las amarillas (frase fija)")
     args = parser.parse_args(argv)
+    use_llm = False if args.sin_ia else None
     if args.base == bool(args.workspace):
         print("Error: indica un espacio de trabajo o --base.")
         return 1
@@ -464,11 +489,11 @@ def _run(argv: list[str] | None = None) -> int:
     cfg = load_config()
     try:
         if args.base:
-            report = inspect_base(cfg, engine=args.motor)
+            report = inspect_base(cfg, engine=args.motor, use_llm=use_llm)
             folder, text = base_paths(cfg)["candidates"].parent, render_log(report)
         else:
             ws = open_workspace(args.workspace, cfg)
-            report = inspect_workspace(ws, cfg, engine=args.motor)
+            report = inspect_workspace(ws, cfg, engine=args.motor, use_llm=use_llm)
             folder, text = ws.work_dir, render_workspace(report)
     except (FileNotFoundError, ValueError, RuntimeError, ConversionError, qc.CatalogError,
             WorkspaceError) as exc:

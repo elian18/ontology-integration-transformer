@@ -112,7 +112,8 @@ class DeciderLLM:
     """Answers like the decider's LLM: the term of ``answers`` if it is a candidate, otherwise
     'ninguno' with high confidence. To the labels prompt (S7-T08) it answers the Spanish label
     of ``LABELS_ES`` ("Etiqueta de <name>" for the others) and the name split into words; to
-    the reviewer (S8-T09), "coherente"."""
+    the reviewer (S8-T09), "coherente"; to the explainer of the questions (S9-T06), one sentence
+    per question."""
 
     def __init__(self, answers=None, error=None, model="modelo-de-prueba"):
         self.answers = ANSWERS if answers is None else answers
@@ -130,6 +131,10 @@ class DeciderLLM:
                 out.append({"concept": block.split(" ===", 1)[0], "en": _humanize(name),
                             "es": LABELS_ES.get(name, f"Etiqueta de {name}")})
             return json.dumps({"labels": out}, ensure_ascii=False)
+        if '"explanations"' in prompt:                 # S9-T06: why a question is yellow
+            ids = [block.split(" ===", 1)[0] for block in context.split("=== ")[1:]]
+            return json.dumps({"explanations": [{"id": i, "explanation": f"Explicación de prueba "
+                                                 f"para {i}."} for i in ids]}, ensure_ascii=False)
         if '"reviews"' in prompt:
             for block in context.split("=== ")[1:]:
                 name = re.search(r"^Concepto: (\S+) \(", block, re.M).group(1)

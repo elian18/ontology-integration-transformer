@@ -351,13 +351,36 @@ def test_each_upload_answers_the_generic_questions_of_its_mode(env, targets):  #
     assert f"Preguntas de competencia del espacio {w.id} (Mi ontología): amarillo" in log
     assert "    [no aplica] G08 ¿De qué artículo de la ley sale cada concepto?" in log
     assert f"\n    {line}\n" in ua.render_console(w, m, path)
+    g02 = q["results"][1]                              # S9-T06: the AI says why
+    assert (g02["explanation"], g02["explained_by"]) == ("Explicación de prueba para G02.", "ia")
+    assert "explanation" not in g01 and "explanation" not in g08
+    assert q["ai"]["calls"] == 1 and q["ai"]["questions"] == 5
+    why = ("G02 ¿Qué derechos del titular representa la ontología? Por qué (IA): Explicación de "
+           "prueba para G02.")
+    assert f"\n      {why}\n" in readme
+    assert f"\n      - {why}\n" in ua.render_console(w, m, path)
+    assert "         Por qué (IA): Explicación de prueba para G02." in log
+
+
+def test_a_repeated_upload_does_not_ask_the_ai_again_why(env, targets):  # noqa: F811
+    from tests.test_alignment_propose import DeciderLLM as Fake
+    llm = Fake()
+    w, _, _ = _align(_real_dpv(env), targets, llm=llm)
+    calls = llm.calls
+    _align(env, targets, llm=llm)
+    assert llm.calls == calls
+    q = uv.load_result(w)["inspectors"][uv.QUESTIONS]
+    assert (q["ai"]["calls"], q["ai"]["cached"]) == (0, 5)
+    assert q["results"][1]["explained_by"] == "ia"
+    off = uv.validate_workspace(w, env.cfg, llm=Fake(), use_llm=False)
+    assert off["inspectors"][uv.QUESTIONS]["results"][1]["explained_by"] == "fija"
 
 
 def test_a_failed_question_engine_is_gray_and_never_blocks_the_download(env, targets,  # noqa: F811
                                                                          monkeypatch):
     from app.services import align_ontology as ao
     from src.validation import questions as qs
-    def no_engine(ws, cfg=None, engine=None, java=None):
+    def no_engine(ws, cfg=None, engine=None, java=None, **ai):
         raise RuntimeError("Jena falló: OutOfMemoryError")
     monkeypatch.setattr(qs, "inspect_workspace", no_engine)
     w, m, path = _align(_real_dpv(env), targets)
@@ -427,12 +450,18 @@ def test_the_questions_use_the_upload_and_not_the_copy_of_the_core(env, tmp_path
         qs.workspace_files(SimpleNamespace(path=tmp_path, output_dir=tmp_path / "nada"), env.cfg)
 
 
-def test_the_cli_answers_the_questions_of_a_workspace(env, targets, capsys):  # noqa: F811
+def test_the_cli_answers_the_questions_of_a_workspace(env, targets, capsys,  # noqa: F811
+                                                      monkeypatch):
     from src.validation import questions as qs
     w, _, _ = _align(_real_dpv(env), targets)
-    assert qs._run([str(w.path), "--motor", "rdflib"]) == 0
+    def no_key(*args, **kwargs):                       # the CLI asks the AI: never in the tests
+        raise KeyError("LLM_API_KEY")
+    monkeypatch.setattr("src.ai.llm_client.LLMClient", no_key)
+    assert qs._run([str(w.path), "--motor", "rdflib", "--sin-ia"]) == 0
     out = capsys.readouterr().out
     assert out.startswith(f"Preguntas de competencia del espacio {w.id} (Mi ontología): ")
     assert f"  Guardado en: {w.work_dir / qs.REPORT_FILE}" in out
+    assert "no usada; IA desactivada (--sin-ia); frase fija" in out
+    assert "         Por qué: La consulta no trajo conceptos alineados con dpv:DataSubjectRight" in out
     assert qs._run([str(w.path), "--base"]) == 1
     assert capsys.readouterr().out == "Error: indica un espacio de trabajo o --base.\n"

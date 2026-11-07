@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime, timezone
 
 from src.validation import ai_auditor as au
@@ -62,10 +63,12 @@ def questions_block(report: dict) -> dict:
     """Each generic question with its color and a short answer (the rows stay in work/)."""
     return {"status": report["status"], "engine": qs.engine_short(report["engine"]),
             "summary": report["summary"], "catalog": report["catalog"],
-            "seconds": report["seconds"],
+            "seconds": report["seconds"], "ai": report["explanations"],
             "results": [{"id": r["id"], "question": r["question"], "criterion": r["criterion"],
                          "color": r["color"], "applies": r.get("applies", True),
-                         "answer": qs.answer_text(r)} for r in report["results"]]}
+                         "answer": qs.answer_text(r),
+                         **({k: r[k] for k in ("explanation", "explained_by", "matches")
+                             if k in r})} for r in report["results"]]}
 
 
 def audit_block(audit: dict | None) -> dict:
@@ -99,7 +102,8 @@ def counts_text(key: str, block: dict) -> str:
 
 
 def validate_workspace(ws, cfg: dict | None = None, *, engine: str | None = None,
-                       progress=None) -> dict:
+                       progress=None, llm=None, use_llm: bool | None = False,
+                       sleep_fn=None) -> dict:
     """The form and logic inspectors and the competency questions on what was written, plus the
     AI review already done; saves ``validation.json`` and ``validation-log.txt`` in ``output/``
     (they go in the zip)."""
@@ -114,7 +118,8 @@ def validate_workspace(ws, cfg: dict | None = None, *, engine: str | None = None
                                    logic_block,
                                    lambda o: f"{o['status']}: {counts_text(LOGIC, o)}")
     say(STEP_LABELS[QUESTIONS])
-    question_report, questions = _inspect(ws, QUESTIONS, lambda: qs.inspect_workspace(ws, cfg),
+    question_report, questions = _inspect(ws, QUESTIONS, lambda: qs.inspect_workspace(
+        ws, cfg, llm=llm, use_llm=use_llm, sleep_fn=sleep_fn or time.sleep),
                                           questions_block,
                                           lambda o: f"{o['status']}: "
                                                     f"{qs.counts_text(o['summary'])}")
@@ -183,6 +188,16 @@ def inspector_text(key: str, block: dict) -> str:
             + "; solo explica, no cambia lo aceptado")
 
 
+def notes(key: str, block: dict) -> list[str]:
+    """The lines under an inspector: why each yellow question is yellow (S9-T06)."""
+    if key != QUESTIONS or block["status"] == FAILED:
+        return []
+    return [f"{r['id']} {r['question']} {qs.why_text(r)}" for r in block["results"]
+            if r.get("explanation")]
+
+
 def summary_lines(result: dict) -> list[str]:
-    return [f"Validación: {result['status']} (no bloquea la descarga)"] + [
-        f"  {inspector_text(k, b)}" for k, b in result["inspectors"].items()]
+    lines = [f"Validación: {result['status']} (no bloquea la descarga)"]
+    for k, b in result["inspectors"].items():
+        lines += [f"  {inspector_text(k, b)}", *(f"    - {n}" for n in notes(k, b))]
+    return lines
