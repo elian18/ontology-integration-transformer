@@ -311,7 +311,8 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
                     "Completar las etiquetas en español e inglés",
                     "La IA revisa las correspondencias aceptadas",
                     "Escribir la ontología alineada", "Validar la forma (SHACL)",
-                    "Validar la lógica (razonador)", "Preparar la descarga"]
+                    "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
     assert path.name == "mi-gdpr-alineada-rdfxml.zip" and path.exists()
     assert all(s["status"] == DONE for s in w.progress())
     assert m["modules"]["labels"] == LABELS and m["labels"]["pending"] == 0
@@ -329,7 +330,8 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
                                  **{**kw, "fmt": "jsonld"})
     assert w2.path == w.path and (embed.calls, llm.calls) == calls     # nothing recomputed
     assert seen == ["Escribir la ontología alineada", "Validar la forma (SHACL)",
-                    "Validar la lógica (razonador)", "Preparar la descarga"]
+                    "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
     assert path2.name == "mi-gdpr-alineada-jsonld.zip"
     assert not any(m2["recomputed"].values())
     again = ua.render_console(w2, m2, path2)                           # S7-T13: says so

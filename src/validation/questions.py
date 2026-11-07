@@ -1,5 +1,6 @@
 # Competency questions answered with SPARQL (S9-T04): Apache Jena runs the .rq queries without
 # inference (rdflib when there is no Java) and each answer is judged by the rule of the catalog.
+# Every upload answers the generic questions of its mode (S9-T05).
 from __future__ import annotations
 
 import argparse
@@ -22,8 +23,8 @@ QUERIES_DIR = Path(__file__).with_name("queries")
 RUNNER = Path(__file__).with_name("QuestionRunner.java")
 REPORT_FILE, LOG_FILE = "questions-report.json", "questions-log.txt"
 JENA, RDFLIB = li.JENA, "rdflib"
-GRAY = "gris"
-BASE_SET, ORIGINAL_SET = "base", "original"
+GRAY, NOT_APPLICABLE = "gris", "no aplica"
+BASE_SET, ORIGINAL_SET, WORKSPACE_SET = "base", "original", "workspace"
 SHOWN = 3
 NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
 
@@ -165,7 +166,7 @@ def judge(q: qc.Question, answer: dict | None) -> dict:
         return {**out, "color": GRAY, "error": reason}
     rows = answer["rows"]
     texts = [row_texts(r) for r in rows]
-    out["rows"], out["answer"] = len(rows), list(dict.fromkeys(t for t in texts if t))[:SHOWN]
+    out["rows"], out["answer"] = len(rows), sorted({t for t in texts if t})[:SHOWN]   # any engine
     if q.kind == qc.VALUE:
         found = sorted({float(n.replace(",", ".")) for r in rows for c in r
                         if c and c["t"] == "literal" for n in NUMBER.findall(c["v"])})
@@ -188,8 +189,24 @@ def judge(q: qc.Question, answer: dict | None) -> dict:
     return {**out, "color": GREEN if ok else YELLOW, "found": found, "missing": missing}
 
 
+def not_applicable(q: qc.Question, mode: str) -> dict:
+    return {"id": q.id, "group": q.group, "question": q.question, "kind": q.kind,
+            "criterion": qc.criterion_text(q), "rows": 0, "answer": [], "error": None,
+            "color": GRAY, "applies": False,
+            "reason": f"no aplica a «{qc.MODES[mode]}»: este modo no produce lo que la "
+                      f"pregunta necesita"}
+
+
 def summary(results: list[dict]) -> dict:
-    return {c: sum(r["color"] == c for r in results) for c in (GREEN, YELLOW, GRAY)}
+    applies = [r for r in results if r.get("applies", True)]
+    return {**{c: sum(r["color"] == c for r in applies) for c in (GREEN, YELLOW, GRAY)},
+            NOT_APPLICABLE: len(results) - len(applies)}
+
+
+def status_of(results: list[dict]) -> str:
+    """Green when every question that applies is answered; a gray one is also to look at."""
+    applies = [r for r in results if r.get("applies", True)]
+    return GREEN if all(r["color"] == GREEN for r in applies) else YELLOW
 
 
 # --------------------------------------------------------------------------- the base
@@ -280,6 +297,57 @@ def inspect_base(cfg: dict | None = None, *, engine: str | None = None,
     return report
 
 
+# --------------------------------------------------------------------------- an upload
+
+def workspace_files(ws, cfg: dict | None = None) -> list[Path]:
+    """What the upload is (its ontology and the modules written for it) and the DPV; not the
+    copy of OntoPriv-Core, which is the base and not the user's ontology."""
+    from src.alignment.user_alignment import load_manifest
+    from src.config import ROOT, load_config
+    manifest = load_manifest(ws)
+    if manifest is None:
+        raise ValueError("Primero alinea la ontología: falta output/alignment-manifest.json.")
+    cfg = cfg if cfg is not None else load_config()
+    dpv = Path(cfg["inputs"]["dpv"])
+    dpv = dpv if dpv.is_absolute() else ROOT / dpv
+    return [ws.path / rel for kind, rel in manifest["files"].items() if kind != "core"] + [dpv]
+
+
+def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
+                      java: str | None = None) -> dict:
+    """The generic questions on an upload: the ones its mode cannot answer do not apply."""
+    catalog = qc.load_catalog(qc.CATALOG_FILE)
+    mode = ws.manifest.get("mode") or "ontology"
+    generic = [q for q in catalog.questions if q.group == qc.GENERIC]
+    applies = [q for q in generic if mode in q.modes]
+    files = workspace_files(ws, cfg)
+    start = time.perf_counter()
+    used, runs = run({WORKSPACE_SET: files}, [q.id for q in applies], cfg=cfg, engine=engine,
+                     java=java)
+    answers = runs[WORKSPACE_SET]["answers"]
+    results = [{**judge(q, answers.get(q.id)), "applies": True} if q in applies
+               else not_applicable(q, mode) for q in generic]
+    report = {"workspace": ws.id, "mode": mode,
+              "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "engine": used, "seconds": round(time.perf_counter() - start, 2),
+              "catalog": {"file": _shown(qc.CATALOG_FILE), "version": catalog.version,
+                          "sha256": catalog.sha256},
+              "files": [f.relative_to(ws.path).as_posix() if f.is_relative_to(ws.path)
+                        else _shown(f) for f in files],
+              "triples": runs[WORKSPACE_SET]["triples"], "results": results,
+              "summary": summary(results), "status": status_of(results)}
+    ws.work_dir.mkdir(parents=True, exist_ok=True)
+    (ws.work_dir / REPORT_FILE).write_text(json.dumps(report, ensure_ascii=False, indent=2),
+                                           encoding="utf-8")
+    (ws.work_dir / LOG_FILE).write_text(render_workspace(report) + "\n", encoding="utf-8")
+    return report
+
+
+def load_result(ws) -> dict | None:
+    path = ws.work_dir / REPORT_FILE
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 # --------------------------------------------------------------------------- console
 
 def engine_text(engine: dict) -> str:
@@ -288,7 +356,13 @@ def engine_text(engine: dict) -> str:
     return f"rdflib {engine['version']}, SPARQL sin inferencia ({engine['reason']})"
 
 
+def engine_short(engine: dict) -> str:
+    return f"{'Apache Jena' if engine['name'] == JENA else 'rdflib'} {engine['version']}"
+
+
 def answer_text(r: dict) -> str:
+    if not r.get("applies", True):
+        return r["reason"][0].upper() + r["reason"][1:]
     if r["color"] == GRAY:
         return f"No corrió: {r['error']}"
     if r["kind"] == qc.VALUE:
@@ -296,7 +370,8 @@ def answer_text(r: dict) -> str:
         return f"Valores que trae: {values} · {'; '.join(r['answer']) or 'sin filas'}"
     if r["kind"] == qc.AT_LEAST:
         examples = "; ".join(r["answer"])
-        return f"{r['count']} conceptos" + (f" (p. ej. {examples})" if examples else "")
+        n = r["count"]
+        return f"{n} concepto{'' if n == 1 else 's'}" + (f" (p. ej. {examples})" if examples else "")
     total = len(r["found"]) + len(r["missing"])
     names = ", ".join(f["name"] + (" (por artículo)" if f["how"] == "artículo" else "")
                       for f in r["found"]) or "ninguno"
@@ -304,24 +379,49 @@ def answer_text(r: dict) -> str:
     return text + (f". Falta: {', '.join(r['missing'])}" if r["missing"] else "")
 
 
+def counts_text(s: dict, total: int | None = None) -> str:
+    text = f"{s[GREEN]} en verde, {s[YELLOW]} en amarillo y {s[GRAY]} en gris"
+    na = s.get(NOT_APPLICABLE, 0)
+    if total is not None:
+        text += f" de las {total - na} que aplican" if na else f" de {total}"
+    if na:
+        text += f"; {na} no aplica{'n' if na > 1 else ''}"
+    return text
+
+
+def _head(title: str, report: dict) -> list[str]:
+    return [title,
+            f"  Fecha: {report['date']}",
+            f"  Motor: {engine_text(report['engine'])}",
+            f"  Catálogo: {report['catalog']['file']} v{report['catalog']['version']} "
+            f"(sha256 {report['catalog']['sha256'][:12]})",
+            f"  Archivos ({report['triples']} tripletas):",
+            *(f"    - {f}" for f in report["files"]),
+            f"  Resultado: {counts_text(report['summary'], len(report['results']))} "
+            f"({report['seconds']} s)"]
+
+
+def _question_lines(rows: list[dict]) -> list[str]:
+    lines = []
+    for r in rows:
+        mark = NOT_APPLICABLE if not r.get("applies", True) else r["color"]
+        lines += [f"    [{mark}] {r['id']} {r['question']}", f"         {answer_text(r)}"]
+    return lines
+
+
+def render_workspace(report: dict) -> str:
+    lines = _head(f"Preguntas de competencia del espacio {report['workspace']} "
+                  f"({qc.MODES[report['mode']]}): {report['status']}", report)
+    return "\n".join(lines + ["", f"  {qc.GROUPS[qc.GENERIC]} ({len(report['results'])})",
+                              *_question_lines(report["results"])])
+
+
 def render_log(report: dict) -> str:
     from src.transform.convert import OUTPUT_FORMATS
-    s = report["summary"]
-    lines = ["Preguntas de competencia de la base del sistema",
-             f"  Fecha: {report['date']}",
-             f"  Motor: {engine_text(report['engine'])}",
-             f"  Catálogo: {report['catalog']['file']} v{report['catalog']['version']} "
-             f"(sha256 {report['catalog']['sha256'][:12]})",
-             f"  Archivos ({report['triples']} tripletas):",
-             *(f"    - {f}" for f in report["files"]),
-             f"  Resultado: {s[GREEN]} en verde, {s[YELLOW]} en amarillo y {s[GRAY]} en gris de "
-             f"{len(report['results'])} ({report['seconds']} s)"]
+    lines = _head("Preguntas de competencia de la base del sistema", report)
     for group, title in qc.GROUPS.items():
         rows = [r for r in report["results"] if r["group"] == group]
-        lines += ["", f"  {title} ({len(rows)})"]
-        for r in rows:
-            lines += [f"    [{r['color']}] {r['id']} {r['question']}",
-                      f"         {answer_text(r)}"]
+        lines += ["", f"  {title} ({len(rows)})", *_question_lines(rows)]
     o = report["original"]
     same = [qid for qid in o["colors"] if qid not in {d["id"] for d in o["differences"]}]
     lines += ["", f"  OntoPriv original ({', '.join(o['files'])}): las {len(o['colors'])} "
@@ -352,20 +452,29 @@ def _run(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="py -m src.validation.questions",
         description="Responde las preguntas de competencia con SPARQL y guarda el informe y el log.")
+    parser.add_argument("workspace", nargs="?", help="id o carpeta del espacio de trabajo")
     parser.add_argument("--base", action="store_true", help="responder sobre la base del sistema")
     parser.add_argument("--motor", choices=(JENA, RDFLIB), help="forzar Jena o rdflib")
     args = parser.parse_args(argv)
-    if not args.base:
-        print("Error: indica --base.")
+    if args.base == bool(args.workspace):
+        print("Error: indica un espacio de trabajo o --base.")
         return 1
+    from src.validation.shape_inspector import open_workspace
+    from src.workspace.store import WorkspaceError
     cfg = load_config()
     try:
-        report = inspect_base(cfg, engine=args.motor)
-    except (FileNotFoundError, ValueError, RuntimeError, ConversionError, qc.CatalogError) as exc:
+        if args.base:
+            report = inspect_base(cfg, engine=args.motor)
+            folder, text = base_paths(cfg)["candidates"].parent, render_log(report)
+        else:
+            ws = open_workspace(args.workspace, cfg)
+            report = inspect_workspace(ws, cfg, engine=args.motor)
+            folder, text = ws.work_dir, render_workspace(report)
+    except (FileNotFoundError, ValueError, RuntimeError, ConversionError, qc.CatalogError,
+            WorkspaceError) as exc:
         print(f"Error: {exc}")
         return 1
-    folder = base_paths(cfg)["candidates"].parent
-    print(render_log(report))
+    print(text)
     print(f"  Guardado en: {folder / REPORT_FILE} y {folder / LOG_FILE}")
     return 0
 

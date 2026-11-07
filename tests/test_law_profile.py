@@ -355,7 +355,8 @@ def test_align_law_end_to_end(env, tmp_path):
                     "Buscar candidatos del DPV", "Completar las etiquetas en español e inglés",
                     "La IA revisa las correspondencias aceptadas",
                     "Escribir la ontología alineada", "Validar la forma (SHACL)",
-                    "Validar la lógica (razonador)", "Preparar la descarga"]
+                    "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
     assert all(s["status"] == DONE for s in ws.progress())
     assert m["generated_from"] == "law" and m["ontology_iri"] == lp.profile_iri(ws)
     assert m["modules"]["core"] == CORE_IRI and m["files"]["core"] == "output/ontopriv-core.ttl"

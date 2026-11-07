@@ -54,7 +54,8 @@ LABELS = ["Separar la ley en artículos", "Indexar los artículos de la ley",
           "Buscar candidatos del DPV", "Completar las etiquetas en español e inglés",
           "Buscar en la ley los artículos de cada concepto",
           "La IA revisa las correspondencias aceptadas", "Escribir la ontología alineada",
-          "Validar la forma (SHACL)", "Validar la lógica (razonador)", "Preparar la descarga"]
+          "Validar la forma (SHACL)", "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
 
 
 class LawEmbed(Embed):
@@ -371,7 +372,7 @@ def test_the_law_completes_the_definitions(env, tmp_path):
 
     calls = llm.calls
     again = _align(env, llm)
-    assert llm.calls == calls and again.seen == LABELS[:2] + LABELS[-4:]   # nothing asked again
+    assert llm.calls == calls and again.seen == LABELS[:2] + LABELS[-5:]   # nothing asked again
     assert not again.manifest["recomputed"]["definitions"]
     assert any(line.startswith("  Definiciones de ley.txt") and
                line.endswith("(de la corrida anterior)")

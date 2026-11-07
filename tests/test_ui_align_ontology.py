@@ -79,7 +79,8 @@ def test_align_runs_every_step_and_names_them(aligned):
                     "Completar las etiquetas en español e inglés",
                     "La IA revisa las correspondencias aceptadas",
                     "Escribir la ontología alineada", "Validar la forma (SHACL)",
-                    "Validar la lógica (razonador)", "Preparar la descarga"]
+                    "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
 
 
 def test_view_has_the_numbers_and_the_table(aligned):
