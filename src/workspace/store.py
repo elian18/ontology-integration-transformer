@@ -23,7 +23,7 @@ KIND_LAW = "law"
 LAW_SUFFIXES = (".txt", ".pdf")
 
 STEPS = ("inherit", "candidates", "propose", "labels", "audit", "write", "shapes", "logic",
-         "package")
+         "questions", "package")
 LAW_STEPS = ("segment", "index")
 EXTRACT_STEPS = ("extract", "accept")
 PROFILE_STEPS = ("profile",)                    # "solo ley": then the steps of STEPS
@@ -38,6 +38,7 @@ STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidato
                "write": "Escribir la ontología alineada",
                "shapes": "Validar la forma (SHACL)",
                "logic": "Validar la lógica (razonador)",
+               "questions": "Responder las preguntas de competencia",
                "package": "Preparar la descarga", "segment": "Separar la ley en artículos",
                "index": "Indexar los artículos de la ley",
                "extract": "Extraer los conceptos de la ley con la IA",

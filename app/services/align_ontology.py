@@ -599,7 +599,14 @@ def validation_headline(result: dict) -> str:
     if flagged:
         parts.append(f"{_n(flagged, 'correspondencia', 'correspondencias')} que la IA revisora "
                      "marcó para que las mires")
-    failed = [CARD_TITLES[k] for k, b in ins.items() if b["status"] == uv.FAILED]
+    questions = (ins.get(uv.QUESTIONS) or {}).get("summary") or {}
+    word = ("pregunta de competencia", "preguntas de competencia")
+    if questions.get(YELLOW):
+        parts.append(f"{_n(questions[YELLOW], *word)} que tu ontología no responde")
+    if questions.get(uv.qs.GRAY):
+        parts.append(f"{_n(questions[uv.qs.GRAY], *word)} que no se pudo responder")
+    failed = [CARD_TITLES.get(k, uv.TITLES[k]) for k, b in ins.items()
+              if b["status"] == uv.FAILED]
     if failed:
         parts.append("no pudo correr: " + ", ".join(failed))
     return ("Nada de lo que escribió el sistema rompe una regla. Para mirar: " + "; ".join(parts)
@@ -649,7 +656,7 @@ def validation_view(ws) -> dict | None:
             "headline": validation_headline(result),
             "cards": [{"key": k, "title": CARD_TITLES[k], "badge": badge(b["status"]),
                        "text": card_text(k, b), "caption": card_caption(k, b)}
-                      for k, b in ins.items()],
+                      for k, b in ins.items() if k in CARD_TITLES],
             "rules": _rule_rows(ws, ins[uv.SHAPES]), "kinds": _kind_rows(ws, ins[uv.LOGIC]),
             "flagged": flagged_rows(result), "log_file": uv.LOG_FILE}
 

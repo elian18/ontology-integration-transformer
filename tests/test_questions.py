@@ -144,7 +144,21 @@ def test_a_question_whose_query_did_not_run_is_gray(catalog):
     r = qs.judge(q, {"error": "QueryParseException: línea 3"})
     assert r["color"] == qs.GRAY and r["error"] == "QueryParseException: línea 3"
     assert qs.judge(q, None)["error"] == "la consulta no corrió"
-    assert qs.summary([r, {"color": GREEN}]) == {GREEN: 1, YELLOW: 0, qs.GRAY: 1}
+    assert qs.summary([r, {"color": GREEN}]) == {GREEN: 1, YELLOW: 0, qs.GRAY: 1,
+                                                 qs.NOT_APPLICABLE: 0}
+
+
+def test_the_color_of_a_set_of_questions_leaves_out_what_does_not_apply():
+    na = {"color": qs.GRAY, "applies": False}
+    assert qs.status_of([{"color": GREEN}, na]) == GREEN
+    assert qs.status_of([{"color": GREEN}, {"color": qs.GRAY}, na]) == YELLOW   # did not run
+    assert qs.status_of([{"color": YELLOW, "applies": True}]) == YELLOW
+    assert qs.summary([{"color": GREEN}, na]) == {GREEN: 1, YELLOW: 0, qs.GRAY: 0,
+                                                  qs.NOT_APPLICABLE: 1}
+    assert qs.counts_text(qs.summary([{"color": GREEN}, na]), 2) == (
+        "1 en verde, 0 en amarillo y 0 en gris de las 1 que aplican; 1 no aplica")
+    assert qs.counts_text({GREEN: 2, YELLOW: 0, qs.GRAY: 0, qs.NOT_APPLICABLE: 2}) == (
+        "2 en verde, 0 en amarillo y 0 en gris; 2 no aplican")
 
 
 def test_rows_compare_the_same_from_jena_and_from_rdflib():
@@ -295,7 +309,7 @@ def test_the_real_base_with_rdflib(tmp_path):
     report = qs.inspect_base(engine=qs.RDFLIB, out_dir=tmp_path)
     colors = {r["id"]: r["color"] for r in report["results"]}
     assert [k for k, c in colors.items() if c == YELLOW] == ["P02", "L03", "L04", "L09", "L10"]
-    assert report["summary"] == {GREEN: 18, YELLOW: 5, qs.GRAY: 0}
+    assert report["summary"] == {GREEN: 18, YELLOW: 5, qs.GRAY: 0, qs.NOT_APPLICABLE: 0}
     assert report["original"]["differences"] == []
     assert report["original"]["colors"] == {"P01": GREEN, "P02": YELLOW, "P03": GREEN,
                                             "P04": GREEN, "P05": GREEN}

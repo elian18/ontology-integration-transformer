@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from src.validation import ai_auditor as au
 from src.validation import logic_inspector as li
+from src.validation import questions as qs
 from src.validation import shape_inspector as si
 from src.validation.shapes import counted
 from src.validation.shape_inspector import BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW
@@ -12,8 +13,8 @@ from src.validation.shape_inspector import BASE, GREEN, NEW, ONTOLOGY, RED, YELL
 RESULT_FILE = "validation.json"
 LOG_FILE = "validation-log.txt"
 NOT_RUN, FAILED = "sin revisar", "error"
-SHAPES, LOGIC, AUDIT = "shapes", "logic", "audit"
-TITLES = {SHAPES: "Forma", LOGIC: "Lógica", AUDIT: "IA revisora"}
+SHAPES, LOGIC, QUESTIONS, AUDIT = "shapes", "logic", "questions", "audit"
+TITLES = {SHAPES: "Forma", LOGIC: "Lógica", QUESTIONS: "Preguntas", AUDIT: "IA revisora"}
 WHAT = {SHAPES: ("violación nueva", "violaciones nuevas"),
         LOGIC: ("inconsistencia nueva", "inconsistencias nuevas")}
 FLAGGED = (au.INCOHERENT, au.DOUBTFUL)
@@ -57,6 +58,16 @@ def logic_block(report: dict) -> dict:
             "warnings": sum(s["warnings"].values()), "seconds": report["seconds"]}
 
 
+def questions_block(report: dict) -> dict:
+    """Each generic question with its color and a short answer (the rows stay in work/)."""
+    return {"status": report["status"], "engine": qs.engine_short(report["engine"]),
+            "summary": report["summary"], "catalog": report["catalog"],
+            "seconds": report["seconds"],
+            "results": [{"id": r["id"], "question": r["question"], "criterion": r["criterion"],
+                         "color": r["color"], "applies": r.get("applies", True),
+                         "answer": qs.answer_text(r)} for r in report["results"]]}
+
+
 def audit_block(audit: dict | None) -> dict:
     if not audit:
         return {"status": NOT_RUN}
@@ -89,8 +100,9 @@ def counts_text(key: str, block: dict) -> str:
 
 def validate_workspace(ws, cfg: dict | None = None, *, engine: str | None = None,
                        progress=None) -> dict:
-    """The form and logic inspectors on what was written, plus the AI review already done;
-    saves ``validation.json`` and ``validation-log.txt`` in ``output/`` (they go in the zip)."""
+    """The form and logic inspectors and the competency questions on what was written, plus the
+    AI review already done; saves ``validation.json`` and ``validation-log.txt`` in ``output/``
+    (they go in the zip)."""
     from src.workspace.store import STEP_LABELS
     say = progress or (lambda label: None)
     say(STEP_LABELS[SHAPES])
@@ -101,8 +113,14 @@ def validate_workspace(ws, cfg: dict | None = None, *, engine: str | None = None
     logic_report, logic = _inspect(ws, LOGIC, lambda: li.inspect_workspace(ws, cfg, engine),
                                    logic_block,
                                    lambda o: f"{o['status']}: {counts_text(LOGIC, o)}")
+    say(STEP_LABELS[QUESTIONS])
+    question_report, questions = _inspect(ws, QUESTIONS, lambda: qs.inspect_workspace(ws, cfg),
+                                          questions_block,
+                                          lambda o: f"{o['status']}: "
+                                                    f"{qs.counts_text(o['summary'])}")
     audit_result = au.current_result(ws)
-    blocks = {SHAPES: shapes, LOGIC: logic, AUDIT: audit_block(audit_result)}
+    blocks = {SHAPES: shapes, LOGIC: logic, QUESTIONS: questions,
+              AUDIT: audit_block(audit_result)}
     result = {"workspace": ws.id,
               "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "status": overall(b["status"] for b in blocks.values()), "inspectors": blocks}
@@ -112,6 +130,8 @@ def validate_workspace(ws, cfg: dict | None = None, *, engine: str | None = None
                                    encoding="utf-8")
     logs = [si.render_log(shape_report) if shape_report else _failed(SHAPES, shapes),
             li.render_log(logic_report) if logic_report else _failed(LOGIC, logic),
+            qs.render_workspace(question_report) if question_report
+            else _failed(QUESTIONS, questions),
             au.render_workspace(audit_result, ws.id, examples=None) if audit_result
             else "Revisión de la IA: no se hizo"]
     (out / LOG_FILE).write_text(f"Validación del espacio {ws.id}: {result['status']}\n\n"
@@ -140,6 +160,9 @@ def inspector_text(key: str, block: dict) -> str:
     title = TITLES[key]
     if block["status"] == FAILED:
         return f"{title}: no se pudo correr ({block['error']})"
+    if key == QUESTIONS:
+        return (f"{title} ({block['engine']}): {block['status']} · "
+                f"{qs.counts_text(block['summary'], len(block['results']))}")
     if key != AUDIT:
         return f"{title} ({block['engine']}): {block['status']} · {counts_text(key, block)}"
     if "summary" not in block:

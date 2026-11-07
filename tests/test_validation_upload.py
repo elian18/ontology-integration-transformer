@@ -5,6 +5,8 @@ import json
 import sys
 import types
 import zipfile
+
+import pytest
 from types import SimpleNamespace
 
 from src.alignment import inherit as inh
@@ -315,3 +317,122 @@ def test_the_log_has_every_flagged_correspondence(env, targets, monkeypatch):  #
     uv.validate_workspace(w, env.cfg)
     log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
     assert all(f"[incoherente] Concepto{n} -> PersonalData" in log for n in range(len(entries)))
+
+# ------------------------------------------------------------------ the competency questions (S9-T05)
+
+def test_each_upload_answers_the_generic_questions_of_its_mode(env, targets):  # noqa: F811
+    from src.validation import questions as qs
+    seen = []
+    w, m, path = _align(_real_dpv(env), targets, progress=seen.append)
+    assert seen[-3:] == ["Validar la lógica (razonador)",
+                         "Responder las preguntas de competencia", "Preparar la descarga"]
+    v = uv.load_result(w)
+    assert list(v["inspectors"]) == [uv.SHAPES, uv.LOGIC, uv.QUESTIONS, uv.AUDIT]
+    q = v["inspectors"][uv.QUESTIONS]
+    assert q["status"] == YELLOW and q["engine"] == f"rdflib {li.version('rdflib')}"
+    assert q["summary"] == {GREEN: 2, YELLOW: 5, qs.GRAY: 0, qs.NOT_APPLICABLE: 1}
+    assert [r["id"] for r in q["results"]] == [f"G0{n}" for n in range(1, 9)]
+    g01, g08 = q["results"][0], q["results"][-1]
+    assert (g01["color"], g01["applies"]) == (GREEN, True)
+    assert g01["answer"] == "2 conceptos (p. ej. Consent Consent; PersonalData PersonalData)"
+    assert (g08["color"], g08["applies"]) == (qs.GRAY, False)
+    assert g08["answer"] == ("No aplica a «Mi ontología»: este modo no produce lo que la "
+                             "pregunta necesita")
+    assert w.step("questions")["detail"] == ("amarillo: 2 en verde, 5 en amarillo y 0 en gris; "
+                                             "1 no aplica")
+    report = qs.load_result(w)
+    assert report["files"] == [m["files"]["ontology"], m["files"]["labels"],
+                               m["files"]["alignment"], qs._shown(env.cfg["inputs"]["dpv"])]
+    line = (f"Preguntas (rdflib {li.version('rdflib')}): amarillo · 2 en verde, 5 en amarillo "
+            "y 0 en gris de las 7 que aplican; 1 no aplica")
+    readme = zipfile.ZipFile(path).read("LEEME.txt").decode("utf-8")
+    assert f"\n  - {line}\n" in readme and "«no aplica» que tu modo no produce" in readme
+    log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
+    assert f"Preguntas de competencia del espacio {w.id} (Mi ontología): amarillo" in log
+    assert "    [no aplica] G08 ¿De qué artículo de la ley sale cada concepto?" in log
+    assert f"\n    {line}\n" in ua.render_console(w, m, path)
+
+
+def test_a_failed_question_engine_is_gray_and_never_blocks_the_download(env, targets,  # noqa: F811
+                                                                         monkeypatch):
+    from app.services import align_ontology as ao
+    from src.validation import questions as qs
+    def no_engine(ws, cfg=None, engine=None, java=None):
+        raise RuntimeError("Jena falló: OutOfMemoryError")
+    monkeypatch.setattr(qs, "inspect_workspace", no_engine)
+    w, m, path = _align(_real_dpv(env), targets)
+    v = uv.load_result(w)
+    assert v["inspectors"][uv.QUESTIONS] == {"status": FAILED,
+                                             "error": "Jena falló: OutOfMemoryError"}
+    assert w.step("questions")["status"] == ERROR and path.exists()
+    assert w.step("package")["status"] == DONE
+    assert "  Preguntas: no se pudo correr (Jena falló: OutOfMemoryError)" in uv.summary_lines(v)
+    log = (w.output_dir / uv.LOG_FILE).read_text(encoding="utf-8")
+    assert "Preguntas: no se pudo correr (Jena falló: OutOfMemoryError)" in log
+    view = ao.validation_view(w)                       # the gray card comes with S9-T07
+    assert [c["key"] for c in view["cards"]] == [uv.SHAPES, uv.LOGIC, uv.AUDIT]
+    assert view["headline"].endswith("no pudo correr: Preguntas.")
+
+
+def test_the_headline_counts_the_questions_to_look_at():
+    from app.services import align_ontology as ao
+    from src.validation import questions as qs
+    block = {"status": GREEN, "summary": {"accepted": 0, au.COHERENT: 0, au.DOUBTFUL: 0,
+                                           au.INCOHERENT: 0, au.INVALID: 0, "pending": 0}}
+    clean = {"status": GREEN, "new": 0, "inherited": 0, "warnings": 0}
+    result = {"status": YELLOW, "inspectors": {
+        uv.SHAPES: clean, uv.LOGIC: clean, uv.AUDIT: block,
+        uv.QUESTIONS: {"status": YELLOW, "summary": {GREEN: 5, YELLOW: 1, qs.GRAY: 2,
+                                                      qs.NOT_APPLICABLE: 0}}}}
+    assert ao.validation_headline(result) == (
+        "Nada de lo que escribió el sistema rompe una regla. Para mirar: 1 pregunta de "
+        "competencia que tu ontología no responde; 2 preguntas de competencia que no se pudo "
+        "responder.")
+
+
+def test_the_questions_of_each_mode(env, tmp_path, monkeypatch):  # noqa: F811
+    from src.validation import questions as qs
+    ttl = tmp_path / "mine.ttl"
+    ttl.write_text("@prefix dct: <http://purl.org/dc/terms/> .\n"
+                   "<http://e.org/A> dct:source \"Ley 1, art. 3\"@es .\n", encoding="utf-8")
+    monkeypatch.setattr(qs, "workspace_files", lambda ws, cfg=None: [ttl])
+    for mode, g08 in (("ontology", False), ("law", True), ("ontology+law", False), (None, False)):
+        folder = tmp_path / str(mode)
+        ws = SimpleNamespace(id=f"w-{mode}", manifest={"mode": mode} if mode else {},
+                             work_dir=folder / "work", path=folder)
+        report = qs.inspect_workspace(ws, env.cfg)
+        by_id = {r["id"]: r for r in report["results"]}
+        assert report["mode"] == (mode or "ontology")
+        assert by_id["G08"]["applies"] is g08
+        assert all(by_id[f"G0{n}"]["applies"] for n in range(1, 8))
+        assert by_id["G08"]["color"] == (GREEN if g08 else qs.GRAY)
+        assert report["summary"][qs.NOT_APPLICABLE] == (0 if g08 else 1)
+        assert (folder / "work" / qs.REPORT_FILE).exists()
+        assert (folder / "work" / qs.LOG_FILE).read_text(encoding="utf-8").startswith(
+            f"Preguntas de competencia del espacio w-{mode} ")
+
+
+def test_the_questions_use_the_upload_and_not_the_copy_of_the_core(env, tmp_path):  # noqa: F811
+    from src.validation import questions as qs
+    out = tmp_path / "output"
+    out.mkdir()
+    (out / ua.MANIFEST_FILE).write_text(json.dumps({"files": {
+        "ontology": "input/x.ttl", "alignment": "output/x-dpv-alignment.ttl",
+        "core": "output/ontopriv-core.ttl"}}), encoding="utf-8")
+    ws = SimpleNamespace(path=tmp_path, output_dir=out)
+    files = qs.workspace_files(ws, env.cfg)
+    assert files[:2] == [tmp_path / "input/x.ttl", tmp_path / "output/x-dpv-alignment.ttl"]
+    assert len(files) == 3 and str(files[-1]) == env.cfg["inputs"]["dpv"]
+    with pytest.raises(ValueError, match="falta output/alignment-manifest.json"):
+        qs.workspace_files(SimpleNamespace(path=tmp_path, output_dir=tmp_path / "nada"), env.cfg)
+
+
+def test_the_cli_answers_the_questions_of_a_workspace(env, targets, capsys):  # noqa: F811
+    from src.validation import questions as qs
+    w, _, _ = _align(_real_dpv(env), targets)
+    assert qs._run([str(w.path), "--motor", "rdflib"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith(f"Preguntas de competencia del espacio {w.id} (Mi ontología): ")
+    assert f"  Guardado en: {w.work_dir / qs.REPORT_FILE}" in out
+    assert qs._run([str(w.path), "--base"]) == 1
+    assert capsys.readouterr().out == "Error: indica un espacio de trabajo o --base.\n"

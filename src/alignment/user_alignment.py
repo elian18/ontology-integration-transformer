@@ -486,7 +486,9 @@ def _validation_lines(validation: dict | None) -> list[str]:
         return []
     return ["", uv.summary_lines(validation)[0],
             "  (rojo: el sistema escribió algo que rompe una regla; amarillo: avisos o lo que "
-            "ya traía tu ontología; verde: nada que revisar)"] + [
+            "ya traía tu ontología; verde: nada que revisar. En las preguntas de competencia, "
+            "amarillo es que tu ontología no responde alguna y «no aplica» que tu modo no "
+            "produce lo que pide)"] + [
         f"  - {uv.inspector_text(k, b)}" for k, b in validation["inspectors"].items()] + [
         f"  - {uv.LOG_FILE}: el detalle de cada hallazgo; {uv.RESULT_FILE}: las cifras."]
 

@@ -144,7 +144,8 @@ def test_a_real_law_becomes_an_aligned_ontology_on_ontopriv_core(web, tmp_path):
                     "Buscar candidatos del DPV", "Completar las etiquetas en español e inglés",
                     "La IA revisa las correspondencias aceptadas",
                     "Escribir la ontología alineada", "Validar la forma (SHACL)",
-                    "Validar la lógica (razonador)", "Preparar la descarga"]
+                    "Validar la lógica (razonador)",
+                    "Responder las preguntas de competencia", "Preparar la descarga"]
     ws = load_workspace(ws_id, cfg=svc.workspace_cfg())
     assert all(s["status"] == DONE for s in ws.progress())
     assert ws.step("segment")["detail"] == "30 artículos (español)"
