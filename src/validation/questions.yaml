@@ -1,0 +1,336 @@
+# Competency questions of the system (S9-T03). Fixed before any SPARQL query was written:
+# the expected answers come from the LOPDP (with the article and its wording), never from a query.
+version: 1
+date: "2026-11-07"
+law: "LOPDP"
+law_file: "data/input/lopdp.pdf"
+paper: "G. Suntaxi et al., «OntoPriv: Towards Designing a DPV-based Legal Ontology for Knowledge Retrieval and Compliance in Privacy Legislation», CLEI Electronic Journal 28(5), art. 4, 2025, doi:10.19153/cleiej.28.5.4, sección 4.3"
+matching:
+  relations: [exactMatch, closeMatch, broadMatch]   # alignments that count for the generic questions
+  hierarchy: [rdfs:subClassOf, skos:broader]          # a DPV term below the target also counts
+
+questions:
+
+  # ---------------------------------------------------------------- the 5 of the OntoPriv paper
+  - id: P01
+    group: base
+    question: "¿Cuánto debe esperar el titular para que le notifiquen un riesgo durante una transferencia de datos?"
+    origin:
+      source: paper
+      reference: "Question 1 (Listing 1, Tabla 4)"
+      original: "How long must the data subject wait to be notified in case of a risk at the time of a data transfer?"
+      reported: "5 (Tabla 4, sin unidad)"
+      note: "El artículo responde 5, que es el plazo para notificar a la Autoridad (art. 43); al titular se le notifica en tres días (art. 46)."
+    modes: [base]
+    expected:
+      text: "A más tardar tres días desde que el responsable conoce el riesgo (LOPDP, art. 46)."
+      value: 3
+      unit: "días"
+      articles: [46]
+      quote: "dentro del término de tres días"
+    criterion: {kind: value}
+
+  - id: P02
+    group: base
+    question: "¿Qué condiciones específicas hacen válido el consentimiento?"
+    origin:
+      source: paper
+      reference: "Question 2 (Listing 2, Tabla 5)"
+      original: "What specific conditions make consent valid, and what implications do they have?"
+      reported: "FreelyGiven, Informed, Specific, Unambiguous (Tabla 5)"
+      note: "El artículo también pregunta por las implicaciones, pero su consulta solo trae las condiciones; aquí se evalúa esa parte."
+    modes: [base]
+    expected:
+      text: "Que la manifestación de la voluntad sea libre, específica, informada e inequívoca (LOPDP, art. 8)."
+      elements:
+        - {name: "Libre", articles: [8], terms: [free, freely given]}
+        - {name: "Específica", articles: [8], terms: [specific]}
+        - {name: "Informada", articles: [8], terms: [informed]}
+        - {name: "Inequívoca", articles: [8], terms: [unambiguous]}
+    criterion: {kind: all}
+
+  - id: P03
+    group: base
+    question: "¿Quiénes son los integrantes del sistema de protección de datos personales?"
+    origin:
+      source: paper
+      reference: "Question 3 (Listing 3, Tabla 6)"
+      original: "Who are the members of the personal data protection system?"
+      reported: "DataController, DataProcessor, DataOwner, Delegate, ControlAuthority (Tabla 6)"
+      note: "El artículo trae cinco integrantes; la ley nombra seis, también el destinatario (art. 5)."
+    modes: [base]
+    expected:
+      text: "Titular, responsable del tratamiento, encargado del tratamiento, destinatario, Autoridad de Protección de Datos Personales y delegado de protección de datos personales (LOPDP, art. 5)."
+      elements:
+        - {name: "Titular", articles: [5], terms: [data subject, data owner]}
+        - {name: "Responsable del tratamiento", articles: [5], terms: [data controller, controller]}
+        - {name: "Encargado del tratamiento", articles: [5], terms: [data processor, processor]}
+        - {name: "Destinatario", articles: [5], terms: [recipient]}
+        - {name: "Autoridad de Protección de Datos Personales", articles: [5], terms: [control authority, data protection authority, supervisory authority]}
+        - {name: "Delegado de protección de datos personales", articles: [5], terms: [delegate, data protection officer]}
+    criterion: {kind: all}
+
+  - id: P04
+    group: base
+    question: "¿Quién, dentro del sistema de protección de datos personales, debe asegurar que se ejerzan los derechos, en particular el derecho de acceso?"
+    origin:
+      source: paper
+      reference: "Question 4 (Listing 4, Tabla 7)"
+      original: "Who within the personal data protection system is responsible for ensuring that rights are exercised, particularly with respect to the right of access?"
+      reported: "ControlAuthority (Tabla 7)"
+      note: "La ley da dos respuestas: la Autoridad garantiza los derechos (art. 76) y el responsable atiende el derecho de acceso (art. 13)."
+    modes: [base]
+    expected:
+      text: "La Autoridad de Protección de Datos Personales, que garantiza que se respeten los derechos (LOPDP, art. 76); el responsable del tratamiento debe permitir y atender el derecho de acceso (art. 13)."
+      elements:
+        - {name: "Autoridad de Protección de Datos Personales", articles: [76], terms: [control authority, data protection authority, supervisory authority]}
+        - {name: "Responsable del tratamiento", articles: [13], terms: [data controller, controller]}
+    criterion: {kind: any}
+
+  - id: P05
+    group: base
+    question: "¿A partir de qué edad una persona puede dar su consentimiento explícito para el tratamiento de sus datos personales?"
+    origin:
+      source: paper
+      reference: "tercera pregunta de la lista de la sección 4.3 (sin consulta)"
+      original: "At what age can someone give explicit consent to processing their personal data?"
+      reported: "sin consulta ni resultado"
+      note: "El artículo plantea la pregunta, pero no la consulta."
+    modes: [base]
+    expected:
+      text: "Desde los 15 años, en ejercicio progresivo de sus derechos (LOPDP, art. 21)."
+      value: 15
+      unit: "años"
+      articles: [21]
+      quote: "a partir de los 15 años"
+    criterion: {kind: value}
+
+  # ---------------------------------------------------------------- the 10 of the LOPDP
+  - id: L01
+    group: base
+    question: "¿Qué derechos tiene el titular de los datos personales?"
+    origin: {source: lopdp, reference: "arts. 12 a 23 (el art. 18 son excepciones, no un derecho)"}
+    modes: [base]
+    expected:
+      text: "Información, acceso, rectificación y actualización, eliminación, oposición, portabilidad, suspensión del tratamiento, no ser objeto de decisiones automatizadas, el mismo derecho para niñas, niños y adolescentes, consulta y educación digital (LOPDP, arts. 12 a 17 y 19 a 23)."
+      elements:
+        - {name: "Derecho a la información", articles: [12], terms: [right to information, right to be informed, información]}
+        - {name: "Derecho de acceso", articles: [13], terms: [right of access, access, acceso]}
+        - {name: "Derecho de rectificación y actualización", articles: [14], terms: [rectification, rectificación, actualización]}
+        - {name: "Derecho de eliminación", articles: [15], terms: [erasure, deletion, removal, eliminación]}
+        - {name: "Derecho de oposición", articles: [16], terms: [objection, opposition, oposición]}
+        - {name: "Derecho a la portabilidad", articles: [17], terms: [portability, portabilidad]}
+        - {name: "Derecho a la suspensión del tratamiento", articles: [19], terms: [restriction of processing, suspension, suspensión]}
+        - {name: "Derecho a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas", articles: [20], terms: [automated decision, automated, automatizadas]}
+        - {name: "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas", articles: [21], terms: [children, minors, niñas, niños, adolescentes]}
+        - {name: "Derecho de consulta", articles: [22], terms: [consultation, consulta]}
+        - {name: "Derecho a la educación digital", articles: [23], terms: [digital education, educación digital]}
+    criterion: {kind: all}
+
+  - id: L02
+    group: base
+    question: "¿En qué casos es legítimo el tratamiento de datos personales?"
+    origin: {source: lopdp, reference: "art. 7"}
+    modes: [base]
+    expected:
+      text: "Consentimiento del titular, obligación legal, orden judicial, interés público o poderes públicos, medidas precontractuales o contrato, intereses vitales, bases de datos de acceso público e interés legítimo (LOPDP, art. 7)."
+      elements:
+        - {name: "Consentimiento del titular", articles: [7], terms: [consent, consentimiento]}
+        - {name: "Obligación legal", articles: [7], terms: [legal obligation]}
+        - {name: "Orden judicial", articles: [7], terms: [judicial order, court order]}
+        - {name: "Interés público", articles: [7], terms: [public interest, official authority, poderes públicos]}
+        - {name: "Medidas precontractuales", articles: [7], terms: [contract, contractual, contrato, precontractual]}
+        - {name: "Intereses vitales", articles: [7], terms: [vital interest, vital interests]}
+        - {name: "Bases de datos de acceso público", articles: [7], terms: [publicly accessible, public databases, acceso público]}
+        - {name: "Interés legítimo", articles: [7], terms: [legitimate interest]}
+    criterion: {kind: all}
+
+  - id: L03
+    group: base
+    question: "¿Qué principios rigen el tratamiento de datos personales?"
+    origin: {source: lopdp, reference: "art. 10"}
+    modes: [base]
+    expected:
+      text: "Juridicidad, lealtad, transparencia, finalidad, pertinencia y minimización, proporcionalidad, confidencialidad, calidad y exactitud, conservación, seguridad, responsabilidad proactiva y demostrada, aplicación favorable al titular e independencia del control (LOPDP, art. 10)."
+      elements:
+        - {name: "Juridicidad", articles: [10], terms: [lawfulness, legality]}
+        - {name: "Lealtad", articles: [10], terms: [fairness, loyalty]}
+        - {name: "Transparencia", articles: [10], terms: [transparency]}
+        - {name: "Finalidad", articles: [10], terms: [purpose limitation, purpose]}
+        - {name: "Pertinencia y minimización de datos personales", articles: [10], terms: [minimisation, minimization, minimización, pertinencia]}
+        - {name: "Proporcionalidad del tratamiento", articles: [10], terms: [proportionality, proporcionalidad]}
+        - {name: "Confidencialidad", articles: [10], terms: [confidentiality]}
+        - {name: "Calidad y exactitud", articles: [10], terms: [accuracy, quality, calidad, exactitud]}
+        - {name: "Conservación", articles: [10], terms: [storage limitation, retention, conservation]}
+        - {name: "Seguridad de datos personales", articles: [10], terms: [security, seguridad]}
+        - {name: "Responsabilidad proactiva y demostrada", articles: [10], terms: [accountability, proactive responsibility, responsabilidad proactiva]}
+        - {name: "Aplicación favorable al titular", articles: [10], terms: [favourable application, favorable application, aplicación favorable]}
+        - {name: "Independencia del control", articles: [10], terms: [independence, independent control, independencia]}
+    criterion: {kind: all}
+
+  - id: L04
+    group: base
+    question: "¿Qué datos personales son categorías especiales?"
+    origin: {source: lopdp, reference: "art. 25"}
+    modes: [base]
+    expected:
+      text: "Datos sensibles, datos de niñas, niños y adolescentes, datos de salud y datos de personas con discapacidad (LOPDP, art. 25)."
+      elements:
+        - {name: "Datos sensibles", articles: [25], terms: [sensitive data, sensitive, sensibles]}
+        - {name: "Datos de niñas, niños y adolescentes", articles: [25], terms: [children, minors, niñas, niños, adolescentes]}
+        - {name: "Datos de salud", articles: [25], terms: [health data, health, salud]}
+        - {name: "Datos de personas con discapacidad", articles: [25], terms: [disability, discapacidad]}
+    criterion: {kind: all}
+
+  - id: L05
+    group: base
+    question: "¿En qué plazo debe el responsable atender el derecho de acceso?"
+    origin: {source: lopdp, reference: "art. 13"}
+    modes: [base]
+    expected:
+      text: "Dentro de quince días (LOPDP, art. 13)."
+      value: 15
+      unit: "días"
+      articles: [13]
+      quote: "atendido dentro del plazo de quince (15) días"
+    criterion: {kind: value}
+
+  - id: L06
+    group: base
+    question: "¿En qué plazo debe el responsable notificar una vulneración de seguridad a la Autoridad de Protección de Datos Personales?"
+    origin: {source: lopdp, reference: "art. 43"}
+    modes: [base]
+    expected:
+      text: "A más tardar cinco días después de tener constancia de la vulneración (LOPDP, art. 43)."
+      value: 5
+      unit: "días"
+      articles: [43]
+      quote: "a más tardar en el término de cinco (5) días"
+    criterion: {kind: value}
+
+  - id: L07
+    group: base
+    question: "¿Qué medidas correctivas puede dictar la Autoridad de Protección de Datos Personales?"
+    origin: {source: lopdp, reference: "art. 65"}
+    modes: [base]
+    expected:
+      text: "El cese del tratamiento, la eliminación de los datos y la imposición de medidas técnicas, jurídicas, organizativas o administrativas (LOPDP, art. 65)."
+      elements:
+        - {name: "Cese del tratamiento", articles: [65], terms: [cessation, stop processing, cese]}
+        - {name: "Eliminación de los datos", articles: [65], terms: [erasure, deletion, eliminación]}
+        - {name: "Imposición de medidas técnicas, jurídicas, organizativas o administrativas", articles: [65], terms: [technical measures, organisational measures, organizational measures, medidas técnicas, medidas organizativas]}
+    criterion: {kind: all}
+
+  - id: L08
+    group: base
+    question: "¿Qué tipos de infracciones establece la ley?"
+    origin: {source: lopdp, reference: "arts. 67 a 70"}
+    modes: [base]
+    expected:
+      text: "Infracciones leves y graves, del responsable (arts. 67 y 68) y del encargado (arts. 69 y 70)."
+      elements:
+        - {name: "Infracciones leves", articles: [67, 69], terms: [minor infringement, minor infraction, infracción leve, leve]}
+        - {name: "Infracciones graves", articles: [68, 70], terms: [serious infringement, serious infraction, infracción grave, grave]}
+    criterion: {kind: all}
+
+  - id: L09
+    group: base
+    question: "¿Por qué vías se pueden transferir datos personales a otro país?"
+    origin: {source: lopdp, reference: "arts. 56 a 60"}
+    modes: [base]
+    expected:
+      text: "A países con nivel adecuado de protección (art. 56), con garantías adecuadas (art. 57), con normas corporativas vinculantes (art. 58), con autorización de la Autoridad (art. 59) y en los casos excepcionales (art. 60)."
+      elements:
+        - {name: "Nivel adecuado de protección", articles: [56], terms: [adequacy, adequate level of protection, nivel adecuado]}
+        - {name: "Garantías adecuadas", articles: [57], terms: [appropriate safeguards, adequate guarantees, garantías adecuadas]}
+        - {name: "Normas corporativas vinculantes", articles: [58], terms: [binding corporate rules]}
+        - {name: "Autorización para transferencia internacional", articles: [59], terms: [authorisation, authorization, autorización]}
+        - {name: "Casos excepcionales", articles: [60], terms: [derogations, exceptional cases, excepcionales]}
+    criterion: {kind: all}
+
+  - id: L10
+    group: base
+    question: "¿Qué datos se consideran sensibles?"
+    origin: {source: lopdp, reference: "art. 4 (definición de datos sensibles)"}
+    modes: [base]
+    expected:
+      text: "Los relativos a etnia, identidad de género, identidad cultural, religión, ideología, filiación política, pasado judicial, condición migratoria, orientación sexual, salud, datos biométricos y datos genéticos (LOPDP, art. 4)."
+      elements:
+        - {name: "Etnia", articles: [4], terms: [ethnicity, ethnic origin, racial origin]}
+        - {name: "Identidad de género", articles: [4], terms: [gender identity]}
+        - {name: "Identidad cultural", articles: [4], terms: [cultural identity]}
+        - {name: "Religión", articles: [4], terms: [religion, religious]}
+        - {name: "Ideología", articles: [4], terms: [ideology]}
+        - {name: "Filiación política", articles: [4], terms: [political affiliation, political opinion, political]}
+        - {name: "Pasado judicial", articles: [4], terms: [criminal record, judicial record]}
+        - {name: "Condición migratoria", articles: [4], terms: [immigration status, migratory status]}
+        - {name: "Orientación sexual", articles: [4], terms: [sexual orientation]}
+        - {name: "Salud", articles: [4], terms: [health]}
+        - {name: "Datos biométricos", articles: [4], terms: [biometric]}
+        - {name: "Datos genéticos", articles: [4], terms: [genetic]}
+    criterion: {kind: all}
+
+  # ---------------------------------------------------------------- the 8 generic ones (base and uploads)
+  - id: G01
+    group: generic
+    question: "¿Qué conceptos de la ontología están alineados con el DPV?"
+    origin: {source: dpv, reference: "cualquier término"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:*"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G02
+    group: generic
+    question: "¿Qué derechos del titular representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:DataSubjectRight"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:DataSubjectRight"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G03
+    group: generic
+    question: "¿Qué bases legales del tratamiento representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:LegalBasis"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:LegalBasis"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G04
+    group: generic
+    question: "¿Qué finalidades del tratamiento representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:Purpose"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:Purpose"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G05
+    group: generic
+    question: "¿Qué categorías de datos personales representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:PersonalData"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:PersonalData"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G06
+    group: generic
+    question: "¿Qué actores del tratamiento (responsable, encargado, titular, autoridad) representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:Entity"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:Entity"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G07
+    group: generic
+    question: "¿Qué operaciones de tratamiento representa la ontología?"
+    origin: {source: dpv, reference: "rama dpv:Processing"}
+    modes: [base, ontology, law, ontology+law]
+    looks_for: "dpv:Processing"
+    criterion: {kind: at_least, min: 1}
+
+  - id: G08
+    group: generic
+    question: "¿De qué artículo de la ley sale cada concepto?"
+    origin: {source: system, reference: "trazabilidad: los conceptos que salen de una ley citan su artículo (dct:source)"}
+    modes: [base, law]
+    looks_for: "dct:source"
+    criterion: {kind: at_least, min: 1}
