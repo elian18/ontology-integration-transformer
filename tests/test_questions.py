@@ -263,7 +263,10 @@ def _report(results, *, original=(), formats=None, engine=None):
             "summary": qs.summary(results),
             "original": {"files": ["data/input/ontopriv.rdf"], "differences": list(original),
                          "colors": {"P01": GREEN, "P02": YELLOW}},
-            "formats": formats or {"owl": [], "turtle": [], "jsonld": []}}
+            "formats": formats or {"owl": [], "turtle": [], "jsonld": []},
+            "explanations": {"prompt": qs.qe.PROMPT.manifest(), "questions": 0,
+                             "available": False, "calls": 0, "cached": 0, "invalid": 0,
+                             "errors": [], "error": "IA desactivada (--sin-ia)"}}
 
 
 def test_the_log_shows_each_question_with_its_color_and_the_engine(catalog):
@@ -340,9 +343,16 @@ def test_jena_and_rdflib_return_the_same_rows_on_the_base(catalog):
 
 @needs_base
 @needs_jena
-def test_the_cli_answers_the_base_with_jena(capsys):
+def test_the_cli_answers_the_base_with_jena(capsys, monkeypatch):
+    def no_key(*args, **kwargs):                       # the CLI asks the AI: never in the tests
+        raise KeyError("LLM_API_KEY")
+    monkeypatch.setattr("src.ai.llm_client.LLMClient", no_key)
+    monkeypatch.setattr(qs.qe, "CACHE_FILE", "cache-que-no-existe.jsonl")   # not your real one
     assert qs._run(["--base", "--motor", "jena"]) == 0
     out = capsys.readouterr().out
     assert out.startswith("Preguntas de competencia de la base del sistema")
     assert "  Motor: Apache Jena 6.2.0, SPARQL sin inferencia" in out
     assert "  Resultado: 18 en verde, 5 en amarillo y 0 en gris de 23" in out
+    assert ("  IA que explica las amarillas (prompt explain.v2): no usada; Falta la variable "
+            "'LLM_API_KEY' en .env; frase fija") in out
+    assert "         Por qué: Ninguna fila nombra a Inequívoca ni cita un artículo" in out

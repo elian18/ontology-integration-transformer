@@ -489,7 +489,9 @@ def _validation_lines(validation: dict | None) -> list[str]:
             "ya traía tu ontología; verde: nada que revisar. En las preguntas de competencia, "
             "amarillo es que tu ontología no responde alguna y «no aplica» que tu modo no "
             "produce lo que pide)"] + [
-        f"  - {uv.inspector_text(k, b)}" for k, b in validation["inspectors"].items()] + [
+        line for k, b in validation["inspectors"].items()
+        for line in (f"  - {uv.inspector_text(k, b)}", *(f"      {n}" for n in uv.notes(k, b)))
+    ] + [
         f"  - {uv.LOG_FILE}: el detalle de cada hallazgo; {uv.RESULT_FILE}: las cifras."]
 
 
@@ -692,7 +694,8 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     say(STEP_LABELS["write"])
     manifest = write_user_alignment(ws, cfg=cfg, core=core, recomputed=ran)
     from src.validation.upload_validation import validate_workspace
-    validate_workspace(ws, cfg, progress=say)
+    validate_workspace(ws, cfg, progress=say, llm=llm, use_llm=use_llm,
+                       sleep_fn=sleep_fn or time.sleep)
     say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return ws, manifest, path

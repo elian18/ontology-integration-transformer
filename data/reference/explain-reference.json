@@ -1,0 +1,11 @@
+{
+  "about": "S9-T06: for each yellow question of the base, words of the row that holds each missing element. Written by hand from the rows of data/output/questions-report.json after seeing explain.v1 and before asking explain.v2. An explanation is right when it finds that row: v1 by naming its words, v2 by citing it (the system checks that the row exists).",
+  "questions": {
+    "P02": {"Inequívoca": ["unequivocal"]},
+    "L03": {"Aplicación favorable al titular": ["application favorable to the owner"]},
+    "L04": {"Datos de niñas, niños y adolescentes": ["under 17 years old"],
+            "Datos de personas con discapacidad": ["disabled owner data"]},
+    "L09": {"Casos excepcionales": ["exceptions"]},
+    "L10": {"Pasado judicial": ["judicial past"]}
+  }
+}
