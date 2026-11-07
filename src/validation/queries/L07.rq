@@ -1,0 +1,23 @@
+# L07 · ¿Qué medidas correctivas puede dictar la Autoridad de Protección de Datos Personales?
+# Las medidas que dice cada onto:Corrective_measures (onto:what_will_be_the_corrective_measures)
+# y las clases debajo de op:Corrective_measures.
+# También los conceptos que la base tomó de los artículos que regulan el tema (dct:source: art. 65).
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+PREFIX onto: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#>
+PREFIX op:   <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#>
+SELECT DISTINCT ?concept ?label ?source ?value WHERE {
+  { ?concept a onto:Corrective_measures ;
+             onto:what_will_be_the_corrective_measures ?value . }
+  UNION
+  { ?concept rdfs:subClassOf+ op:Corrective_measures . }
+  UNION
+  { ?concept dct:source ?cited .
+    FILTER(REGEX(STR(?cited), "art\\. (65)$")) }
+  OPTIONAL { ?concept rdfs:label ?label }
+  OPTIONAL { ?concept dct:source ?source }
+}

@@ -1,0 +1,13 @@
+# G01 · ¿Qué conceptos de la ontología están alineados con el DPV?
+# Los conceptos de la ontología alineados (exactMatch, closeMatch o broadMatch) con un término del DPV.
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+SELECT DISTINCT ?concept ?match WHERE {
+  ?concept (skos:exactMatch|skos:closeMatch|skos:broadMatch) ?match .
+  FILTER(STRSTARTS(STR(?match), "https://w3id.org/dpv"))
+  FILTER(!STRSTARTS(STR(?concept), "https://w3id.org/dpv"))
+}

@@ -1,0 +1,19 @@
+# P04 · ¿Quién, dentro del sistema de protección de datos personales, debe asegurar que se ejerzan los derechos, en particular el derecho de acceso?
+# Quien canaliza el ejercicio de los derechos (onto:responsable_de_canalizar_el_ejercicio_de_derechos)
+# y a quien obliga el derecho de acceso (onto:right_account_encumbered), con su clase.
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+PREFIX onto: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#>
+PREFIX op:   <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#>
+SELECT DISTINCT ?concept ?type WHERE {
+  { ?rights a onto:Rights ;
+            onto:responsable_de_canalizar_el_ejercicio_de_derechos ?concept . }
+  UNION
+  { ?access a onto:Right_of_access ;
+            onto:right_account_encumbered ?concept . }
+  OPTIONAL { ?concept a ?type . FILTER(?type != owl:NamedIndividual) }
+}

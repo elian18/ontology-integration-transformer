@@ -1,0 +1,27 @@
+# L04 · ¿Qué datos personales son categorías especiales?
+# Las clases debajo de onto:Special_personal_data_categories, lo que compone cada una
+# (onto:special_categories_of_personal_data_are_composed_of) y los conceptos alineados con
+# dpv:SpecialCategoryPersonalData o con un término debajo de él.
+# También los conceptos que la base tomó de los artículos que regulan el tema (dct:source: art. 25).
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+PREFIX onto: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#>
+PREFIX op:   <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#>
+SELECT DISTINCT ?concept ?label ?match ?source WHERE {
+  { ?concept rdfs:subClassOf+ onto:Special_personal_data_categories . }
+  UNION
+  { ?categories a onto:Special_personal_data_categories ;
+                onto:special_categories_of_personal_data_are_composed_of ?concept . }
+  UNION
+  { ?concept (skos:exactMatch|skos:closeMatch|skos:broadMatch) ?term . ?term (rdfs:subClassOf|skos:broader)* dpv:SpecialCategoryPersonalData . }
+  UNION
+  { ?concept dct:source ?cited .
+    FILTER(REGEX(STR(?cited), "art\\. (25)$")) }
+  OPTIONAL { ?concept rdfs:label ?label }
+  OPTIONAL { ?concept (skos:exactMatch|skos:closeMatch|skos:broadMatch) ?match }
+  OPTIONAL { ?concept dct:source ?source }
+}

@@ -1,0 +1,22 @@
+# L08 · ¿Qué tipos de infracciones establece la ley?
+# Lo que compone cada onto:Violations (onto:are_comprised_of) y las clases debajo de onto:Sanctions.
+# También los conceptos que la base tomó de los artículos que regulan el tema (dct:source: art. 67, 68, 69, 70).
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX dpv:  <https://w3id.org/dpv#>
+PREFIX onto: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#>
+PREFIX op:   <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#>
+SELECT DISTINCT ?concept ?label ?source ?type WHERE {
+  { ?violations a onto:Violations ; onto:are_comprised_of ?concept . }
+  UNION
+  { ?concept rdfs:subClassOf+ onto:Sanctions . }
+  UNION
+  { ?concept dct:source ?cited .
+    FILTER(REGEX(STR(?cited), "art\\. (67|68|69|70)$")) }
+  OPTIONAL { ?concept a ?type . FILTER(?type != owl:NamedIndividual) }
+  OPTIONAL { ?concept rdfs:label ?label }
+  OPTIONAL { ?concept dct:source ?source }
+}
