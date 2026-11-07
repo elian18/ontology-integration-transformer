@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 from functools import partial
 
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
 from src.validation import ai_auditor as au
+from src.validation import question_explainer as qe
+from src.validation import questions as qs
 from src.validation import upload_validation as uv
 from src.validation.shapes import VIOLATION
 from src.validation.shape_inspector import (BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW,
@@ -93,7 +96,10 @@ DECIDED_BY = {"base": "base", "rule": "regla", "rule_without_ai": "regla sin IA"
 LIGHTS = {GREEN: ("green", "Verde"), YELLOW: ("yellow", "Amarillo"), RED: ("red", "Rojo"),
           uv.NOT_RUN: ("gray", "Sin revisar"), uv.FAILED: ("gray", "No corrió")}
 CARD_TITLES = {uv.SHAPES: "Forma (SHACL)", uv.LOGIC: "Lógica (razonador)",
-               uv.AUDIT: "IA revisora"}
+               uv.QUESTIONS: "Preguntas (SPARQL)", uv.AUDIT: "IA revisora"}
+# The quality criterion each card answers (S9-T07).
+CRITERIA = {uv.SHAPES: "Interoperabilidad", uv.LOGIC: "Coherencia",
+            uv.QUESTIONS: "Completitud", uv.AUDIT: "Coherencia"}
 VALIDATION_HELP = {
     "Forma (SHACL)": "12 reglas sobre lo que se entrega: que cada término del DPV exista, que "
                      "las relaciones SKOS no se contradigan, que cada correspondencia diga quién "
@@ -102,14 +108,29 @@ VALIDATION_HELP = {
     "Lógica (razonador)": "Apache Jena (o owlrl si no hay Java) busca contradicciones, como un "
                           "individuo en dos clases disjuntas o un valor de un tipo que no "
                           "corresponde.",
+    "Preguntas (SPARQL)": "8 preguntas de competencia que cualquier ontología de privacidad "
+                          "debería poder responder, como qué derechos del titular o qué bases "
+                          "legales representa. Se responden con SPARQL sobre tu ontología, sus "
+                          "módulos y el DPV. Si una no responde, la IA explica por qué.",
     "IA revisora": "Lee cada correspondencia que aceptó la regla y dice si el término del DPV "
                    "trata de lo mismo que tu concepto. Solo explica: no quita nada de lo "
                    "aceptado.",
-    "Colores": "rojo: algo que escribió el sistema rompe una regla; amarillo: avisos o "
-               "hallazgos heredados (ya estaban en tu ontología o en la base del sistema); "
-               "verde: nada que revisar; gris: el inspector no corrió o no se revisó. Ningún "
-               "color bloquea la descarga.",
+    "Criterios": "coherencia: que no haya contradicciones (Lógica) y que cada correspondencia "
+                 "aceptada trate de lo mismo que tu concepto (IA revisora); completitud: que tu "
+                 "ontología responda las preguntas de competencia (Preguntas); "
+                 "interoperabilidad: que lo que se entrega se pueda enlazar con otros "
+                 "vocabularios, con términos del DPV que existen, relaciones SKOS que no se "
+                 "contradicen y etiquetas con su idioma (Forma).",
+    "Colores": "rojo: algo que escribió el sistema rompe una regla; amarillo: avisos, "
+               "hallazgos heredados (ya estaban en tu ontología o en la base del sistema) o "
+               "preguntas que tu ontología no responde; verde: nada que revisar; gris: el "
+               "inspector no corrió, no se revisó o la pregunta no aplica. Ningún color "
+               "bloquea la descarga.",
 }
+QUESTIONS_TAB = "Preguntas de competencia"
+QUESTION_BADGES = {GREEN: ("green", "Responde"), YELLOW: ("yellow", "No responde")}
+NO_QUESTIONS = ("Se validó antes de las preguntas  \n"
+                "Vuelve a subir el archivo para responderlas")
 NO_VALIDATION = ("Esta alineación es anterior a la validación: vuelve a subir el archivo para "
                  "validarla (lo ya calculado no se repite).")
 FLAGGED_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Veredicto", "Explicación"]
@@ -548,9 +569,12 @@ def card_text(key: str, block: dict) -> str:
     """Two short lines per inspector (markdown)."""
     if block["status"] == uv.FAILED:
         return f"No pudo correr  \n{block['error']}"
+    if key == uv.QUESTIONS:
+        return questions_card_text(block)
     if key != uv.AUDIT:
         what = "Reglas rotas" if key == uv.SHAPES else "Contradicciones"
-        return (f"{what}: {block['new']} nuevas · {block['inherited']} heredadas  \n"
+        return (f"{what}: {_n(block['new'], 'nueva', 'nuevas')} · "
+                f"{_n(block['inherited'], 'heredada', 'heredadas')}  \n"
                 f"Avisos: {block['warnings']}")
     if "summary" not in block:
         return "No se hizo la revisión"
@@ -565,7 +589,25 @@ def card_text(key: str, block: dict) -> str:
     return text + (f" · sin revisar: {s['pending']}" if s["pending"] else "")
 
 
+def questions_card_text(block: dict) -> str:
+    if "summary" not in block:                         # validated before the questions
+        return NO_QUESTIONS
+    s = block["summary"]
+    text = f"Responden: {s[GREEN]} · sin responder: {s[YELLOW]}"
+    if s[qs.GRAY]:
+        text += f" · no corrieron: {s[qs.GRAY]}"
+    applies = s[GREEN] + s[YELLOW] + s[qs.GRAY]
+    text += f"  \nDe {_n(applies, 'pregunta que aplica', 'preguntas que aplican')}"
+    na = s.get(qs.NOT_APPLICABLE, 0)
+    return text + (f" · no {'aplica' if na == 1 else 'aplican'}: {na}" if na else "")
+
+
 def card_caption(key: str, block: dict) -> str:
+    if key == uv.QUESTIONS:
+        ai = block.get("ai") or {}
+        prompt = ai.get("prompt") if ai.get("questions") else None   # only if it explained
+        return " · ".join(t for t in (block.get("engine"), prompt and
+                                      f"prompt {prompt['name']}.v{prompt['version']}") if t)
     if key == uv.AUDIT:
         prompt = block.get("prompt")
         return (f"prompt {prompt['name']}.v{prompt['version']} · " if prompt else "") + \
@@ -585,6 +627,12 @@ def validation_headline(result: dict) -> str:
             text += " La IA revisora no marcó nada."
         elif audit["status"] == uv.NOT_RUN:
             text += " La IA no revisó las correspondencias aceptadas."
+        answered = ((ins.get(uv.QUESTIONS) or {}).get("summary") or {}).get(GREEN)
+        if answered:
+            text += (" Tu ontología responde " + ("la pregunta de competencia que aplica."
+                                                  if answered == 1 else
+                                                  f"las {answered} preguntas de competencia "
+                                                  "que aplican."))
         return text
     parts = []
     inherited = sum(ins[k].get("inherited", 0) for k in (uv.SHAPES, uv.LOGIC))
@@ -603,8 +651,10 @@ def validation_headline(result: dict) -> str:
     word = ("pregunta de competencia", "preguntas de competencia")
     if questions.get(YELLOW):
         parts.append(f"{_n(questions[YELLOW], *word)} que tu ontología no responde")
-    if questions.get(uv.qs.GRAY):
-        parts.append(f"{_n(questions[uv.qs.GRAY], *word)} que no se pudo responder")
+    if questions.get(qs.GRAY):
+        gray = questions[qs.GRAY]
+        parts.append(f"{_n(gray, *word)} que no se {'pudo' if gray == 1 else 'pudieron'} "
+                     "responder")
     failed = [CARD_TITLES.get(k, uv.TITLES[k]) for k, b in ins.items()
               if b["status"] == uv.FAILED]
     if failed:
@@ -646,19 +696,64 @@ def flagged_rows(result: dict | None) -> list[dict]:
             for f in first]
 
 
+_MARKDOWN = re.compile(r"([\\`*_\[\]<>#|~$])")
+
+
+def plain(text: str) -> str:
+    """``text`` shown as it is in markdown: no italics, links or formulas by accident."""
+    return _MARKDOWN.sub(r"\\\1", text)
+
+
+def question_badge(r: dict) -> str:
+    color, label = QUESTION_BADGES.get(current_color(r["color"])) or (
+        "gray", "No aplica" if not r.get("applies", True) else "No corrió")
+    return f":{color}-badge[{label}]"
+
+
+def _query(qid: str) -> str | None:
+    try:
+        return qs.query_text(qid)
+    except OSError:
+        return None
+
+
+def questions_view(block: dict | None) -> dict | None:
+    """The tab "Preguntas de competencia": each question with its answer, color, the sentence of
+    the AI and its query (None for an upload validated before the questions)."""
+    if not block or block["status"] == uv.NOT_RUN:
+        return None
+    if block["status"] == uv.FAILED:
+        return {"caption": f"Las preguntas no pudieron correr: {block['error']}. Esto no "
+                           "bloquea la descarga.", "rows": []}
+    results = block["results"]
+    rows = [{"id": r["id"], "question": plain(r["question"]), "badge": question_badge(r),
+             "answer": plain(r["answer"]), "criterion": r["criterion"],
+             "why": plain(r["explanation"]) if r.get("explanation") else None,
+             "why_label": "Por qué (IA)" if r.get("explained_by") == qe.AI else "Por qué",
+             "query": _query(r["id"])} for r in results]
+    caption = (f"{_n(len(results), 'pregunta', 'preguntas')}, las mismas para cualquier "
+               "ontología de privacidad, respondidas con SPARQL sobre tu ontología, sus módulos "
+               f"y el DPV ({block['engine']}, {block['seconds']:g} s): "
+               f"{qs.counts_text(block['summary'], len(results))}.")
+    return {"caption": caption, "rows": rows}
+
+
 def validation_view(ws) -> dict | None:
-    """The panel: the overall color, one card per inspector and the detail tables."""
+    """The panel: the overall color, one card per inspector, each with its criterion, the detail
+    tables and the competency questions."""
     result = uv.load_result(ws)
     if result is None:
         return None
     ins = result["inspectors"]
+    blocks = {k: ins.get(k) or {"status": uv.NOT_RUN} for k in CARD_TITLES}
     return {"status": result["status"], "badge": badge(result["status"]),
             "headline": validation_headline(result),
-            "cards": [{"key": k, "title": CARD_TITLES[k], "badge": badge(b["status"]),
-                       "text": card_text(k, b), "caption": card_caption(k, b)}
-                      for k, b in ins.items() if k in CARD_TITLES],
+            "cards": [{"key": k, "title": CARD_TITLES[k], "criterion": CRITERIA[k],
+                       "badge": badge(b["status"]), "text": card_text(k, b),
+                       "caption": card_caption(k, b)} for k, b in blocks.items()],
             "rules": _rule_rows(ws, ins[uv.SHAPES]), "kinds": _kind_rows(ws, ins[uv.LOGIC]),
-            "flagged": flagged_rows(result), "log_file": uv.LOG_FILE}
+            "flagged": flagged_rows(result), "questions": questions_view(ins.get(uv.QUESTIONS)),
+            "log_file": uv.LOG_FILE}
 
 
 def validation_log(ws_id: str, cfg: dict | None = None) -> bytes:

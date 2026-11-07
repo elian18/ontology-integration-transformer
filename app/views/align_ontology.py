@@ -166,6 +166,23 @@ def _law_tab(v: dict) -> None:
         st.dataframe(pd.DataFrame(evidence), hide_index=True, width="stretch")
 
 
+def _questions_tab(v: dict) -> None:
+    q = v["validation"]["questions"]
+    st.caption(q["caption"])
+    for r in q["rows"]:
+        with st.container(border=True):
+            st.markdown(f"{r['badge']} **{r['id']}** · {r['question']}")
+            st.markdown(f"**Respuesta:** {r['answer']}")
+            if r["why"]:
+                st.markdown(f"**{r['why_label']}:** {r['why']}")
+            st.caption(r["criterion"])
+            with st.expander("Ver la consulta SPARQL"):
+                if r["query"]:
+                    st.code(r["query"], language="sparql")
+                else:
+                    st.caption("Esta consulta ya no está en el catálogo de preguntas.")
+
+
 def _validation(v: dict) -> None:
     val = v["validation"]
     st.markdown("**Validación**")
@@ -176,6 +193,7 @@ def _validation(v: dict) -> None:
         st.markdown(f"{val['badge']} {val['headline']}")
         for col, card in zip(st.columns(len(val["cards"])), val["cards"]):
             with col:
+                st.caption(f"Criterio: {card['criterion']}")
                 st.markdown(f"**{card['title']}** {card['badge']}")
                 st.markdown(card["text"])
                 st.caption(card["caption"])
@@ -218,19 +236,14 @@ def step_result(ws_id: str) -> None:
                             on_click="ignore", icon=":material/download:", width="stretch")
     st.caption(svc.package_caption(v))
     _validation(v)
-    names = ["Resumen", "Conceptos", "Para revisar"]
+    pages = {"Resumen": _summary_tab, "Conceptos": _concepts_tab, "Para revisar": _review_tab}
+    if (v["validation"] or {}).get("questions"):
+        pages[svc.QUESTIONS_TAB] = _questions_tab
     if v["evidence"]:
-        names.append(svc.LAW_TAB)
-    tabs = st.tabs(names)
-    with tabs[0]:
-        _summary_tab(v)
-    with tabs[1]:
-        _concepts_tab(v)
-    with tabs[2]:
-        _review_tab(v)
-    if v["evidence"]:
-        with tabs[3]:
-            _law_tab(v)
+        pages[svc.LAW_TAB] = _law_tab
+    for tab, show in zip(st.tabs(list(pages)), pages.values()):
+        with tab:
+            show(v)
     st.button("Alinear otro archivo", key="align_again", icon=":material/restart_alt:",
               on_click=_restart)
 
