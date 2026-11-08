@@ -90,8 +90,9 @@ def body(item: AuditItem, chars: int = 400) -> str:
     return "\n".join(lines)
 
 
-def cache_key(text: str, model: str | None, generation: dict | None = None) -> str:
-    content = {"prompt": PROMPT.sha256, "model": model, "body": text}
+def cache_key(text: str, model: str | None, generation: dict | None = None,
+              prompt=None) -> str:
+    content = {"prompt": (prompt or PROMPT).sha256, "model": model, "body": text}
     if generation:
         content["generation"] = generation
     payload = json.dumps(content, ensure_ascii=False, sort_keys=True)
@@ -140,19 +141,22 @@ class AuditReport:
 
 
 def ask_audit(items: list[AuditItem], *, llm=None, settings: AuditSettings | None = None,
-              cache_path=None, model_name: str | None = None,
-              sleep_fn=time.sleep) -> AuditReport:
+              cache_path=None, model_name: str | None = None, sleep_fn=time.sleep,
+              prompt=None, render=None) -> AuditReport:
+    """``prompt`` and ``render`` (item, definition chars -> text): another review with the same
+    answer, such as the pairs of the bridge with the GDPR (S9-T09)."""
     from src.alignment.decider import generation_settings
     from src.alignment.justify import (QUOTA_WAIT_SECONDS, TRANSIENT_WAIT_SECONDS,
                                        _is_transient_error)
     from src.core.extract import _is_quota_error
     from src.transform.labels import _append_cache, _load_cache
     settings = settings or AuditSettings()
+    prompt, render = prompt or PROMPT, render or body
     report = AuditReport()
     model_name = model_name or getattr(llm, "model", None) or os.environ.get("LLM_MODEL")
     generation = generation_settings(llm)
-    bodies = {i.key: body(i, settings.definition_chars) for i in items}
-    keys = {i.key: cache_key(bodies[i.key], model_name, generation) for i in items}
+    bodies = {i.key: render(i, settings.definition_chars) for i in items}
+    keys = {i.key: cache_key(bodies[i.key], model_name, generation, prompt) for i in items}
     cache = _load_cache(cache_path)
     pending = []
     for item in items:
@@ -176,7 +180,7 @@ def ask_audit(items: list[AuditItem], *, llm=None, settings: AuditSettings | Non
         raw, err = None, None
         for attempt in range(2):                       # one retry after a 429 or a 503
             try:
-                raw = llm.ask(prompt=PROMPT.text, context=context,
+                raw = llm.ask(prompt=prompt.text, context=context,
                               max_tokens=settings.max_tokens, json_mode=True) or ""
                 err = None
                 break
@@ -210,7 +214,7 @@ def ask_audit(items: list[AuditItem], *, llm=None, settings: AuditSettings | Non
             answer = validate_review(ans)
             report.answers[item.key] = answer
             new.append({"cache_key": keys[item.key], "concept_key": item.key, "answer": answer,
-                        "prompt": PROMPT.manifest(), "model": model_name, "created": now})
+                        "prompt": prompt.manifest(), "model": model_name, "created": now})
         _append_cache(cache_path, new)
     return report
 

@@ -97,6 +97,9 @@ audit:                        # S8-T09/T10: in each upload the AI reviews the co
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 4096            # max answer length per call
   definition_chars: 400       # length of each definition shown to the AI
+bridge:                       # S9-T09: the bridge of the base with the GDPR, OntoPriv <-> GDPRtEXT pairs chained by the DPV (py -m src.alignment.gdpr_bridge)
+  gdprtext: "data/input/gdprtext-ontology.ttl"                       # GDPRtEXT (labels, descriptions and GDPR articles shown to the AI)
+  gdprtext_alignment: "data/reference/gdprtext-dpv-alignment.ttl"   # its alignment with the DPV, fixed: copied from the upload gdprtext-ontology-b863b1da, so the bridge is rebuilt without the AI
 questions:                    # S9-T04/T05/T06: the competency questions (src/validation/questions.yaml), answered with SPARQL on the base and on each upload
   explain: true               # the AI says in one sentence why each yellow question is yellow (one call per run, cache); false: a fixed sentence
   prompt_version: 2           # explain.v2 cites the row of each missing element; --medir on the 5 yellow of the base: v1 3/5, v2 5/5 (rule fixed before: v2 if better and losing none)
