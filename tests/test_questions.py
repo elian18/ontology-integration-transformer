@@ -343,12 +343,14 @@ def test_jena_and_rdflib_return_the_same_rows_on_the_base(catalog):
 
 @needs_base
 @needs_jena
-def test_the_cli_answers_the_base_with_jena(capsys, monkeypatch):
+def test_the_cli_answers_the_base_with_jena(capsys, monkeypatch, tmp_path):
     def no_key(*args, **kwargs):                       # the CLI asks the AI: never in the tests
         raise KeyError("LLM_API_KEY")
     monkeypatch.setattr("src.ai.llm_client.LLMClient", no_key)
-    monkeypatch.setattr(qs.qe, "CACHE_FILE", "cache-que-no-existe.jsonl")   # not your real one
+    real = qs.inspect_base                             # your data/output stays as it is
+    monkeypatch.setattr(qs, "inspect_base", lambda cfg, **kw: real(cfg, out_dir=tmp_path, **kw))
     assert qs._run(["--base", "--motor", "jena"]) == 0
+    assert (tmp_path / qs.REPORT_FILE).exists() and (tmp_path / qs.LOG_FILE).exists()
     out = capsys.readouterr().out
     assert out.startswith("Preguntas de competencia de la base del sistema")
     assert "  Motor: Apache Jena 6.2.0, SPARQL sin inferencia" in out
