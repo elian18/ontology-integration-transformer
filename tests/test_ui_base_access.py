@@ -22,7 +22,8 @@ def test_the_menu_has_the_assistant_and_the_construction_tools():
     main, tools = text.split('"Herramientas de construcción": [')
     assert 'title="Asistente de alineación"' in main and "default=True" in main
     assert re.findall(r'title="([^"]+)"', tools) == ["Núcleo", "Propuestas IA",
-                                                     "Aprobar conceptos IA", "Alineación DPV"]
+                                                     "Aprobar conceptos IA", "Alineación DPV",
+                                                     "Preguntas de la base"]
     assert "Insumos" not in text and "Artículos" not in text
     assert not any((ROOT / f).exists() for f in REMOVED)
 
