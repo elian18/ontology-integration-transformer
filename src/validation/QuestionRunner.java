@@ -3,10 +3,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryCancelledException;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -20,7 +21,10 @@ import org.apache.jena.sys.JenaSystem;
 // Usage: java -cp "<jena>/lib/*" QuestionRunner.java QUERY.rq... ++ NAME FILE... [-- NAME FILE...]
 // Loads each set of files into one model (no inference) and runs every query on it.
 // Prints one JSON object: the rows of each query in each set.
+// -Dquestions.timeout.ms=N stops a query after N ms (the drafts of the AI, S9-T08).
 public class QuestionRunner {
+
+    static final long TIMEOUT_MS = Long.getLong("questions.timeout.ms", 0L);
 
     public static void main(String[] args) throws Exception {
         JenaSystem.init();
@@ -63,7 +67,11 @@ public class QuestionRunner {
     static String answer(String text, Model data) {
         try {
             Query query = QueryFactory.create(text);
-            try (QueryExecution exec = QueryExecutionFactory.create(query, data)) {
+            var builder = QueryExecution.model(data).query(query);
+            if (TIMEOUT_MS > 0) {
+                builder = builder.timeout(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            }
+            try (QueryExecution exec = builder.build()) {
                 ResultSet results = exec.execSelect();
                 List<String> vars = results.getResultVars();
                 List<String> rows = new ArrayList<>();
@@ -82,6 +90,10 @@ public class QuestionRunner {
                 return "{\"vars\":[" + String.join(",", names) + "],\"rows\":["
                         + String.join(",", rows) + "]}";
             }
+        } catch (QueryCancelledException e) {
+            String seconds = TIMEOUT_MS % 1000 == 0 ? String.valueOf(TIMEOUT_MS / 1000)
+                    : String.valueOf(TIMEOUT_MS / 1000.0);
+            return "{\"error\":" + quote("la consulta tard\u00f3 m\u00e1s de " + seconds + " s") + "}";
         } catch (Exception e) {
             return "{\"error\":" + quote(e.getClass().getSimpleName() + ": " + e.getMessage()) + "}";
         }
