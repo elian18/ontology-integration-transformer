@@ -102,3 +102,8 @@ questions:                    # S9-T04/T05/T06: the competency questions (src/va
   prompt_version: 2           # explain.v2 cites the row of each missing element; --medir on the 5 yellow of the base: v1 3/5, v2 5/5 (rule fixed before: v2 if better and losing none)
   max_tokens: 2048            # max answer length of that call
   rows_shown: 60              # rows of each answer the AI sees (sorted; the base has up to 60)
+  drafts:                     # S9-T08: the AI drafts the SPARQL of each question of the base; only measured (py -m src.validation.query_drafter --medir)
+    prompt_version: 2         # sparql.v2 adds how the base is built; --medir with the prefixes completed: v1 2/23, v2 5/23 losing none (rule fixed before)
+    batch_size: 8             # questions per call (23 questions: 3 calls)
+    max_tokens: 16384         # max answer length of each call
+    query_timeout_seconds: 20 # a draft that takes longer counts as "no corrió"

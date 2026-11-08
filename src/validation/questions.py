@@ -53,10 +53,13 @@ def choose_engine(cfg: dict | None = None, engine: str | None = None,
     return {"name": RDFLIB, "reason": reason}, s
 
 
-def _jena(engine: dict, sets: dict[str, list[Path]], ids: list[str], s: li.Settings) -> dict:
+def _jena(engine: dict, sets: dict[str, list[Path]], ids: list[str], s: li.Settings,
+          paths: dict[str, Path] | None = None, query_timeout: float | None = None) -> dict:
     home = engine["home"]
-    args = [s.java, f"-Dlog4j2.configurationFile={home / 'log4j2.properties'}",
-            "-cp", str(home / "lib" / "*"), str(RUNNER), *[str(query_path(i)) for i in ids], "++"]
+    limit = [f"-Dquestions.timeout.ms={int(query_timeout * 1000)}"] if query_timeout else []
+    args = [s.java, f"-Dlog4j2.configurationFile={home / 'log4j2.properties'}", *limit,
+            "-cp", str(home / "lib" / "*"), str(RUNNER),
+            *[str((paths or {}).get(i) or query_path(i)) for i in ids], "++"]
     for name, files in sets.items():
         args += [name, *[Path(f).resolve().as_uri() for f in files], "--"]
     try:
@@ -84,7 +87,20 @@ def _cell(term) -> dict | None:
     return {"t": "literal", "v": str(term), "dt": dt, "lang": lang}
 
 
-def _rdflib(sets: dict[str, list[Path]], ids: list[str]) -> dict:
+def _select(g: Graph, text: str, query_timeout: float | None) -> dict:
+    result = g.query(text)
+    if result.type != "SELECT":
+        raise ValueError(f"no es una consulta SELECT ({result.type})")
+    start, rows = time.perf_counter(), []
+    for row in result:
+        if query_timeout and time.perf_counter() - start > query_timeout:
+            raise TimeoutError(f"la consulta tardó más de {query_timeout:g} s")
+        rows.append([_cell(c) for c in row])
+    return {"vars": [str(v) for v in result.vars], "rows": rows}
+
+
+def _rdflib(sets: dict[str, list[Path]], ids: list[str], paths: dict[str, Path] | None = None,
+            query_timeout: float | None = None) -> dict:
     from src.transform.convert import load_graph
     parsed: dict[Path, Graph] = {}
     runs = {}
@@ -98,9 +114,8 @@ def _rdflib(sets: dict[str, list[Path]], ids: list[str]) -> dict:
         answers = {}
         for qid in ids:
             try:
-                result = g.query(query_text(qid))
-                answers[qid] = {"vars": [str(v) for v in result.vars],
-                                "rows": [[_cell(c) for c in row] for row in result]}
+                path = (paths or {}).get(qid) or query_path(qid)
+                answers[qid] = _select(g, Path(path).read_text(encoding="utf-8"), query_timeout)
             except Exception as exc:  # a bad query or a parser limit: that question goes gray
                 answers[qid] = {"error": f"{type(exc).__name__}: {exc}"}
         runs[name] = {"triples": len(g), "seconds": round(time.perf_counter() - start, 2),
@@ -109,19 +124,22 @@ def _rdflib(sets: dict[str, list[Path]], ids: list[str]) -> dict:
 
 
 def run(sets: dict[str, list[Path]], ids: list[str], *, cfg: dict | None = None,
-        engine: str | None = None, java: str | None = None) -> tuple[dict, dict]:
-    """Every query on every set of files: (engine that ran, answers by set)."""
+        engine: str | None = None, java: str | None = None,
+        paths: dict[str, Path] | None = None,
+        query_timeout: float | None = None) -> tuple[dict, dict]:
+    """Every query on every set of files: (engine that ran, answers by set). ``paths``: the file of
+    a query that is not in queries/ (a draft of the AI); ``query_timeout``: seconds per query."""
     chosen, s = choose_engine(cfg, engine, java)
     if chosen["name"] == JENA:
         try:
-            runs = _jena(chosen, sets, ids, s)
+            runs = _jena(chosen, sets, ids, s, paths, query_timeout)
             return {k: v for k, v in chosen.items() if k != "home"}, runs
         except (RuntimeError, ValueError) as exc:          # ValueError: unreadable JSON
             if engine == JENA or s.engine == JENA:
                 raise
             chosen = {"name": RDFLIB, "reason": str(exc)}
     chosen["version"] = version("rdflib")
-    return chosen, _rdflib(sets, ids)
+    return chosen, _rdflib(sets, ids, paths, query_timeout)
 
 
 # --------------------------------------------------------------------------- judging an answer
