@@ -1,0 +1,1155 @@
+@prefix alignment: <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT-dpv-alignment#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT-dpv-alignment> a owl:Ontology ;
+    rdfs:label "Alineación de gdprtext-ontology.ttl con el DPV"@es ;
+    dct:created "2026-11-07T16:54:12+00:00"^^xsd:dateTime ;
+    rdfs:comment "Correspondencias heredadas de la base del sistema (OntoPriv + LOPDP, decididas por una persona en el Sprint 5) y aceptadas automáticamente por la regla del decisor (S7-T05). Las sugeridas no se escriben. El DPV se referencia por IRI, no se importa."@es ;
+    owl:imports <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT>,
+        <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT-labels> ;
+    owl:versionInfo "1" .
+
+alignment:confidence a owl:AnnotationProperty ;
+    rdfs:label "puntaje del candidato"@es ;
+    rdfs:comment "Puntaje de 0 a 1 del término del DPV (0.4 léxico + 0.6 embeddings) cuando lo aceptó la regla."@es .
+
+alignment:decidedBy a owl:AnnotationProperty ;
+    rdfs:label "decidido por"@es ;
+    rdfs:comment "Quién decidió la correspondencia: base (una persona, Sprint 5), regla (el decisor con IA y la regla calibrada) o regla sin IA."@es .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Accuracy> skos:relatedMatch dpv:DataQualityManagement .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData> skos:exactMatch dpv:AnonymisedData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedDecisionMakingWithSignificantEffect> skos:exactMatch dpv:AutomatedDecisionMaking .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing> skos:exactMatch dpv:Processing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation> skos:closeMatch dpv:WithdrawConsent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Certification> skos:exactMatch dpv:Certification .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct> skos:exactMatch dpv:CodeOfConduct .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConditionsForSealsAndCertifications> skos:broadMatch dpv:Certification .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConfirmingOrMatchingDatasets> skos:exactMatch dpv:Match .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent> skos:exactMatch dpv:Consent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity> skos:exactMatch dpv:Consent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ContextOfDataCollection> skos:exactMatch dpv:ProcessingContext .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ContractWithDataSubject> skos:exactMatch dpv:DataSubjectContract .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller> skos:exactMatch dpv:DataController .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ControllerObligation> skos:exactMatch dpv:Obligation .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ControllerRepresentative> skos:exactMatch dpv:Representative .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CrossBorderTransfer> skos:exactMatch dpv:CrossBorderTransfer .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data> skos:exactMatch dpv:Data .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataNoLongerNeededForOriginalPurpose> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault> skos:exactMatch dpv:PrivacyByDesign .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject> skos:exactMatch dpv:DataSubject .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataWasInferredOrDerived> skos:exactMatch dpv:InferredData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DirectMarketing> skos:exactMatch dpv:DirectMarketing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Entity> skos:exactMatch dpv:Entity .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#EraseData> skos:exactMatch dpv:Erase .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExceptionsOnReportingDataSubjectsOfBreach> skos:narrowMatch dpv:DataBreachNotice .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights> skos:closeMatch dpv:RightExerciseActivity .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExistenceOfSafeguards> skos:exactMatch dpv:Safeguard .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment> skos:exactMatch dpv:ImpactAssessment .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GeneticData> skos:broadMatch dpv:PersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent> skos:exactMatch dpv:Consent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#HealthData> skos:broadMatch dpv:PersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImpactAssessment> skos:exactMatch dpv:ImpactAssessment .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImplementTechnicalMeasuresForCompliance> skos:broadMatch dpv:TechnicalMeasure .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel> skos:exactMatch dpv:ConfidentialityAgreement .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutExistenceOfRights> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutProcessing> skos:exactMatch dpv:Processing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutSourceOfData> skos:exactMatch dpv:DataSource .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutStoragePeriod> skos:exactMatch dpv:StorageDuration .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InformedConsentObligation> skos:exactMatch dpv:InformedConsent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#IntegrityAndConfidentiality> skos:exactMatch dpv:ConfidentialityAgreement .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#JointController> skos:exactMatch dpv:JointDataControllers .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LargeScaleProcessing> skos:exactMatch dpv:LargeScaleProcessing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LawfulBasisForProcessing> skos:exactMatch dpv:LegalBasis .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegalObligation> skos:exactMatch dpv:LegalObligation .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest> skos:exactMatch dpv:LegitimateInterest .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject> skos:exactMatch dpv:PublicDataSource .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MaintainRecordOfBreach> skos:exactMatch dpv:DataBreachRecord .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MaintainRecordsOfProcessingActivities> skos:exactMatch dpv:ROPA .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Marketing> skos:exactMatch dpv:Marketing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MonitorCompliance> skos:exactMatch dpv:ComplianceMonitoring .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NationalSecurity> skos:exactMatch dpv:ProtectionOfNationalSecurity .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NatureOfPersonalData> skos:broadMatch dpv:PersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotForProfitOrg> skos:exactMatch dpv:NonProfitOrganisation .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectAboutConsequencesOfDataBreach> skos:narrowMatch dpv:DataBreachNotice .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectAboutDPOForDataBreach> skos:narrowMatch dpv:DataBreachNotice .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectOfBreach> skos:narrowMatch dpv:DataBreachNotice .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectOfMeasuresTakenForDataBreach> skos:narrowMatch dpv:DataBreachNotice .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Obligation> skos:exactMatch dpv:Obligation .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ObtainingConsent> skos:exactMatch dpv:ObtainConsent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData> skos:exactMatch dpv:PersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Principle> skos:broadMatch dpv:Principle .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PrivacyByDesign> skos:closeMatch dpv:PrivacyByDesign .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing> skos:exactMatch dpv:Processing .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingAffectedVulnerableIndividuals> skos:exactMatch dpv:VulnerableDataSubject .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingIsUnlawful> skos:exactMatch dpv:Unlawful .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingSensitiveData> skos:relatedMatch dpv:SensitivePersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor> skos:exactMatch dpv:DataProcessor .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessorControllerAgreement> skos:exactMatch dpv:ControllerProcessorAgreement .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessorObligation> skos:broadMatch dpv:Obligation .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PseudoAnonymousData> skos:exactMatch dpv:PseudonymisedData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest> skos:closeMatch dpv:PublicInterest .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RacialData> skos:broadMatch dpv:PersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordCrossBorderDataTransfer> skos:exactMatch dpv:DataTransferRecord .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordDataRetentionPeriod> skos:closeMatch dpv:StorageDuration .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordPurposeOfProcessing> skos:closeMatch dpv:ROPA .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordSecurityMeasures> skos:closeMatch dpv:SecurityProcedure .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority> skos:exactMatch dpv:DataProtectionAuthority .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ReportDataBreach> skos:closeMatch dpv:DataBreachNotification .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightOfDataPortability> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToAccessPersonalData> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToObjectForDirectMarketting> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToObjectToProcessing> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToRectification> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToRestrictProcessing> skos:broadMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights> skos:closeMatch dpv:DataSubjectRight .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Seal> skos:exactMatch dpv:Seal .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SealsAndCertification> skos:exactMatch dpv:CertificationSeal .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData> skos:closeMatch dpv:DataSecurityManagement .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData> skos:exactMatch dpv:SensitivePersonalData .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SpecifiedPurpose> skos:broadMatch dpv:Purpose .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#StorageLimitation> skos:closeMatch dpv:StorageDuration .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#StoreData> skos:exactMatch dpv:Store .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SubProcessor> skos:exactMatch dpv:DataSubProcessor .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SystematicMonitoring> skos:exactMatch dpv:SystematicMonitoring .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#UseData> skos:exactMatch dpv:Use .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#VitalInterest> skos:exactMatch dpv:VitalInterest .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#VoluntarySystemOfAccredition> skos:broadMatch dpv:CertificationSeal .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent> skos:closeMatch dpv:WithdrawConsent .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightOfErasure> skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:StorageDeletion .
+
+<http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToNotBeEvaluatedThroughAutomatedProcessing> skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:AutomatedDecisionMaking .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7493 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto requiere explícitamente registrar las transferencias transfronterizas, lo cual coincide exactamente con la definición de un registro de actividades de transferencia de datos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordCrossBorderDataTransfer> ;
+    owl:annotatedTarget dpv:DataTransferRecord ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6372 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La implementación de medidas técnicas para el cumplimiento es una acción que se enmarca dentro del concepto general de medidas técnicas del DPV."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImplementTechnicalMeasuresForCompliance> ;
+    owl:annotatedTarget dpv:TechnicalMeasure ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8955 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato define directamente el procesamiento de datos personales a gran escala, coincidiendo con el concepto."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LargeScaleProcessing> ;
+    owl:annotatedTarget dpv:LargeScaleProcessing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7574 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de consentimiento dado por el interesado coincide exactamente con el concepto de consentimiento como base legal para el tratamiento de datos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent> ;
+    owl:annotatedTarget dpv:Consent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7153 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato define explícitamente los propósitos asociados con la protección de la seguridad nacional, coincidiendo con la naturaleza del concepto."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NationalSecurity> ;
+    owl:annotatedTarget dpv:ProtectionOfNationalSecurity ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data_processing> ;
+    rdfs:comment "Heredada de Sensitive_data_processing (muy parecido); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:relatedMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingSensitiveData> ;
+    owl:annotatedTarget dpv:SensitivePersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8109 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con el acto de obtener el consentimiento del interesado."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ObtainingConsent> ;
+    owl:annotatedTarget dpv:ObtainConsent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6661 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto representa el control necesario para que el interesado pueda retirar su consentimiento, alineándose con el precedente de revocación de consentimiento."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation> ;
+    owl:annotatedTarget dpv:WithdrawConsent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8760 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto describe específicamente el contrato entre el responsable y el interesado como base legal para el procesamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ContractWithDataSubject> ;
+    owl:annotatedTarget dpv:DataSubjectContract ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7312 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El precedente establece que la notificación a los interesados sobre una brecha se corresponde con el aviso de brecha como un caso específico."@es ;
+    owl:annotatedProperty skos:narrowMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectOfBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotice ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5724 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El contexto de recolección de datos es una parte fundamental de las condiciones bajo las cuales se realiza el procesamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ContextOfDataCollection> ;
+    owl:annotatedTarget dpv:ProcessingContext ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5092 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de emparejar datos de diferentes fuentes coincide exactamente con el propósito de comparar o combinar datos de distintos conjuntos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConfirmingOrMatchingDatasets> ;
+    owl:annotatedTarget dpv:Match ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7451 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a los factores para la evaluación de impacto, y el precedente confirma que este término es la correspondencia exacta para dicho proceso."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment> ;
+    owl:annotatedTarget dpv:ImpactAssessment ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5568 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato define directamente el estado de ser ilegal o no conforme a derecho, lo cual corresponde a la definición de procesamiento ilícito."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingIsUnlawful> ;
+    owl:annotatedTarget dpv:Unlawful ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6149 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto describe datos obtenidos mediante inferencias, lo cual coincide exactamente con la definición del candidato."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataWasInferredOrDerived> ;
+    owl:annotatedTarget dpv:InferredData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6672 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de almacenar datos como una actividad de procesamiento coincide exactamente con el término propuesto en el DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#StoreData> ;
+    owl:annotatedTarget dpv:Store ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6633 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El derecho a la portabilidad de los datos es un tipo específico de derecho del interesado, por lo que el candidato es una categoría más general."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightOfDataPortability> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7792 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se define explícitamente como un sello de cumplimiento, lo cual coincide exactamente con la definición del candidato."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Seal> ;
+    owl:annotatedTarget dpv:Seal ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8954 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de un sub-procesador que actúa bajo otro procesador es idéntica a la del candidato seleccionado."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SubProcessor> ;
+    owl:annotatedTarget dpv:DataSubProcessor ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7277 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la naturaleza de los datos personales, y el candidato es el término general que abarca cualquier dato asociado a un individuo."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NatureOfPersonalData> ;
+    owl:annotatedTarget dpv:PersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations> ;
+    rdfs:comment "Heredada de Right_not_to_be_object_to_automated_evaluations (muy parecido); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:relatedMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToNotBeEvaluatedThroughAutomatedProcessing> ;
+    owl:annotatedTarget dpv:AutomatedDecisionMaking ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5341 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la existencia de derechos del interesado, lo cual se engloba dentro de la definición general de los derechos del sujeto de datos."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutExistenceOfRights> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6927 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a las condiciones para la emisión de certificaciones, lo cual es un mecanismo de demostración de cumplimiento cubierto por el término general de certificación."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConditionsForSealsAndCertifications> ;
+    owl:annotatedTarget dpv:Certification ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6360 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El derecho a oponerse al marketing directo es un derecho específico del interesado, el cual está contenido en la categoría general de derechos del sujeto de datos."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToObjectForDirectMarketting> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights> ;
+    rdfs:comment "Heredada de Rights (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6191 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El derecho de acceso a los datos personales es una manifestación concreta de los derechos que posee el interesado."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToAccessPersonalData> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8862 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato describe precisamente el acuerdo que establece las condiciones y obligaciones entre un responsable y un encargado del tratamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessorControllerAgreement> ;
+    owl:annotatedTarget dpv:ControllerProcessorAgreement ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct> ;
+    rdfs:comment "Heredada de CodesOfConduct (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-02."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct> ;
+    owl:annotatedTarget dpv:CodeOfConduct ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5926 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El registro de las actividades de procesamiento es el documento estándar donde se detalla el propósito del procesamiento de datos personales."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordPurposeOfProcessing> ;
+    owl:annotatedTarget dpv:ROPA ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5864 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a las reglas que describen las responsabilidades específicas del responsable del tratamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ControllerObligation> ;
+    owl:annotatedTarget dpv:Obligation ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights> ;
+    rdfs:comment "Heredada de Exercise_of_rights (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights> ;
+    owl:annotatedTarget dpv:RightExerciseActivity ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5751 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El registro de medidas de seguridad implica documentar los procedimientos asociados con la evaluación e implementación de la seguridad."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordSecurityMeasures> ;
+    owl:annotatedTarget dpv:SecurityProcedure ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security> ;
+    rdfs:comment "Heredada de Personal_data_security (muy parecido); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData> ;
+    owl:annotatedTarget dpv:DataSecurityManagement ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7903 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere directamente a procesos que involucran la toma de decisiones automatizada con efectos significativos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedDecisionMakingWithSignificantEffect> ;
+    owl:annotatedTarget dpv:AutomatedDecisionMaking ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5416 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: Siguiendo el precedente, la notificación de información específica sobre una brecha, como los datos del DPO, se clasifica como un caso particular de aviso de brecha."@es ;
+    owl:annotatedProperty skos:narrowMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectAboutDPOForDataBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotice ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Principles> ;
+    rdfs:comment "Heredada de Principles (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Principle> ;
+    owl:annotatedTarget dpv:Principle ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.9168 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de obligaciones para proteger los intereses vitales de los interesados coincide exactamente con el candidato del DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#VitalInterest> ;
+    owl:annotatedTarget dpv:VitalInterest ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6068 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la limitación de la recolección de datos a fines específicos, lo cual se enmarca dentro del concepto general de propósito en el DPV."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SpecifiedPurpose> ;
+    owl:annotatedTarget dpv:Purpose ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing> ;
+    rdfs:comment "Heredada de Processing (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing> ;
+    owl:annotatedTarget dpv:Processing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8783 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato describe precisamente la actividad de supervisar el cumplimiento de políticas y regulaciones de una organización."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MonitorCompliance> ;
+    owl:annotatedTarget dpv:ComplianceMonitoring ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6217 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato es explícitamente sinónima con la protección de datos desde el diseño."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault> ;
+    owl:annotatedTarget dpv:PrivacyByDesign ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5308 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la información sobre el procesamiento de datos, lo cual coincide directamente con la definición de operaciones de procesamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutProcessing> ;
+    owl:annotatedTarget dpv:Processing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6158 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con la descripción de sujetos de datos que requieren medidas adicionales debido a su vulnerabilidad."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessingAffectedVulnerableIndividuals> ;
+    owl:annotatedTarget dpv:VulnerableDataSubject ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6230 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: Los datos sobre el origen racial o étnico son una categoría de datos personales, por lo que el término general es adecuado."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RacialData> ;
+    owl:annotatedTarget dpv:PersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7874 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición coincide exactamente con la autoridad encargada de supervisar el cumplimiento de las leyes de protección de datos, respaldado por el precedente de casos similares."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority> ;
+    owl:annotatedTarget dpv:DataProtectionAuthority ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing> ;
+    rdfs:comment "Heredada de Data_processing (muy parecido); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing> ;
+    owl:annotatedTarget dpv:Processing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design> ;
+    rdfs:comment "Heredada de Follow-up_from_design (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PrivacyByDesign> ;
+    owl:annotatedTarget dpv:PrivacyByDesign ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7120 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La actividad de usar datos personales se corresponde directamente con el concepto de uso definido en el DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#UseData> ;
+    owl:annotatedTarget dpv:Use ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_Related_Data> ;
+    rdfs:comment "Heredada de Health_Related_Data (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#HealthData> ;
+    owl:annotatedTarget dpv:PersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7273 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato identifica directamente a las organizaciones cuyo objetivo principal no es el lucro, tal como se requiere en la definición del concepto."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotForProfitOrg> ;
+    owl:annotatedTarget dpv:NonProfitOrganisation ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8669 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con el concepto de transferencia de datos entre jurisdicciones o fronteras."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CrossBorderTransfer> ;
+    owl:annotatedTarget dpv:CrossBorderTransfer ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8753 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto coincide exactamente con el propósito de realizar marketing dirigido directamente al individuo."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DirectMarketing> ;
+    owl:annotatedTarget dpv:DirectMarketing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7664 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a una actividad que involucra el consentimiento del interesado, lo cual es el núcleo del término definido en el vocabulario."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity> ;
+    owl:annotatedTarget dpv:Consent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6504 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La notificación de una brecha de seguridad es el acto formal de informar a las autoridades competentes sobre el incidente."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ReportDataBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotification ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7227 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de datos seudonimizados coincide exactamente con la descripción de datos que no pueden atribuirse a un sujeto sin información adicional."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PseudoAnonymousData> ;
+    owl:annotatedTarget dpv:PseudonymisedData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.9042 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto coincide con el propósito de los mecanismos de certificación y sellos para demostrar cumplimiento según el DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SealsAndCertification> ;
+    owl:annotatedTarget dpv:CertificationSeal ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Quality> ;
+    rdfs:comment "Heredada de Quality (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:relatedMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Accuracy> ;
+    owl:annotatedTarget dpv:DataQualityManagement ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_correction_and_update> ;
+    rdfs:comment "Heredada de Right_to_correction_and_update (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToRectification> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6576 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la existencia de salvaguardas, lo cual coincide exactamente con la definición de medidas precautorias para la protección contra efectos negativos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExistenceOfSafeguards> ;
+    owl:annotatedTarget dpv:Safeguard ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7441 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El precedente establece que las fuentes accesibles al público corresponden exactamente a este término."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject> ;
+    owl:annotatedTarget dpv:PublicDataSource ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8484 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con la actividad de retirar el consentimiento por parte del interesado, tal como se indica en los precedentes."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent> ;
+    owl:annotatedTarget dpv:WithdrawConsent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8610 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: Ambos conceptos se definen como un término genérico para referirse a datos o información."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data> ;
+    owl:annotatedTarget dpv:Data ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7268 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto de borrar datos corresponde directamente a la acción de eliminar datos de forma permanente sin posibilidad de recuperación."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#EraseData> ;
+    owl:annotatedTarget dpv:Erase ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6605 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de representante de una entidad legal coincide con la figura designada por el responsable para actuar en su nombre."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ControllerRepresentative> ;
+    owl:annotatedTarget dpv:Representative ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8426 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto coincide plenamente con la entidad que determina los propósitos y medios del tratamiento de datos personales."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller> ;
+    owl:annotatedTarget dpv:DataController ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8861 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de monitoreo sistemático de actividades dentro de una organización coincide plenamente con el candidato del DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SystematicMonitoring> ;
+    owl:annotatedTarget dpv:SystematicMonitoring ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5877 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El precedente de autorregulación vincula este concepto con los sellos de certificación, los cuales actúan como mecanismos voluntarios de acreditación."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#VoluntarySystemOfAccredition> ;
+    owl:annotatedTarget dpv:CertificationSeal ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6025 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El precedente establece una correspondencia exacta entre el concepto de acuerdos de confidencialidad y el término del vocabulario."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#IntegrityAndConfidentiality> ;
+    owl:annotatedTarget dpv:ConfidentialityAgreement ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8717 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto coincide exactamente con la definición del candidato en el vocabulario."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegalObligation> ;
+    owl:annotatedTarget dpv:LegalObligation ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Genetic_data> ;
+    rdfs:comment "Heredada de Genetic_data (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GeneticData> ;
+    owl:annotatedTarget dpv:PersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5562 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto trata sobre las excepciones a la notificación de brechas, y el precedente indica que este término es una correspondencia estrecha para excepciones de notificación."@es ;
+    owl:annotatedProperty skos:narrowMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExceptionsOnReportingDataSubjectsOfBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotice ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6071 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere al periodo de almacenamiento de los datos, lo cual corresponde exactamente a la duración o limitación temporal del almacenamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutStoragePeriod> ;
+    owl:annotatedTarget dpv:StorageDuration ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data> ;
+    rdfs:comment "Heredada de Personal_data (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData> ;
+    owl:annotatedTarget dpv:PersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment> ;
+    rdfs:comment "Heredada de ImpactAssessment (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-02."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImpactAssessment> ;
+    owl:annotatedTarget dpv:ImpactAssessment ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8220 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con el concepto de mecanismos de certificación para demostrar el cumplimiento normativo."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Certification> ;
+    owl:annotatedTarget dpv:Certification ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion> ;
+    rdfs:comment "Heredada de Right_of_deletion (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:relatedMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightOfErasure> ;
+    owl:annotatedTarget dpv:StorageDeletion ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8993 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto coincide exactamente con el proceso de promoción, venta y distribución de productos o servicios descrito en el vocabulario."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Marketing> ;
+    owl:annotatedTarget dpv:Marketing ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5869 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El derecho a oponerse al procesamiento es un derecho fundamental del interesado, clasificado bajo la categoría general de derechos del sujeto de datos."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToObjectToProcessing> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5634 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere a la obligación de registrar el periodo de retención, que es la limitación temporal del almacenamiento de datos."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RecordDataRetentionPeriod> ;
+    owl:annotatedTarget dpv:StorageDuration ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5792 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El derecho a restringir el procesamiento es una facultad específica otorgada al interesado, por lo que se enmarca en la categoría general de derechos del sujeto de datos."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToRestrictProcessing> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5289 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El precedente indica que las excepciones o notificaciones de brechas se relacionan con el aviso de brecha, siendo este un caso específico de notificación sobre consecuencias."@es ;
+    owl:annotatedProperty skos:narrowMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectAboutConsequencesOfDataBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotice ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7928 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición proporcionada es equivalente a la categoría de datos personales sensibles que requieren protección adicional."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData> ;
+    owl:annotatedTarget dpv:SensitivePersonalData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7355 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La limitación del almacenamiento se define principalmente por la duración temporal necesaria para el procesamiento, lo cual coincide con la definición de este candidato."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#StorageLimitation> ;
+    owl:annotatedTarget dpv:StorageDuration ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5476 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato representa la categoría general de reglas de obligación, la cual abarca las obligaciones específicas impuestas a los encargados del tratamiento."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ProcessorObligation> ;
+    owl:annotatedTarget dpv:Obligation ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner> ;
+    rdfs:comment "Heredada de Data_Owner (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject> ;
+    owl:annotatedTarget dpv:DataSubject ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5849 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La notificación de medidas tomadas tras una brecha es un caso específico de la información proporcionada en un aviso de brecha según los precedentes."@es ;
+    owl:annotatedProperty skos:narrowMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#NotifyDataSubjectOfMeasuresTakenForDataBreach> ;
+    owl:annotatedTarget dpv:DataBreachNotice ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8728 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato es idéntica a la definición legal de un encargado del tratamiento que procesa datos en nombre del responsable."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor> ;
+    owl:annotatedTarget dpv:DataProcessor ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7648 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto de mantener un registro de brechas coincide directamente con el registro de incidentes de brecha de datos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MaintainRecordOfBreach> ;
+    owl:annotatedTarget dpv:DataBreachRecord ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6700 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El candidato representa el fundamento jurídico utilizado para justificar el procesamiento de datos, lo cual es equivalente a la base legal."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LawfulBasisForProcessing> ;
+    owl:annotatedTarget dpv:LegalBasis ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6842 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere explícitamente a la obligación de mantener registros de actividades de procesamiento, lo cual es la definición técnica de ROPA."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MaintainRecordsOfProcessingActivities> ;
+    owl:annotatedTarget dpv:ROPA ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5544 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto se refiere al ejercicio de un derecho del interesado, el cual es una categoría general dentro del vocabulario."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataNoLongerNeededForOriginalPurpose> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent> ;
+    rdfs:comment "Heredada de Consent (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent> ;
+    owl:annotatedTarget dpv:Consent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest> ;
+    rdfs:comment "Heredada de Public_interest (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:closeMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest> ;
+    owl:annotatedTarget dpv:PublicInterest ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6955 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición de datos anónimos coincide exactamente con la definición de datos que han sido alterados irreversiblemente para no identificar a una persona."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData> ;
+    owl:annotatedTarget dpv:AnonymisedData ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations> ;
+    rdfs:comment "Heredada de Right_not_to_be_object_to_automated_evaluations (muy parecido); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightToNotBeEvaluatedThroughAutomatedProcessing> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.6305 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: El concepto trata sobre la fuente de los datos personales, lo cual es idéntico a la definición de origen o fuente de datos."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InfoAboutSourceOfData> ;
+    owl:annotatedTarget dpv:DataSource ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7429 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con la descripción de una regla que describe una obligación para realizar una actividad."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Obligation> ;
+    owl:annotatedTarget dpv:Obligation ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8007 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato describe exactamente a dos o más controladores que determinan conjuntamente los fines y medios del procesamiento."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#JointController> ;
+    owl:annotatedTarget dpv:JointDataControllers ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.5654 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La obligación de imponer acuerdos de confidencialidad al personal coincide exactamente con el concepto de acuerdos de confidencialidad definidos en el DPV."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel> ;
+    owl:annotatedTarget dpv:ConfidentialityAgreement ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.7891 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del candidato coincide exactamente con la obligación de que el consentimiento sea informado para ser válido."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#InformedConsentObligation> ;
+    owl:annotatedTarget dpv:InformedConsent ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion> ;
+    rdfs:comment "Heredada de Right_of_deletion (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:broadMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RightOfErasure> ;
+    owl:annotatedTarget dpv:DataSubjectRight ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:confidence 0.8762 ;
+    alignment:decidedBy "regla"@es ;
+    rdfs:comment "Aceptada automáticamente por la regla (confianza alta de la IA y puntaje >= 0.5; clases: exactMatch, closeMatch, broadMatch o narrowMatch; propiedades: nunca automáticas). Justificación de la IA: La definición del concepto es idéntica a la definición general de entidad proporcionada en el vocabulario."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Entity> ;
+    owl:annotatedTarget dpv:Entity ;
+    owl:versionInfo "1" .
+
+[] a owl:Axiom ;
+    alignment:decidedBy "base"@es ;
+    dct:source <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest> ;
+    rdfs:comment "Heredada de Legal_interest (mismo nombre); decisión validada por Elian Gavilanes el 2026-10-07."@es ;
+    owl:annotatedProperty skos:exactMatch ;
+    owl:annotatedSource <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest> ;
+    owl:annotatedTarget dpv:LegitimateInterest ;
+    owl:versionInfo "1" .
+
