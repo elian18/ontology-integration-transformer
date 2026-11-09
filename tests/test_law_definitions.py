@@ -367,7 +367,7 @@ def test_the_law_completes_the_definitions(env, tmp_path):
     assert ("  Definiciones de ley.txt: a 4 de 5 conceptos les faltaba; 2 de conceptos de la "
             "ley, 1 escrita por la IA con los artículos, 1 no aplica (módulo "
             f"output/mi-gdpr-definitions.ttl, {m['triples']['definitions']} tripletas)") in lines
-    assert ("  IA de las definiciones: extracción 1 llamadas; definiciones 1 llamadas, 0 desde "
+    assert ("  IA de las definiciones: extracción 1 llamada; definiciones 1 llamada, 0 desde "
             "la caché") in lines
 
     calls = llm.calls

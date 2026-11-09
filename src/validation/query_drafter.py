@@ -16,11 +16,12 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from rdflib import BNode, Graph, Literal, URIRef
+from rdflib import Graph, Literal, URIRef
 from rdflib.collection import Collection
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 from src.validation import question_catalog as qc
 from src.validation import question_explainer as qe
 from src.validation import questions as qs
@@ -466,11 +467,11 @@ def measure(cfg: dict | None = None, *, llm=None, use_llm: bool = True, engine: 
 
 def ai_text(ai: dict) -> str:
     """What the AI did, in one line."""
-    calls = f"{ai['calls']} llamada{'' if ai['calls'] == 1 else 's'}"
+    calls = counted(ai["calls"], "llamada", "llamadas")
     text = (f"no usada; {ai['error']}" if not ai["available"] else calls)
-    text += f"; {ai['cached']} borrador{'' if ai['cached'] == 1 else 'es'} desde la caché"
+    text += f"; {counted(ai['cached'], 'borrador', 'borradores')} desde la caché"
     if ai["invalid"]:
-        text += f"; {ai['invalid']} inválido{'' if ai['invalid'] == 1 else 's'}"
+        text += f"; {counted(ai['invalid'], 'inválido', 'inválidos')}"
     if ai["errors"]:
         text += f"; error: {ai['errors'][0]}"
     return text

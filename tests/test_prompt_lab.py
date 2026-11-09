@@ -274,6 +274,9 @@ def test_the_call_limit_leaves_a_run_incomplete_and_without_a_message(env):
     text = lab.render_run(run, env.folder, {}, 1)
     assert "Errores: ninguno" in text and "cuando la corrida esté completa" in text
     assert f"pendientes: {run['pending']}" in text
+    assert "  IA: 0 llamadas, 0 respuestas desde la caché · límite de llamadas" in text
+    one = lab.render_run({**run, "calls": 1, "cached": 1}, env.folder, {}, 1)
+    assert "  IA: 1 llamada, 1 respuesta desde la caché · límite de llamadas" in one
 
 
 def test_a_prompt_that_lost_the_output_is_refused_before_any_call(env, tmp_path, monkeypatch):

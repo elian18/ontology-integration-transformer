@@ -44,6 +44,7 @@ from src.alignment.justify import RELATION_UNTYPED, justify_settings
 from src.alignment.propose import (STATUS_AI_NONE, STATUS_PROPOSED, ask_ai, decide,
                                    load_dpv_targets, mark_for_ai)
 from src.alignment.sources import build_alignment_sources
+from src.console import counted
 from src.ingest.ontology_loader import load_ontology
 
 CHECK_DIR = "external-check"
@@ -287,7 +288,7 @@ def render_console(result: dict) -> str:
                      f"{b['proposals']} propuestas, cobertura {b['correct']} de {b['aligned']}")
     ai = result["ai"]
     if ai.get("available"):
-        lines.append(f"  IA: {ai.get('calls', 0)} llamadas en esta corrida"
+        lines.append(f"  IA: {counted(ai.get('calls', 0), 'llamada', 'llamadas')} en esta corrida"
                      + (" (cuota agotada)" if ai.get("quota_exhausted") else ""))
     else:
         lines.append(f"  IA: no usada ({ai.get('error')})")

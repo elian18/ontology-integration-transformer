@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 from src.validation import question_catalog as qc
 
 PROMPTS = {v: load_prompt("explain", v) for v in (1, 2)}
@@ -335,9 +336,9 @@ def ai_text(ai: dict) -> str:
         if ai["cached"] < ai["questions"]:
             text += "; frase fija" + (" para el resto" if ai["cached"] else "")
         return text
-    text = f"{ai['calls']} llamada{'s' if ai['calls'] != 1 else ''}, {ai['cached']} desde la caché"
+    text = f"{counted(ai['calls'], 'llamada', 'llamadas')}, {ai['cached']} desde la caché"
     if ai["invalid"]:
-        text += f", {ai['invalid']} inválidas"
+        text += f", {counted(ai['invalid'], 'inválida', 'inválidas')}"
     if ai["errors"]:
         text += f"; error: {ai['errors'][0]}"
     return text

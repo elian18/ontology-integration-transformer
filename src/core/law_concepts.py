@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 from src.core.acceptance import (ACCEPTED, REASONS, REJECTED, REPEATED, RULE_TEXT,
                                  RULE_VERSION, apply_rule, summarize)
 
@@ -205,8 +206,8 @@ def _ai_text(result: dict) -> str:
     ai, x = result["ai"], result["extraction"]
     if not ai.get("available"):
         return f"no usada ({ai.get('error')})"
-    text = (f"{ai.get('calls', 0)} llamadas en esta corrida, {x['batches_with_errors']} lotes "
-            "con error")
+    text = (f"{counted(ai.get('calls', 0), 'llamada', 'llamadas')} en esta corrida, "
+            f"{counted(x['batches_with_errors'], 'lote', 'lotes')} con error")
     if ai.get("quota_exhausted"):
         text += " (cuota agotada: vuelve a correr mañana para seguir)"
     elif ai.get("call_limit_reached"):

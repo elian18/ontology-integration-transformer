@@ -43,6 +43,7 @@ from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 from src.core.dpv_proximity import _humanize as humanize
 
 PROMPT_VERSION = 1
@@ -485,8 +486,9 @@ def ai_line(result: dict) -> str:
         return "no hizo falta (cada concepto ya tenía es y en)"
     if not ai.get("available"):
         return f"no usada ({ai.get('error')})"
-    text = (f"{ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} desde la caché, "
-            f"{ai.get('invalid', 0)} respuestas inválidas")
+    invalid = counted(ai.get("invalid", 0), "respuesta inválida", "respuestas inválidas")
+    text = (f"{counted(ai.get('calls', 0), 'llamada', 'llamadas')}, {ai.get('cached', 0)} desde "
+            f"la caché, {invalid}")
     if ai.get("quota_exhausted"):
         text += " (cuota agotada: vuelve a correr mañana)"
     elif ai.get("call_limit_reached"):

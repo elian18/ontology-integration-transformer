@@ -19,6 +19,7 @@ from rdflib import BNode, Graph, Literal, Namespace, URIRef
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 from src.validation import ai_auditor as au
 
 PROMPT = load_prompt("bridge", 1)
@@ -350,25 +351,21 @@ def load_result(cfg: dict | None = None) -> dict | None:
 
 # --------------------------------------------------------------------------- console
 
-def _n(n: int, one: str, many: str) -> str:
-    return f"{n} {one if n == 1 else many}"
-
-
 def validation_lines(v: dict | None) -> list[str]:
     if v is None:
         return ["  Forma y Lógica: no se revisaron"]
     s, lg = v["shapes"], v["logic"]
     from src.validation.logic_inspector import engine_text
     return [f"  Forma (pySHACL {s['engine']['version']}): "
-            f"{_n(s['new_violations'], 'violación nueva', 'violaciones nuevas')}, "
-            f"{_n(s['new_warnings'], 'aviso nuevo', 'avisos nuevos')} · heredados de la base: "
-            f"{_n(s['inherited_violations'], 'violación', 'violaciones')}, "
-            f"{_n(s['inherited_warnings'], 'aviso', 'avisos')}",
+            f"{counted(s['new_violations'], 'violación nueva', 'violaciones nuevas')}, "
+            f"{counted(s['new_warnings'], 'aviso nuevo', 'avisos nuevos')} · heredados de la "
+            f"base: {counted(s['inherited_violations'], 'violación', 'violaciones')}, "
+            f"{counted(s['inherited_warnings'], 'aviso', 'avisos')}",
             f"  Lógica ({engine_text(lg['engine'])}): "
-            f"{_n(lg['new_errors'], 'inconsistencia nueva', 'inconsistencias nuevas')}, "
-            f"{_n(lg['new_warnings'], 'aviso nuevo', 'avisos nuevos')} · heredados de la base: "
-            f"{_n(lg['inherited_errors'], 'inconsistencia', 'inconsistencias')}, "
-            f"{_n(lg['inherited_warnings'], 'aviso', 'avisos')}",
+            f"{counted(lg['new_errors'], 'inconsistencia nueva', 'inconsistencias nuevas')}, "
+            f"{counted(lg['new_warnings'], 'aviso nuevo', 'avisos nuevos')} · heredados de la "
+            f"base: {counted(lg['inherited_errors'], 'inconsistencia', 'inconsistencias')}, "
+            f"{counted(lg['inherited_warnings'], 'aviso', 'avisos')}",
             "  " + ("Sin hallazgos nuevos: el puente no rompe ninguna regla ni agrega "
                     "contradicciones." if clean(v) else
                     "El puente trae hallazgos nuevos: revisa los reportes.")]
@@ -380,14 +377,14 @@ def render(out: dict) -> str:
              f"  Alineación de GDPRtEXT usada (fija): {out['gdprtext_alignment']['file']} "
              f"(sha256 {out['gdprtext_alignment']['sha256'][:12]})",
              f"  Pares OntoPriv ↔ GDPRtEXT con exactMatch o closeMatch en los dos lados: "
-             f"{out['pairs']}, por {_n(out['terms'], 'término', 'términos')} del DPV "
+             f"{out['pairs']}, por {counted(out['terms'], 'término', 'términos')} del DPV "
              f"(con cualquier relación SKOS serían {out['loose_pairs']}; no entran)",
              f"  Módulo: {', '.join(out['files'])} ({out['triples']} tripletas)",
              *validation_lines(out["validation"]),
              f"  IA revisora ({p['name']}.v{p['version']}): {au.ai_text(ai)} · "
-             f"{_n(s[au.COHERENT], 'coherente', 'coherentes')}, "
-             f"{_n(s[au.DOUBTFUL], 'dudosa', 'dudosas')}, "
-             f"{_n(s[au.INCOHERENT], 'incoherente', 'incoherentes')}"
+             f"{counted(s[au.COHERENT], 'coherente', 'coherentes')}, "
+             f"{counted(s[au.DOUBTFUL], 'dudosa', 'dudosas')}, "
+             f"{counted(s[au.INCOHERENT], 'incoherente', 'incoherentes')}"
              + (f", {s['pending']} sin revisar" if s["pending"] else "")
              + "; solo explica, no cambia los pares", "", "  Pares:"]
     for r in out["rows"]:

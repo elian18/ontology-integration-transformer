@@ -15,6 +15,7 @@ from src.alignment.decider import (CACHE_FILE, STATUS_DECIDED, STATUS_INVALID, S
                                    settings_from_config)
 from src.alignment.mapping_review import STATUS_ALIGNED
 from src.alignment.reference import REF_BASE, Reference, score
+from src.console import counted
 
 PROMPT_NAME = "decide"
 DEV, TEST = "desarrollo", "prueba"
@@ -552,7 +553,8 @@ def render_run(result: dict, folder: Path, runs: dict, in_use: int) -> str:
         lines.append(f"  Definiciones de {given['law']}: {given['in_half']} conceptos de esta "
                      "mitad las recibieron")
     lines += [
-             f"  IA: {result['calls']} llamadas, {result['cached']} respuestas desde la caché"
+             f"  IA: {counted(result['calls'], 'llamada', 'llamadas')}, "
+             f"{counted(result['cached'], 'respuesta', 'respuestas')} desde la caché"
              + (" · CUOTA AGOTADA: vuelve a correr mañana" if result["quota_exhausted"] else
                 " · límite de llamadas: vuelve a correr para seguir"
                 if result["call_limit_reached"] else "")
