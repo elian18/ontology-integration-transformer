@@ -224,7 +224,7 @@ def test_a_failed_batch_is_left_for_the_next_run(ws, cfg):
     r = prepare_law_concepts(ws, llm=ExtractLLM(error_on={1}), cfg=cfg, sleep_fn=lambda s: None)
     assert r["extraction"]["pending_articles"] == [1, 2]
     assert r["extraction"]["batches_with_errors"] == 1 and r["ai"]["quota_exhausted"] is False
-    assert render_console(r).count("1 lotes con error; error: 400 bad request") == 1
+    assert render_console(r).count("1 lote con error; error: 400 bad request") == 1
 
 
 def test_without_ai(ws, cfg):

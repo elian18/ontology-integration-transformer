@@ -367,6 +367,8 @@ def test_quota_exhausted_falls_back_and_is_reported(ws, env, targets):
     assert ai["available"] and ai["quota_exhausted"]
     assert _by_name(result)["PersonalData"]["decided_by"] == BY_RULE_WITHOUT_AI
     assert "cuota agotada" in render_console(result)
+    result["summary"]["ai"] = {**ai, "calls": 1, "cached": 2}
+    assert "  IA: 1 llamada, 2 desde la caché (cuota agotada" in render_console(result)
 
 
 def test_missing_api_key_is_reported(ws, env, targets, monkeypatch):

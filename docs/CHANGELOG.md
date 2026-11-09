@@ -1064,3 +1064,252 @@ verde sin las marcadas `slow` (924 en total).
     fijado antes;
   - la IA revisora confunde a veces una relación más general (`broadMatch`) con una
     incoherencia.
+
+---
+
+## v0.9.0 — Sprint 9 (Validación SPARQL)
+
+**Entregable:** la base y cada subida responden un catálogo fijo de preguntas de competencia con
+consultas SPARQL en Apache Jena. Las respuestas esperadas se tomaron de la LOPDP antes de
+escribir ninguna consulta. La base responde 18 de las 23 en verde; en las 5 amarillas lo que
+falta sí está en la base con otro nombre, y la IA lo dice en una oración. Cada subida responde
+las preguntas genéricas de su modo, que entran al panel del asistente como una cuarta tarjeta.
+Antes de medir se repararon dos defectos generales de la base: las inconsistencias heredadas
+bajaron de 830 a 5 con Jena y de 419 a 1 con owlrl. Un puente une OntoPriv con GDPRtEXT a través
+del DPV y no agrega ningún hallazgo nuevo.
+
+### Qué se construyó
+- Semáforo del panel (S9-T01) — "ámbar" pasa a "amarillo" en el panel, los informes, el LEEME
+  del .zip y los logs; los resultados guardados antes siguen leyéndose. Una tarjeta que no corrió
+  queda en gris ("Sin revisar" o "No corrió"). Se limpiaron textos del Sprint 8.
+- `src/core/repair.py` + `src/core/emit.py` (S9-T02) — dos reparaciones generales de los módulos
+  de la base, aplicadas después de separar el núcleo y el perfil. El archivo de OntoPriv no se
+  toca y cada cambio queda en `core-repairs.json` con su motivo:
+  - una propiedad con varios `rdfs:domain` (o `rdfs:range`) pasa a tener uno, la unión de esas
+    clases (`owl:unionOf`; P19 de OOPS!). OWL lee varios dominios como intersección, y por eso
+    el razonador ponía individuos en clases disjuntas;
+  - una propiedad declarada de objeto y de datos a la vez, que OWL 2 DL no permite, se queda
+    con el tipo que muestra su uso.
+
+  El perfil de una ley reconoce el núcleo por una huella que pone sus nodos en blanco en forma
+  canónica (`law_profile.py`), porque las uniones agregan nodos en blanco.
+- `src/validation/questions.yaml` + `question_catalog.py` (S9-T03) — 23 preguntas de
+  competencia, fijadas antes de escribir cualquier consulta:
+  - 5 del artículo de OntoPriv (P01 a P05, sección 4.3), con la respuesta que reporta el
+    artículo y una nota cuando la ley dice otra cosa;
+  - 10 de la LOPDP (L01 a L10), cada una con su artículo y la respuesta que se espera;
+  - 8 genéricas (G01 a G08) para cualquier ontología de privacidad: lo alineado con el DPV,
+    derechos, bases legales, finalidades, categorías de datos, actores, operaciones de
+    tratamiento y el artículo de la ley de cada concepto.
+
+  Cada pregunta dice cómo se juzga: todos los elementos, alguno, un valor o, en las genéricas,
+  al menos un concepto. Verde si responde según su criterio, amarillo si no, gris si el motor
+  no corrió o la pregunta no aplica al modo. El catálogo lleva versión y sha256, y los dos
+  aparecen en cada informe.
+- `src/validation/questions.py` + `QuestionRunner.java` + `src/validation/queries/*.rq` (S9-T04)
+  — una consulta escrita a mano por pregunta, corrida en Apache Jena 6.2.0 sin inferencia; sin
+  Java se usa rdflib. Sobre la base, las mismas consultas corren también en los cuatro formatos
+  y sobre OntoPriv original, para comparar filas. Guarda `questions-report.json` y
+  `questions-log.txt`.
+- Preguntas en cada subida (S9-T05) — G01 a G07 en los cuatro modos y G08 solo en la base y en
+  "Una ley", porque en los otros modos los artículos no entran a la ontología. Las que no
+  aplican se cuentan aparte. El resultado va en `validation.json`, en `validation-log.txt` y en
+  el LEEME del .zip.
+- `src/validation/question_explainer.py` + prompts `explain.v1` y `explain.v2` (S9-T06) — la IA
+  dice en una oración por qué una pregunta quedó en amarillo (una llamada por corrida, con
+  caché); sin IA queda una frase fija. `--medir` compara las dos versiones con una referencia de
+  las 5 amarillas de la base (`data/reference/explain-reference.json`).
+- Panel del asistente (S9-T07) — la tarjeta "Preguntas (SPARQL)" va entre Lógica e IA revisora,
+  y cada tarjeta dice qué criterio de calidad responde: Interoperabilidad (Forma), Coherencia
+  (Lógica e IA revisora) y Completitud (Preguntas). La pestaña "Preguntas de competencia"
+  muestra la respuesta, el criterio y la consulta de cada pregunta.
+- `src/validation/query_drafter.py` + prompts `sparql.v1` y `sparql.v2` (S9-T08) — la IA redacta
+  la consulta de cada pregunta de la base con la pregunta y un resumen de la ontología, sin ver
+  nunca la consulta de referencia. Cada borrador se corre en Jena y su respuesta se compara con
+  la de la consulta escrita a mano. Solo se mide: el sistema sigue usando las consultas
+  escritas a mano.
+- `src/alignment/gdpr_bridge.py` + prompt `bridge.v1` (S9-T09) — el puente de la base con el
+  GDPR:
+  - toma los pares OntoPriv ↔ GDPRtEXT que llegan al mismo término del DPV con `exactMatch` o
+    `closeMatch` en los dos lados;
+  - los escribe como `skos:closeMatch` en un módulo propio, en los cuatro formatos, cada uno con
+    un `owl:Axiom` que dice por qué término del DPV pasa (`bridge:chainedBy`);
+  - usa la alineación de GDPRtEXT fijada en `data/reference/gdprtext-dpv-alignment.ttl` (copiada
+    de la subida `gdprtext-ontology-b863b1da`), así que se rehace sin IA y da siempre los mismos
+    pares;
+  - se valida con la forma y la lógica, y la IA revisora explica cada par en
+    `ontopriv-gdpr-bridge.csv`; nada de lo que dice entra a la ontología.
+- Página "Preguntas de la base" (S9-T10) — en "Herramientas de construcción", sin botones, con
+  las pestañas Preguntas, OntoPriv original, Formatos y Puente con el GDPR. Esta última muestra
+  los pares que la IA marcó para revisar y las descargas del módulo.
+- Consola (S9-T11) — los textos de la IA concuerdan con su número ("1 llamada", "2 llamadas")
+  gracias a un solo ayudante, `src/console.py`, que reemplaza las tres copias que había.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Las respuestas esperadas salen de la ley, no de las consultas.** El catálogo (v1,
+  2026-11-07) se fijó antes de escribir ninguna consulta y no cambió después de ver las
+  respuestas. Por eso:
+  - P01 espera 3 días (LOPDP, art. 46), aunque el artículo de OntoPriv reporta 5, que es el
+    plazo para notificar a la Autoridad (art. 43);
+  - P03 espera seis integrantes y no cinco, porque la ley también nombra al destinatario
+    (art. 5);
+  - P04 tiene dos respuestas: la Autoridad garantiza los derechos (art. 76) y el responsable
+    atiende el derecho de acceso (art. 13).
+- **"No aplica" no es amarillo.** Una pregunta que el modo no puede responder, como G08 en "Mi
+  ontología", no cuenta como falla: la tarjeta dice "de las 7 que aplican; 1 no aplica".
+- **Se repara la base con reglas generales, no OntoPriv caso por caso.** Lo que queda (5
+  hallazgos con Jena y 1 con owlrl) viene de OntoPriv y se muestra como heredado.
+- **La IA explica, no decide.** Las explicaciones de las amarillas, la revisión del puente y
+  los borradores SPARQL quedan fuera de la ontología y no cambian ningún color ni ningún par.
+  Cada pieza tiene su prompt versionado, su caché y una regla para adoptar la versión nueva,
+  fijada antes de medir: v2 si acierta en más casos que v1 y no falla ninguno que v1 acertó.
+- **El puente solo usa `exactMatch` o `closeMatch` en los dos lados**, y lo escribe como
+  `skos:closeMatch`. Con cualquier relación SKOS serían 256 pares. Además, que dos conceptos
+  lleguen al mismo término del DPV no prueba que sean equivalentes, así que no se usa
+  `exactMatch`.
+
+### Resultados
+**Corrida de punta a punta (S9-T11)**, el 2026-11-09 (UTC), en Windows con Java 24.0.2 y Apache
+Jena 6.2.0:
+- la base se rehízo desde OntoPriv (núcleo, perfil, reparaciones y los cuatro formatos); después
+  se validó, respondió las preguntas, se midieron las explicaciones y los borradores, y se rehízo
+  el puente;
+- los tres modos corrieron con sus archivos y el modelo de embeddings real. Como esas entradas
+  ya se habían corrido, cada paso de IA respondió desde su caché (0 llamadas), y sus cifras son
+  las de la corrida que llamó a Gemini;
+- las 15 pruebas `slow` llamaron de verdad a Gemini, al modelo de embeddings y a Jena, y
+  pasaron.
+
+**Reparaciones de la base (S9-T02):** 84 propiedades con varios dominios, 35 con varios rangos y
+34 con doble tipo (33 se quedan como propiedades de objeto y 1 como propiedad de datos).
+
+| Base del sistema | v0.8.0 | v0.9.0 |
+|---|---|---|
+| Tripletas (núcleo, perfil y alineación) | 4321 | 5233 |
+| Forma (pySHACL): heredadas / avisos | 1 / 1605 | 1 / 1605 (2,1 s) |
+| Lógica (Jena, OWL Micro): heredadas / avisos | 830 / 1310 | 5 / 1303 (4,6 s) |
+| Lógica (owlrl): heredadas | 419 | 1 (11,6 s) |
+
+- Las 5 que quedan con Jena vienen de OntoPriv:
+  - un individuo en dos clases disjuntas (`inapplicability`, en `Applicability` e
+    `Inapplicability`), que es también el único que ve owlrl;
+  - dos recursos como valor de la propiedad de datos `territorial_application`;
+  - dos valores de otro tipo en `responsible_for_treatment` y `activity_within_right_of_access`.
+- El sistema no agregó ninguna violación ni contradicción.
+
+**Preguntas de la base (S9-T04):** la base con el DPV (20142 tripletas), en 4,8 s.
+
+| Preguntas | Verde | Amarillo | Gris |
+|---|---|---|---|
+| Artículo de OntoPriv (P01 a P05) | 4 | 1 (P02) | 0 |
+| LOPDP (L01 a L10) | 6 | 4 (L03, L04, L09, L10) | 0 |
+| Genéricas (G01 a G08) | 8 | 0 | 0 |
+| **Total** | **18** | **5** | **0** |
+
+- En las 5 amarillas, la base sí tiene lo que falta, pero con otro nombre que la regla del
+  catálogo no reconoce: `consent Unequivocal` (P02), `Application_favorable_to_the_owner` (L03),
+  `Data_under_17_years_old` y `Disabled_owner_data` (L04), `Exceptions` (L09) y `Judicial past`
+  (L10).
+- OntoPriv original da las mismas filas que la base en las 5 preguntas del artículo: las
+  reparaciones no cambiaron ninguna de esas respuestas. Los cuatro formatos (RDF/XML, OWL,
+  Turtle y JSON-LD) dan las mismas filas en las 23.
+
+**Explicaciones de la IA (S9-T06)**, sobre las 5 amarillas de la base: `explain.v1` acierta 3 de
+5 (en P02 y L04 dice que la ontología no tiene el concepto) y `explain.v2`, que cita la fila de
+cada elemento que falta, acierta 5 de 5. Se adopta v2.
+
+**Borradores SPARQL de la IA (S9-T08)**, 23 preguntas con gemini-3.1-flash-lite, 3 llamadas por
+versión. La IA vio un resumen de la ontología de 105 979 caracteres.
+
+| De 23 preguntas | v1 tal cual | v1 con prefijos | v2 tal cual | v2 con prefijos |
+|---|---|---|---|---|
+| Misma respuesta | 1 | 2 | 5 | 5 |
+| Otra respuesta | 6 | 21 | 18 | 18 |
+| … con el mismo color | 3 | 13 | 9 | 9 |
+| No corrió | 16 | 0 | 0 | 0 |
+
+- Los 16 borradores de v1 que no corrieron usaban prefijos sin declarar (`rdfs:` y `dct:`). Con
+  los prefijos estándar completados, corren todos.
+- `sparql.v2` le explica a la IA cómo está construida la base. Acierta en 5 (P01, P02, P03, L03
+  y G02) y no pierde ninguna de las 2 de v1, así que se adopta.
+- La mitad de las respuestas distintas da el mismo color (9 de 18). Por eso "misma respuesta"
+  exige también los mismos elementos, valores o conceptos.
+
+**Puente con el GDPR (S9-T09):**
+- 34 pares por 22 términos del DPV (con cualquier relación SKOS serían 256); el módulo tiene 282
+  tripletas.
+- 0 hallazgos nuevos en forma y lógica. Hereda los de la base: 1 violación y 1605 avisos; 5
+  inconsistencias y 1303 avisos.
+- La IA revisora (`bridge.v1`) da 31 pares coherentes, 1 dudoso y 2 incoherentes. En los tres,
+  el concepto de GDPRtEXT es de otro tipo que el de OntoPriv:
+  - `Processing` y `Data_processing` ↔ `InfoAboutProcessing`, por `dpv:Processing`: del lado de
+    GDPRtEXT es el derecho a recibir información sobre el tratamiento;
+  - `ConfidentialityAgreement` ↔ `IntegrityAndConfidentiality`, por
+    `dpv:ConfidentialityAgreement`: un instrumento frente a un principio.
+
+  Los pares se quedan; la IA solo los señala.
+
+**Subidas reales (S9-T05):**
+
+| Subida | Forma | Lógica (Jena) | Preguntas | IA revisora |
+|---|---|---|---|---|
+| GDPRtEXT ("Mi ontología") | amarillo: 0 nuevas, 232 heredadas, 4 avisos | verde: 0 | verde: 7 de las 7 que aplican; G08 no aplica | amarillo: 11 incoherentes y 1 dudosa de 80 aceptadas |
+| GDPRtEXT + GDPR ("Mi ontología y una ley") | amarillo: igual | verde: 0 | verde: 7 de 7; G08 no aplica | amarillo: igual |
+| Ley 1581 de 2012, Colombia ("Una ley") | amarillo: 0 nuevas, 1 heredada, 740 avisos | amarillo: 0 nuevas, 5 heredadas, 1236 avisos | amarillo: 7 de 8 (falla G03) | verde: 0 de 3 aceptadas |
+
+- En "Una ley", las inconsistencias heredadas bajaron de 255 en v0.8.0 a 5, porque el perfil
+  importa OntoPriv-Core reparado.
+- La ley de Colombia no tiene ningún concepto alineado con un término del DPV de bases legales,
+  así que G03 queda en amarillo, y la IA lo explica así.
+- Las dos subidas de GDPRtEXT dan la misma alineación: 21 conceptos heredados de la base, 80
+  correspondencias aceptadas por la regla, 21 sugeridas, 78 sin correspondencia y 35 sin
+  propuesta.
+
+### Cómo usar
+Consola:
+
+    py -m src.core.emit                                   # núcleo y perfil, con las reparaciones
+    py -m src.validation.question_catalog                 # muestra el catálogo de preguntas
+    py -m src.validation.questions --base | ESPACIO [--motor jena|rdflib] [--sin-ia]
+    py -m src.validation.question_explainer --medir       # explain.v1 contra v2
+    py -m src.validation.query_drafter --medir [--motor jena|rdflib] [--sin-ia]
+    py -m src.alignment.gdpr_bridge [--motor jena|owlrl] [--sin-ia]
+
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+El panel del asistente muestra las preguntas de cada subida. La página "Preguntas de la base",
+en "Herramientas de construcción", muestra lo que responde la base y el puente con el GDPR.
+
+### Pruebas
+Archivos nuevos en este sprint: `tests/test_core_repair.py`, `test_question_catalog.py`,
+`test_questions.py`, `test_question_explainer.py`, `test_query_drafter.py`,
+`test_gdpr_bridge.py`, `test_ui_base_questions.py` y `test_console.py`. Se ampliaron
+`test_validation_upload.py`, `test_ui_validation_panel.py`, `test_law_profile.py`,
+`test_workspace.py`, `test_sprint6_pipeline.py` y `test_ui_base_access.py`.
+- Las pruebas de las preguntas y del puente usan Jena real cuando hay Java 21 o superior y Jena
+  en `tools/`.
+- Las de la IA usan un modelo falso; las que llaman a Gemini están marcadas `slow`.
+- Cada tarea pasó por pruebas de mutación.
+
+Suite del proyecto: 1082 pruebas en verde sin las marcadas `slow` y 1097 en total, todas en
+verde en la corrida de punta a punta (13 min 39 s).
+
+### Alcance y pendientes
+- **Sprint 10 (comentarios del usuario y trazabilidad):** sigue como lo dejó v0.8.0. Eso incluye
+  compartir la caché de la IA entre espacios de trabajo, porque hoy cada subida solo reusa la
+  suya.
+- **Limitaciones para la tesis:**
+  - la regla de las preguntas compara textos: las 5 amarillas de la base tienen lo que falta
+    con otro nombre. La IA lo explica, pero el color no cambia;
+  - una pregunta genérica en verde dice que la ontología toca el tema (al menos un concepto),
+    no que lo cubra entero;
+  - la IA redactó bien 5 de las 23 consultas: escribir SPARQL sobre la base sigue necesitando
+    a una persona;
+  - OntoPriv sigue siendo inconsistente (5 hallazgos con Jena y 1 con owlrl), y la base sigue
+    sin los axiomas anónimos que el Sprint 3 dejó fuera;
+  - los pares del puente dependen de la alineación de GDPRtEXT que se fijó: con otra alineación
+    cambiarían;
+  - en la corrida de punta a punta la IA respondió desde la caché, así que sus cifras son las de
+    las corridas que la llamaron.

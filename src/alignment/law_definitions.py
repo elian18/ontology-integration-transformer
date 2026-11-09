@@ -12,6 +12,7 @@ from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SKOS, XSD
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 
 PROMPT_VERSION = 1
 PROMPT = load_prompt("define", PROMPT_VERSION)
@@ -76,10 +77,6 @@ def definition_settings(cfg: dict | None = None) -> DefinitionSettings:
                          "100, batch_size >= 1, max_calls >= 0, pause_seconds >= 0, max_tokens "
                          ">= 256).")
     return s
-
-
-def counted(n: int, one: str, many: str) -> str:
-    return f"{n} {one if n == 1 else many}"
 
 
 # --------------------------------------------------------------------------- 1. law concepts
@@ -565,13 +562,14 @@ def ai_line(result: dict) -> str:
     law = result.get("law_concepts")
     if law:
         ai = law.get("ai") or {}
-        parts.append(f"extracción {ai.get('calls', 0)} llamadas" if ai.get("available")
+        parts.append(f"extracción {counted(ai.get('calls', 0), 'llamada', 'llamadas')}"
+                     if ai.get("available")
                      else f"extracción no usada ({ai.get('error')})")
     ai = result.get("ai") or {}
     if ai.get("needed"):
         if ai.get("available"):
-            text = (f"definiciones {ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} desde "
-                    "la caché")
+            text = (f"definiciones {counted(ai.get('calls', 0), 'llamada', 'llamadas')}, "
+                    f"{ai.get('cached', 0)} desde la caché")
             if ai.get("quota_exhausted"):
                 text += " (cuota agotada: vuelve a correr mañana)"
             elif ai.get("call_limit_reached"):

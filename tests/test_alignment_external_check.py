@@ -161,6 +161,7 @@ def test_check_solves_the_known_concepts_again(ws, targets):
     assert "Propuestas: 2; correctas: 2 (precisión 100 %)" in text
     assert "Tipo SKOS igual al de la persona: 1 de 2 aciertos con tipo de la IA" in text
     assert "PersonalData: PersonalData (exactMatch) | 1.º PersonalData" in text
+    assert "  IA: 1 llamada en esta corrida\n" in text
 
 
 def test_second_run_reuses_its_candidates_and_the_ai_types(ws, targets):

@@ -18,6 +18,7 @@ from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
 from src.alignment import law_definitions as ld
 from src.alignment import law_evidence as ev
 from src.alignment.propose import load_result as decisions_result
+from src.console import counted
 from src.core.emit import CORE_FILE, CORE_IRI
 from src.transform import labels as lab
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
@@ -708,7 +709,8 @@ REUSED = "no se volvió a llamar; son las cifras de la corrida anterior"
 
 def decider_ai_text(ai: dict) -> str:
     """The AI of the decider in one line, with why it stopped and its first error."""
-    text = f"{ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} respuestas desde la caché"
+    text = (f"{counted(ai.get('calls', 0), 'llamada', 'llamadas')}, "
+            f"{counted(ai.get('cached', 0), 'respuesta', 'respuestas')} desde la caché")
     if ai.get("quota_exhausted"):
         text += " (cuota agotada: vuelve a correr mañana)"
     elif ai.get("call_limit_reached"):

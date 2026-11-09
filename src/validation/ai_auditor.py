@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from src.ai.prompts import load_prompt
+from src.console import counted
 
 PROMPT = load_prompt("audit", 1)
 RESULT_FILE = "ai-audit.json"
@@ -453,7 +454,8 @@ def _pct(value) -> str:
 def ai_text(ai: dict) -> str:
     if not ai.get("available"):
         return "no usada" + (f" ({ai['error']})" if ai.get("error") else "")
-    text = f"{ai['calls']} llamadas, {ai['cached']} desde la caché, {ai['invalid']} inválidas"
+    text = (f"{counted(ai['calls'], 'llamada', 'llamadas')}, {ai['cached']} desde la caché, "
+            f"{counted(ai['invalid'], 'inválida', 'inválidas')}")
     if ai.get("quota_exhausted"):
         text += " (cuota agotada: vuelve a correr mañana)"
     elif ai.get("call_limit_reached"):

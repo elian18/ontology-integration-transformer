@@ -119,7 +119,7 @@ def test_each_upload_is_validated_and_the_zip_says_so(env, targets):  # noqa: F8
     assert log.startswith(f"Validación del espacio {w.id}: amarillo\n\nInspector de forma (SHACL)")
     assert "Inspector de lógica (razonador)" in log and "Revisión de la IA del espacio" in log
     text = ua.render_console(w, m, path)
-    assert "  IA de la revisión: 1 llamadas, 0 desde la caché, 0 inválidas\n" in text
+    assert "  IA de la revisión: 1 llamada, 0 desde la caché, 0 inválidas\n" in text
     assert "\n  Validación: amarillo (no bloquea la descarga)\n    Forma (pySHACL" in text
     assert "\n    Detalle: output/validation-log.txt\n" in text
     saved = (w.output_dir / uv.RESULT_FILE).read_text(encoding="utf-8")
@@ -259,7 +259,7 @@ def test_cli_runs_a_workspace_again(env, targets, tmp_path, monkeypatch, capsys)
     assert ua._run(["--espacio", w.id, "--sin-ia"]) == 0
     out = capsys.readouterr().out
     assert "  Validación: amarillo (no bloquea la descarga)\n" in out
-    assert f"  IA de la revisión: {ua.REUSED} (1 llamadas, 0 desde la caché" in out
+    assert f"  IA de la revisión: {ua.REUSED} (1 llamada, 0 desde la caché" in out
     assert ua._run([]) == 1 and ua._run(["x.ttl", "--espacio", w.id]) == 1
     assert "Error: indica un archivo o --espacio." in capsys.readouterr().out
     assert ua._run(["--espacio", "no-existe"]) == 1

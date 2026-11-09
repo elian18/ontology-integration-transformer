@@ -9,6 +9,8 @@ import pyshacl
 from rdflib import BNode, Graph, Literal
 from rdflib.namespace import RDF, RDFS, SH
 
+from src.console import counted
+
 SHAPES_FILE = Path(__file__).with_name("shapes.ttl")
 SHAPES_NS = "http://www.semanticweb.org/ontology-integration-transformer/shapes#"
 SEVERITIES = {SH.Violation: "violación", SH.Warning: "advertencia", SH.Info: "aviso"}
@@ -106,10 +108,6 @@ def local_name(node: str) -> str:
     if node.startswith("_:"):
         return "(nodo sin nombre)"
     return node.rstrip("#/").rsplit("#", 1)[-1].rsplit("/", 1)[-1]
-
-
-def counted(n: int, one: str, many: str) -> str:
-    return f"{n} {one if n == 1 else many}"
 
 
 def render_rules(catalog: list[Rule]) -> str:

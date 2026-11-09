@@ -319,7 +319,7 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     text = ua.render_console(w, m, path)
     assert ("  Etiquetas es/en: 0 conceptos ya las tenían; la IA agregó 4 en español y 4 en "
             "inglés (módulo output/mi-gdpr-labels.ttl, 14 tripletas)\n") in text
-    assert "  IA de las etiquetas: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
+    assert "  IA de las etiquetas: 1 llamada, 0 desde la caché, 0 respuestas inválidas" in text
     assert m["recomputed"] == {"inherit": True, "definitions": False, "decider": True,
                                "labels": True, "evidence": False, "audit": True}
     decider_line = [line for line in text.splitlines() if "IA del decisor" in line][0]
@@ -336,7 +336,7 @@ def test_align_upload_runs_everything_and_reuses_steps(env, targets):
     assert not any(m2["recomputed"].values())
     again = ua.render_console(w2, m2, path2)                           # S7-T13: says so
     assert (f"  IA del decisor: {ua.REUSED} ({decider_line.split(': ', 1)[1]})") in again
-    assert (f"  IA de las etiquetas: {ua.REUSED} (1 llamadas, 0 desde la caché, 0 respuestas "
+    assert (f"  IA de las etiquetas: {ua.REUSED} (1 llamada, 0 desde la caché, 0 respuestas "
             "inválidas)") in again
     stricter = {**env.cfg, "decider": {**env.cfg["decider"], "rule": {"min_score": 0.99}}}
     _, m3, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), **{**kw, "cfg": stricter})

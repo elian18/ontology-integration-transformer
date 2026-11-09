@@ -12,6 +12,7 @@ from src.alignment.export import (CANDIDATES_JSON, build_candidate_table, load_c
 from src.alignment.justify import RELATION_UNTYPED, justify_candidates
 from src.ingest.ontology_loader import load_ontology
 from src.alignment.sources import build_alignment_sources
+from src.console import counted
 
 # Sprint 6 proposer (kept for the S6-T09 check).
 STATUS_PROPOSED = "proposed"            # best candidate above the threshold, AI agrees (or none)
@@ -321,8 +322,8 @@ def render_console(result: dict, examples: int = 8) -> str:
                  if ai.get("quota_exhausted") else
                  " (se llegó al límite de llamadas: vuelve a subir el archivo para seguir)"
                  if ai.get("call_limit_reached") else "")
-        lines.append(f"  IA: {ai.get('calls', 0)} llamadas, {ai.get('cached', 0)} desde la "
-                     f"caché{extra}")
+        lines.append(f"  IA: {counted(ai.get('calls', 0), 'llamada', 'llamadas')}, "
+                     f"{ai.get('cached', 0)} desde la caché{extra}")
     else:
         lines.append(f"  IA: no usada ({ai.get('error')})")
     for status, title in ((ACCEPTED, "Aceptadas"), (SUGGESTED, "Sugeridas")):

@@ -478,7 +478,7 @@ def test_console_and_ai_line(ws, env):
     assert "Completadas por la IA: 3 (agregadas: 3 en español, 2 en inglés) · pendientes: 0" \
         in text
     assert "Glosario de la base: 2 términos de la LOPDP" in text
-    assert "IA: 1 llamadas, 0 desde la caché, 0 respuestas inválidas" in text
+    assert "IA: 1 llamada, 0 desde la caché, 0 respuestas inválidas" in text
     assert "    DataSubject: Titular (es) | Data Subject (en)" in text
     assert "Consent:" not in text and len(render_console(r, examples=1).splitlines()) == 7
     line = lab.ai_line
