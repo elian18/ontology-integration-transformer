@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from src.alignment import gdpr_bridge as gb
+from src.console import counted
 from src.validation import question_catalog as qc
 from src.validation import question_explainer as qe
 from src.validation import questions as qs
@@ -35,10 +36,6 @@ def output_dir(cfg: dict | None = None) -> Path:
 
 def _json(path: Path) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
-
-
-def _n(n: int, one: str, many: str) -> str:
-    return f"{n} {one if n == 1 else many}"
 
 
 # --------------------------------------------------------------------------- the questions
@@ -108,7 +105,7 @@ def original_view(report: dict) -> dict | None:
             for qid, color in original["colors"].items()]
     files = ", ".join(original["files"])
     if differ:
-        message = (f"{_n(len(differ), 'pregunta da', 'preguntas dan')} otras filas en el "
+        message = (f"{counted(len(differ), 'pregunta da', 'preguntas dan')} otras filas en el "
                    f"OntoPriv original ({files}) que en la base: {', '.join(sorted(differ))}.")
     else:
         message = (f"Las {len(rows)} preguntas del artículo dan las mismas filas en el OntoPriv "
@@ -140,14 +137,14 @@ def bridge_view(bridge: dict, folder: Path) -> dict:
     prompt = bridge["prompt"]
     lines = [f"{bridge['pairs']} pares OntoPriv ↔ GDPRtEXT que llegan al mismo término del DPV "
              f"con exactMatch o closeMatch en los dos lados, por "
-             f"{_n(bridge['terms'], 'término', 'términos')} (con cualquier relación SKOS serían "
-             f"{bridge['loose_pairs']}; no entran). Cada par va en el módulo como "
+             f"{counted(bridge['terms'], 'término', 'términos')} (con cualquier relación SKOS "
+             f"serían {bridge['loose_pairs']}; no entran). Cada par va en el módulo como "
              "skos:closeMatch.",
              *[line.strip() for line in gb.validation_lines(bridge["validation"])],
              f"IA revisora ({prompt['name']}.v{prompt['version']}): "
-             f"{_n(s['coherente'], 'coherente', 'coherentes')}, "
-             f"{_n(s['dudosa'], 'dudosa', 'dudosas')}, "
-             f"{_n(s['incoherente'], 'incoherente', 'incoherentes')}"
+             f"{counted(s['coherente'], 'coherente', 'coherentes')}, "
+             f"{counted(s['dudosa'], 'dudosa', 'dudosas')}, "
+             f"{counted(s['incoherente'], 'incoherente', 'incoherentes')}"
              + (f", {s['pending']} sin revisar" if s.get("pending") else "")
              + "; solo explica, no cambia los pares."]
     rows = sorted(bridge["rows"], key=lambda r: VERDICT_ORDER.get(r["verdict"], 3))

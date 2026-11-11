@@ -7,6 +7,7 @@ from functools import partial
 
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
+from src.console import counted
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
 from src.validation import ai_auditor as au
 from src.validation import question_explainer as qe
@@ -265,29 +266,25 @@ def _law_concepts(ws) -> dict | None:
     return load_result(ws)
 
 
-def _n(n: int, one: str, many: str) -> str:
-    return f"{n} {one if n == 1 else many}"
-
-
 def profile_caption(profile: dict | None) -> str | None:
     """What the "Una ley" mode built from the law (S7-T10), in one line."""
     if not profile:
         return None
     accepted = profile.get("law_concepts") or {}
-    extracted = _n(accepted.get("concepts", 0), "concepto", "conceptos")
-    kinds = (f"{_n(profile['classes'], 'clase', 'clases')} y "
-             f"{_n(profile['properties'], 'propiedad', 'propiedades')}")
+    extracted = counted(accepted.get("concepts", 0), "concepto", "conceptos")
+    kinds = (f"{counted(profile['classes'], 'clase', 'clases')} y "
+             f"{counted(profile['properties'], 'propiedad', 'propiedades')}")
     text = (f"De {profile['law']}: la IA extrajo {extracted} y la regla aceptó "
             f"{accepted.get('accepted', 0)} ({kinds})")
     repeated, rejected = accepted.get("repeated", 0), accepted.get("rejected", 0)
-    left = [_n(n, one, many) for n, one, many in ((repeated, "repetido", "repetidos"),
+    left = [counted(n, one, many) for n, one, many in ((repeated, "repetido", "repetidos"),
                                                   (rejected, "rechazado", "rechazados")) if n]
     if left:
         verb = "entró" if repeated + rejected == 1 else "entraron"
         text += f"; {' y '.join(left)} no {verb}"
-    built = (f"{_n(profile['reused'], 'reutiliza', 'reutilizan')} conceptos de OntoPriv-Core, "
-             f"{_n(profile['linked'], 'se enlaza', 'se enlazan')} con él y "
-             f"{_n(profile['new'], 'es nuevo', 'son nuevos')}")
+    built = (f"{counted(profile['reused'], 'reutiliza', 'reutilizan')} conceptos de OntoPriv-Core, "
+             f"{counted(profile['linked'], 'se enlaza', 'se enlazan')} con él y "
+             f"{counted(profile['new'], 'es nuevo', 'son nuevos')}")
     return f"{text}. Con ellos se armó tu ontología: {built}."
 
 
@@ -322,13 +319,13 @@ def evidence_caption(evidence: dict | None) -> str | None:
     have = "concepto tiene" if evidence["concepts"] == 1 else "conceptos tienen"
     return (f"Artículos de {evidence['law']} para revisar: {evidence['with_evidence']} de "
             f"{evidence['concepts']} {have} artículos cercanos "
-            f"({_n(evidence['links'], 'enlace', 'enlaces')} a "
-            f"{_n(evidence['articles_cited'], 'artículo distinto', 'artículos distintos')}). "
-            "Están en la columna "
+            f"({counted(evidence['links'], 'enlace', 'enlaces')} a "
+            f"{counted(evidence['articles_cited'], 'artículo distinto', 'artículos distintos')}"
+            "). Están en la columna "
             "«Artículos de la ley» de la tabla y en alignment.csv; no entran a la ontología, "
             "porque la búsqueda sola no es lo bastante precisa: revísalos."
-            + (f" En {_n(evidence['cited_by_ai'], 'concepto', 'conceptos')} el artículo es el "
-               "que citó la IA al sacar su definición de la ley (citado)."
+            + (f" En {counted(evidence['cited_by_ai'], 'concepto', 'conceptos')} el artículo es "
+               "el que citó la IA al sacar su definición de la ley (citado)."
                if evidence.get("cited_by_ai") else ""))
 
 
@@ -341,13 +338,13 @@ def definitions_caption(defined: dict | None) -> str | None:
                 f"{defined['concepts']}), así que no hizo falta buscarlas en {defined['law']}.")
     text = (f"Definiciones de {defined['law']}: a {defined['missing']} de "
             f"{defined['concepts']} conceptos les faltaba")
-    sources = [_n(n, one, many) + what for n, one, many, what in (
+    sources = [counted(n, one, many) + what for n, one, many, what in (
         (defined["law_concept"], "salió", "salieron", " de conceptos de la ley"),
         (defined["articles"], "la escribió", "las escribió", " la IA con sus artículos")) if n]
     text += "; " + " y ".join(sources) if sources else "; la ley no dio ninguna"
     if defined["not_applicable"]:
         one = defined["not_applicable"] == 1
-        text += (f" ({_n(defined['not_applicable'], 'no aplica', 'no aplican')}: la ley no "
+        text += (f" ({counted(defined['not_applicable'], 'no aplica', 'no aplican')}: la ley no "
                  f"{'lo' if one else 'los'} define)")
     if defined["added"]:
         text += ". Van en un módulo aparte, cada una con su artículo"
@@ -493,8 +490,8 @@ REVIEW_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Confianza de la 
 
 def summary_line(v: dict) -> str:
     """The line of the success banner: what was uploaded and what came out."""
-    return (f"{v['file']} · {_n(v['concepts'], 'concepto', 'conceptos')} · "
-            f"{_n(v['mappings'], 'correspondencia', 'correspondencias')} con el DPV")
+    return (f"{v['file']} · {counted(v['concepts'], 'concepto', 'conceptos')} · "
+            f"{counted(v['mappings'], 'correspondencia', 'correspondencias')} con el DPV")
 
 
 def notes(v: dict) -> list[str]:
@@ -505,8 +502,8 @@ def notes(v: dict) -> list[str]:
 
 def summary_captions(v: dict) -> list[str]:
     """The lines of the "Resumen" tab, under the five numbers."""
-    out = [f"{v['mode_label']} · {_n(v['concepts'], 'concepto', 'conceptos')} · "
-           f"{_n(v['mappings'], 'correspondencia', 'correspondencias')} en la ontología "
+    out = [f"{v['mode_label']} · {counted(v['concepts'], 'concepto', 'conceptos')} · "
+           f"{counted(v['mappings'], 'correspondencia', 'correspondencias')} en la ontología "
            f"({v['validated_mappings']} de la base y {v['accepted_mappings']} aceptadas por la "
            f"regla) · {v['suggested']} sugeridas fuera de la ontología · versión {v['version']}"]
     out += [line for line in (v["profile"], f"Regla: {v['rule']}." if v["rule"] else None,
@@ -573,8 +570,8 @@ def card_text(key: str, block: dict) -> str:
         return questions_card_text(block)
     if key != uv.AUDIT:
         what = "Reglas rotas" if key == uv.SHAPES else "Contradicciones"
-        return (f"{what}: {_n(block['new'], 'nueva', 'nuevas')} · "
-                f"{_n(block['inherited'], 'heredada', 'heredadas')}  \n"
+        return (f"{what}: {counted(block['new'], 'nueva', 'nuevas')} · "
+                f"{counted(block['inherited'], 'heredada', 'heredadas')}  \n"
                 f"Avisos: {block['warnings']}")
     if "summary" not in block:
         return "No se hizo la revisión"
@@ -585,7 +582,7 @@ def card_text(key: str, block: dict) -> str:
         why = block["ai"].get("error") or next(iter(block["ai"].get("errors") or []), "")
         return f"No revisó las {s['accepted']} aceptadas  \n{why}".rstrip()
     text = (f"Incoherentes: {s['incoherente']} · dudosas: {s['dudosa']}  \n"
-            f"De {_n(s['accepted'], 'aceptada', 'aceptadas')} por la regla")
+            f"De {counted(s['accepted'], 'aceptada', 'aceptadas')} por la regla")
     return text + (f" · sin revisar: {s['pending']}" if s["pending"] else "")
 
 
@@ -597,7 +594,7 @@ def questions_card_text(block: dict) -> str:
     if s[qs.GRAY]:
         text += f" · no corrieron: {s[qs.GRAY]}"
     applies = s[GREEN] + s[YELLOW] + s[qs.GRAY]
-    text += f"  \nDe {_n(applies, 'pregunta que aplica', 'preguntas que aplican')}"
+    text += f"  \nDe {counted(applies, 'pregunta que aplica', 'preguntas que aplican')}"
     na = s.get(qs.NOT_APPLICABLE, 0)
     return text + (f" · no {'aplica' if na == 1 else 'aplican'}: {na}" if na else "")
 
@@ -639,21 +636,21 @@ def validation_headline(result: dict) -> str:
     warnings = sum(ins[k].get("warnings", 0) for k in (uv.SHAPES, uv.LOGIC))
     flagged = len(audit.get("flagged") or [])
     if inherited:
-        parts.append(f"{_n(inherited, 'hallazgo heredado', 'hallazgos heredados')} (ya estaban "
-                     "en tu ontología o en la base del sistema)")
+        parts.append(f"{counted(inherited, 'hallazgo heredado', 'hallazgos heredados')} (ya "
+                     "estaban en tu ontología o en la base del sistema)")
     if warnings:
-        parts.append(f"{_n(warnings, 'aviso', 'avisos')} (recomendaciones, como conceptos sin "
+        parts.append(f"{counted(warnings, 'aviso', 'avisos')} (recomendaciones, como conceptos sin "
                      "definición)")
     if flagged:
-        parts.append(f"{_n(flagged, 'correspondencia', 'correspondencias')} que la IA revisora "
-                     "marcó para que las mires")
+        parts.append(f"{counted(flagged, 'correspondencia', 'correspondencias')} que la IA "
+                     "revisora marcó para que las mires")
     questions = (ins.get(uv.QUESTIONS) or {}).get("summary") or {}
     word = ("pregunta de competencia", "preguntas de competencia")
     if questions.get(YELLOW):
-        parts.append(f"{_n(questions[YELLOW], *word)} que tu ontología no responde")
+        parts.append(f"{counted(questions[YELLOW], *word)} que tu ontología no responde")
     if questions.get(qs.GRAY):
         gray = questions[qs.GRAY]
-        parts.append(f"{_n(gray, *word)} que no se {'pudo' if gray == 1 else 'pudieron'} "
+        parts.append(f"{counted(gray, *word)} que no se {'pudo' if gray == 1 else 'pudieron'} "
                      "responder")
     failed = [CARD_TITLES.get(k, uv.TITLES[k]) for k, b in ins.items()
               if b["status"] == uv.FAILED]
@@ -731,7 +728,7 @@ def questions_view(block: dict | None) -> dict | None:
              "why": plain(r["explanation"]) if r.get("explanation") else None,
              "why_label": "Por qué (IA)" if r.get("explained_by") == qe.AI else "Por qué",
              "query": _query(r["id"])} for r in results]
-    caption = (f"{_n(len(results), 'pregunta', 'preguntas')}, las mismas para cualquier "
+    caption = (f"{counted(len(results), 'pregunta', 'preguntas')}, las mismas para cualquier "
                "ontología de privacidad, respondidas con SPARQL sobre tu ontología, sus módulos "
                f"y el DPV ({block['engine']}, {block['seconds']:g} s): "
                f"{qs.counts_text(block['summary'], len(results))}.")

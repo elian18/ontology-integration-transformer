@@ -10,6 +10,8 @@ from pathlib import Path
 
 import yaml
 
+from src.console import counted
+
 CATALOG_FILE = Path(__file__).with_name("questions.yaml")
 BASE, GENERIC = "base", "generic"
 GROUPS = {BASE: "Base del sistema", GENERIC: "Genéricas (base y subidas)"}
@@ -255,7 +257,7 @@ def criterion_text(q: Question) -> str:
     if q.kind == ANY:
         return (f"Verde si la respuesta trae al menos uno de los {len(q.expected.elements)} "
                 f"elementos que da la ley; amarillo si no trae ninguno.")
-    return (f"Verde si la respuesta trae al menos {q.min} concepto{'s' if q.min > 1 else ''}; "
+    return (f"Verde si la respuesta trae al menos {counted(q.min, 'concepto', 'conceptos')}; "
             f"amarillo si no trae ninguno.")
 
 
