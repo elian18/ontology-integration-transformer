@@ -12,8 +12,8 @@ from src.workspace.store import (BASE_DIRS, DEFINITION_STEPS, DONE, ERROR, EVIDE
                                  EXTRACT_STEPS, KIND_LAW, KIND_ONTOLOGY, LAW_STEPS, MANIFEST_FILE,
                                  PENDING, PROFILE_STEPS, STEPS, WorkspaceError, check_root,
                                  list_workspaces, load_workspace, open_law, open_ontology,
-                                 open_upload, safe_file_name, slugify, steps_for, workspace_id,
-                                 workspace_settings)
+                                 open_upload, safe_file_name, shared_cache, slugify, steps_for,
+                                 take_in, workspace_id, workspace_settings)
 from tests.test_transform_convert import FIXTURE_TTL
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -208,3 +208,52 @@ def test_cli_creates_then_reopens(tmp_path, monkeypatch, capsys):
     assert store._run([str(source)]) == 0
     assert "reabierto: ya existía" in capsys.readouterr().out
     assert store._run([str(tmp_path / "no.ttl")]) == 1
+
+
+# ------------------------------------------------------------------ S10-T02: shared AI cache
+
+def _answer(key: str, text: str = "respuesta") -> str:
+    return json.dumps({"cache_key": key, "answer": text}, ensure_ascii=False)
+
+
+def _keys(path: Path) -> list[str]:
+    return [json.loads(line)["cache_key"] for line in path.read_text(encoding="utf-8").splitlines()]
+
+
+def test_the_shared_cache_lives_beside_the_workspaces_and_is_not_one(cfg):
+    ws = open_ontology("Mi GDPR.ttl", TTL, cfg=cfg)
+    path = shared_cache(ws, "decider-cache.jsonl")
+    assert path == ws.path.parent / "_cache" / "decider-cache.jsonl"
+    assert not path.exists()                                     # created by the first answer
+    path.parent.mkdir()
+    path.write_text(_answer("k1") + "\n", encoding="utf-8")
+    assert [r["id"] for r in list_workspaces(cfg=cfg)] == [ws.id]
+    assert check_root(path.parent.parent) == path.parent.parent  # outside the base
+
+
+def test_the_old_answers_of_every_workspace_move_in_once(cfg):
+    first = open_ontology("Mi GDPR.ttl", TTL, cfg=cfg)
+    second = open_ontology("Otra.ttl", TTL + b"\n", cfg=cfg)
+    third = open_ontology("Nueva.ttl", TTL + b"\n\n", cfg=cfg)        # from after S10-T02
+    name = "labels-cache.jsonl"
+    (first.work_dir / name).write_text(f"{_answer('a')}\n{_answer('b')}\nno es json\n",
+                                       encoding="utf-8")
+    (second.work_dir / name).write_text(f"{_answer('b', 'otra')}\n{_answer('c')}\n",
+                                        encoding="utf-8")
+    path = shared_cache(third, name)                  # asked by an upload without old answers
+    assert _keys(path) == ["a", "b", "c"]             # b keeps the first answer (folder order)
+    assert json.loads(path.read_text(encoding="utf-8").splitlines()[1])["answer"] == "respuesta"
+    for ws in (first, second):                        # kept with another name, not taken again
+        assert not (ws.work_dir / name).exists()
+        assert (ws.work_dir / f"{name}{store.MOVED}").exists()
+    assert (first.work_dir / f"{name}{store.MOVED}").read_text(encoding="utf-8").count("\n") == 3
+    assert shared_cache(first, name) == path and _keys(path) == ["a", "b", "c"]
+    path.unlink()                                     # set aside: nothing old comes back
+    shared_cache(second, name)
+    assert not path.exists()
+
+
+def test_take_in_without_an_old_file_adds_nothing(tmp_path):
+    shared = tmp_path / "_cache" / "audit-cache.jsonl"
+    assert take_in(shared, tmp_path / "no-existe.jsonl") == 0 and not shared.exists()
+

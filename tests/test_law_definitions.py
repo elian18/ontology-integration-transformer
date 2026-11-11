@@ -18,7 +18,7 @@ from src.alignment.law_definitions import (ARTICLES, INVALID, LAW_CONCEPT, NO_SO
                                            ask_definitions, definition_settings, validate_answer)
 from src.alignment.law_evidence import align_with_law
 from src.alignment.user_alignment import align_workspace, render_console
-from src.workspace.store import DONE, KIND_LAW, KIND_ONTOLOGY, open_upload
+from src.workspace.store import CACHE_DIR, DONE, KIND_LAW, KIND_ONTOLOGY, open_upload
 from tests.test_alignment_bundle import _resolve
 from tests.test_alignment_propose import DeciderLLM, Embed, make_env, targets  # noqa: F401
 
@@ -314,6 +314,8 @@ def test_the_law_completes_the_definitions(env, tmp_path):
         DEFINED["Erasure"], 4)
     assert entries["Erasure"]["for_decider"] and not entries["Consent"]["for_decider"]
     assert llm.asked == ["Pizza", "Erasure"]                 # the law concepts need no AI
+    assert not list(ws.work_dir.glob("*-cache.jsonl"))       # S10-T02: one shared cache
+    assert (ws.path.parent / CACHE_DIR / ld.CACHE_FILE).exists()
     d = m["law_definitions"]
     assert (d["concepts"], d["with_own"], d["missing"], d["added"]) == (5, 1, 4, 3)
     assert (d[LAW_CONCEPT], d[ARTICLES], d[NOT_APPLICABLE], d[PENDING]) == (2, 1, 1, 0)

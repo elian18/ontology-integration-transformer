@@ -368,7 +368,7 @@ def definitions_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | No
     from src.alignment.inherit import load_result as inherited_result, user_concepts
     from src.alignment.propose import _llm_for
     from src.ingest.law_upload import current_articles
-    from src.workspace.store import DONE, ERROR, RUNNING, STEP_LABELS
+    from src.workspace.store import DONE, ERROR, RUNNING, STEP_LABELS, shared_cache
     settings = definition_settings(cfg)
     use_llm = auto_settings(cfg)["use_llm"] if use_llm is None else use_llm
     articles = current_articles(ws)
@@ -414,7 +414,7 @@ def definitions_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | No
             report = ask_definitions([(c, nearest[c.key]) for c in order],
                                      {a["number"]: a for a in articles["articles"]},
                                      articles["language"], llm=client, settings=settings,
-                                     cache_path=ws.work_dir / CACHE_FILE,
+                                     cache_path=shared_cache(ws, CACHE_FILE),
                                      sleep_fn=sleep_fn or time.sleep)
             ai.update(needed=True, model=getattr(client, "model", None), calls=report.calls,
                       cached=report.cached, quota_exhausted=report.quota_exhausted,

@@ -232,7 +232,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
     from src.alignment import law_definitions as ld
     from src.alignment.inherit import load_result
     from src.alignment.knowledge import build_knowledge
-    from src.workspace.store import DONE, ERROR, RUNNING
+    from src.workspace.store import DONE, ERROR, RUNNING, shared_cache
     settings = auto_settings(cfg)
     rule = rule_settings(cfg)
     prompt = decide_prompt(cfg)
@@ -265,7 +265,7 @@ def propose_for_workspace(ws, *, embed_fn=None, llm=None, use_llm: bool | None =
                 run = replace(run, max_calls=0)        # only the cache answers
             kwargs = {"sleep_fn": sleep_fn} if sleep_fn is not None else {}
             report = decide_all(sources.concepts, targets, llm=llm, embed_fn=embed_fn,
-                                settings=run, cache_path=ws.work_dir / CACHE_FILE,
+                                settings=run, cache_path=shared_cache(ws, CACHE_FILE),
                                 chroma_path=chroma_path, cfg=cfg, prompt=prompt, **kwargs)
             decisions = report.decisions
             ai.update(model=decisions[0].model if decisions else None, calls=report.calls,
