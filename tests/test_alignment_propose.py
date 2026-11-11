@@ -30,7 +30,7 @@ from src.alignment.propose import (ACCEPTED, BY_RULE, BY_RULE_WITHOUT_AI, NO_MAT
                                    SUGGESTED, UNDECIDED, decide, is_current, mark_for_ai,
                                    propose_for_workspace, render_console)
 from src.ingest.dpv_loader import load_dpv
-from src.workspace.store import DONE, open_ontology
+from src.workspace.store import DONE, open_ontology, shared_cache
 from tests.test_alignment_export import _DPV
 from tests.test_alignment_write import _decide_all
 
@@ -297,9 +297,23 @@ def test_full_run_with_the_decider(ws, env, targets):
     assert result["rule"]["property_relations"] == [] and result["prompt"]["name"] == "decide"
     assert ws.step("candidates")["status"] == DONE and ws.step("propose")["status"] == DONE
     assert prop.load_result(ws)["summary"] == s
-    assert (ws.work_dir / CACHE_FILE).exists()                   # cache of the workspace
+    assert shared_cache(ws, CACHE_FILE).exists()                 # shared by every upload
+    assert not (ws.work_dir / CACHE_FILE).exists()
     assert vector_store.count(name="dpv", path=env.chroma) == len(targets.targets)
     assert vector_store.count(name="decisions", path=env.chroma) == len(env.base.concepts)
+
+
+def test_a_second_upload_of_the_same_ontology_asks_the_decider_nothing(ws, env, targets):
+    llm = DeciderLLM()
+    first = run(ws, env, targets, llm)
+    other = _workspace(env, name="otra copia.ttl")                # S10-T02: another workspace
+    assert other.id != ws.id
+    second = run(other, env, targets, llm)
+    assert first["summary"]["ai"]["calls"] == llm.calls == 1
+    assert second["summary"]["ai"]["calls"] == 0
+    assert second["summary"]["ai"]["cached"] == first["summary"]["ai"]["cached"] + 3
+    assert ({n: (e["status"], e["relation"]) for n, e in _by_name(second).items()}
+            == {n: (e["status"], e["relation"]) for n, e in _by_name(first).items()})
 
 
 def test_the_llm_sees_precedents_but_no_law_article(ws, env, targets):

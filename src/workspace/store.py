@@ -14,6 +14,8 @@ from src.transform.convert import ConversionError, input_format
 
 MANIFEST_FILE = "workspace.json"
 INPUT_DIR, WORK_DIR, OUTPUT_DIR = "input", "work", "output"
+CACHE_DIR = "_cache"            # S10-T02: the AI answers every upload shares (not a workspace)
+MOVED = ".moved"                # suffix of an old per-workspace cache already in _cache
 SOURCE_PREFIX = "upload:"
 DEFAULT_ROOT = "data/workspaces"
 DEFAULT_MAX_MB = 25
@@ -304,6 +306,50 @@ def list_workspaces(*, cfg: dict | None = None, root: str | Path | None = None) 
                      "files": [i["original_name"] for i in data.get("inputs", {}).values()],
                      "created": data.get("created"), "updated": data.get("updated")})
     return sorted(rows, key=lambda r: r.get("updated") or "", reverse=True)
+
+
+# --------------------------------------------------------------------------- shared AI cache
+
+def shared_cache(ws: Workspace, name: str) -> Path:
+    """The AI answers every upload shares (<root>/_cache/<name>); the key is the sha256 of the
+    prompt, the model and what is asked. What any workspace kept before S10-T02 moves in once."""
+    root = ws.path.parent
+    path = root / CACHE_DIR / name
+    for old in sorted(root.glob(f"*/{WORK_DIR}/{name}")):
+        take_in(path, old)
+        old.replace(old.with_name(old.name + MOVED))     # kept, but never taken in again
+    return path
+
+
+def take_in(shared: Path, old: Path) -> int:
+    """Adds to ``shared`` the answers of ``old`` it does not have yet; returns how many."""
+    if not old.exists():
+        return 0
+    have = set(_cache_keys(shared))
+    new = []
+    for line in old.read_text(encoding="utf-8").splitlines():
+        key = _key_of(line)
+        if key and key not in have:
+            have.add(key)
+            new.append(line.strip())
+    if new:
+        shared.parent.mkdir(parents=True, exist_ok=True)
+        with shared.open("a", encoding="utf-8", newline="\n") as fh:
+            fh.write("".join(f"{line}\n" for line in new))
+    return len(new)
+
+
+def _key_of(line: str) -> str | None:
+    try:
+        return json.loads(line)["cache_key"]
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def _cache_keys(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    return [k for k in map(_key_of, path.read_text(encoding="utf-8").splitlines()) if k]
 
 
 # --------------------------------------------------------------------------- console

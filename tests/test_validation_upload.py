@@ -18,7 +18,7 @@ from src.validation import shape_inspector as si
 from src.validation import upload_validation as uv
 from src.validation.shape_inspector import GREEN, RED, YELLOW
 from src.validation.upload_validation import FAILED, NOT_RUN, audit_status, overall
-from src.workspace.store import DONE, ERROR
+from src.workspace.store import CACHE_DIR, DONE, ERROR, shared_cache
 from tests.test_alignment_propose import TTL, DeciderLLM, Embed, env, targets  # noqa: F401
 
 DPV = "https://w3id.org/dpv#"
@@ -56,6 +56,16 @@ def _align(env, targets, llm=None, **kw):  # noqa: F811
 def _csv(w) -> dict:
     with open(w.output_dir / ua.CSV_FILE, encoding="utf-8-sig") as handle:
         return {r["concept_name"]: r for r in csv.DictReader(handle)}
+
+
+def test_every_ai_answer_of_an_upload_goes_to_the_shared_cache(env, targets):  # noqa: F811
+    from src.alignment.decider import CACHE_FILE as DECIDER
+    from src.transform.labels import CACHE_FILE as LABELS
+    from src.validation.question_explainer import CACHE_FILE as EXPLAIN
+    w, _, _ = _align(env, targets)
+    assert not list(w.work_dir.glob("*-cache.jsonl"))           # S10-T02
+    shared = {p.name for p in (w.path.parent / CACHE_DIR).glob("*.jsonl")}
+    assert shared == {DECIDER, LABELS, au.CACHE_FILE, EXPLAIN}
 
 
 # ------------------------------------------------------------------ the colors
@@ -178,7 +188,7 @@ def test_when_a_review_is_current(env, targets, monkeypatch):  # noqa: F811
 def test_without_a_key_or_switched_off_the_review_asks_nothing(env, targets,  # noqa: F811
                                                                  monkeypatch):
     w, _, _ = _align(env, targets)
-    (w.work_dir / au.CACHE_FILE).unlink()
+    shared_cache(w, au.CACHE_FILE).unlink()
     def no_key(*a, **k):                               # .env is loaded again on import
         raise KeyError("LLM_API_KEY")
     monkeypatch.setattr("src.ai.llm_client.LLMClient", no_key)
@@ -264,8 +274,8 @@ def test_cli_runs_a_workspace_again(env, targets, tmp_path, monkeypatch, capsys)
     assert "Error: indica un archivo o --espacio." in capsys.readouterr().out
     assert ua._run(["--espacio", "no-existe"]) == 1
     assert "Error: No existe el espacio de trabajo no-existe." in capsys.readouterr().out
-    for name in (au.RESULT_FILE, au.CACHE_FILE):
-        (w.work_dir / name).unlink()
+    (w.work_dir / au.RESULT_FILE).unlink()
+    shared_cache(w, au.CACHE_FILE).unlink()
     assert ua._run(["--espacio", str(w.path), "--sin-ia"]) == 0     # the folder works too
     assert ("  IA de la revisión: no usada (IA desactivada (--sin-ia))\n"
             in capsys.readouterr().out)

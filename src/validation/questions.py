@@ -341,6 +341,7 @@ def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
                       java: str | None = None, *, llm=None, use_llm: bool | None = False,
                       sleep_fn=time.sleep) -> dict:
     """The generic questions on an upload: the ones its mode cannot answer do not apply."""
+    from src.workspace.store import shared_cache
     catalog = qc.load_catalog(qc.CATALOG_FILE)
     mode = ws.manifest.get("mode") or "ontology"
     generic = [q for q in catalog.questions if q.group == qc.GENERIC]
@@ -354,7 +355,7 @@ def inspect_workspace(ws, cfg: dict | None = None, engine: str | None = None,
                else not_applicable(q, mode) for q in generic]
     ws.work_dir.mkdir(parents=True, exist_ok=True)
     explained = qe.explain(catalog, results, answers, cfg=cfg, llm=llm, use_llm=use_llm,
-                           cache_path=ws.work_dir / qe.CACHE_FILE, sleep_fn=sleep_fn)
+                           cache_path=shared_cache(ws, qe.CACHE_FILE), sleep_fn=sleep_fn)
     report = {"workspace": ws.id, "mode": mode,
               "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "engine": used, "seconds": round(time.perf_counter() - start, 2),

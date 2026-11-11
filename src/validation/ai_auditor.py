@@ -368,6 +368,7 @@ def _audit(ws, cfg, llm, use_llm, targets, sleep_fn) -> dict:
     from src.alignment import law_definitions as ld
     from src.alignment.inherit import load_result as inherited_result
     from src.alignment.propose import load_dpv_targets, load_result, pending_concepts
+    from src.workspace.store import shared_cache
     result = load_result(ws)
     if result is None:
         raise ValueError("Primero hay que decidir la alineación de esta subida.")
@@ -388,7 +389,7 @@ def _audit(ws, cfg, llm, use_llm, targets, sleep_fn) -> dict:
         except KeyError as exc:                        # LLM_API_KEY / LLM_MODEL missing
             available, error = False, f"Falta la variable {exc} en .env"
     report = ask_audit(items, llm=llm if available else None, settings=settings,
-                       cache_path=ws.work_dir / CACHE_FILE, sleep_fn=sleep_fn)
+                       cache_path=shared_cache(ws, CACHE_FILE), sleep_fn=sleep_fn)
     entries = []
     for i in items:
         answer = report.answers.get(i.key) or {}

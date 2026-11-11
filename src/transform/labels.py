@@ -413,14 +413,14 @@ def labels_for_workspace(ws, *, llm=None, use_llm: bool | None = None, cfg: dict
     from src.alignment.sources import build_alignment_sources
     from src.ingest.ontology_loader import load_ontology
     from src.transform.convert import load_graph
-    from src.workspace.store import DONE, ERROR, RUNNING
+    from src.workspace.store import DONE, ERROR, RUNNING, shared_cache
     use_llm = auto_settings(cfg)["use_llm"] if use_llm is None else use_llm
     ws.mark_step("labels", RUNNING)
     try:
         path = ws.input_path()
         concepts = build_alignment_sources(load_ontology(path), proposals={}).concepts
         result = label_ontology(load_graph(path), concepts, llm=llm, use_llm=use_llm, cfg=cfg,
-                                cache_path=ws.work_dir / CACHE_FILE,
+                                cache_path=shared_cache(ws, CACHE_FILE),
                                 sleep_fn=sleep_fn or time.sleep, glossary=glossary)
         (ws.work_dir / RESULT_FILE).write_text(json.dumps(result, indent=2, ensure_ascii=False),
                                                encoding="utf-8")

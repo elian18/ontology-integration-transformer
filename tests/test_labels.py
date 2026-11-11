@@ -22,7 +22,7 @@ from src.transform.labels import (COMPLETE, PENDING, TRANSLATED, LabelItem, Labe
                                   is_current, label_items, label_ontology, labels_for_workspace,
                                   labels_graph, labels_settings, parse_labels, render_console,
                                   translate, validate_answer)
-from src.workspace.store import DONE, ERROR, open_ontology
+from src.workspace.store import DONE, ERROR, open_ontology, shared_cache
 from tests.test_alignment_propose import make_env
 
 EX = "http://example.org/gdpr#"
@@ -398,6 +398,22 @@ def test_a_missing_api_key_is_reported(monkeypatch):
 
 # ------------------------------------------------------------------ workspace
 
+def test_a_new_upload_uses_the_labels_an_old_workspace_kept(ws, env):
+    from src.workspace.store import CACHE_DIR
+    llm = LabelsLLM()
+    labels_for_workspace(ws, llm=llm, cfg=env.cfg, sleep_fn=lambda s: None)
+    shared = shared_cache(ws, lab.CACHE_FILE)
+    shared.replace(ws.work_dir / lab.CACHE_FILE)      # as before S10-T02: in its work folder
+    shared.parent.rmdir()
+    copy = open_ontology("Copia.ttl", TTL.encode("utf-8"), cfg=env.cfg)
+    r = labels_for_workspace(copy, llm=llm, cfg=env.cfg)
+    assert llm.calls == 1 and (r["ai"]["calls"], r["ai"]["cached"]) == (0, 3)
+    (ws.path.parent / CACHE_DIR).rename(ws.path.parent / "_cache-apartada")
+    again = labels_for_workspace(open_ontology("Otra.ttl", TTL.encode("utf-8"), cfg=env.cfg),
+                                 llm=llm, cfg=env.cfg, sleep_fn=lambda s: None)
+    assert llm.calls == 2 and again["ai"]["calls"] == 1      # set aside, the AI answers again
+
+
 def test_labels_for_workspace_saves_and_marks_the_step(ws, env):
     llm = LabelsLLM()
     r = labels_for_workspace(ws, llm=llm, cfg=env.cfg, sleep_fn=lambda s: None)
@@ -406,9 +422,14 @@ def test_labels_for_workspace_saves_and_marks_the_step(ws, env):
     step = ws.step("labels")
     assert step["status"] == DONE and step["detail"] == "3 en español y 2 en inglés agregadas"
     assert (step["translated"], step["pending"]) == (3, 0)
-    assert (ws.work_dir / lab.CACHE_FILE).exists()
+    assert shared_cache(ws, lab.CACHE_FILE).exists()             # shared by every upload
+    assert not (ws.work_dir / lab.CACHE_FILE).exists()
     again = labels_for_workspace(ws, llm=llm, cfg=env.cfg)
     assert llm.calls == 1 and again["ai"]["cached"] == 3
+    other = open_ontology("Otra copia.ttl", TTL.encode("utf-8"), cfg=env.cfg)  # S10-T02
+    shared = labels_for_workspace(other, llm=llm, cfg=env.cfg)
+    assert other.id != ws.id and llm.calls == 1
+    assert (shared["ai"]["calls"], shared["ai"]["cached"]) == (0, 3)
 
 
 def test_the_pause_uses_time_sleep_unless_told(ws, env, monkeypatch):

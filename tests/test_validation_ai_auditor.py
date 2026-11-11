@@ -10,6 +10,7 @@ from src.validation import ai_auditor as au
 from src.validation.ai_auditor import (COHERENT, DOUBTFUL, INCOHERENT, INVALID, AuditItem,
                                        AuditSettings, ask_audit, audit_settings, body, measure,
                                        parse_reviews, validate_review)
+from src.workspace.store import shared_cache
 from tests.test_alignment_propose import targets  # noqa: F401
 from tests.test_prompt_lab import EX, LabLLM, env  # noqa: F401
 from tests.test_user_alignment import _ws
@@ -228,7 +229,7 @@ def test_audit_of_an_upload(env, targets, monkeypatch):  # noqa: F811
     monkeypatch.setenv("LLM_MODEL", "modelo-de-prueba")         # the model of the cache
     without = au.audit_workspace(w, env.cfg, use_llm=False, targets=targets)
     assert without["ai"]["available"] is False and without["summary"][DOUBTFUL] == 1  # cache
-    (w.work_dir / au.CACHE_FILE).unlink()
+    shared_cache(w, au.CACHE_FILE).unlink()
     spy = AuditLLM()
     empty = au.audit_workspace(w, env.cfg, llm=spy, use_llm=False, targets=targets)
     assert spy.calls == 0 and empty["summary"]["pending"] == 1
