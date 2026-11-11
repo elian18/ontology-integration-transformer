@@ -35,6 +35,7 @@ from pathlib import Path
 from rdflib import BNode, Graph
 from rdflib.compare import graph_diff, isomorphic, to_isomorphic
 
+from src.console import counted
 from src.transform.convert import (ConversionError, OutputFormat, input_format, load_graph,
                                    output_format, parse_bytes, serialize)
 
@@ -263,8 +264,8 @@ def render_console(reports: list[FileReport], missing: list[str],
     s = summary(reports)
     lines.append("")
     lines.append(f"Resultado: {s['same_graph']} de {s['round_trips']} viajes de ida y vuelta "
-                 f"dan el mismo grafo ({s['files']} archivo{'s' if s['files'] != 1 else ''}, "
-                 f"{s['triples_checked']} tripletas).")
+                 f"dan el mismo grafo ({counted(s['files'], 'archivo', 'archivos')}, "
+                 f"{counted(s['triples_checked'], 'tripleta', 'tripletas')}).")
     lines.append(f"Sin las correcciones de S6-T01, rdflib falla en {s['plain_rdflib_failures']} "
                  f"de {s['plain_rdflib_checks']} viajes (Turtle y JSON-LD).")
     if report_path is not None:

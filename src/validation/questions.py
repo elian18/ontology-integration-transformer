@@ -16,6 +16,7 @@ from pathlib import Path
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.namespace import RDF, XSD
 
+from src.console import counted
 from src.validation import logic_inspector as li
 from src.validation import question_catalog as qc
 from src.validation import question_explainer as qe
@@ -398,7 +399,7 @@ def answer_text(r: dict) -> str:
     if r["kind"] == qc.AT_LEAST:
         examples = "; ".join(r["answer"])
         n = r["count"]
-        return f"{n} concepto{'' if n == 1 else 's'}" + (f" (p. ej. {examples})" if examples else "")
+        return counted(n, "concepto", "conceptos") + (f" (p. ej. {examples})" if examples else "")
     total = len(r["found"]) + len(r["missing"])
     names = ", ".join(f["name"] + (" (por artículo)" if f["how"] == "artículo" else "")
                       for f in r["found"]) or "ninguno"
@@ -412,7 +413,7 @@ def counts_text(s: dict, total: int | None = None) -> str:
     if total is not None:
         text += f" de las {total - na} que aplican" if na else f" de {total}"
     if na:
-        text += f"; {na} no aplica{'n' if na > 1 else ''}"
+        text += f"; {counted(na, 'no aplica', 'no aplican')}"
     return text
 
 

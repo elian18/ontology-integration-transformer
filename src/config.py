@@ -17,6 +17,12 @@ _CONFIG_PATH = ROOT / "config" / "config.yaml"
 # (e.g. EMBEDDING_MODEL in embeddings.py, LLM_MODEL in llm_client.py).
 load_dotenv(ROOT / ".env")
 
+# The embedding model loads without the "unauthenticated requests" warning of the HF Hub and the
+# "Loading weights" bar. Read when huggingface_hub is first imported; .env can change them.
+QUIET_HUB = {"HF_HUB_VERBOSITY": "error", "HF_HUB_DISABLE_PROGRESS_BARS": "1"}
+for _name, _value in QUIET_HUB.items():
+    os.environ.setdefault(_name, _value)
+
 
 @lru_cache(maxsize=1)
 def load_config() -> dict:
