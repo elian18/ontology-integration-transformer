@@ -240,8 +240,15 @@ def check(ws, changes: list[Change], *, targets=None, cfg: dict | None = None
     if inherited is None or decisions is None:
         raise ValueError("Primero hay que alinear el archivo (todavía no tiene correspondencias).")
     targets = targets if targets is not None else load_dpv_targets(cfg)
-    index = concepts(inherited, decisions)
-    state = replay(system_state(inherited, decisions), read(ws))
+    return check_state(concepts(inherited, decisions),
+                       replay(system_state(inherited, decisions), read(ws)), changes, targets)
+
+
+def check_state(index: dict[str, dict], state: dict[str, dict[str, dict]],
+                changes: list[Change], targets) -> list[Checked]:
+    """The same fixed rule on any state (S10-T04: the options of the AI questions, also on the
+    simulated uploads of the measurement): ``index`` and ``state`` as ``concepts`` and
+    ``replay`` give them."""
     seen: set[str] = set()
     out = []
     for change in changes:
