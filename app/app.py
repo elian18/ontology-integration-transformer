@@ -9,7 +9,8 @@ for p in (str(ROOT), str(HERE)):
 
 import streamlit as st
 
-st.set_page_config(page_title="Ontology Integration Transformer", layout="wide")
+st.set_page_config(page_title="Ontology Integration Transformer", layout="wide",
+                   initial_sidebar_state="collapsed")
 
 pages = {
     "": [

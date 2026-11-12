@@ -24,6 +24,22 @@ LAW_TYPES = ["txt", "pdf"]
 FORMATS = [(f.key, f.label) for f in OUTPUT_FORMATS.values()]
 DEFAULT_FORMAT = "turtle"
 
+# The two paths of the start (S10-T09): align and transform, or only change the format.
+PATH_ALIGN, PATH_TRANSFORM = "align", "transform"
+PATHS = {PATH_ALIGN: "Alinear y transformar", PATH_TRANSFORM: "Solo transformar"}
+PATH_HELP = {
+    PATH_ALIGN: "Enlaza tu ontología o tu ley con el DPV, el vocabulario de privacidad de "
+                "referencia, y descárgala en el formato que quieras.",
+    PATH_TRANSFORM: "Cambia el formato de tu ontología (por ejemplo, de .owl a .ttl) sin tocar "
+                    "su contenido.",
+}
+PATH_ICONS = {PATH_ALIGN: ":material/hub:", PATH_TRANSFORM: ":material/swap_horiz:"}
+START_TITLE = "Transforma y alinea tu ontología de privacidad"
+START_CAPTION = "¿Qué quieres hacer?"
+MODES_CAPTION = ("¿Qué tienes? El resto es automático: alineación con el Data Privacy "
+                 "Vocabulary (DPV) y etiquetas en español e inglés.")
+TRANSFORM_NOTE = "Tu archivo no pasa por la IA: solo se convierte al formato que elijas."
+
 # The three modes (S7-T12): code, what the person reads, what is uploaded, in display order.
 MODE_ONTOLOGY, MODE_LAW, MODE_BOTH = KIND_ONTOLOGY, KIND_LAW, "ontology+law"
 MODES = {MODE_ONTOLOGY: "Mi ontología", MODE_LAW: "Una ley", MODE_BOTH: "Mi ontología y una ley"}
@@ -48,7 +64,7 @@ MODE_WAIT = {
     MODE_BOTH: "Arranca sola cuando estén los dos archivos. Si a tu ontología le faltan "
                "definiciones, la IA las busca en la ley: tarda unos minutos más.",
 }
-# What happens with the files (the "¿Qué sucede con mis datos?" box of steps 1 and 2).
+# What happens with the files: the help of the uploaders (S10-T09).
 DATA_NOTE = (
     "- Lo que subes se guarda en un espacio de trabajo propio en el servidor. Si subes el mismo "
     "archivo otra vez, se reutiliza lo ya calculado.\n"

@@ -126,6 +126,9 @@ def test_the_modes_and_what_each_one_needs():
     assert svc.UPLOAD_LABELS == {"ontology": "Tu ontología (.rdf, .owl, .ttl o .jsonld)",
                                  "law": "Tu ley (.txt o .pdf)"}
     assert "Gemini" in svc.DATA_NOTE and "nunca se modifica" in svc.DATA_NOTE
+    assert svc.PATHS == {"align": "Alinear y transformar", "transform": "Solo transformar"}
+    assert set(svc.PATH_HELP) == set(svc.PATH_ICONS) == set(svc.PATHS)
+    assert "IA" in svc.TRANSFORM_NOTE and svc.START_TITLE == TITLE
     one = ("a.ttl", b"x")
     assert svc.ready("ontology", {"ontology": one}) and not svc.ready("ontology", {})
     assert svc.ready("law", {"law": one}) and not svc.ready("law", {"ontology": one})
@@ -379,6 +382,7 @@ def test_the_assistant_is_the_default_page_of_the_menu():
     assert text.index("views/align_ontology.py") < text.index("default=True")
     assert text.index("views/align_ontology.py") < text.index('"Herramientas de construcción"')
     assert "views/home.py" not in text and not (ROOT / "app/views/home.py").exists()
+    assert 'initial_sidebar_state="collapsed"' in text        # the tools, one click away
 
 
 # ------------------------------------------------------------------ the page (AppTest)
@@ -413,6 +417,9 @@ def _boxes(at) -> list[str]:
 
 
 def _pick(at, mode: str) -> None:
+    """Choose "Alinear y transformar" (when the start is shown) and then ``mode``."""
+    if any(b.key == "align_path_align" for b in at.button):
+        at.button(key="align_path_align").click().run()
     at.button(key=f"align_pick_{mode}").click().run()
 
 
@@ -430,19 +437,53 @@ def _zips(at) -> list[str]:
             d.key != "align_dl_log"]
 
 
-def test_step_1_asks_what_the_person_has(page):
+def _text(at) -> str:
+    return " ".join(m.value for m in at.markdown)
+
+
+def test_the_start_offers_two_paths(page):
     at = page()
     at.run()
     assert not at.exception
-    assert _titles(at) == [TITLE]
+    assert _titles(at) == [TITLE] and [c.value for c in at.caption] == ["¿Qué quieres hacer?"]
+    paths = [b for b in at.button if b.key.startswith("align_path_")]
+    assert [b.key for b in paths] == ["align_path_align", "align_path_transform"]
+    assert {b.label for b in paths} == {"Empezar"}
+    for path, label in svc.PATHS.items():
+        assert label in _text(at) and svc.PATH_HELP[path] in _text(at)
+    assert not [b for b in at.button if b.key.startswith("align_pick_")]
+    assert not _boxes(at) and "¿Qué sucede con mis datos?" not in _text(at)
+    assert not _uploaders(at) and not at.download_button and not at.info
+
+
+def test_align_and_transform_has_the_three_modes(page):
+    at = page()
+    at.run()
+    at.button(key="align_path_align").click().run()
+    assert not at.exception
+    assert _titles(at) == ["Alinear y transformar"]
+    assert [c.value for c in at.caption] == [svc.MODES_CAPTION]
     picks = [b for b in at.button if b.key.startswith("align_pick_")]
     assert [b.key for b in picks] == [f"align_pick_{m}" for m in svc.MODES]
-    assert {b.label for b in picks} == {"Empezar"}
-    text = " ".join(m.value for m in at.markdown)
     for mode, label in svc.MODES.items():
-        assert label in text and svc.MODE_HELP[mode] in text
-    assert "¿Qué sucede con mis datos?" in _boxes(at)
-    assert not _uploaders(at) and not at.download_button and not at.info
+        assert label in _text(at) and svc.MODE_HELP[mode] in _text(at)
+    assert not _boxes(at) and not _uploaders(at)
+    at.button(key="align_home").click().run()                   # "Atrás": the two paths
+    assert _titles(at) == [TITLE] and "align_path" not in at.session_state
+
+
+def test_only_transform_asks_for_the_ontology(page):
+    at = page()
+    at.run()
+    at.button(key="align_path_transform").click().run()
+    assert not at.exception
+    assert _titles(at) == ["Solo transformar"]
+    assert [c.value for c in at.caption] == [svc.PATH_HELP["transform"]]
+    assert _uploaders(at) == ["Tu ontología (.rdf, .owl, .ttl o .jsonld)"]
+    assert at.get("file_uploader")[0].proto.help == svc.TRANSFORM_NOTE
+    assert not [b for b in at.button if b.key.startswith("align_pick_")]
+    at.button(key="align_home").click().run()
+    assert _titles(at) == [TITLE] and not _uploaders(at)
 
 
 def test_step_2_asks_for_the_files_of_the_mode(page):
@@ -452,9 +493,11 @@ def test_step_2_asks_for_the_files_of_the_mode(page):
     assert not at.exception
     assert _titles(at) == ["Una ley"]
     assert _uploaders(at) == ["Tu ley (.txt o .pdf)"]
+    assert at.get("file_uploader")[0].proto.help == svc.DATA_NOTE       # "?" by the upload
     assert [c.value for c in at.caption] == [svc.MODE_WAIT["law"]]
-    at.button(key="align_back").click().run()
-    assert _titles(at) == [TITLE] and not _uploaders(at)
+    assert not _boxes(at)
+    at.button(key="align_back").click().run()                           # "Atrás": the modes
+    assert _titles(at) == ["Alinear y transformar"] and not _uploaders(at)
     _pick(at, "ontology+law")
     assert _titles(at) == ["Mi ontología y una ley"]
     assert _uploaders(at) == ["Tu ontología (.rdf, .owl, .ttl o .jsonld)", "Tu ley (.txt o .pdf)"]
@@ -476,7 +519,7 @@ def test_going_back_gives_new_uploaders(page):
     assert not _uploader_ids(at)
     _pick(at, "ontology")
     assert len(_uploader_ids(at)) == 1 and _uploader_ids(at) != first
-    assert at.session_state["align_round"] == 3
+    assert at.session_state["align_round"] == 4                # path, mode, back, mode
 
 
 def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
@@ -569,7 +612,7 @@ def test_the_assistant_opens_by_default():
     at.run()
     assert not at.exception
     assert _titles(at) == [TITLE]
-    assert len([b for b in at.button if b.key.startswith("align_pick_")]) == 3
+    assert len([b for b in at.button if b.key.startswith("align_path_")]) == 2
 
 
 class _Upload:
@@ -647,11 +690,12 @@ def test_a_failure_is_shown_and_not_repeated(live, monkeypatch):
 def test_page_reports_a_broken_workspace(page):
     at = page()
     at.session_state["align_ws"] = "no-existe-00000000"
+    at.session_state["align_path"], at.session_state["align_mode"] = "align", "ontology"
     at.run()
     assert not at.exception
     assert any("No existe el espacio de trabajo" in e.value for e in at.error)
-    at.button(key="align_again").click().run()
-    assert _titles(at) == [TITLE]
+    at.button(key="align_again").click().run()                # back to the two paths
+    assert _titles(at) == [TITLE] and "align_path" not in at.session_state
 
 
 def test_upload_limit_matches_the_workspace_limit():
