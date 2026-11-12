@@ -392,8 +392,11 @@ def apply(ws, changes: list[Change], *, cfg: dict | None = None, targets=None,
     ones and write, validate and package the next version (the steps that call the AI are not
     redone: what the person decided is laid over them)."""
     import time
+    from src.alignment.propose import load_dpv_targets
     from src.alignment.user_alignment import write_package, write_user_alignment
+    from src.alignment.user_questions import refresh_questions
     from src.validation.upload_validation import validate_workspace
+    targets = targets if targets is not None else load_dpv_targets(cfg)
     checked = check(ws, changes, targets=targets, cfg=cfg)
     valid = [c for c in checked if c.ok]
     version = current_version(ws)
@@ -414,9 +417,11 @@ def apply(ws, changes: list[Change], *, cfg: dict | None = None, targets=None,
                                                                    "decider", "labels",
                                                                    "evidence", "audit")})
     validate_workspace(ws, cfg, llm=llm, use_llm=use_llm, sleep_fn=sleep_fn or time.sleep)
+    questions = refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm)
     path = write_package(ws, fmt)
     return {"checked": checked, "applied": True, "version": version + 1, "previous": folder,
-            "manifest": manifest, "zip": path, "seconds": round(time.perf_counter() - started, 1)}
+            "manifest": manifest, "zip": path, "questions": questions,
+            "seconds": round(time.perf_counter() - started, 1)}
 
 
 # --------------------------------------------------------------------------- console

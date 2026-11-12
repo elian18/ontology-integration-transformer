@@ -770,6 +770,9 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
     from src.validation.upload_validation import validate_workspace
     validate_workspace(ws, cfg, progress=say, llm=llm, use_llm=use_llm,
                        sleep_fn=sleep_fn or time.sleep)
+    from src.alignment.user_questions import refresh_questions
+    refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm,
+                      sleep_fn=sleep_fn or time.sleep)
     say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return ws, manifest, path
@@ -877,6 +880,8 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
         lines.append(f"    Detalle: output/{uv.LOG_FILE}")
     if zip_path is not None:
         lines.append(f"  Paquete: {zip_path}")
+    from src.alignment.user_questions import load_questions, render_questions
+    lines += render_questions(load_questions(ws), ws.id)
     return "\n".join(lines)
 
 
@@ -899,6 +904,9 @@ def _run(argv: list[str] | None = None) -> int:
     parser.add_argument("--aplicar", action="store_true",
                         help="aplica los cambios válidos y deja la versión nueva (sin esto, "
                              "solo los muestra)")
+    parser.add_argument("--responder",
+                        help='S10-T05, con --espacio: tus respuestas a las preguntas que mostró, '
+                             'como "1=a,3=b"; deja la versión nueva')
     args = parser.parse_args(argv)
     if bool(args.file) == bool(args.espacio):
         print("Error: indica un archivo o --espacio.")
@@ -908,6 +916,9 @@ def _run(argv: list[str] | None = None) -> int:
         return 1
     if args.aplicar and not args.cambio:
         print("Error: --aplicar va con al menos un --cambio.")
+        return 1
+    if args.responder and (not args.espacio or args.cambio):
+        print("Error: --responder va con --espacio y sin --cambio.")
         return 1
     use_llm = False if args.sin_ia else None
     try:
@@ -920,6 +931,8 @@ def _run(argv: list[str] | None = None) -> int:
             if args.cambio:
                 return _changes(ws, args.cambio, apply_them=args.aplicar, fmt=args.formato,
                                 use_llm=use_llm, cfg=cfg)
+            if args.responder:
+                return _answers(ws, args.responder, fmt=args.formato, use_llm=use_llm, cfg=cfg)
             ws, manifest, zip_path = align_workspace(ws, fmt=args.formato, use_llm=use_llm)
         else:
             path = Path(args.file)
@@ -953,6 +966,27 @@ def _changes(ws, texts: list[str], *, apply_them: bool, fmt: str, use_llm,
     if not result["applied"]:
         print(f"  Ningún cambio es válido: la versión {result['version']} sigue igual.")
         return 1
+    print(render_console(ws, result["manifest"], result["zip"]))
+    previous = result["previous"].relative_to(ws.path).as_posix()
+    print(f"  Versión {result['version']} lista en {result['seconds']} s. La versión "
+          f"{result['version'] - 1} quedó en {previous}/ con sus cuatro descargas.")
+    return 0
+
+
+def _answers(ws, text: str, *, fmt: str, use_llm, cfg: dict | None = None) -> int:
+    """S10-T05 in the console: apply the answers to the questions of the current version."""
+    from src.alignment import user_questions as uq
+    data = uq.load_questions(ws)
+    result = uq.answer(ws, text, cfg=cfg, fmt=fmt, use_llm=use_llm)
+    print("\n".join(uq.render_answers(data, result["choices"])))
+    if not result["applied"]:
+        if result.get("checked"):                      # the state changed under the questions
+            print(ud.render_checked(result["checked"]))
+        print(f"  Nada que cambiar: la versión {result['version']} sigue igual."
+              + (" Lo que dejaste como está no se vuelve a preguntar." if result["left"]
+                 else ""))
+        print("\n".join(uq.render_questions(result["questions"], ws.id)))
+        return 0
     print(render_console(ws, result["manifest"], result["zip"]))
     previous = result["previous"].relative_to(ws.path).as_posix()
     print(f"  Versión {result['version']} lista en {result['seconds']} s. La versión "

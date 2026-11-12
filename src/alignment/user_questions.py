@@ -8,7 +8,10 @@ What the uploads ask (``fixed_questions``): one question per doubt, at most ``ma
 in a fixed order (what is already in the ontology first, then the suggestions with the highest
 score), without a recommended option. A suggestion: take it or leave it. A reviewed one: the
 relation the AI reviewer proposes, remove it, or leave it. Each question shows what the AIs
-said; the person decides.
+said; the person decides. Every upload writes them in ``work/user-questions.json`` (S10-T05);
+the console answers them with ``--responder "1=a,3=b"``: the options become changes of S10-T03
+(one new version) and "Dejar como está" is remembered (``work/user-kept.jsonl``), so nothing
+answered is asked again.
 
 The AI questions (prompt ask.v1, ``propose_questions``: the AI chooses what to ask, joins the
 doubts with the same pattern and recommends an option) were measured on the base and not
@@ -147,9 +150,10 @@ def find_doubts(entries: list[dict], state: dict[str, dict[str, dict]], *, info=
         shown = [*([e["dpv_iri"]] if e.get("dpv_iri") else []),
                  *(c for c in e.get("candidates") or [] if c != e.get("dpv_iri"))]
         about = info.get(e["key"], {})
-        if audit is not None:                    # a workspace says ai_relation, the cache relation
+        if audit is not None:     # in a workspace "relation" is the mapping's, "ai_relation" its
             audit = {"verdict": audit.get("verdict"),
-                     "relation": audit.get("relation") or audit.get("ai_relation"),
+                     "relation": (audit.get("ai_relation") if "ai_relation" in audit
+                                  else audit.get("relation")),
                      "explanation": audit.get("explanation")}
         out.append(Doubt(id="", key=e["key"], name=e["name"], kinds=tuple(e.get("kinds") or ()),
                          kind=kind, label=about.get("label"), definition=about.get("definition"),
@@ -500,8 +504,7 @@ def _fixed(d: Doubt) -> tuple[str, str, list[tuple[str, ud.Change]]]:
         relation = p.get("relation") or DEFAULT_RELATION
         words = RELATION_WORDS[relation]
         return (f"¿«{d.name}» {words} «{p['dpv_name']}» del DPV?",
-                f"La IA lo propuso:{said or ' sin motivo'}. La regla no lo aceptó porque "
-                f"{d.why}.",
+                f"La IA lo propuso:{said or ' sin motivo'}. La regla no lo aceptó: {d.why}.",
                 [(f"Sí, {words} {p['dpv_name']}",
                   ud.Change(d.key, ud.SET, relation=relation, dpv=p["dpv_iri"]))])
     a, m = d.audit or {}, d.current[0]
@@ -593,10 +596,196 @@ def summary_text(qs: QuestionSet) -> str:
             + (f", {by[NO_ANSWER]} sin respuesta" if by[NO_ANSWER] else ""))
 
 
+def _apply_json(c: ud.Checked) -> dict:
+    return {"concept": c.concept_key, "action": c.change.action, "relation": c.relation,
+            "dpv": c.dpv_iri, "replaces": c.replaces}
+
+
 def question_json(q: Question, chosen: dict | None = None) -> dict:
     return {"id": q.id, "doubts": [d.key for d in q.doubts], "names": [d.name for d in q.doubts],
             "kinds": [d.kind for d in q.doubts], "text": q.text, "reason": q.reason,
             "recommended": q.recommended,
-            "options": [{"text": o.text, "changes": [_change_line(c) for c in o.checked]}
-                        for o in q.options],
+            "options": [{"letter": LETTERS[n], "text": o.text,
+                         "changes": [_change_line(c) for c in o.checked],
+                         "apply": [_apply_json(c) for c in o.checked]}
+                        for n, o in enumerate(q.options)],
+            "leave": LETTERS[len(q.options)],
             **(chosen or {})}
+
+
+# --------------------------------------------------------------------------- in each upload
+
+QUESTIONS_FILE = "user-questions.json"       # work/: the questions of the current version
+KEPT_FILE = "user-kept.jsonl"                # work/: what the person left as it was
+LETTERS = "abcd"
+
+
+def kept_path(ws):
+    return ws.work_dir / KEPT_FILE
+
+
+def kept(ws) -> set[str]:
+    """The concepts the person answered "Dejar como está": they are not asked again."""
+    path = kept_path(ws)
+    if not path.exists():
+        return set()
+    return {json.loads(line)["concept_key"] for line in path.read_text(encoding="utf-8")
+            .splitlines() if line.strip()}
+
+
+def keep(ws, rows: list[dict]) -> None:
+    from src.transform.labels import _append_cache
+    _append_cache(kept_path(ws), rows)
+
+
+def load_questions(ws) -> dict | None:
+    path = ws.work_dir / QUESTIONS_FILE
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def questions_for_workspace(ws, cfg: dict | None = None, *, targets=None, llm=None,
+                            use_llm: bool | None = None, sleep_fn=time.sleep) -> QuestionSet:
+    """The questions of the upload as it is now: what the person decided or left as it was
+    is not asked again; the AI only asks with ``user_questions.ai``."""
+    from src.alignment.decider import rule_settings
+    from src.alignment.inherit import load_result as inherited_result
+    from src.alignment.propose import load_dpv_targets, load_result as decisions_result
+    from src.validation import ai_auditor as au
+    from src.workspace.store import shared_cache
+    settings = ask_settings(cfg)
+    inherited, decisions = inherited_result(ws), decisions_result(ws)
+    if inherited is None or decisions is None:
+        return QuestionSet(prompt={"name": "preguntas fijas"})
+    index = ud.concepts(inherited, decisions)
+    state = ud.replay(ud.system_state(inherited, decisions), ud.read(ws))
+    ai = settings.ai and use_llm is not False
+    info = {}
+    if ai:
+        from src.alignment.inherit import user_concepts
+        info = {c.key: {"label": c.label, "definition": c.definition}
+                for c in user_concepts(ws.input_path())}
+    doubts = find_doubts(decisions.get("entries", []), state, info=info,
+                         audits=au.by_key(au.load_result(ws)), rule=rule_settings(cfg),
+                         skip=ud.touched(ws) | kept(ws), candidates=settings.candidates)
+    if not doubts:
+        return QuestionSet(prompt={"name": "preguntas fijas"})
+    targets = targets if targets is not None else load_dpv_targets(cfg)
+    if ai:
+        return propose_questions(doubts, index, state, targets, llm=llm, settings=settings,
+                                 cache_path=shared_cache(ws, CACHE_FILE), sleep_fn=sleep_fn)
+    return fixed_questions(doubts, index, state, targets, max_questions=settings.max_questions)
+
+
+def refresh_questions(ws, cfg: dict | None = None, **kw) -> dict:
+    """Write the questions of the current version (``work/user-questions.json``) and their
+    count in the workspace; they never block the download."""
+    qs = questions_for_workspace(ws, cfg, **kw)
+    version = ud.current_version(ws)
+    data = {"version": version, "created": ud._now(), "source": qs.prompt.get("name"),
+            "prompt": qs.prompt if qs.prompt.get("sha256") else None, "doubts": qs.doubts,
+            "questions": [{**question_json(q), "n": n} for n, q in
+                          enumerate(qs.questions, start=1)],
+            "skipped": [{"doubt": s.doubt.key, "name": s.doubt.name, "by": s.by,
+                         "reason": s.reason} for s in qs.skipped],
+            "kept": len(kept(ws))}
+    ws.work_dir.mkdir(parents=True, exist_ok=True)
+    (ws.work_dir / QUESTIONS_FILE).write_text(json.dumps(data, indent=2, ensure_ascii=False),
+                                              encoding="utf-8")
+    ws.manifest["questions"] = {"version": version, "asked": len(qs.questions),
+                                "doubts": qs.doubts}
+    ws.save()
+    return data
+
+
+def render_questions(data: dict | None, ws_id: str) -> list[str]:
+    """The questions block of the console."""
+    if not data:
+        return []
+    asked = data["questions"]
+    if not asked:
+        return ["  Para revisar: ninguna pregunta; no quedó nada en duda"
+                + (f" (dejaste {counted(data['kept'], 'concepto', 'conceptos')} como estaban)"
+                   if data.get("kept") else "") + "."]
+    lines = [f"  Para revisar (opcional): {counted(len(asked), 'pregunta', 'preguntas')} sobre "
+             f"{counted(data['doubts'], 'duda', 'dudas')} de la versión {data['version']}"]
+    for q in asked:
+        lines.append(f"    {q['n']}. {q['text']}")
+        lines += [f"       {o['letter']}) {o['text']}" for o in q["options"]]
+        lines.append(f"       {q['leave']}) {LEAVE}")
+        if q.get("reason"):
+            lines.append(f"       Por qué se pregunta: {q['reason']}")
+    example = ",".join(f"{q['n']}={q['options'][0]['letter']}" for q in asked[:2])
+    lines.append(f"  Para responder: py -m src.alignment.user_alignment --espacio {ws_id} "
+                 f'--responder "{example}"')
+    return lines
+
+
+def parse_answers(text: str, data: dict) -> dict[int, str]:
+    """{question number: letter} from "1=a,3=b"; a Spanish error if something does not fit."""
+    asked = {q["n"]: q for q in data["questions"]}
+    out = {}
+    for part in [p.strip() for p in (text or "").split(",") if p.strip()]:
+        m = re.fullmatch(r"(\d+)\s*=\s*([a-zA-Z])", part)
+        if m is None:
+            raise ValueError(f"No entiendo «{part}». Escribe las respuestas como «1=a,3=b».")
+        n, letter = int(m.group(1)), m.group(2).lower()
+        if n not in asked:
+            raise ValueError(f"No hay pregunta {n}: hay "
+                             f"{counted(len(asked), 'pregunta', 'preguntas')}.")
+        letters = [o["letter"] for o in asked[n]["options"]] + [asked[n]["leave"]]
+        if letter not in letters:
+            raise ValueError(f"La pregunta {n} no tiene la opción «{letter}»: elige "
+                             f"{', '.join(letters[:-1])} o {letters[-1]}.")
+        if n in out:
+            raise ValueError(f"Respondiste dos veces la pregunta {n}.")
+        out[n] = letter
+    if not out:
+        raise ValueError("No hay respuestas. Escríbelas como «1=a,3=b».")
+    return out
+
+
+def answer(ws, text: str, *, cfg: dict | None = None, targets=None, fmt: str = "turtle",
+           llm=None, use_llm: bool | None = None, sleep_fn=None) -> dict:
+    """Apply the answers to the questions of the current version: the options become changes
+    of S10-T03 (one new version for all of them); "Dejar como está" is remembered."""
+    data = load_questions(ws)
+    version = ud.current_version(ws)
+    if not data or not data["questions"]:
+        raise ValueError("Este espacio no tiene preguntas pendientes.")
+    if data["version"] != version:
+        raise ValueError(f"Las preguntas son de la versión {data['version']} y la ontología ya "
+                         f"va en la {version}: vuelve a verlas con --espacio {ws.id}.")
+    choices = parse_answers(text, data)
+    asked = {q["n"]: q for q in data["questions"]}
+    changes, left = [], []
+    for n, letter in sorted(choices.items()):
+        q = asked[n]
+        if letter == q["leave"]:
+            left += [{"concept_key": key, "version": version, "question": q["text"],
+                      "at": ud._now()} for key in q["doubts"]]
+            continue
+        option = next(o for o in q["options"] if o["letter"] == letter)
+        note = f"{q['text']} → {option['text']}"
+        changes += [ud.Change(c["concept"], c["action"], relation=c["relation"], dpv=c["dpv"],
+                              replaces=c["replaces"], note=note) for c in option["apply"]]
+    if left:
+        keep(ws, left)
+    result = {"choices": choices, "left": len(left), "applied": False, "version": version}
+    if changes:
+        result.update(ud.apply(ws, changes, cfg=cfg, targets=targets, fmt=fmt, llm=llm,
+                               use_llm=use_llm, sleep_fn=sleep_fn))
+    if not result["applied"]:
+        result["questions"] = refresh_questions(ws, cfg, targets=targets, llm=llm,
+                                                use_llm=use_llm)
+    return result
+
+
+def render_answers(data: dict, choices: dict[int, str]) -> list[str]:
+    asked = {q["n"]: q for q in data["questions"]}
+    lines = ["Tus respuestas"]
+    for n, letter in sorted(choices.items()):
+        q = asked[n]
+        chosen = next((o["text"] for o in q["options"] if o["letter"] == letter), LEAVE)
+        lines.append(f"  {n}. {q['text']}")
+        lines.append(f"     {letter}) {chosen}")
+    return lines
