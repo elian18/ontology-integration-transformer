@@ -562,6 +562,11 @@ class _Upload:
                 rec.add(old, PROV.invalidatedAtTime, when(at))
                 gone.append(old)
             approved = [d for d in records if d.decision == "approved"]
+            previous = gone
+            if approved and not gone and key in self.status:     # why it had none, once
+                previous = [self.status.pop(key)]
+                rec.g.add((previous[0], PROV.wasInvalidatedBy, activity))
+                rec.add(previous[0], PROV.invalidatedAtTime, when(at))
             for d in approved:
                 node = self.correspondence(
                     key, name, d.dpv_iri, d.relation, "user", ver,
@@ -569,12 +574,8 @@ class _Upload:
                     f"{self._state(snap.get('before') or [])}."
                     + (f" Pedido: {d.note}" if d.note else ""),
                     activity, self.user_agent, d.decided_at)
-                for old in gone:
+                for old in previous:
                     rec.g.add((node, PROV.wasRevisionOf, old))
-                if not gone and key in self.status:
-                    rec.g.add((node, PROV.wasRevisionOf, self.status[key]))
-                    rec.g.add((self.status[key], PROV.wasInvalidatedBy, activity))
-                    rec.add(self.status[key], PROV.invalidatedAtTime, when(at))
                 made["approved"] += 1
             if not approved:
                 node = rec.entity(
@@ -587,6 +588,7 @@ class _Upload:
                 rec.g.add((node, OWL.versionInfo, Literal(str(ver))))
                 for old in gone:
                     rec.g.add((node, PROV.wasRevisionOf, old))
+                self.status[key] = node                 # a later version may revise it
                 made["removed"] += 1
         self.counts["user"] = dict(made)
 
