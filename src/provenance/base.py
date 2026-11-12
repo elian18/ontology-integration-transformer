@@ -129,6 +129,23 @@ def local(iri: str) -> str:
     return str(iri).replace("/", "#").rsplit("#", 1)[-1]
 
 
+def _alignment_iri() -> str:
+    from src.alignment.write import alignment_iri
+    from src.core.emit import PROFILE_IRI
+    return alignment_iri(PROFILE_IRI)
+
+
+def mapping_record(subject: str, relation, term: str) -> URIRef:
+    """The IRI of the record of a correspondence of the base (S10-T07 links to it)."""
+    return URIRef(f"{PROVENANCE_IRI}#mapping-"
+                  f"{digest(_alignment_iri(), str(subject), str(relation), str(term))}")
+
+
+def no_match_record(subject: str) -> URIRef:
+    """The IRI of the record of a concept of the base without correspondence."""
+    return URIRef(f"{PROVENANCE_IRI}#no-match-{digest(_alignment_iri(), str(subject))}")
+
+
 def _articles(numbers) -> str:
     """'el art. 17 de la LOPDP', 'los arts. 3 y 4 de la LOPDP'; '' without articles."""
     nums = [str(n) for n in sorted({int(n) for n in numbers or []})]
@@ -536,10 +553,9 @@ class _Base:
         for m in content.mappings:
             d = current[m["concept_key"]][m["dpv_iri"]]
             prop = SKOS[m["relation"].split(":", 1)[1]]
-            node = rec.entity(
-                f"mapping-{digest(self.alignment_iri, m['subject_iri'], str(prop), m['dpv_iri'])}",
-                f"{m['concept_name']} {m['relation']} dpv:{local(m['dpv_iri'])}",
-                self._mapping_text(m, d))
+            node = rec.entity(local(mapping_record(m["subject_iri"], prop, m["dpv_iri"])),
+                              f"{m['concept_name']} {m['relation']} dpv:{local(m['dpv_iri'])}",
+                              self._mapping_text(m, d))
             rec.axiom(node, m["subject_iri"], prop, m["dpv_iri"])
             rec.g.add((node, self.decided_by, Literal("base", lang="es")))
             rec.g.add((node, OWL.versionInfo, Literal("1")))
@@ -556,7 +572,7 @@ class _Base:
             if concept_status(c, current) != STATUS_NO_MATCH:
                 continue
             d = current[c.key][""]
-            node = rec.entity(f"no-match-{digest(self.alignment_iri, c.iri)}",
+            node = rec.entity(local(no_match_record(c.iri)),
                               f"{c.name}: sin correspondencia en el DPV",
                               self._no_match_text(d))
             rec.generated(node, self.mapping_review, rec.person(d.reviewer), d.decided_at)
@@ -849,8 +865,8 @@ def render(out: dict) -> str:
 
 def find_term(g: Graph, name: str) -> list[str]:
     """IRIs with records whose local name (or IRI) is ``name``."""
-    terms = {o for p in (OWL.annotatedSource, OWL.annotatedTarget, DCTERMS.subject)
-             for o in g.objects(None, p)}
+    terms = {o for p in (OWL.annotatedSource, OWL.annotatedTarget, RDF.subject, RDF.object,
+                         DCTERMS.subject) for o in g.objects(None, p)}
     return sorted(str(t) for t in terms if str(t) == name or local(t) == name)
 
 

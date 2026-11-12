@@ -428,6 +428,12 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         audit = au.current_result(ws)
         rows = concept_rows(inherited, decisions, labels, evidence, definitions, audit, user)
         write_csv(rows, out / CSV_FILE)
+        from src.provenance import upload as up        # S10-T07: who decided each one
+        provenance = up.write(ws, out=out, stem=names["ontology"], alignment=graph, cfg=cfg,
+                              inherited=inherited, decisions=decisions, labels=labels,
+                              definitions=definitions, audit=audit, version=version,
+                              created=created, onto_iri=onto_iri, alignment_iri=iri,
+                              modules=modules)
         paths = base_paths(cfg)
         prompts = {"decide": decisions.get("prompt") or DECIDE_PROMPT.manifest()}
         if labels:
@@ -467,6 +473,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             "generated_from": entry.get("generated_from"), "profile": profile,
             "alignment_version": version, "versions": ws.manifest.get("versions") or [],
             "modules": modules, "files": files, "triples": triples,
+            "provenance": provenance,
             "summary": summarize(rows),
             "user_decisions": ({"concepts": len(user.keys), "log": f"work/{ud.LOG_FILE}"}
                                if user else None),
@@ -637,6 +644,12 @@ def _readme_for(manifest: dict, validation: dict | None = None):
         if manifest["files"].get("core"):
             text.append(f"  - {_included(package, manifest['files']['core'])}: el núcleo "
                         "OntoPriv-Core de la base del sistema, sin cambios.")
+        provenance = manifest.get("provenance")
+        if provenance:
+            text.append(f"  - {_included(package, provenance['file'])}: la procedencia "
+                        "(PROV-O): quién decidió cada correspondencia (base, regla o usuario), "
+                        "cómo se produjo y sus versiones. Ningún módulo la importa: ábrela "
+                        "aparte.")
         text += [
             f"  - {MANIFEST_FILE}: cifras, ajustes y origen de cada decisión.",
             f"  - {CSV_FILE}: una fila por concepto con lo que pasó (ábrelo en Excel).",
@@ -677,6 +690,10 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
     if manifest["modules"].get("core"):
         modules.append(Module(manifest["modules"]["core"], ws.path / manifest["files"]["core"],
                               names["core"]))
+    provenance = manifest.get("provenance")
+    if provenance:                                     # S10-T07: nothing imports it
+        modules.append(Module(provenance["iri"], ws.path / provenance["file"],
+                              Path(provenance["file"]).stem))
     from src.validation import upload_validation as uv
     extras = {MANIFEST_FILE: ws.output_dir / MANIFEST_FILE, CSV_FILE: ws.output_dir / CSV_FILE}
     validation = uv.load_result(ws)
@@ -796,6 +813,19 @@ def decider_ai_text(ai: dict) -> str:
     return text
 
 
+def provenance_line(entry: dict) -> str:
+    """S10-T07: the module of provenance in one line."""
+    c = entry["counts"]["correspondences"]
+    who = ", ".join(f"{n} {by}" for by, n in c["current"].items()) or "ninguna"
+    without = entry.get("without_who") or 0
+    return (f"Procedencia (PROV-O): {entry['file']} ({entry['triples']} tripletas): quién "
+            f"decidió cada una de las {c['total']} correspondencias ({who})"
+            + (f"; {counted(c['replaced'], 'reemplazada', 'reemplazadas')} en versiones "
+               "anteriores" if c["replaced"] else "")
+            + (f"; OJO: {counted(without, 'correspondencia', 'correspondencias')} del módulo "
+               "sin quién la decidió" if without else ""))
+
+
 def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
     again = manifest.get("recomputed") or {}
 
@@ -873,6 +903,8 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
     if manifest["files"].get("core"):
         lines.append(f"  Núcleo OntoPriv-Core incluido: {manifest['files']['core']} "
                      f"({manifest['triples']['core']} tripletas)")
+    if manifest.get("provenance"):
+        lines.append(f"  {provenance_line(manifest['provenance'])}")
     from src.validation import upload_validation as uv
     validation = uv.load_result(ws)
     if validation:

@@ -532,9 +532,9 @@ def summary_captions(v: dict) -> list[str]:
 def package_caption(v: dict) -> str:
     """The line under the four download buttons."""
     core = " y OntoPriv-Core, que tu ontología importa" if v["core"] else ""
-    return (f"Cada .zip trae tu ontología con sus módulos{core}, alignment.csv y un catálogo "
-            "para abrirla en Protégé. Protégé 5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL "
-            "o Turtle.")
+    return (f"Cada .zip trae tu ontología con sus módulos{core}, su procedencia (PROV-O: "
+            "quién decidió cada correspondencia), alignment.csv y un catálogo para abrirla en "
+            "Protégé. Protégé 5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL o Turtle.")
 
 
 def suggested_rows(rows: list[dict]) -> list[dict]:
