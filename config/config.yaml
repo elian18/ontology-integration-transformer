@@ -110,6 +110,12 @@ user_questions:               # S10-T04: questions with options about what stays
 bridge:                       # S9-T09: the bridge of the base with the GDPR, OntoPriv <-> GDPRtEXT pairs chained by the DPV (py -m src.alignment.gdpr_bridge)
   gdprtext: "data/input/gdprtext-ontology.ttl"                       # GDPRtEXT (labels, descriptions and GDPR articles shown to the AI)
   gdprtext_alignment: "data/reference/gdprtext-dpv-alignment.ttl"   # its alignment with the DPV, fixed: copied from the upload gdprtext-ontology-b863b1da, so the bridge is rebuilt without the AI
+provenance:                   # S10-T06: PROV-O of the base, module ontopriv-provenance (py -m src.provenance.base); no AI
+  people:                     # names in the decisions log that belong to one person (one prov:Person)
+    "Elian Gavilanes": ["Elian"]
+  extraction:                 # the LOPDP extraction of Sprint 3 did not write them in its file (CHANGELOG v0.3.0)
+    model: "gemini-3.1-flash-lite"
+    prompt_version: 1         # extract.v1
 questions:                    # S9-T04/T05/T06: the competency questions (src/validation/questions.yaml), answered with SPARQL on the base and on each upload
   explain: true               # the AI says in one sentence why each yellow question is yellow (one call per run, cache); false: a fixed sentence
   prompt_version: 2           # explain.v2 cites the row of each missing element; --medir on the 5 yellow of the base: v1 3/5, v2 5/5 (rule fixed before: v2 if better and losing none)
