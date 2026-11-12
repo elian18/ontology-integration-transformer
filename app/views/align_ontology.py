@@ -22,7 +22,8 @@ def _targets():
 
 
 def _restart(mode: str | None = None) -> None:
-    """Go to step 1 (``mode`` None) or to step 2 of ``mode``: new uploaders, nothing computed."""
+    """Go to the three modes (``mode`` None) or to the upload of ``mode``: new uploaders,
+    nothing computed."""
     ss["align_round"] = ss.get("align_round", 0) + 1
     for key in ("align_key", "align_ws", "align_failed"):
         ss.pop(key, None)
@@ -32,29 +33,56 @@ def _restart(mode: str | None = None) -> None:
         ss["align_mode"] = mode
 
 
+def _home(path: str | None = None) -> None:
+    """Go to the start (``path`` None) or into one of its two paths."""
+    _restart()
+    ss.pop("align_path", None)
+    if path is not None:
+        ss["align_path"] = path
+
+
 def _retry() -> None:
     ss.pop("align_failed", None)
 
 
-def _data_note() -> None:
-    with st.expander("¿Qué sucede con mis datos?", icon=":material/lock:"):
-        st.markdown(svc.DATA_NOTE)
+def _back(on_click, key: str) -> None:
+    st.button("Atrás", key=key, type="tertiary", icon=":material/arrow_back:", on_click=on_click)
+
+
+def _cards(items: dict, helps: dict, icons: dict, prefix: str, on_click) -> None:
+    """One card per option, its text on top and its button at the bottom."""
+    for col, (code, label) in zip(st.columns(len(items)), items.items()):
+        with col.container(border=True, height="stretch", vertical_alignment="distribute"):
+            with st.container():
+                st.markdown(f"### {icons[code]} {label}")
+                st.write(helps[code])
+            st.button("Empezar", key=f"{prefix}{code}", type="primary", width="stretch",
+                      icon=":material/arrow_forward:", on_click=on_click, args=(code,))
+
+
+# ------------------------------------------------------------------ the start (S10-T09)
+
+def step_start() -> None:
+    st.title(svc.START_TITLE)
+    st.caption(svc.START_CAPTION)
+    _cards(svc.PATHS, svc.PATH_HELP, svc.PATH_ICONS, "align_path_", _home)
+
+
+def step_transform() -> None:
+    _back(_home, "align_home")
+    st.title(svc.PATHS[svc.PATH_TRANSFORM])
+    st.caption(svc.PATH_HELP[svc.PATH_TRANSFORM])
+    st.file_uploader(svc.UPLOAD_LABELS[svc.KIND_ONTOLOGY], type=svc.ACCEPTED_TYPES,
+                     key=f"transform_{ss.get('align_round', 0)}", help=svc.TRANSFORM_NOTE)
 
 
 # ------------------------------------------------------------------ step 1
 
 def step_choose() -> None:
-    st.title("Transforma y alinea tu ontología de privacidad")
-    st.caption("Elige qué tienes. El resto es automático: alineación con el Data Privacy "
-               "Vocabulary (DPV) y etiquetas en español e inglés.")
-    for col, (code, label) in zip(st.columns(len(svc.MODES)), svc.MODES.items()):
-        with col.container(border=True, height="stretch", vertical_alignment="distribute"):
-            with st.container():                          # text on top, button at the bottom
-                st.markdown(f"### {svc.MODE_ICONS[code]} {label}")
-                st.write(svc.MODE_HELP[code])
-            st.button("Empezar", key=f"align_pick_{code}", type="primary", width="stretch",
-                      icon=":material/arrow_forward:", on_click=_restart, args=(code,))
-    _data_note()
+    _back(_home, "align_home")
+    st.title(svc.PATHS[svc.PATH_ALIGN])
+    st.caption(svc.MODES_CAPTION)
+    _cards(svc.MODES, svc.MODE_HELP, svc.MODE_ICONS, "align_pick_", _restart)
 
 
 # ------------------------------------------------------------------ step 2
@@ -68,7 +96,7 @@ def _uploads(mode: str) -> dict:
         types = svc.ACCEPTED_TYPES if kind == svc.KIND_ONTOLOGY else svc.LAW_TYPES
         with col:
             up = st.file_uploader(svc.UPLOAD_LABELS[kind], type=types,
-                                  key=f"align_{kind}_{round_}")
+                                  key=f"align_{kind}_{round_}", help=svc.DATA_NOTE)
         files[kind] = (up.name, up.getvalue()) if up is not None else None
     return files
 
@@ -88,13 +116,11 @@ def _failed(message: str) -> None:
 
 
 def step_upload(mode: str) -> None:
-    st.button("Cambiar de opción", key="align_back", type="tertiary",
-              icon=":material/arrow_back:", on_click=_restart)
+    _back(_restart, "align_back")
     st.title(svc.MODES[mode])
     files = _uploads(mode)
     if not svc.ready(mode, files):
         st.caption(svc.missing_text(mode, files))
-        _data_note()
         return
     key = _files_key(mode, files)
     failed = ss.get("align_failed")
@@ -256,7 +282,7 @@ def step_result(ws_id: str) -> None:
     except Exception as exc:                              # noqa: BLE001 - shown to the person
         st.error(svc.error_message(exc))
         st.button("Empezar de nuevo", key="align_again", icon=":material/restart_alt:",
-                  on_click=_restart)
+                  on_click=_home)
         return
     warnings = svc.notes(v)
     st.success(svc.summary_line(v), title="Tu ontología está lista",
@@ -279,7 +305,7 @@ def step_result(ws_id: str) -> None:
         with tab:
             show(v)
     st.button("Alinear otro archivo", key="align_again", icon=":material/restart_alt:",
-              on_click=_restart)
+              on_click=_home)
 
 
 # ------------------------------------------------------------------ which step
@@ -288,5 +314,9 @@ if ss.get("align_ws"):
     step_result(ss["align_ws"])
 elif ss.get("align_mode") in svc.MODES:
     step_upload(ss["align_mode"])
-else:
+elif ss.get("align_path") == svc.PATH_ALIGN:
     step_choose()
+elif ss.get("align_path") == svc.PATH_TRANSFORM:
+    step_transform()
+else:
+    step_start()
