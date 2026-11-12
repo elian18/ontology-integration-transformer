@@ -97,6 +97,16 @@ audit:                        # S8-T09/T10: in each upload the AI reviews the co
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 4096            # max answer length per call
   definition_chars: 400       # length of each definition shown to the AI
+user_questions:               # S10-T04: questions with options about what stays in doubt in an upload (one per doubt, fixed order, no recommended option)
+  ai: false                   # true: the AI chooses, joins and recommends (ask.v1). py -m src.alignment.question_eval on the base: 24 questions, 8 served, its recommendation 66,3 % precision (< 75,0 %): not adopted
+  prompt_version: 1           # ask.vN.txt
+  max_questions: 10           # questions per upload, at most (what is already in the ontology first)
+  batch_size: 30              # doubts per LLM call (the biggest family of the base has 24)
+  max_calls: 10               # LLM calls per upload (free tier shared: 500/day); re-run to continue (cache)
+  pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
+  max_tokens: 8192            # max answer length per call
+  candidates: 5               # DPV candidates shown per doubt (the options may only use these and what it has)
+  definition_chars: 300       # length of each definition shown to the AI
 bridge:                       # S9-T09: the bridge of the base with the GDPR, OntoPriv <-> GDPRtEXT pairs chained by the DPV (py -m src.alignment.gdpr_bridge)
   gdprtext: "data/input/gdprtext-ontology.ttl"                       # GDPRtEXT (labels, descriptions and GDPR articles shown to the AI)
   gdprtext_alignment: "data/reference/gdprtext-dpv-alignment.ttl"   # its alignment with the DPV, fixed: copied from the upload gdprtext-ontology-b863b1da, so the bridge is rebuilt without the AI
