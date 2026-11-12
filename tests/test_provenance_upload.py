@@ -459,6 +459,42 @@ def test_only_what_the_change_took_out_is_replaced():
     assert counts["correspondences"]["current"]["usuario"] == 2
 
 
+def _removed_and_aligned_again() -> up.UploadInputs:
+    """Version 3: Thing (a suggestion) got exactMatch in v2 and one more in v3; Consent was
+    taken out in v2 and aligned again in v3."""
+    thing = _was("Thing", "skos:exactMatch", "user", 2)
+    again = _was("Policy", "skos:closeMatch", "user", 3)
+    records = [
+        _record("Thing", "approved", "2026-11-02T10:00:00+00:00", 2, [], [thing], "a",
+                D + "Thing", "skos:exactMatch"),
+        _record("Consent", "no_match", "2026-11-02T10:00:00+00:00", 2,
+                [_was("Consent", "skos:exactMatch", "base", 1)], [], "quitar"),
+        _record("Thing", "approved", "2026-11-03T10:00:00+00:00", 3, [thing],
+                [thing, _was("Policy", "skos:relatedMatch", "user", 3)], "b", D + "Policy",
+                "skos:relatedMatch"),
+        _record("Consent", "approved", "2026-11-03T10:00:00+00:00", 3, [], [again], "c",
+                D + "Policy", "skos:closeMatch")]
+    return _inputs(records=records)
+
+
+def test_why_there_was_none_is_replaced_once_and_a_removal_can_be_revised():
+    g, _ = up.build_graph(_removed_and_aligned_again(), PEOPLE)
+    status = _node("decider-" + pm.digest(AL, ONTO + "Thing"))
+    assert list(g.objects(status, PROV.invalidatedAtTime)) == [
+        Literal("2026-11-02T10:00:00+00:00", datatype=XSD.dateTime)]
+    first = _correspondence("Thing", "Thing", SKOS.exactMatch, "user", 2)
+    second = _correspondence("Thing", "Policy", SKOS.relatedMatch, "user", 3)
+    assert set(g.objects(first, PROV.wasRevisionOf)) == {status}
+    assert not list(g.objects(second, PROV.wasRevisionOf))
+    removal = _node("user-removal-" + pm.digest(AL, ONTO + "Consent", "2"))
+    assert g.value(removal, PROV.wasInvalidatedBy) == _node("activity-user-v3")
+    back = _correspondence("Consent", "Policy", SKOS.closeMatch, "user", 3)
+    assert set(g.objects(back, PROV.wasRevisionOf)) == {removal}
+    assert (back, RDF.type, OWL.Axiom) in g
+    rows = up.records_of(g, "Consent")
+    assert [r["current"] for r in rows if r["decidedBy"]] == ["false", "true"]
+
+
 def test_the_graph_is_stable_and_has_no_blank_nodes(toy):
     g, _ = toy
     again, _ = up.build_graph(_inputs(), PEOPLE)

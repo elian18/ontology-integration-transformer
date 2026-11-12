@@ -139,6 +139,40 @@ def _concepts_tab(v: dict) -> None:
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
     st.caption(f"{svc.counted(len(rows), 'fila', 'filas')}. Un concepto con varias "
                "correspondencias ocupa una fila por cada una.")
+    _provenance(v)
+
+
+def _provenance(v: dict) -> None:
+    """The card of the chosen concept, read from its provenance module (S10-T08)."""
+    st.markdown(f"**{svc.PROVENANCE_TITLE}**")
+    options = v["concept_options"]
+    iri = st.selectbox("Concepto", list(options), index=None, format_func=options.get,
+                       placeholder=svc.PROVENANCE_PLACEHOLDER, key="align_concept",
+                       help=svc.PROVENANCE_HELP)
+    if iri is None:
+        return
+    c = svc.provenance_card(v["id"], iri)
+    with st.container(border=True, key="align_card"):
+        if c["missing"]:
+            st.caption(c["missing"])
+            return
+        st.markdown(f"#### {c['name']}" + (f" :gray-badge[{c['state']}]" if c["state"] else ""))
+        st.caption(c["iri"])
+        st.markdown(c["headline"])
+        st.markdown(c["origin"])
+        st.markdown("**Versiones**")
+        if c["versions"]:
+            st.dataframe(pd.DataFrame(c["versions"]), hide_index=True, width="stretch")
+        else:
+            st.caption("Ninguna versión le dio una correspondencia.")
+        st.markdown("**Cómo se produjo**")
+        for s in c["steps"]:
+            head = (f"{s['badge']} " if s["badge"] else "") + f"**{s['title']}**"
+            st.markdown("  \n".join([head, *([s["text"]] if s["text"] else []), *s["extra"]]))
+            if s["meta"]:
+                st.caption(s["meta"])
+        if not c["steps"]:
+            st.caption("La procedencia no dice nada más de este concepto.")
 
 
 def _review_tab(v: dict) -> None:

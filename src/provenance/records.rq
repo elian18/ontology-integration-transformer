@@ -1,7 +1,9 @@
 # The records of one concept in a provenance module (S10-T07): bind ?name to the concept's
 # local name or its IRI. First what has no version (the law, the rule, the labels), then each
 # correspondence by the version it was decided in. A replaced one says when (?replaced), the
-# one that replaced it says what it revises (?revises); ?notes holds what the AI reviewer said.
+# one that replaced it says what it revises (?revises); ?property and ?target are the triple of
+# a correspondence and ?current says it is in the ontology now (an owl:Axiom, S10-T08); ?notes
+# holds what the AI reviewer said.
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX owl:  <http://www.w3.org/2002/07/owl#>
 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -9,7 +11,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dct:  <http://purl.org/dc/terms/>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 SELECT DISTINCT ?concept ?record ?label ?comment ?decidedBy ?who ?at ?activity ?version
-       ?replaced ?revises ?sources ?notes
+       ?replaced ?property ?target ?current ?revises ?sources ?notes
 WHERE {
   ?record owl:annotatedSource|rdf:subject|dct:subject ?concept .
   FILTER(isIRI(?concept) && (STR(?concept) = STR(?name)
@@ -24,6 +26,9 @@ WHERE {
   OPTIONAL { ?record owl:versionInfo ?version }
   BIND(COALESCE(xsd:integer(?version), 0) AS ?order)
   OPTIONAL { ?record prov:invalidatedAtTime ?replaced }
+  OPTIONAL { ?record owl:annotatedProperty|rdf:predicate ?property ;
+                     owl:annotatedTarget|rdf:object ?target }
+  BIND(EXISTS { ?record a owl:Axiom } AS ?current)
   OPTIONAL { SELECT ?record (GROUP_CONCAT(?r; separator="; ") AS ?revises)
              WHERE { ?record prov:wasRevisionOf/rdfs:label ?r } GROUP BY ?record }
   OPTIONAL { SELECT ?record (GROUP_CONCAT(?s; separator="; ") AS ?sources)

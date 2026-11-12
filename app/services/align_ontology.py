@@ -3,11 +3,12 @@ from __future__ import annotations
 import csv
 import io
 import re
-from functools import partial
+from functools import lru_cache, partial
 
 from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.console import counted
+from src.provenance import upload as up
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
 from src.validation import ai_auditor as au
 from src.validation import question_explainer as qe
@@ -240,6 +241,7 @@ def view(ws_id: str) -> dict:
     mode = ws.manifest.get("mode") or MODE_ONTOLOGY
     evidence = manifest.get("law_evidence")
     definitions = manifest.get("law_definitions")
+    raw = _rows(ws)
     return {
         "id": ws.id,
         "mode": mode,
@@ -266,8 +268,9 @@ def view(ws_id: str) -> dict:
         "evidence": evidence_caption(evidence),
         "definitions": definitions_caption(definitions),
         "definitions_note": definitions_note(definitions),
-        "rows": table_rows(_rows(ws), with_law=evidence is not None,
+        "rows": table_rows(raw, with_law=evidence is not None,
                            with_definitions=bool((definitions or {}).get("added"))),
+        "concept_options": concept_options(raw),
         "validation": validation_view(ws),
     }
 
@@ -773,3 +776,179 @@ def validation_view(ws) -> dict | None:
 def validation_log(ws_id: str, cfg: dict | None = None) -> bytes:
     """validation-log.txt of ``ws_id`` (what its download button calls when clicked)."""
     return (load_workspace(ws_id, cfg=cfg).output_dir / uv.LOG_FILE).read_bytes()
+
+
+# ------------------------------------------------------------------ provenance card (S10-T08)
+
+PROVENANCE_TITLE = "Procedencia de un concepto"
+PROVENANCE_HELP = ("De qué artículo sale, cómo se produjo, quién decidió su correspondencia y "
+                   "sus versiones, leído del módulo de procedencia (PROV-O) que va en cada .zip.")
+PROVENANCE_PLACEHOLDER = "Elige un concepto para ver su ficha"
+NO_PROVENANCE = ("Esta alineación es anterior a la procedencia: vuelve a subir el archivo para "
+                 "verla.")
+VERSION_COLUMNS = ["Versión", "Correspondencia", "Decidida por", "Cuándo", "Estado"]
+SYSTEM_AGENT = "ontology-integration-transformer"
+# Records that say why a concept has no correspondence (src/provenance/upload.py).
+WHY_RECORDS = ("decider-", "inherited-no-match-", "user-removal-")
+LAW_RECORDS = ("law-concept-", "law-acceptance-")
+
+
+def concept_options(raw: list[dict]) -> dict[str, str]:
+    """{IRI: "Name · state"} of the concepts of alignment.csv, by name."""
+    out = {}
+    for r in raw:
+        iri = r.get("concept_iri")
+        if iri and iri not in out:
+            out[iri] = (f"{r.get('concept_name') or up.local(iri)} · "
+                        f"{STATE_LABELS.get(r.get('status'), r.get('status'))}")
+    return dict(sorted(out.items(), key=lambda kv: (kv[1].lower(), kv[0])))
+
+
+@lru_cache(maxsize=4)
+def _provenance_graph(path: str, stamp: tuple):
+    from src.transform.convert import load_graph
+    return load_graph(path)
+
+
+def provenance_card(ws_id: str, iri: str) -> dict:
+    """The card of one concept, read with the fixed query of its provenance module."""
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    manifest = ua.load_manifest(ws) or {}
+    entry = manifest.get("provenance")
+    path = ws.path / entry["file"] if entry else None
+    if path is None or not path.exists():
+        return {"missing": NO_PROVENANCE}
+    stat = path.stat()
+    records = up.records_of(_provenance_graph(str(path), (stat.st_mtime_ns, stat.st_size)), iri)
+    return card(records, iri, [r for r in _rows(ws) if r.get("concept_iri") == iri],
+                version=manifest.get("alignment_version") or 1,
+                file=manifest.get("uploaded_file") or "", mode=ws.manifest.get("mode"))
+
+
+def _kind(record: dict, prefixes: tuple) -> bool:
+    return up.local(record["record"]).startswith(prefixes)
+
+
+def _triple(r: dict) -> str:
+    prop = r.get("property") or ""
+    relation = f"skos:{up.local(prop)}" if "/skos/core#" in prop else "rdfs:seeAlso"
+    return f"{relation} dpv:{up.local(r.get('target') or '')}"
+
+
+def _by(r: dict) -> str:
+    who = r.get("who")
+    shown = who and who not in (r["decidedBy"], SYSTEM_AGENT)
+    return f"{r['decidedBy']} ({who})" if shown else r["decidedBy"]
+
+
+def _in_force(r: dict, records: list[dict]) -> bool:
+    """A correspondence is in force when it is an owl:Axiom; a record of why there is none, when
+    nothing replaced it and no correspondence is in force."""
+    if r.get("decidedBy"):
+        return r.get("current") == "true"
+    return not r.get("replaced") and not any(x.get("current") == "true" for x in records)
+
+
+def _state_of(r: dict, records: list[dict]) -> str:
+    if _in_force(r, records):
+        return "vigente"
+    return f"reemplazada el {up._when(r['replaced'])}" if r.get("replaced") else "reemplazada"
+
+
+_ARTICLE = re.compile(r"^(.*), art\. (\d+)$")
+
+
+def _articles(sources: list[str]) -> str:
+    """'ley.pdf, art. 21', 'ley.pdf, art. 25' -> 'ley.pdf, arts. 21 y 25'."""
+    by_law: dict[str, list[int]] = {}
+    other = []
+    for s in sources:
+        m = _ARTICLE.match(s)
+        if m:
+            by_law.setdefault(m.group(1), []).append(int(m.group(2)))
+        else:
+            other.append(s)
+    out = []
+    for law, nums in by_law.items():
+        nums = [str(n) for n in sorted(set(nums))]
+        out.append(f"{law}, art. {nums[0]}" if len(nums) == 1 else
+                   f"{law}, arts. {', '.join(nums[:-1])} y {nums[-1]}")
+    return "; ".join(out + list(dict.fromkeys(other)))
+
+
+def _sources(records: list[dict], law: bool) -> list[str]:
+    return [s for r in records if r.get("sources") and _kind(r, LAW_RECORDS) == law
+            for s in r["sources"].split("; ")]
+
+
+def _origin(records: list[dict], file: str, mode: str | None) -> str:
+    law = _sources(records, True)
+    if law:
+        return f"**De qué artículo sale:** {plain(_articles(law))}"
+    text = (f"de {plain(file)}, sin un artículo citado" if mode == MODE_LAW else
+            f"de tu ontología ({plain(file)}), no de un artículo de una ley")
+    defined = _sources(records, False)
+    if defined:
+        text += f"; su definición sale de {plain(_articles(defined))}"
+    return f"**De qué artículo sale:** ninguno: viene {text}."
+
+
+_SENTENCE = re.compile(r"(?<!\bart\.)(?<!\barts\.)(?<=\.)\s+(?=[A-ZÁÉÍÓÚÑ«¿])")
+
+
+def _headline(records: list[dict], rows: list[dict], version) -> str:
+    current = [r for r in records if r.get("decidedBy") and _in_force(r, records)]
+    if current:
+        lines = [f"{_triple(r)} · decidida por **{plain(_by(r))}** en la versión {r['version']}"
+                 for r in current]
+        head = "Correspondencia" if len(current) == 1 else "Correspondencias"
+        return f"**{head} en la versión {version}:**  \n" + "  \n".join(lines)
+    why = [r for r in records if _kind(r, WHY_RECORDS) and _in_force(r, records)]
+    if why:                                       # the whole text is in its step, below
+        text = _SENTENCE.split(why[-1].get("comment") or why[-1]["label"], maxsplit=1)[0]
+    elif rows:
+        state = STATE_LABELS.get(rows[0].get("status"), rows[0].get("status"))
+        text = f"{state}. {STATE_HELP[state]}" if state in STATE_HELP else state
+    else:
+        text = "La procedencia no dice por qué."
+    return f"**Sin correspondencia en la versión {version}.** {plain(text)}"
+
+
+def _version_rows(records: list[dict]) -> list[dict]:
+    out = []
+    for r in records:
+        if r.get("decidedBy"):
+            what, by = _triple(r), _by(r)
+        elif _kind(r, ("user-removal-",)):
+            what, by = "ninguna (quitada)", "usuario"
+        else:
+            continue
+        out.append(dict(zip(VERSION_COLUMNS, (int(r.get("version") or 1), what, by,
+                                              up._when(r.get("at")), _state_of(r, records)))))
+    return out
+
+
+def _step(r: dict, records: list[dict]) -> dict:
+    badge_ = None
+    if r.get("decidedBy") or _kind(r, WHY_RECORDS):     # what was decided: in force or not
+        badge_ = (":green-badge[Vigente]" if _in_force(r, records) else
+                  ":gray-badge[Reemplazada]")
+    who = r.get("who") if r.get("who") != r.get("decidedBy") else None
+    extra = [f"Revisa: {r['revises']}" if r.get("revises") else None, r.get("notes")]
+    return {"title": plain(r["label"]), "badge": badge_, "text": plain(r.get("comment") or ""),
+            "meta": " · ".join(x for x in (r.get("activity"), who, up._when(r.get("at")))
+                               if x),
+            "extra": [plain(x) for x in extra if x]}
+
+
+def card(records: list[dict], iri: str, rows: list[dict], *, version=1, file: str = "",
+         mode: str | None = None) -> dict:
+    """What the card shows: the correspondence in force (or why there is none), the article it
+    comes from, the versions and every step of its provenance (``records`` from records.rq,
+    ``rows`` the lines of alignment.csv of the concept)."""
+    name = (rows[0].get("concept_name") if rows else None) or up.local(iri)
+    state = STATE_LABELS.get(rows[0].get("status"), rows[0].get("status")) if rows else None
+    return {"missing": None, "name": plain(name), "iri": iri, "state": state,
+            "headline": _headline(records, rows, version),
+            "origin": _origin(records, file, mode), "versions": _version_rows(records),
+            "steps": [_step(r, records) for r in records]}
