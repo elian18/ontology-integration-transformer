@@ -14,7 +14,7 @@
 
 shp: a owl:Ontology ;
     rdfs:label "Reglas de forma (SHACL) de la ontología alineada"@es ;
-    owl:versionInfo "1" ;
+    owl:versionInfo "2" ;                     # v2 (S10-T03): the user may decide a correspondence
     sh:declare
         [ sh:prefix "rdf" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ],
         [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ],
@@ -93,7 +93,7 @@ shp:AlignedConceptShape a sh:NodeShape ;
 
 shp:MappingAnnotationShape a sh:NodeShape ;
     rdfs:label "Cada anotación de una correspondencia está completa"@es ;
-    rdfs:comment "La anotación (owl:Axiom) de una correspondencia con el DPV describe una tripleta que está en el módulo y dice quién la decidió (base, regla o regla sin IA) y su versión."@es ;
+    rdfs:comment "La anotación (owl:Axiom) de una correspondencia con el DPV describe una tripleta que está en el módulo y dice quién la decidió (base, regla, regla sin IA o usuario) y su versión."@es ;
     sh:group shp:Mappings ;
     sh:order 4 ;
     sh:severity sh:Violation ;
@@ -125,10 +125,11 @@ shp:MappingAnnotationShape a sh:NodeShape ;
                 BIND (EXISTS {
                           $this ?by ?who .
                           FILTER (STRENDS(STR(?by), "#decidedBy")
-                                  && STR(?who) IN ("base", "regla", "regla sin IA")) } AS ?attributed)
+                                  && STR(?who) IN ("base", "regla", "regla sin IA",
+                                                   "usuario")) } AS ?attributed)
                 FILTER (!?asserted || !?attributed)
                 BIND (IF(!?asserted, "Anota una correspondencia que no está en el módulo.",
-                         "La correspondencia no dice quién la decidió (base, regla o regla sin IA).")
+                         "La correspondencia no dice quién la decidió (base, regla, regla sin IA o usuario).")
                       AS ?problem)
             }""" ] .
 

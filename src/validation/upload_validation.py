@@ -175,7 +175,8 @@ def inspector_text(key: str, block: dict) -> str:
     s, status = block["summary"], block["status"]
     title += f" ({block['prompt']['name']}.v{block['prompt']['version']})"
     if not s["accepted"]:
-        return f"{title}: {status} · la regla no aceptó ninguna correspondencia que revisar"
+        return (f"{title}: {status} · la regla no aceptó ninguna correspondencia que revisar"
+                + by_user_text(s))
     if status == NOT_RUN:
         ai = block["ai"]
         why = ai.get("error") or next(iter(ai.get("errors") or []), "sin respuesta")
@@ -185,7 +186,14 @@ def inspector_text(key: str, block: dict) -> str:
             f"{counted(s[au.DOUBTFUL], 'dudosa', 'dudosas')} de "
             f"{counted(s['accepted'], 'aceptada', 'aceptadas')} por la regla"
             + (f", {s['pending']} sin revisar" if s["pending"] else "")
-            + "; solo explica, no cambia lo aceptado")
+            + "; solo explica, no cambia lo aceptado" + by_user_text(s))
+
+
+def by_user_text(summary: dict) -> str:
+    """S10-T03: the concepts the person decided on are not reviewed again."""
+    n = summary.get("by_user") or 0
+    return (f" ({counted(n, 'concepto decidido', 'conceptos decididos')} por el usuario: no "
+            + ("se revisa" if n == 1 else "se revisan") + " de nuevo)" if n else "")
 
 
 def notes(key: str, block: dict) -> list[str]:

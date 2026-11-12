@@ -143,10 +143,11 @@ def _annotation(target="dpv:Consent", extra='al:decidedBy "regla"@es ; owl:versi
 def test_a_complete_annotation_passes():
     assert _annotation() == []
     assert _annotation(extra='al:decidedBy "regla sin IA" ; owl:versionInfo "2"') == []
+    assert _annotation(extra='al:decidedBy "usuario"@es ; owl:versionInfo "2"') == []  # S10-T03
 
 
 def test_an_annotation_without_who_or_version():
-    who = "La correspondencia no dice quién la decidió (base, regla o regla sin IA)."
+    who = "La correspondencia no dice quién la decidió (base, regla, regla sin IA o usuario)."
     assert _annotation(extra='owl:versionInfo "1"') == [who]
     assert _annotation(extra='al:decidedBy "una persona"@es ; owl:versionInfo "1"') == [who]
     assert _annotation(extra='al:decidedBy "base"@es') == [

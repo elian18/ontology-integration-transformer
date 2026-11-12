@@ -65,9 +65,11 @@ FILE_NAMES = {KIND_ONTOLOGY: "tu ontología", KIND_LAW: "tu ley"}
 
 # Wording of the states shown to the person (codes from user_alignment), in display order.
 STATE_LABELS = {ua.INHERITED_ALIGNED: "Validada en la base",
+                ua.USER_ALIGNED: "Decidida por el usuario",
                 ua.ACCEPTED: "Aceptada automáticamente",
                 ua.SUGGESTED: "Sugerida",
                 ua.INHERITED_NO_MATCH: "Sin correspondencia",
+                ua.USER_NO_MATCH: "Sin correspondencia",
                 ua.RULE_NO_MATCH: "Sin correspondencia",
                 ua.NO_PROPOSAL: "Sin propuesta",
                 ua.UNDECIDED: "Sin decidir",
@@ -82,15 +84,19 @@ STATE_HELP = {
     "Sugerida": "La IA la propuso con confianza alta, pero la regla no la acepta (relación "
                 "débil, puntaje bajo o una propiedad). No entra a la ontología: queda para que "
                 "la comentes.",
+    "Decidida por el usuario": "La eligió quien subió el archivo, después de probarlo. Entra a "
+                               "la ontología en una versión nueva y la IA revisora no la vuelve "
+                               "a revisar.",
     "Sin correspondencia": "El DPV no tiene un término equivalente: lo decidió una persona en "
-                           "la base o la IA con confianza alta. No genera tripletas.",
+                           "la base, la IA con confianza alta o el usuario. No genera tripletas.",
     "Sin propuesta": "La IA no estuvo segura (confianza media o baja): el sistema prefiere no "
                      "proponer antes que equivocarse.",
     "Sin decidir": "La IA no estuvo disponible y el mejor candidato no llegó al umbral de la "
                    "regla sin IA. Vuelve a subir el archivo cuando la IA esté disponible.",
     "No se alinea": "Individuos (ejemplos de datos): no se alinean, igual que en la base.",
 }
-DECIDED_BY = {"base": "base", "rule": "regla", "rule_without_ai": "regla sin IA"}
+DECIDED_BY = {"base": "base", "rule": "regla", "rule_without_ai": "regla sin IA",
+              "user": "usuario"}
 
 # The validation panel of step 3 (S8-T11): a traffic light per inspector (S9-T01), plus gray
 # when it did not run; no color blocks the download.
@@ -137,14 +143,18 @@ NO_VALIDATION = ("Esta alineación es anterior a la validación: vuelve a subir 
 FLAGGED_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Veredicto", "Explicación"]
 LAW_TAB = "Lo que dice la ley de cada concepto"
 
-# The five numbers at the top of the page (their labels are plural) and their states.
+# The five numbers at the top of the page (their labels are plural) and their states; the
+# person's one only when they decided something (S10-T03).
+USER_METRIC = "Decididas por el usuario"
 METRICS = {"Validadas en la base": (ua.INHERITED_ALIGNED,),
            "Aceptadas automáticamente": (ua.ACCEPTED,),
+           USER_METRIC: (ua.USER_ALIGNED,),
            "Sugeridas": (ua.SUGGESTED,),
-           "Sin correspondencia": (ua.INHERITED_NO_MATCH, ua.RULE_NO_MATCH),
+           "Sin correspondencia": (ua.INHERITED_NO_MATCH, ua.RULE_NO_MATCH, ua.USER_NO_MATCH),
            "Sin propuesta": (ua.NO_PROPOSAL, ua.UNDECIDED)}
 METRIC_HELP = {"Validadas en la base": STATE_HELP["Validada en la base"],
                "Aceptadas automáticamente": STATE_HELP["Aceptada automáticamente"],
+               USER_METRIC: STATE_HELP["Decidida por el usuario"],
                "Sugeridas": STATE_HELP["Sugerida"],
                "Sin correspondencia": STATE_HELP["Sin correspondencia"],
                "Sin propuesta": STATE_HELP["Sin propuesta"] + " También cuenta lo que quedó "
@@ -238,11 +248,12 @@ def view(ws_id: str) -> dict:
         "created": manifest["created"],
         "version": manifest.get("alignment_version"),
         "concepts": s["concepts"],
-        "metrics": {label: sum(by.get(code, 0) for code in codes)
-                    for label, codes in METRICS.items()},
+        "metrics": {label: n for label, codes in METRICS.items()
+                    if (n := sum(by.get(code, 0) for code in codes)) or label != USER_METRIC},
         "mappings": s["mappings"],
         "validated_mappings": s["validated_mappings"],
         "accepted_mappings": s["accepted_mappings"],
+        "user_mappings": s.get("user_mappings", 0),
         "suggested": s["suggested"],
         "rule": decider.get("rule"),
         "ai_note": _ai_note(decider),
@@ -502,10 +513,14 @@ def notes(v: dict) -> list[str]:
 
 def summary_captions(v: dict) -> list[str]:
     """The lines of the "Resumen" tab, under the five numbers."""
+    parts = [f"{v['validated_mappings']} de la base",
+             f"{v['accepted_mappings']} aceptadas por la regla"]
+    if v.get("user_mappings"):
+        parts.append(f"{v['user_mappings']} del usuario")
     out = [f"{v['mode_label']} · {counted(v['concepts'], 'concepto', 'conceptos')} · "
            f"{counted(v['mappings'], 'correspondencia', 'correspondencias')} en la ontología "
-           f"({v['validated_mappings']} de la base y {v['accepted_mappings']} aceptadas por la "
-           f"regla) · {v['suggested']} sugeridas fuera de la ontología · versión {v['version']}"]
+           f"({', '.join(parts[:-1])} y {parts[-1]}) · {v['suggested']} sugeridas fuera de la "
+           f"ontología · versión {v['version']}"]
     out += [line for line in (v["profile"], f"Regla: {v['rule']}." if v["rule"] else None,
                               v["labels"], v.get("definitions")) if line]
     if v["iri_generated"]:
@@ -577,13 +592,15 @@ def card_text(key: str, block: dict) -> str:
         return "No se hizo la revisión"
     s = block["summary"]
     if not s["accepted"]:
-        return "Nada que revisar  \nLa regla no aceptó ninguna correspondencia"
+        return ("Nada que revisar  \nLa regla no aceptó ninguna correspondencia"
+                + (f" · del usuario: {s['by_user']}" if s.get("by_user") else ""))
     if block["status"] == uv.NOT_RUN:
         why = block["ai"].get("error") or next(iter(block["ai"].get("errors") or []), "")
         return f"No revisó las {s['accepted']} aceptadas  \n{why}".rstrip()
     text = (f"Incoherentes: {s['incoherente']} · dudosas: {s['dudosa']}  \n"
             f"De {counted(s['accepted'], 'aceptada', 'aceptadas')} por la regla")
-    return text + (f" · sin revisar: {s['pending']}" if s["pending"] else "")
+    return (text + (f" · sin revisar: {s['pending']}" if s["pending"] else "")
+            + (f" · del usuario: {s['by_user']}" if s.get("by_user") else ""))
 
 
 def questions_card_text(block: dict) -> str:
