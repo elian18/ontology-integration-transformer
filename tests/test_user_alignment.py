@@ -215,7 +215,8 @@ def test_the_package_carries_the_labels(env, targets, tmp_path):
     m = write_user_alignment(w, cfg=env.cfg)
     package = build_user_package(w, "turtle")
     assert [f for f in package.included if f.endswith(".ttl")] == [
-        "mi-gdpr-dpv-alignment.ttl", "mi-gdpr-labels.ttl", "mi-gdpr.ttl"]
+        "mi-gdpr-dpv-alignment.ttl", "mi-gdpr-labels.ttl", "mi-gdpr.ttl",
+        "mi-gdpr-provenance.ttl"]
     assert package.main_file == "mi-gdpr-dpv-alignment.ttl"
     folder = _unzip(package, tmp_path / "z")
     g = _resolve(folder, m["modules"]["alignment"])
@@ -288,9 +289,12 @@ def test_package_resolves_in_every_format(env, targets, tmp_path, fmt, ext):
     stem = "mi-gdpr"
     assert package.main_file == f"{stem}-dpv-alignment{ext}"
     assert [f for f in package.included if f.endswith(ext)] == [f"{stem}-dpv-alignment{ext}",
-                                                                f"{stem}{ext}"]
+                                                                f"{stem}{ext}",
+                                                                f"{stem}-provenance{ext}"]
     assert {MANIFEST_FILE, CSV_FILE, CATALOG_FILE, README_FILE} <= set(package.included)
     folder = _unzip(package, tmp_path / fmt)
+    provenance = load_graph(folder / f"{stem}-provenance{ext}")      # S10-T07: same triples
+    assert isomorphic(provenance, load_graph(w.path / m["provenance"]["file"]))
     resolved = _resolve(folder, m["modules"]["alignment"])
     expected = load_graph(w.path / m["files"]["alignment"]) + load_graph(w.input_path())
     assert isomorphic(resolved, expected)

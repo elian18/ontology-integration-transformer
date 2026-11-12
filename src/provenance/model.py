@@ -182,10 +182,13 @@ class Recorder:
 
 def records_about(g: Graph, term: str) -> list[URIRef]:
     """The records of a term: the triples it is the subject or the object of (correspondences,
-    pairs) and the records whose dct:subject it is (concepts, repairs), in IRI order."""
+    pairs; also the replaced ones, rdf:Statement) and the records whose dct:subject it is
+    (concepts, repairs), in IRI order."""
     t = URIRef(term)
-    found = set(g.subjects(OWL.annotatedSource, t)) | set(g.subjects(OWL.annotatedTarget, t)) \
-        | set(g.subjects(DCTERMS.subject, t))
+    found = set()
+    for p in (OWL.annotatedSource, OWL.annotatedTarget, RDF.subject, RDF.object,
+              DCTERMS.subject):
+        found |= set(g.subjects(p, t))
     return sorted(found, key=str)
 
 
