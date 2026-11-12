@@ -71,7 +71,8 @@ ENTRIES = [
     _entry("Fine", dec.ACCEPTED, "DataController", "exactMatch", 0.9),
     _entry("Nothing", dec.NO_MATCH),
 ]
-AUDITS = {EX + "EmploymentContext": {"verdict": "dudosa", "ai_relation": "broadMatch",
+AUDITS = {EX + "EmploymentContext": {"verdict": "dudosa", "relation": "exactMatch",
+                                     "ai_relation": "broadMatch",       # as in a workspace
                                      "explanation": "Es un caso laboral."},
           EX + "InfoAboutProcessing": {"verdict": "incoherente", "relation": "relatedMatch",
                                        "explanation": "Es información, no el tratamiento."},
@@ -370,8 +371,8 @@ def test_the_fixed_questions_the_uploads_ask(targets):
     assert [q.reason for q in qs.questions] == [
         "La IA revisora: «Es información, no el tratamiento».",
         "La IA revisora: «Es un caso laboral».",
-        "La IA lo propuso: «Motivo de contact». La regla no lo aceptó porque las propiedades "
-        "nunca se alinean solas."]
+        "La IA lo propuso: «Motivo de contact». La regla no lo aceptó: las propiedades nunca "
+        "se alinean solas."]
     assert [(s.doubt.id, s.by) for s in qs.skipped] == [("D4", uq.BY_LIMIT)]
     assert qs.prompt == {"name": "preguntas fijas"} and qs.complete and qs.refused == []
     assert uq.render_question(qs.questions[2]) == [
@@ -380,7 +381,7 @@ def test_the_fixed_questions_the_uploads_ask(targets):
         "        contact: sin correspondencia -> exactMatch hasRecipient (usuario)",
         "     b) Dejar como está",
         "     Por qué se pregunta: La IA lo propuso: «Motivo de contact». La regla no lo "
-        "aceptó porque las propiedades nunca se alinean solas."]
+        "aceptó: las propiedades nunca se alinean solas."]
 
 
 def test_a_fixed_option_also_goes_through_the_rule(targets):
