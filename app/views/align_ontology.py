@@ -137,8 +137,8 @@ def _concepts_tab(v: dict) -> None:
     state = st.selectbox("Mostrar", ["Todos"] + present, key="align_filter")
     rows = svc.filter_rows(v["rows"], state)
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
-    st.caption(f"{len(rows)} filas. Un concepto con varias correspondencias ocupa una fila por "
-               "cada una.")
+    st.caption(f"{svc.counted(len(rows), 'fila', 'filas')}. Un concepto con varias "
+               "correspondencias ocupa una fila por cada una.")
 
 
 def _review_tab(v: dict) -> None:

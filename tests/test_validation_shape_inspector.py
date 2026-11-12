@@ -101,7 +101,7 @@ def test_each_finding_says_where_it_comes_from():
     assert report["completeness"] == {"concepts": 3, "label_es": 3, "label_en": 3,
                                       "definition": 1}      # A, B and M: not D, foaf, core:X
     assert report["triples"] == sum(p["triples"] for p in report["parts"])
-    assert report["engine"]["name"] == "pySHACL" and report["shapes"]["version"] == "1"
+    assert report["engine"]["name"] == "pySHACL" and report["shapes"]["version"] == "2"
 
 
 def test_what_the_profile_restates_of_the_core_is_the_systems():

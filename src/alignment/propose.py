@@ -36,7 +36,7 @@ STATUS_LABELS = {ACCEPTED: "aceptada automáticamente",
                  UNDECIDED: "sin decidir (la IA no estuvo disponible)"}
 BY_RULE, BY_RULE_WITHOUT_AI = "rule", "rule_without_ai"
 DECIDED_BY_LABELS = {"base": "persona (base)", BY_RULE: "regla",
-                     BY_RULE_WITHOUT_AI: "regla sin IA"}
+                     BY_RULE_WITHOUT_AI: "regla sin IA", "user": "usuario"}
 
 
 # --------------------------------------------------------------------------- inputs

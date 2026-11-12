@@ -17,6 +17,7 @@ from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment.inherit import METHOD_LABELS, load_result as inherited_result
 from src.alignment import law_definitions as ld
 from src.alignment import law_evidence as ev
+from src.alignment import user_decisions as ud
 from src.alignment.propose import load_result as decisions_result
 from src.console import counted
 from src.core.emit import CORE_FILE, CORE_IRI
@@ -37,22 +38,26 @@ _SKOS = {"skos:exactMatch": SKOS.exactMatch, "skos:closeMatch": SKOS.closeMatch,
 
 # Status of every concept of the user's ontology (CSV, manifest, web), in display order.
 INHERITED_ALIGNED = "inherited_aligned"
+USER_ALIGNED = "user_aligned"                    # S10-T03: what the person chose
 ACCEPTED = "accepted"
 INHERITED_NO_MATCH = "inherited_no_match"
+USER_NO_MATCH = "user_no_match"
 RULE_NO_MATCH = "rule_no_match"
 SUGGESTED = "suggested"
 NO_PROPOSAL = "no_proposal"
 UNDECIDED = "undecided"
 NOT_ALIGNABLE = "not_alignable"
 STATUS_LABELS = {INHERITED_ALIGNED: "validada (heredada de la base)",
+                 USER_ALIGNED: "decidida por el usuario",
                  ACCEPTED: "aceptada automáticamente",
                  INHERITED_NO_MATCH: "sin correspondencia (heredada de la base)",
+                 USER_NO_MATCH: "sin correspondencia (decidido por el usuario)",
                  RULE_NO_MATCH: "sin correspondencia (decidido por la regla)",
                  SUGGESTED: "sugerida (no entra a la ontología)",
                  NO_PROPOSAL: "sin propuesta",
                  UNDECIDED: "sin decidir (la IA no estuvo disponible)",
                  NOT_ALIGNABLE: "no se alinea (individuo)"}
-WRITTEN = (INHERITED_ALIGNED, ACCEPTED)          # the statuses that put triples in the module
+WRITTEN = (INHERITED_ALIGNED, USER_ALIGNED, ACCEPTED)   # the statuses that put triples in it
 _FROM_DECIDER = {dec.ACCEPTED: ACCEPTED, dec.SUGGESTED: SUGGESTED, dec.NO_MATCH: RULE_NO_MATCH,
                  dec.NO_PROPOSAL: NO_PROPOSAL, dec.UNDECIDED: UNDECIDED}
 CSV_COLUMNS = ["concept_iri", "concept_name", "label_es", "label_en", "labels_added",
@@ -132,11 +137,14 @@ def _annotate(g: Graph, s, p, o, comment: str, extra: list[tuple] = ()) -> None:
 
 def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_iri: str,
                     name: str, created: str, source: Graph | None = None,
-                    labels_iri: str | None = None, definitions_iri: str | None = None) -> Graph:
-    """The module: inherited correspondences + the ones the rule accepted (never suggestions);
-    it imports the user's ontology and, when there are, the labels and definitions modules."""
+                    labels_iri: str | None = None, definitions_iri: str | None = None,
+                    user: ud.Overlay | None = None, version: int | None = None) -> Graph:
+    """The module: inherited correspondences + the ones the rule accepted (never suggestions),
+    with what the person chose laid over them (S10-T03); it imports the user's ontology and,
+    when there are, the labels and definitions modules. ``version``: of the alignment."""
     decisions = decisions or {}
-    version = decisions.get("alignment_version", dec.ALIGNMENT_VERSION)
+    first = decisions.get("alignment_version", dec.ALIGNMENT_VERSION)
+    version = version or first
     g = Graph()
     if source is not None:
         _bind(g, source)
@@ -144,7 +152,9 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
             "Correspondencias heredadas de la base del sistema (OntoPriv + LOPDP, decididas "
             "por una persona en el Sprint 5) y aceptadas automáticamente por la regla del "
             "decisor (S7-T05). Las sugeridas no se escriben. El DPV se referencia por IRI, no "
-            "se importa.", created, version)
+            "se importa."
+            + (" Las que eligió el usuario después de probar reemplazan a las del sistema en "
+               "esos conceptos." if user else ""), created, version)
     for extra in (labels_iri, definitions_iri):
         if extra:
             g.add((URIRef(iri), OWL.imports, URIRef(extra)))
@@ -152,14 +162,17 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
     g.bind("alignment", Namespace(ns + "#"), override=True)
     by = _annotation_property(g, URIRef(ns + "#decidedBy"), "decidido por",
                               "Quién decidió la correspondencia: base (una persona, Sprint 5), "
-                              "regla (el decisor con IA y la regla calibrada) o regla sin IA.")
+                              "regla (el decisor con IA y la regla calibrada), regla sin IA o "
+                              "usuario (quien subió el archivo, después de probarlo).")
     conf = _annotation_property(g, URIRef(ns + "#confidence"), "puntaje del candidato",
                                 "Puntaje de 0 a 1 del término del DPV (0.4 léxico + 0.6 "
                                 "embeddings) cuando lo aceptó la regla.")
-    stamp = Literal(str(version))
+    stamp = Literal(str(first))
     for item in inherited.get("inherited", []):
         subject = URIRef(item["key"])
         for m in item.get("mappings", []):
+            if user and not user.keeps(item["key"], m["dpv_iri"], "base"):
+                continue
             prop = _SKOS[m["relation"]]
             target = URIRef(m["dpv_iri"])
             g.add((subject, prop, target))
@@ -173,7 +186,8 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
     rule = (decisions.get("summary") or {}).get("rule", "")
     threshold = decisions.get("threshold_without_ai")
     for e in decisions.get("entries", []):
-        if e["status"] != dec.ACCEPTED:
+        if e["status"] != dec.ACCEPTED or (user and not user.keeps(e["key"], e["dpv_iri"],
+                                                                    e["decided_by"])):
             continue
         subject, target = URIRef(e["key"]), URIRef(e["dpv_iri"])
         prop = _SKOS.get(e.get("relation") or "", RDFS.seeAlso)
@@ -191,17 +205,31 @@ def alignment_graph(inherited: dict, decisions: dict | None, *, iri: str, onto_i
         if e.get("score") is not None:
             extra.append((conf, Literal(f"{e['score']:.4f}", datatype=XSD.decimal)))
         _annotate(g, subject, prop, target, text, extra)
+    for key, dpv_iri, m in (user.mine() if user else []):
+        subject, prop, target = URIRef(key), _SKOS[m["relation"]], URIRef(dpv_iri)
+        g.add((subject, prop, target))
+        _annotate(g, subject, prop, target, user_comment(m),
+                  [(by, Literal(ud.REVIEWER, lang="es")),
+                   (OWL.versionInfo, Literal(str(m["version"])))])
     return g
+
+
+def user_comment(m: dict) -> str:
+    return (f"Decidida por el usuario el {ud.local_day(m.get('decided_at'))} "
+            f"(versión {m['version']}). "
+            f"Antes: {ud.state_text(m.get('before') or [])}."
+            + (f" Pedido: {m['note']}" if m.get("note") else ""))
 
 
 # --------------------------------------------------------------------------- rows
 
 def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = None,
                  evidence: dict | None = None, definitions: dict | None = None,
-                 audit: dict | None = None) -> list[dict]:
+                 audit: dict | None = None, user: ud.Overlay | None = None) -> list[dict]:
     """One row per concept of the user's ontology (aligned ones: one row per mapping), with its
     labels in Spanish and English, the articles of the law, the definition it gave and what
-    the AI reviewer said of the accepted ones."""
+    the AI reviewer said of the accepted ones; the concepts the person decided on show what
+    they chose (S10-T03)."""
     version = (decisions or {}).get("alignment_version", dec.ALIGNMENT_VERSION)
     rows = []
     for item in inherited.get("inherited", []):
@@ -230,6 +258,8 @@ def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = 
         if n.get("reason") == "kind" and n["key"] not in decided:
             rows.append({"concept_iri": n["key"], "concept_name": n["name"],
                          "status": NOT_ALIGNABLE, "validated": False})
+    if user:
+        rows = _with_user(rows, user)
     named, articles = lab.by_key(labels), ev.by_key(evidence)
     defined, law = ld.by_key(definitions), ((definitions or {}).get("law") or {}).get("file")
     reviewed = au.by_key(audit)
@@ -254,6 +284,30 @@ def concept_rows(inherited: dict, decisions: dict | None, labels: dict | None = 
                                        (r.get("concept_name") or "").lower()))
 
 
+def _with_user(rows: list[dict], user: ud.Overlay) -> list[dict]:
+    """The rows of the concepts the person decided on: only what the base or the rule wrote and
+    stays, plus what the person chose (or that they left it without correspondence)."""
+    kept = [r for r in rows if r["concept_iri"] not in user.keys
+            or (r["status"] in (INHERITED_ALIGNED, ACCEPTED)
+                and user.keeps(r["concept_iri"], r["dpv_iri"], r["decided_by"]))]
+    for key, dpv_iri, m in user.mine():
+        kept.append({"concept_iri": key, "concept_name": user.names[key], "status": USER_ALIGNED,
+                     "decided_by": ud.BY_USER, "validated": True, "relation": m["relation"],
+                     "dpv_iri": dpv_iri, "dpv_name": m.get("dpv_name"),
+                     "reviewer": ud.REVIEWER, "justification": user_comment(m),
+                     "version": m["version"]})
+    present = {r["concept_iri"] for r in kept}
+    for key in sorted(user.keys - present):
+        last = user.last[key]
+        before = ud.state_text(last.snapshot.get("before") or [])
+        kept.append({"concept_iri": key, "concept_name": user.names[key],
+                     "status": USER_NO_MATCH, "decided_by": ud.BY_USER, "validated": True,
+                     "reviewer": ud.REVIEWER, "version": last.snapshot.get("version"),
+                     "justification": f"Quitada por el usuario el "
+                                      f"{ud.local_day(last.decided_at)}. Antes: {before}."})
+    return kept
+
+
 def write_csv(rows: list[dict], path: Path) -> None:
     with open(path, "w", encoding="utf-8-sig", newline="") as handle:   # BOM: Excel accents
         writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS, extrasaction="ignore")
@@ -270,6 +324,7 @@ def summarize(rows: list[dict]) -> dict:
     accepted = [r for r in rows if r["status"] == ACCEPTED]
     return {"concepts": len(concepts), "by_status": counts,
             "validated_mappings": sum(1 for r in rows if r["status"] == INHERITED_ALIGNED),
+            "user_mappings": sum(1 for r in rows if r["status"] == USER_ALIGNED),
             "accepted_mappings": len(accepted),
             "accepted_without_ai": sum(r["decided_by"] == dec.BY_RULE_WITHOUT_AI
                                        for r in accepted),
@@ -303,6 +358,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
     if decisions is None:
         raise ValueError("Primero hay que decidir lo que no se heredó (paso S7-T06).")
     labels = lab.load_result(ws)
+    version, user = ud.current_version(ws), ud.overlay(ws, inherited, decisions)
     ws.mark_step("write", RUNNING)
     try:
         out = ws.output_dir
@@ -353,7 +409,8 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         graph = alignment_graph(inherited, decisions, iri=iri, onto_iri=onto_iri, name=display,
                                 created=created, source=user_graph,
                                 labels_iri=modules.get("labels"),
-                                definitions_iri=modules.get("definitions"))
+                                definitions_iri=modules.get("definitions"), user=user,
+                                version=version)
         (out / f"{names['alignment']}.ttl").write_bytes(serialize(graph, MASTER_FORMAT))
         files["alignment"] = f"output/{names['alignment']}.ttl"
         triples = {"alignment": len(graph), **triples}
@@ -369,7 +426,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
 
         evidence = ev.load_result(ws)                  # "ontología + ley": only the CSV
         audit = au.current_result(ws)
-        rows = concept_rows(inherited, decisions, labels, evidence, definitions, audit)
+        rows = concept_rows(inherited, decisions, labels, evidence, definitions, audit, user)
         write_csv(rows, out / CSV_FILE)
         paths = base_paths(cfg)
         prompts = {"decide": decisions.get("prompt") or DECIDE_PROMPT.manifest()}
@@ -408,9 +465,11 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
             "uploaded_file": display, "ontology_iri": onto_iri,
             "ontology_iri_generated": generated,
             "generated_from": entry.get("generated_from"), "profile": profile,
-            "alignment_version": decisions.get("alignment_version", dec.ALIGNMENT_VERSION),
+            "alignment_version": version, "versions": ws.manifest.get("versions") or [],
             "modules": modules, "files": files, "triples": triples,
             "summary": summarize(rows),
+            "user_decisions": ({"concepts": len(user.keys), "log": f"work/{ud.LOG_FILE}"}
+                               if user else None),
             "inheritance": inherited.get("summary"),
             "decider": decisions.get("summary"),
             "labels": ({**labels["summary"], "glossary": labels["glossary"],
@@ -435,7 +494,11 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
                 "Las sugeridas (la IA las dio con confianza alta pero la regla no las acepta) "
                 "no entran a la ontología: están en alignment.csv para comentarlas.",
                 "'Sin correspondencia' no genera tripletas.",
-            ] + (["El módulo de etiquetas agrega, con su idioma, las etiquetas en español e "
+            ] + ([f"Versión {version}: en {counted(len(user.keys), 'concepto', 'conceptos')} "
+                  "manda lo que eligió el usuario después de probar (decidedBy «usuario»); las "
+                  "versiones anteriores están en la carpeta history del espacio."]
+                 if user else [])
+            + (["El módulo de etiquetas agrega, con su idioma, las etiquetas en español e "
                   "inglés que le faltaban a la ontología (las escribió la IA); ninguna etiqueta "
                   "original cambia."] if "labels" in modules else [])
             + ([ld.module_note(defined)] if "definitions" in modules else [])
@@ -458,7 +521,9 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
         raise
     s = manifest["summary"]
     ws.mark_step("write", DONE, f"{s['validated_mappings']} de la base y "
-                                f"{s['accepted_mappings']} aceptadas por la regla",
+                                f"{s['accepted_mappings']} aceptadas por la regla"
+                                + (f"; {s['user_mappings']} del usuario (versión {version})"
+                                   if user else ""),
                  validated_mappings=s["validated_mappings"],
                  accepted_mappings=s["accepted_mappings"], suggested=s["suggested"])
     return manifest
@@ -471,9 +536,12 @@ def load_manifest(ws) -> dict | None:
 
 # --------------------------------------------------------------------------- package
 
-def package_name(ws, fmt: str | OutputFormat) -> str:
+def package_name(ws, fmt: str | OutputFormat, version: int | None = None) -> str:
+    """'<name>-alineada-turtle.zip'; from version 2 on, '<name>-alineada-v2-turtle.zip'."""
     spec = fmt if isinstance(fmt, OutputFormat) else output_format(fmt)
-    return f"{stems(ws)['ontology']}-alineada-{spec.key}.zip"
+    version = version or ud.current_version(ws)
+    tag = f"v{version}-" if version > 1 else ""
+    return f"{stems(ws)['ontology']}-alineada-{tag}{spec.key}.zip"
 
 
 def _included(package: Package, path: str) -> str | None:
@@ -503,7 +571,9 @@ def _readme_for(manifest: dict, validation: dict | None = None):
         jsonld = package.format.key == "jsonld"
         text = [
             f"Ontología alineada con el DPV: {manifest['uploaded_file']}",
-            f"Formato: {package.format.label}",
+            f"Formato: {package.format.label}"
+            + (f" · versión {manifest['alignment_version']}"
+               if manifest.get("alignment_version", 1) > 1 else ""),
             "",
             (f"Archivo principal: {main}." if jsonld
              else f"Abre {main} en Protégé desde esta carpeta (File > Open)."),
@@ -524,6 +594,9 @@ def _readme_for(manifest: dict, validation: dict | None = None):
         if s.get("accepted_without_ai"):
             text.append(f"      De ellas, {s['accepted_without_ai']} sin IA (sin tipo SKOS: "
                         "rdfs:seeAlso).")
+        if s.get("user_mappings"):
+            text.append(f"      {counted(s['user_mappings'], 'decidida', 'decididas')} por el "
+                        f"usuario después de probar (versión {manifest['alignment_version']}).")
         text.append("      Cada correspondencia lleva anotado quién la decidió y su versión.")
         labels = manifest.get("labels") or {}
         label_file = (_included(package, manifest["files"]["labels"])
@@ -733,8 +806,13 @@ def render_console(ws, manifest: dict, zip_path: Path | None = None) -> str:
              f"    heredadas de la base: {c[INHERITED_ALIGNED]} conceptos, "
              f"{s['validated_mappings']} correspondencias",
              f"    aceptadas automáticamente: {c[ACCEPTED]} ({s['accepted_untyped']} sin tipo)",
+             *([f"    decididas por el usuario: "
+                f"{counted(s['user_mappings'], 'correspondencia', 'correspondencias')} en "
+                f"{counted(manifest['user_decisions']['concepts'], 'concepto', 'conceptos')}"]
+               if manifest.get("user_decisions") else []),
              f"    sugeridas (no entran a la ontología): {c[SUGGESTED]}",
-             f"    sin correspondencia: {c[INHERITED_NO_MATCH] + c[RULE_NO_MATCH]}",
+             f"    sin correspondencia: "
+             f"{c[INHERITED_NO_MATCH] + c[RULE_NO_MATCH] + c.get(USER_NO_MATCH, 0)}",
              f"    sin propuesta: {c[NO_PROPOSAL]}"
              + (f" · sin decidir: {c[UNDECIDED]}" if c[UNDECIDED] else "")
              + (f" · individuos (no se alinean): {c[NOT_ALIGNABLE]}" if c[NOT_ALIGNABLE] else ""),
@@ -814,9 +892,22 @@ def _run(argv: list[str] | None = None) -> int:
                                           "cualquier modo (su id o su carpeta)")
     parser.add_argument("--formato", default="turtle", help="rdfxml, owl, turtle o jsonld")
     parser.add_argument("--sin-ia", action="store_true", help="no llamar al LLM")
+    parser.add_argument("--cambio", action="append",
+                        help='S10-T03, con --espacio: un cambio tuyo, como "EmploymentContext '
+                             'broadMatch ProcessingContext", "... en vez de OtroTérmino" o '
+                             '"Concepto quitar"; se puede repetir')
+    parser.add_argument("--aplicar", action="store_true",
+                        help="aplica los cambios válidos y deja la versión nueva (sin esto, "
+                             "solo los muestra)")
     args = parser.parse_args(argv)
     if bool(args.file) == bool(args.espacio):
         print("Error: indica un archivo o --espacio.")
+        return 1
+    if args.cambio and not args.espacio:
+        print("Error: --cambio va con --espacio.")
+        return 1
+    if args.aplicar and not args.cambio:
+        print("Error: --aplicar va con al menos un --cambio.")
         return 1
     use_llm = False if args.sin_ia else None
     try:
@@ -824,7 +915,11 @@ def _run(argv: list[str] | None = None) -> int:
         if args.espacio:
             from src.config import load_config
             from src.validation.shape_inspector import open_workspace
-            ws = open_workspace(args.espacio, load_config())
+            cfg = load_config()
+            ws = open_workspace(args.espacio, cfg)
+            if args.cambio:
+                return _changes(ws, args.cambio, apply_them=args.aplicar, fmt=args.formato,
+                                use_llm=use_llm, cfg=cfg)
             ws, manifest, zip_path = align_workspace(ws, fmt=args.formato, use_llm=use_llm)
         else:
             path = Path(args.file)
@@ -837,6 +932,31 @@ def _run(argv: list[str] | None = None) -> int:
         print(f"Error: {exc}")
         return 1
     print(render_console(ws, manifest, zip_path))
+    return 0
+
+
+def _changes(ws, texts: list[str], *, apply_them: bool, fmt: str, use_llm,
+             cfg: dict | None = None) -> int:
+    """S10-T03 in the console: show what the fixed rule says of each change; apply them."""
+    changes = [ud.parse_change(t) for t in texts]
+    if not apply_them:
+        checked = ud.check(ws, changes, cfg=cfg)
+        valid = sum(c.ok for c in checked)
+        print(ud.render_checked(checked))
+        print(f"  {counted(valid, 'cambio válido', 'cambios válidos')} de {len(checked)}. "
+              + (f"Para {'aplicarlo' if valid == 1 else 'aplicarlos'} y crear la versión "
+                 f"{ud.current_version(ws) + 1}, agrega --aplicar." if valid
+                 else "Ninguno se puede aplicar."))
+        return 0
+    result = ud.apply(ws, changes, cfg=cfg, fmt=fmt, use_llm=use_llm)
+    print(ud.render_checked(result["checked"]))
+    if not result["applied"]:
+        print(f"  Ningún cambio es válido: la versión {result['version']} sigue igual.")
+        return 1
+    print(render_console(ws, result["manifest"], result["zip"]))
+    previous = result["previous"].relative_to(ws.path).as_posix()
+    print(f"  Versión {result['version']} lista en {result['seconds']} s. La versión "
+          f"{result['version'] - 1} quedó en {previous}/ con sus cuatro descargas.")
     return 0
 
 

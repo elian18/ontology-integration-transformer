@@ -429,12 +429,28 @@ def audit_workspace(ws, cfg: dict | None = None, *, llm=None, use_llm: bool | No
 
 
 def current_result(ws) -> dict | None:
-    """The saved review if it is of the correspondences accepted now (else None)."""
+    """The saved review if it is of the correspondences accepted now (else None), without the
+    concepts the person decided on afterwards (S10-T03: theirs are not reviewed again)."""
     from src.alignment.propose import load_result as decisions_result
+    from src.alignment.user_decisions import touched
     result, decisions = load_result(ws), decisions_result(ws)
     if result is None or decisions is None:
         return None
-    return result if result.get("decisions") == fingerprint(_accepted(decisions)) else None
+    if result.get("decisions") != fingerprint(_accepted(decisions)):
+        return None
+    return without(result, touched(ws))
+
+
+def without(result: dict, keys: set[str]) -> dict:
+    """The review minus the correspondences of ``keys``, with its counts done again."""
+    if not keys:
+        return result
+    entries = [e for e in result["entries"] if e["key"] not in keys]
+    count = {v: sum(e["verdict"] == v for e in entries) for v in (*VERDICTS, INVALID)}
+    return {**result, "entries": entries,
+            "summary": {"accepted": len(entries), **count,
+                        "pending": sum(e["verdict"] is None for e in entries),
+                        "by_user": len(result["entries"]) - len(entries)}}
 
 
 def by_key(result: dict | None) -> dict[str, dict]:
