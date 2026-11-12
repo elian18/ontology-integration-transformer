@@ -210,13 +210,13 @@ def items_for(pairs: list[Pair], base: Graph, gdprtext: Graph, targets) -> list[
 
 # --------------------------------------------------------------------------- validating
 
-def validate(parts: list, bridge, cfg: dict | None, engine: str | None) -> dict:
-    """Forma and Lógica on the base plus the bridge: what the base already had is inherited,
-    what only the bridge brings is new."""
+def validate(parts: list, bridge, cfg: dict | None, engine: str | None,
+             name: str = "Base del sistema + puente con el GDPR") -> dict:
+    """Forma and Lógica on the base plus the bridge (or another module, S10-T06): what the
+    base already had is inherited, what only that module brings is new."""
     from src.validation import logic_inspector as li
     from src.validation import shape_inspector as si
     base = [replace(p, origin=si.BASE) for p in parts]
-    name = "Base del sistema + puente con el GDPR"
     shapes = si.inspect([*base, bridge], dpv=si._dpv(cfg), kind=si.KIND_WORKSPACE, name=name)
     logic = li.inspect([*base, bridge], cfg=cfg, engine=engine, kind=si.KIND_WORKSPACE, name=name)
     v, w = shapes["summary"]["violations"], shapes["summary"]["warnings"]
@@ -351,7 +351,7 @@ def load_result(cfg: dict | None = None) -> dict | None:
 
 # --------------------------------------------------------------------------- console
 
-def validation_lines(v: dict | None) -> list[str]:
+def validation_lines(v: dict | None, what: str = "el puente") -> list[str]:
     if v is None:
         return ["  Forma y Lógica: no se revisaron"]
     s, lg = v["shapes"], v["logic"]
@@ -366,9 +366,9 @@ def validation_lines(v: dict | None) -> list[str]:
             f"{counted(lg['new_warnings'], 'aviso nuevo', 'avisos nuevos')} · heredados de la "
             f"base: {counted(lg['inherited_errors'], 'inconsistencia', 'inconsistencias')}, "
             f"{counted(lg['inherited_warnings'], 'aviso', 'avisos')}",
-            "  " + ("Sin hallazgos nuevos: el puente no rompe ninguna regla ni agrega "
+            "  " + (f"Sin hallazgos nuevos: {what} no rompe ninguna regla ni agrega "
                     "contradicciones." if clean(v) else
-                    "El puente trae hallazgos nuevos: revisa los reportes.")]
+                    f"{what[0].upper()}{what[1:]} trae hallazgos nuevos: revisa los reportes.")]
 
 
 def render(out: dict) -> str:
