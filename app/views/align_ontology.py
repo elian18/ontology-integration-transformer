@@ -25,7 +25,7 @@ def _restart(mode: str | None = None) -> None:
     """Go to the three modes (``mode`` None) or to the upload of ``mode``: new uploaders,
     nothing computed."""
     ss["align_round"] = ss.get("align_round", 0) + 1
-    for key in ("align_key", "align_ws", "align_failed"):
+    for key in ("align_key", "align_ws", "align_failed", "align_review"):
         ss.pop(key, None)
     if mode is None:
         ss.pop("align_mode", None)
@@ -331,16 +331,68 @@ def _validation(v: dict) -> None:
                                on_click="ignore", icon=":material/description:")
 
 
-def step_result(ws_id: str) -> None:
+_COLORS = {"aligned": "#4C78A8", "none": "#BAB0AC", "dpv": "#F58518", "root": "#31333F"}
+_SHAPES = {"dpv": "diamond", "root": "box"}
+_EDGES = {"dpv": "#F58518", "subclass": "#4C78A8", "root": "#D5DAE5"}
+
+
+def _preview(ws_id: str) -> None:
+    """The small interactive graph of the ready screen (streamlit-agraph, offline)."""
+    from streamlit_agraph import Config, Edge, Node, agraph
+    p = svc.preview(ws_id)
+    nodes = [Node(id=n["id"], label=n["label"], title=n["title"], color=_COLORS[n["kind"]],
+                  shape=_SHAPES.get(n["kind"], "dot"), size=14,
+                  font={"size": 16, "color": "#FFFFFF" if n["kind"] == "root" else "#31333F"})
+             for n in p["nodes"]]
+    edges = [Edge(source=e["source"], target=e["target"], label=e["label"],
+                  color=_EDGES[e["kind"]], font={"size": 13}) for e in p["edges"]]
+    config = Config(height=460, directed=True, physics=True)
+    config.width = "100%"                                 # Config always appends "px"
+    config.physics["barnesHut"] = {"springLength": 130, "avoidOverlap": 0.4}
+    with st.container(border=True, key="align_preview"):
+        agraph(nodes=nodes, edges=edges, config=config)
+    st.caption(svc.preview_caption(p))
+
+
+def _open_review() -> None:
+    ss["align_review"] = True
+
+
+def _close_review() -> None:
+    ss.pop("align_review", None)
+
+
+def _broken(exc: Exception) -> None:
+    st.error(svc.error_message(exc))
+    st.button("Empezar de nuevo", key="align_again", icon=":material/restart_alt:",
+              on_click=_home)
+
+
+def step_ready(ws_id: str) -> None:
+    """¡Tu ontología está lista!: a preview and one button to review it (S10-T12)."""
     if ss.get("align_mode") in svc.MODES:                 # its files are kept: go back to them
         _back(_to_upload, "align_result_back")
     try:
         v = svc.view(ws_id)
+    except Exception as exc:                              # noqa: BLE001 - shown to the person
+        _broken(exc)
+        return
+    st.title(svc.READY_TITLE)
+    st.caption(v["file"])
+    _preview(ws_id)
+    st.button(svc.REVIEW_BUTTON, key="align_review_open", type="primary",
+              icon=":material/fact_check:", on_click=_open_review)
+    st.caption(svc.REVIEW_HINT)
+
+
+def step_result(ws_id: str) -> None:
+    """The review (S10-T13 to S10-T15 replace it step by step): what step 3 showed so far."""
+    _back(_close_review, "align_review_back")
+    try:
+        v = svc.view(ws_id)
         downloads = svc.download_options(ws_id)
     except Exception as exc:                              # noqa: BLE001 - shown to the person
-        st.error(svc.error_message(exc))
-        st.button("Empezar de nuevo", key="align_again", icon=":material/restart_alt:",
-                  on_click=_home)
+        _broken(exc)
         return
     warnings = svc.notes(v)
     st.success(svc.summary_line(v), title="Tu ontología está lista",
@@ -368,8 +420,10 @@ def step_result(ws_id: str) -> None:
 
 # ------------------------------------------------------------------ which step
 
-if ss.get("align_ws"):
+if ss.get("align_ws") and ss.get("align_review"):
     step_result(ss["align_ws"])
+elif ss.get("align_ws"):
+    step_ready(ss["align_ws"])
 elif ss.get("align_mode") in svc.MODES:
     step_upload(ss["align_mode"])
 elif ss.get("align_path") == svc.PATH_ALIGN:

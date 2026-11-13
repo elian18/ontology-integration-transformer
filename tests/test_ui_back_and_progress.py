@@ -49,6 +49,9 @@ def counted(live, monkeypatch):
     return page, uploads, calls, drawn
 
 
+READY = "¡Tu ontología está lista!"
+
+
 def _kept(at) -> list[str]:
     return [m.value for m in at.markdown if m.value.startswith(":material/description:")]
 
@@ -65,7 +68,7 @@ def test_back_keeps_the_files_and_computes_nothing(counted):
     _pick(at, "ontology")
     uploads["ontology"] = ("Mi GDPR.ttl", TTL.encode("utf-8"))
     at.run()
-    assert calls == ["ontology"] and _zips(at)
+    assert calls == ["ontology"] and _titles(at) == [READY]
     drawn.clear()
     at.button(key="align_result_back").click().run()          # the result: "Atrás"
     assert not at.exception and _titles(at) == ["Mi ontología"]
@@ -74,14 +77,16 @@ def test_back_keeps_the_files_and_computes_nothing(counted):
     assert at.button(key="align_next").label == svc.NEXT_LABEL
     assert calls == ["ontology"] and not at.status
     at.button(key="align_next").click().run()
-    assert _zips(at) and calls == ["ontology"]                 # the same result, no new run
+    assert _titles(at) == [READY] and calls == ["ontology"]    # the same result, no new run
     at.button(key="align_result_back").click().run()
     at.button(key="align_back").click().run()                  # the modes
     _pick(at, "ontology+law")
     assert len(_kept(at)) == 1 and drawn[-1] == "Tu ley (.txt o .pdf)"
     uploads["law"] = ("ley.txt", LAW_E2E.encode("utf-8"))
     at.run()
-    assert not at.exception and _zips(at) and calls == ["ontology", "ontology+law"]
+    assert not at.exception and _titles(at) == [READY] and calls == ["ontology", "ontology+law"]
+    at.button(key="align_review_open").click().run()
+    assert _zips(at)
     at.button(key="align_again").click().run()                 # start over: the files go
     assert _titles(at) == [TITLE] and "align_files" not in at.session_state
     uploads.clear()

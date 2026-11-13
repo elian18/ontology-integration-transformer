@@ -863,10 +863,16 @@ def concept_options(raw: list[dict]) -> dict[str, str]:
     return dict(sorted(out.items(), key=lambda kv: (kv[1].lower(), kv[0])))
 
 
-@lru_cache(maxsize=4)
-def _provenance_graph(path: str, stamp: tuple):
+@lru_cache(maxsize=8)
+def _graph_file(path: str, stamp: tuple):
     from src.transform.convert import load_graph
     return load_graph(path)
+
+
+def _graph_at(path: Path):
+    """A module of the workspace, read again only when its file changes."""
+    stat = path.stat()
+    return _graph_file(str(path), (stat.st_mtime_ns, stat.st_size))
 
 
 def provenance_card(ws_id: str, iri: str) -> dict:
@@ -877,8 +883,7 @@ def provenance_card(ws_id: str, iri: str) -> dict:
     path = ws.path / entry["file"] if entry else None
     if path is None or not path.exists():
         return {"missing": NO_PROVENANCE}
-    stat = path.stat()
-    records = up.records_of(_provenance_graph(str(path), (stat.st_mtime_ns, stat.st_size)), iri)
+    records = up.records_of(_graph_at(path), iri)
     return card(records, iri, [r for r in _rows(ws) if r.get("concept_iri") == iri],
                 version=manifest.get("alignment_version") or 1,
                 file=manifest.get("uploaded_file") or "", mode=ws.manifest.get("mode"))
@@ -1045,3 +1050,84 @@ def transform_downloads(name: str, data: bytes) -> list[dict]:
              "file_name": f"{stem}{f.extension}", "mime": f.media_type,
              "data": partial(transformed_bytes, name, data, f.key)}
             for f in OUTPUT_FORMATS.values()]
+
+
+# ------------------------------------------------------------------ the ready screen (S10-T12)
+
+READY_TITLE = "¡Tu ontología está lista!"
+REVIEW_BUTTON = "Revisa tu ontología antes de confirmar tu descarga"
+REVIEW_HINT = "Podemos afinar algunos detalles juntos."
+PREVIEW_CONCEPTS = 16                     # concepts in the preview, with their DPV terms
+PREVIEW_ALIGNED = 10                      # of them, at most this many with a DPV term
+PREVIEW_ROOT = "root"                     # the node of the ontology itself, in the middle
+SUBCLASS = "es un tipo de"
+RELATION_WORDS = {"exactMatch": "igual a", "closeMatch": "parecido a",
+                  "broadMatch": "es un tipo de", "narrowMatch": "más general que",
+                  "relatedMatch": "relacionado con", "seeAlso": "ver también"}
+PREVIEW_CAPTION = ("En azul, tus conceptos; en naranja, su equivalente en el vocabulario de "
+                   "privacidad (DPV); en gris, los que no tienen uno. Puedes mover los nodos y "
+                   "acercarte.")
+
+
+def _subclasses(ws, manifest: dict, names: dict) -> list[tuple[str, str]]:
+    """The subClassOf links between concepts of the table, read from the person's ontology."""
+    from rdflib import RDFS, URIRef
+    file = (manifest.get("files") or {}).get("ontology")
+    path = ws.path / file if file else None
+    if path is None or not path.exists():
+        return []
+    graph = _graph_at(path)
+    return sorted({(str(s), str(o)) for s, o in graph.subject_objects(RDFS.subClassOf)
+                   if isinstance(o, URIRef) and str(s) in names and str(o) in names
+                   and s != o})
+
+
+def preview(ws_id: str) -> dict:
+    """A small piece of the ontology to draw: its aligned concepts first with their DPV terms,
+    then the concepts linked to them by subClassOf, then the rest, up to PREVIEW_CONCEPTS."""
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    rows = _rows(ws)
+    names, states, links = {}, {}, {}
+    for r in rows:
+        iri = r.get("concept_iri")
+        if not iri:
+            continue
+        names.setdefault(iri, r.get("concept_name") or up.local(iri))
+        states.setdefault(iri, STATE_LABELS.get(r.get("status"), r.get("status")))
+        if r.get("status") in ua.WRITTEN and r.get("dpv_iri"):
+            links.setdefault(iri, []).append(r)
+    manifest = ua.load_manifest(ws) or {}
+    sub = _subclasses(ws, manifest, names)
+    chosen = [iri for iri in names if iri in links][:PREVIEW_ALIGNED]
+    for s, o in sub:
+        for a, b in ((s, o), (o, s)):
+            if a in chosen and b not in chosen and len(chosen) < PREVIEW_CONCEPTS:
+                chosen.append(b)
+    rest = sorted((iri for iri in names if iri not in chosen), key=lambda iri: iri in links)
+    chosen += rest[:PREVIEW_CONCEPTS - len(chosen)]      # the ones without a term first
+    file = manifest.get("uploaded_file") or "Tu ontología"
+    nodes = [{"id": PREVIEW_ROOT, "label": file, "kind": "root", "title": file}]
+    nodes += [{"id": iri, "label": names[iri], "kind": "aligned" if iri in links else "none",
+               "title": f"{names[iri]}: {states[iri]}"} for iri in chosen]
+    edges, terms = [], {}
+    for iri in chosen:
+        for r in links.get(iri, []):
+            terms.setdefault(r["dpv_iri"], r.get("dpv_name") or up.local(r["dpv_iri"]))
+            word = RELATION_WORDS.get(up.local(r.get("relation") or ""), "")
+            edges.append({"source": iri, "target": r["dpv_iri"], "label": word, "kind": "dpv"})
+    nodes += [{"id": iri, "label": name, "kind": "dpv", "title": f"DPV: {name}"}
+              for iri, name in terms.items()]
+    shown = set(chosen)
+    inner = [(s, o) for s, o in sub if s in shown and o in shown]
+    edges += [{"source": s, "target": o, "label": SUBCLASS, "kind": "subclass"}
+              for s, o in inner]
+    tops = [iri for iri in chosen if iri not in {s for s, _ in inner}]
+    edges += [{"source": iri, "target": PREVIEW_ROOT, "label": "", "kind": "root"}
+              for iri in tops]                          # one graph, not scattered pieces
+    return {"nodes": nodes, "edges": edges, "shown": len(chosen), "total": len(names)}
+
+
+def preview_caption(p: dict) -> str:
+    part = (f"Se ven {p['shown']} de tus {p['total']} conceptos. " if p["shown"] < p["total"]
+            else "")
+    return part + PREVIEW_CAPTION

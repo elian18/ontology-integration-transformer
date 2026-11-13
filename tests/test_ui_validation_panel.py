@@ -309,6 +309,7 @@ def test_an_upload_from_before_the_questions(page, yellow):
     assert val["questions"] is None
     at = page()
     at.session_state["align_ws"] = yellow
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar"]
@@ -368,6 +369,7 @@ def test_a_failed_inspector_has_no_stale_detail(yellow):
 def test_the_page_shows_the_panel_and_what_the_ai_marked(page, yellow):
     at = page()
     at.session_state["align_ws"] = yellow
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     text = [m.value for m in at.markdown]
@@ -393,6 +395,7 @@ def test_the_page_shows_the_panel_and_what_the_ai_marked(page, yellow):
 def test_the_page_of_a_red_upload(page, red):
     at = page()
     at.session_state["align_ws"] = red
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     text = [m.value for m in at.markdown]
@@ -406,6 +409,7 @@ def test_the_page_of_an_upload_from_before_the_validation(page, yellow):
     (ws.output_dir / uv.RESULT_FILE).unlink()
     at = page()
     at.session_state["align_ws"] = yellow
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     assert svc.NO_VALIDATION in [c.value for c in at.caption]
@@ -434,6 +438,7 @@ def test_the_page_shows_the_questions_in_green_yellow_and_gray(page, yellow):
         _set_questions(yellow, state)
         at = page()
         at.session_state["align_ws"] = yellow
+        at.session_state["align_review"] = True              # the review (S10-T12)
         at.run()
         assert not at.exception
         seen[name] = _questions_page(at)
@@ -483,6 +488,7 @@ def test_the_page_with_gdprtext_and_the_law_of_colombia(monkeypatch):
             pytest.skip(f"{ws_id} se validó antes de las preguntas")
         at = AppTest.from_file(str(ROOT / "app/views/align_ontology.py"), default_timeout=60)
         at.session_state["align_ws"] = ws_id
+        at.session_state["align_review"] = True              # the review (S10-T12)
         at.run()
         assert not at.exception
         shown = _questions_page(at)

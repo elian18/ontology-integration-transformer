@@ -525,6 +525,7 @@ def test_going_back_gives_new_uploaders(page):
 def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     at = page()
     at.session_state["align_ws"] = aligned[0]
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception and not at.warning
     assert at.success[0].proto.title == "Tu ontología está lista"
@@ -557,6 +558,7 @@ def test_page_warns_when_the_ai_left_labels_pending(page, env, targets, monkeypa
                       embed_fn=Embed(), chroma_path=env.chroma)
     at = page()
     at.session_state["align_ws"] = ws_id
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     warnings = [w.value for w in at.warning]
@@ -568,6 +570,7 @@ def test_page_warns_when_the_ai_left_labels_pending(page, env, targets, monkeypa
 def test_page_shows_what_was_built_from_a_law(page, law_aligned):
     at = page()
     at.session_state["align_ws"] = law_aligned[0]
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     assert at.success[0].value.startswith("Perfil de Ley de prueba.txt · 5 conceptos")
@@ -592,6 +595,7 @@ def test_page_shows_what_was_built_from_a_law(page, law_aligned):
 def test_page_shows_the_articles_to_review(page, both_aligned):
     at = page()
     at.session_state["align_ws"] = both_aligned[0]
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     assert not at.exception
     captions = [c.value for c in at.caption]
@@ -661,6 +665,8 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     assert not at.download_button and not at.status[1:]
     uploads["law"] = ("ley.txt", LAW_E2E.encode("utf-8"))
     at.run()
+    assert not at.exception and _titles(at) == ["¡Tu ontología está lista!"]   # S10-T12
+    at.button(key="align_review_open").click().run()
     assert not at.exception and not at.error and not at.warning
     assert at.success[0].value.startswith("Mi GDPR.ttl · 4 conceptos")
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
@@ -690,6 +696,7 @@ def test_a_failure_is_shown_and_not_repeated(live, monkeypatch):
 def test_page_reports_a_broken_workspace(page):
     at = page()
     at.session_state["align_ws"] = "no-existe-00000000"
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.session_state["align_path"], at.session_state["align_mode"] = "align", "ontology"
     at.run()
     assert not at.exception
