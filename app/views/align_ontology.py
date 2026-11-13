@@ -25,7 +25,8 @@ def _restart(mode: str | None = None) -> None:
     """Go to the three modes (``mode`` None) or to the upload of ``mode``: new uploaders,
     nothing computed."""
     ss["align_round"] = ss.get("align_round", 0) + 1
-    for key in ("align_key", "align_ws", "align_failed", "align_review", "align_step"):
+    for key in ("align_key", "align_ws", "align_failed", "align_review", "align_step",
+                "align_applied", "align_answers", "align_extra", "align_q"):
         ss.pop(key, None)
     if mode is None:
         ss.pop("align_mode", None)
@@ -354,11 +355,16 @@ def _preview(ws_id: str) -> None:
     st.caption(svc.preview_caption(p))
 
 
+DECIDE = len(svc.WALK_TITLES) + 1                         # the step of "Tú decides"
+
+
 def _walk_to(step: int) -> None:
-    """Step 0 is "¡Tu ontología está lista!", 1 to 3 "Lo que hicimos", after them the review."""
+    """Step 0 is "¡Tu ontología está lista!", 1 to 3 "Lo que hicimos", 4 "Tú decides" and
+    after them the review."""
     ss.pop("align_review", None)
     ss.pop("align_step", None)
-    if step > len(svc.WALK_TITLES):
+    ss.pop("align_applied", None)
+    if step > DECIDE:
         ss["align_review"] = True
     elif step > 0:
         ss["align_step"] = step
@@ -369,7 +375,7 @@ def _open_review() -> None:
 
 
 def _close_review() -> None:
-    _walk_to(len(svc.WALK_TITLES))
+    _walk_to(DECIDE)
 
 
 def _broken(exc: Exception) -> None:
@@ -418,6 +424,158 @@ def step_walk(ws_id: str, step: int) -> None:
               args=(step + 1,))
 
 
+def _record(ws_id: str, iri: str) -> None:
+    """The provenance of a concept (S10-T08), only when the person opens it."""
+    c = svc.provenance_card(ws_id, iri)
+    if c["missing"]:
+        st.caption(c["missing"])
+        return
+    st.markdown(c["headline"])
+    st.markdown(c["origin"])
+    if c["versions"]:
+        st.dataframe(pd.DataFrame(c["versions"]), hide_index=True, width="stretch")
+    for s in c["steps"]:
+        head = (f"{s['badge']} " if s["badge"] else "") + f"**{s['title']}**"
+        st.markdown("  \n".join([head, *([s["text"]] if s["text"] else []), *s["extra"]]))
+
+
+def _answer(n: int, key: str) -> None:
+    ss.setdefault("align_answers", {})[n] = ss[key]
+
+
+def _goto_question(i: int) -> None:
+    ss["align_q"] = i
+
+
+def _add_extra(iri: str, name: str, key: str, options: list[dict]) -> None:
+    chosen = options[ss[key]]
+    extra = [e for e in ss.get("align_extra", []) if e["concept"] != iri]
+    ss["align_extra"] = [*extra, {"concept": iri, "name": name, "text": chosen["text"],
+                                  "note": f"{name} → {chosen['text']}", **chosen["change"]}]
+
+
+def _drop_extra(iri: str) -> None:
+    ss["align_extra"] = [e for e in ss.get("align_extra", []) if e["concept"] != iri]
+
+
+def _apply() -> None:
+    ss["align_applying"] = True
+
+
+def _keep_all() -> None:
+    for key in ("align_answers", "align_extra", "align_q"):
+        ss.pop(key, None)
+    _walk_to(DECIDE + 1)
+
+
+def _question(ws_id: str, d: dict) -> None:
+    qs = d["questions"]
+    i = min(ss.get("align_q", 0), len(qs) - 1)
+    q = qs[i]
+    st.progress((i + 1) / len(qs), text=f"Pregunta {i + 1} de {len(qs)}")
+    with st.container(border=True, key="align_question"):
+        st.markdown(f"**{q['text']}**")
+        letters = list(q["options"])
+        chosen = ss.get("align_answers", {}).get(q["n"], q["leave"])    # nothing until chosen
+        key = f"align_answer_{d['version']}_{q['n']}"
+        st.radio("Tu respuesta", letters, index=letters.index(chosen),
+                 format_func=q["options"].get, key=key, on_change=_answer, args=(q["n"], key),
+                 label_visibility="collapsed")
+        if q["why"]:
+            st.caption(f"¿Por qué te lo preguntamos? {q['why']}")
+        with st.expander("Ver el registro completo"):
+            _record(ws_id, q["concept"])
+    left, right = st.columns(2)
+    if i > 0:
+        left.button("Anterior", key="align_q_prev", icon=":material/arrow_back:",
+                    on_click=_goto_question, args=(i - 1,))
+    if i < len(qs) - 1:
+        right.button("Siguiente pregunta", key="align_q_next", type="primary",
+                     icon=":material/arrow_forward:", on_click=_goto_question, args=(i + 1,))
+
+
+def _adjust(ws_id: str) -> None:
+    """Ajustar otro concepto: what was "¿Está mal? Ver opciones"."""
+    with st.expander("Ajustar otro concepto"):
+        options = svc.view(ws_id)["concept_options"]
+        iri = st.selectbox("Concepto", list(options), index=None, format_func=options.get,
+                           placeholder="Elige el concepto que quieres cambiar",
+                           key="align_adjust_concept")
+        if iri is not None:
+            choices = svc.adjust_options(ws_id, iri, targets=_targets())
+            if not choices:
+                st.caption("No tenemos otra opción para este concepto.")
+            else:
+                key = "align_adjust_choice"
+                st.radio("Cámbialo a", range(len(choices)),
+                         format_func=lambda k: choices[k]["text"], key=key)
+                st.button("Agregar este cambio", key="align_adjust_add",
+                          icon=":material/add:", on_click=_add_extra,
+                          args=(iri, options[iri].split(" · ")[0], key, choices))
+        for e in ss.get("align_extra", []):
+            col, drop = st.columns([5, 1])
+            col.markdown(f"- {svc.plain(e['name'])}: {svc.plain(e['text'])}")
+            drop.button("Quitar", key=f"align_extra_drop_{e['concept']}", type="tertiary",
+                        on_click=_drop_extra, args=(e["concept"],))
+
+
+def _applied(ws_id: str, applied: dict) -> None:
+    st.title(svc.APPLIED_TITLE if applied["applied"] else svc.DECIDE_TITLE)
+    if not applied["applied"]:
+        st.info(svc.NOTHING_APPLIED, icon=":material/info:")
+    if applied["changes"]:
+        st.markdown("\n".join(f"- {svc.plain(line)}" for line in applied["changes"]))
+    for line in applied["refused"]:
+        st.warning(f"No se aplicó: {svc.plain(line)}", icon=":material/warning:")
+    if applied["applied"]:
+        _preview(ws_id)
+    st.button("Continuar", key="align_decide_done", type="primary",
+              icon=":material/arrow_forward:", on_click=_walk_to, args=(DECIDE + 1,))
+
+
+def step_decide(ws_id: str) -> None:
+    """Tú decides: the questions one at a time, other concepts, and the new version (S10-T14)."""
+    if ss.pop("align_applying", False):
+        with st.status(svc.RECALCULATING, expanded=False) as status:
+            try:
+                applied = svc.apply_answers(ws_id, ss.get("align_answers", {}),
+                                            ss.get("align_extra", []), targets=_targets())
+            except Exception as exc:                      # noqa: BLE001 - shown to the person
+                status.update(label="No se pudo recalcular", state="error")
+                st.error(svc.error_message(exc))
+                return
+            status.update(label="Listo", state="complete")
+        for key in ("align_answers", "align_extra", "align_q"):
+            ss.pop(key, None)
+        ss["align_applied"] = applied
+        st.rerun()                                        # the result, without the status box
+    applied = ss.get("align_applied")
+    if applied is not None:
+        _applied(ws_id, applied)
+        return
+    _back(lambda: _walk_to(DECIDE - 1), "align_decide_back")
+    try:
+        d = svc.decisions_view(ws_id)
+    except Exception as exc:                              # noqa: BLE001 - shown to the person
+        _broken(exc)
+        return
+    st.title(svc.DECIDE_TITLE)
+    if d["questions"]:
+        st.markdown(svc.DECIDE_LEAD.format(n=svc.counted(len(d["questions"]), "detalle",
+                                                         "detalles")))
+        _question(ws_id, d)
+    else:
+        st.success(svc.NOTHING_TO_DECIDE, icon=":material/check_circle:")
+    _adjust(ws_id)
+    answered = ss.get("align_answers") or ss.get("align_extra")
+    if answered:
+        st.button("Aplicar mis respuestas", key="align_apply", type="primary",
+                  icon=":material/check:", on_click=_apply)
+    st.button("Mantener todo y continuar", key="align_keep_all",
+              type="tertiary" if answered else "primary", icon=":material/arrow_forward:",
+              on_click=_keep_all)
+
+
 def step_result(ws_id: str) -> None:
     """The review (S10-T13 to S10-T15 replace it step by step): what step 3 showed so far."""
     _back(_close_review, "align_review_back")
@@ -455,6 +613,8 @@ def step_result(ws_id: str) -> None:
 
 if ss.get("align_ws") and ss.get("align_review"):
     step_result(ss["align_ws"])
+elif ss.get("align_ws") and ss.get("align_step") == DECIDE:
+    step_decide(ss["align_ws"])
 elif ss.get("align_ws") and ss.get("align_step"):
     step_walk(ss["align_ws"], ss["align_step"])
 elif ss.get("align_ws"):

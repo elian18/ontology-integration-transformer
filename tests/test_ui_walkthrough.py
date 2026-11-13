@@ -143,8 +143,8 @@ def test_the_page_walks_the_three_steps(page, aligned):  # noqa: F811
             assert _titles(at) == [svc.WALK_TITLES[1]]
             nxt = at.button(key="align_walk_next")
         nxt.click().run()
-    assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]           # what comes after
-    at.button(key="align_review_back").click().run()                      # back to step 3
+    assert _titles(at) == [svc.DECIDE_TITLE]                              # what comes after
+    at.button(key="align_decide_back").click().run()                      # back to step 3
     assert _titles(at) == [svc.WALK_TITLES[2]]
     at.button(key="align_walk_back").click().run()
     at.button(key="align_walk_back").click().run()
