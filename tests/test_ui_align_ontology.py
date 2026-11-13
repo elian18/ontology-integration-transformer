@@ -7,11 +7,16 @@ import types
 from pathlib import Path
 
 import pytest
-from rdflib import Graph
+from rdflib import Graph, URIRef
+from rdflib.compare import isomorphic
+from rdflib.namespace import OWL, PROV, RDF, SKOS
 
 from app.services import align_ontology as svc
-from src.core.emit import CORE_FILE
-from src.workspace.store import WorkspaceError
+from src.alignment import user_alignment as ua
+from src.core.emit import CORE_FILE, CORE_IRI
+from src.transform.convert import load_graph, parse_bytes
+from src.transform.merge import merge
+from src.workspace.store import WorkspaceError, load_workspace
 from tests.test_alignment_propose import TTL, DeciderLLM, Embed, env, targets  # noqa: F401
 from tests.test_law_evidence import LAW_E2E
 from tests.test_law_profile import CORE_TTL, LAW, Embed as LawEmbed, LawLLM
@@ -173,8 +178,10 @@ def test_a_law_becomes_an_aligned_ontology(law_aligned):
                             "nuevos.")
     assert v["core"] and v["evidence"] is None and v["extraction_note"] is None
     assert v["concepts"] == 5 and "Artículos de la ley" not in v["rows"][0]
-    names = svc.zip_names(svc.download(ws_id, "turtle")["data"])
-    assert "ontopriv-core.ttl" in names and "ley-de-prueba-profile.ttl" in names
+    one = _single(ws_id)                                       # S10-T15: one file
+    assert set(one.subjects(RDF.type, OWL.Ontology)) == {URIRef(_onto_iri(ws_id))}
+    assert (URIRef(CORE_IRI), None, None) not in one and not list(one.objects(None, OWL.imports))
+    assert any(str(c).startswith(LOPDP) for c in one.subjects(RDF.type, OWL.Class))  # the core
 
 
 def test_an_ontology_with_a_law_brings_the_articles_to_review(both_aligned):
@@ -193,8 +200,9 @@ def test_an_ontology_with_a_law_brings_the_articles_to_review(both_aligned):
     personal = [r for r in v["rows"] if r["Concepto"] == "PersonalData"][0]
     assert personal["Artículos de la ley"].startswith("art. 1 (0,00); ")
     assert v["metrics"] == svc.view(ws_id)["metrics"]
-    names = svc.zip_names(svc.download(ws_id, "turtle")["data"])
-    assert not any("evidence" in n for n in names) and "alignment.csv" in names
+    one = _single(ws_id)                                       # the articles stay out
+    assert set(one.subjects(RDF.type, OWL.Ontology)) == {URIRef(_onto_iri(ws_id))}
+    assert not [o for o in one.objects() if "art. 1 (0,00)" in str(o)]
 
 
 def test_profile_caption_and_extraction_note():
@@ -251,78 +259,44 @@ def test_the_view_warns_when_the_law_was_not_read_whole(law_aligned):
         "Se llegó al límite de llamadas a la IA de esta subida: la IA leyó 3 de 4 artículos")
 
 
-def test_download_in_each_format_without_recomputing(aligned):
+DPV = "https://w3id.org/dpv#"
+LOPDP = "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#"
+
+
+def _onto_iri(ws_id: str) -> str:
+    return ua.load_manifest(load_workspace(ws_id, cfg=svc.workspace_cfg()))["ontology_iri"]
+
+
+def _single(ws_id: str, key: str = "turtle") -> Graph:
+    return parse_bytes(svc.final_bytes(ws_id, key, svc.workspace_cfg()), key)
+
+
+def test_one_file_per_format_built_only_when_asked(aligned, monkeypatch):
     ws_id, _ = aligned
-    for key, label in svc.FORMATS:
-        pkg = svc.download(ws_id, key)
-        assert pkg["label"] == label and pkg["file_name"] == f"mi-gdpr-alineada-{key}.zip"
-        names = svc.zip_names(pkg["data"])
-        assert pkg["main_file"] in names and "alignment.csv" in names
-        assert (pkg["note"] is not None) == (key == "jsonld")
-
-
-def test_friendly_errors(cfg, monkeypatch):
-    monkeypatch.setattr(svc, "workspace_cfg", lambda: cfg)
-    with pytest.raises(WorkspaceError) as exc:
-        svc.align("notas.md", b"hola")
-    assert svc.error_message(exc.value).startswith("Formato de ontología no soportado")
-    assert "base construida" in svc.error_message(FileNotFoundError("x.json"))
-    assert svc.error_message(RuntimeError("boom")) == \
-        "No se pudo alinear la ontología: RuntimeError: boom"
-    with pytest.raises(WorkspaceError, match="No existe"):
-        svc.view("no-existe-00000000")
-
-
-def test_ai_note_only_when_concepts_were_left_without_the_ai():
-    assert svc._ai_note({"pending_ai": 0, "ai": {"available": False}}) is None
-    off = svc._ai_note({"pending_ai": 3, "ai": {"available": False}, "threshold_without_ai": 0.75})
-    assert "no estuvo disponible: a 3 conceptos" in off and "puntaje >= 0.75" in off
-    quota = svc._ai_note({"pending_ai": 2, "ai": {"available": True, "quota_exhausted": True}})
-    assert "cuota diaria" in quota and "lo ya decidido no se repite" in quota
-    limit = svc._ai_note({"pending_ai": 2, "ai": {"available": True, "call_limit_reached": True}})
-    assert "límite de llamadas" in limit
-
-
-def test_without_ai_the_page_says_what_happened(env, targets, monkeypatch):
-    offline = {**env.cfg, "auto": {**env.cfg["auto"], "use_llm": False}}
-    monkeypatch.setattr(svc, "workspace_cfg", lambda: offline)
-    v = svc.view(svc.align("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, targets=targets,
-                           embed_fn=Embed(), chroma_path=env.chroma))
-    assert v["metrics"]["Aceptadas automáticamente"] == 2 and v["metrics"]["Sin propuesta"] == 1
-    assert "La IA no estuvo disponible: a 3 conceptos" in v["ai_note"]
-    assert {r["Decidido por"] for r in v["rows"] if r["Estado"] == "Aceptada automáticamente"} \
-        == {"regla sin IA"}
-    assert "Sin decidir" in {r["Estado"] for r in v["rows"]}
-    assert v["labels"] == "Etiquetas en español e inglés: 0 conceptos ya las tenían."
-    assert v["labels_note"].startswith("La IA no estuvo disponible: 4 conceptos quedaron sin "
-                                       "sus etiquetas en español o inglés.")
-    assert {r["Etiqueta (es)"] for r in v["rows"]} == {""}
-
-
-def test_labels_caption_and_note():
-    assert svc.labels_caption(None) is None and svc._labels_note(None) is None
-    done = {"complete": 3, "translated": 0, "pending": 0, "added": {"es": 0, "en": 0}}
-    assert svc.labels_caption(done) == "Etiquetas en español e inglés: 3 conceptos ya las tenían."
-    assert svc._labels_note(done) is None
-    left = {"pending": 2, "ai": {"available": True}}
-    quota = svc._labels_note({**left, "ai": {"available": True, "quota_exhausted": True}})
-    assert quota.startswith("Se agotó la cuota diaria de la IA: 2 conceptos quedaron")
-    assert "mañana (lo ya traducido no se repite)" in quota
-    limit = svc._labels_note({**left, "ai": {"available": True, "call_limit_reached": True}})
-    assert limit.startswith("Se llegó al límite de llamadas a la IA de esta subida")
-    assert svc._labels_note(left).startswith("La IA no devolvió etiquetas válidas: 2 conceptos")
-
-
-def test_a_workspace_of_v060_asks_to_upload_again(aligned):
-    from src.alignment import user_alignment as ua
-    from src.workspace.store import load_workspace
-    ws = load_workspace(aligned[0], cfg=svc.workspace_cfg())
-    path = ws.output_dir / ua.MANIFEST_FILE
-    manifest = json.loads(path.read_text(encoding="utf-8"))
-    manifest.pop("decider")                                     # what v0.6.0 wrote
-    path.write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(WorkspaceError, match="vuelve a subirlo"):
-        svc.view(aligned[0])
+    built, real = [], svc.ua.single_file
+    monkeypatch.setattr(svc.ua, "single_file", lambda ws, fmt: built.append(fmt) or real(ws, fmt))
+    final = svc.final_downloads(ws_id)
+    assert final["version"] == 1 and final["previous"] is None
+    assert final["caption"] == svc.FINAL_CAPTION.format(core="")
+    buttons = final["buttons"]
+    assert [b["label"] for b in buttons] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert [b["file_name"] for b in buttons] == [
+        "mi-gdpr-dpv-aligned.rdf", "mi-gdpr-dpv-aligned.owl", "mi-gdpr-dpv-aligned.ttl",
+        "mi-gdpr-dpv-aligned.jsonld"]
+    assert buttons[1]["help"] == "OWL (RDF/XML)" and buttons[3]["help"] == svc.TRANSFORM_JSONLD
+    assert built == []                                    # nothing built until a click
+    ws = load_workspace(ws_id, cfg=svc.workspace_cfg())
+    manifest = ua.load_manifest(ws)
+    modules = [load_graph(m.source) for m in ua.user_modules(ws, manifest)]
+    expected = merge(modules, manifest["ontology_iri"])
+    for b in buttons:
+        got = parse_bytes(b["data"](), b["key"])
+        assert isomorphic(got, expected), b["key"]
+    assert built == ["rdfxml", "owl", "turtle", "jsonld"]
+    assert set(expected.subjects(RDF.type, OWL.Ontology)) == {URIRef(manifest["ontology_iri"])}
+    assert not list(expected.objects(None, OWL.imports))   # one file: nothing to import
+    assert (None, SKOS.exactMatch, URIRef(DPV + "PersonalData")) in expected
+    assert not list(expected.triples((None, PROV.wasAttributedTo, None)))   # no provenance
 
 
 def test_step_3_texts():
@@ -330,34 +304,12 @@ def test_step_3_texts():
          "accepted_mappings": 0, "suggested": 0, "version": 1, "mode_label": "Mi ontología",
          "extraction_note": None, "ai_note": "nota de la IA", "labels_note": "nota de etiquetas",
          "profile": None, "rule": None, "labels": None, "iri_generated": True, "core": False}
-    assert svc.summary_line(v) == "Mi GDPR.ttl · 1 concepto · 1 correspondencia con el DPV"
     assert svc.notes(v) == ["nota de la IA", "nota de etiquetas"]
     captions = svc.summary_captions(v)
     assert captions[0] == ("Mi ontología · 1 concepto · 1 correspondencia en la ontología (1 de "
                            "la base y 0 aceptadas por la regla) · 0 sugeridas fuera de la "
                            "ontología · versión 1")
     assert len(captions) == 2 and captions[1].startswith("Tu ontología no declaraba un IRI")
-    assert "OntoPriv-Core" not in svc.package_caption(v)
-    assert "y OntoPriv-Core, que tu ontología importa," in svc.package_caption({**v, "core": True})
-    assert "Protégé 5.6 no abre JSON-LD" in svc.package_caption(v)
-
-
-def test_the_four_zips_are_built_only_when_asked(aligned, monkeypatch):
-    ws_id, _ = aligned
-    built, real = [], svc.ua.build_user_package
-    monkeypatch.setattr(svc.ua, "build_user_package",
-                        lambda ws, fmt: built.append(fmt) or real(ws, fmt))
-    options = svc.download_options(ws_id)
-    assert [(o["key"], o["help"]) for o in options] == svc.FORMATS
-    assert [o["label"] for o in options] == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
-    assert options[1]["help"] == "OWL (RDF/XML)"
-    assert [o["file_name"] for o in options] == [f"mi-gdpr-alineada-{k}.zip"
-                                                 for k, _ in svc.FORMATS]
-    assert built == []                                    # nothing built until a click
-    for o in options:
-        names = svc.zip_names(o["data"]())
-        assert "alignment.csv" in names and "catalog-v001.xml" in names
-    assert built == [k for k, _ in svc.FORMATS]
 
 
 def test_what_is_left_to_review(aligned):
@@ -442,8 +394,9 @@ def _frame(at, column: str):
 
 
 def _zips(at) -> list[str]:
+    """The four buttons of the last screen (one file each since S10-T15)."""
     return [d.label for d in at.download_button if d.key.startswith("align_dl_") and
-            d.key != "align_dl_log"]
+            d.key not in ("align_dl_log", "align_dl_previous")]
 
 
 def _text(at) -> str:
@@ -535,13 +488,16 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     at = page()
     at.session_state["align_ws"] = aligned[0]
     at.session_state["align_review"] = True              # the review (S10-T12)
+    at.session_state["align_details"] = True             # its details (S10-T15)
     at.run()
     assert not at.exception and not at.warning
-    assert at.success[0].proto.title == "Tu ontología está lista"
-    assert at.success[0].value == "Mi GDPR.ttl · 4 conceptos · 3 correspondencias con el DPV"
+    assert _titles(at) == [svc.FINAL_TITLE]                     # S10-T15
+    assert at.caption[0].value == svc.FINAL_CAPTION.format(core="")
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in at.download_button)
-    assert any("Protégé 5.6 no abre JSON-LD" in c.value for c in at.caption)
+    assert not [d for d in at.download_button if d.key == "align_dl_previous"]   # version 1
+    assert svc.FINAL_NOTE in [c.value for c in at.caption]
+    assert at.toggle(key="align_details").label == svc.DETAILS_TOGGLE
     assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar",
                                           svc.QUESTIONS_TAB]
     assert [m.label for m in at.metric] == ["Validadas en la base", "Aceptadas automáticamente",
@@ -568,6 +524,7 @@ def test_page_warns_when_the_ai_left_labels_pending(page, env, targets, monkeypa
     at = page()
     at.session_state["align_ws"] = ws_id
     at.session_state["align_review"] = True              # the review (S10-T12)
+    at.session_state["align_details"] = True             # its details (S10-T15)
     at.run()
     assert not at.exception
     warnings = [w.value for w in at.warning]
@@ -580,13 +537,13 @@ def test_page_shows_what_was_built_from_a_law(page, law_aligned):
     at = page()
     at.session_state["align_ws"] = law_aligned[0]
     at.session_state["align_review"] = True              # the review (S10-T12)
+    at.session_state["align_details"] = True             # its details (S10-T15)
     at.run()
     assert not at.exception
-    assert at.success[0].value.startswith("Perfil de Ley de prueba.txt · 5 conceptos")
     captions = [c.value for c in at.caption]
+    assert captions[0] == svc.FINAL_CAPTION.format(core=svc.FINAL_CORE)
     assert any(c.startswith("Una ley · 5 conceptos") for c in captions)
     assert any(c.startswith("De Ley de prueba.txt: la IA extrajo 6 conceptos") for c in captions)
-    assert any("y OntoPriv-Core, que tu ontología importa" in c for c in captions)
     assert not at.warning
     from src.core.law_concepts import RESULT_FILE
     from src.workspace.store import load_workspace
@@ -605,6 +562,7 @@ def test_page_shows_the_articles_to_review(page, both_aligned):
     at = page()
     at.session_state["align_ws"] = both_aligned[0]
     at.session_state["align_review"] = True              # the review (S10-T12)
+    at.session_state["align_details"] = True             # its details (S10-T15)
     at.run()
     assert not at.exception
     captions = [c.value for c in at.caption]
@@ -677,8 +635,9 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     assert not at.exception and _titles(at) == ["¡Tu ontología está lista!"]   # S10-T12
     _to_review(at)
     assert not at.exception and not at.error and not at.warning
-    assert at.success[0].value.startswith("Mi GDPR.ttl · 4 conceptos")
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
+    assert not at.tabs                                     # the details, only when asked
+    at.toggle(key="align_details").set_value(True).run()
     assert any(c.value.startswith("Artículos de ley.txt para revisar: 4 de 4") for c in at.caption)
     assert at.session_state["align_ws"].startswith("mi-gdpr-")
     assert not at.get("balloons")                         # no balloons, even when new
@@ -706,6 +665,7 @@ def test_page_reports_a_broken_workspace(page):
     at = page()
     at.session_state["align_ws"] = "no-existe-00000000"
     at.session_state["align_review"] = True              # the review (S10-T12)
+    at.session_state["align_details"] = True             # its details (S10-T15)
     at.session_state["align_path"], at.session_state["align_mode"] = "align", "ontology"
     at.run()
     assert not at.exception

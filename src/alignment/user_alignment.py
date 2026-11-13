@@ -673,11 +673,9 @@ def _readme_for(manifest: dict, validation: dict | None = None):
     return readme
 
 
-def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
-    """The zip in ``fmt``: the alignment module (opened first) and the user's ontology."""
-    manifest = load_manifest(ws)
-    if manifest is None:
-        raise ValueError("Primero hay que escribir la ontología alineada (paso S6-T07).")
+def user_modules(ws, manifest: dict) -> list[Module]:
+    """The modules of the aligned ontology: the alignment (opened first), its labels and
+    definitions, the user's ontology and, for a law, OntoPriv-Core."""
     names = stems(ws)
     onto_iri = manifest["ontology_iri"]
     modules = [Module(manifest["modules"]["alignment"], ws.path / manifest["files"]["alignment"],
@@ -690,6 +688,15 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
     if manifest["modules"].get("core"):
         modules.append(Module(manifest["modules"]["core"], ws.path / manifest["files"]["core"],
                               names["core"]))
+    return modules
+
+
+def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
+    """The zip in ``fmt``: the modules of the aligned ontology and its provenance."""
+    manifest = load_manifest(ws)
+    if manifest is None:
+        raise ValueError("Primero hay que escribir la ontología alineada (paso S6-T07).")
+    modules = user_modules(ws, manifest)
     provenance = manifest.get("provenance")
     if provenance:                                     # S10-T07: nothing imports it
         modules.append(Module(provenance["iri"], ws.path / provenance["file"],
@@ -702,6 +709,31 @@ def build_user_package(ws, fmt: str | OutputFormat = "turtle") -> Package:
                        uv.LOG_FILE: ws.output_dir / uv.LOG_FILE})
     return package_modules(modules, fmt, extras=extras,
                            readme=_readme_for(manifest, validation))
+
+
+def single_file(ws, fmt: str | OutputFormat = "turtle") -> bytes:
+    """The aligned ontology as one file in ``fmt`` (S10-T15): its modules put together, the
+    user's ontology the only owl:Ontology, no imports between them; no provenance."""
+    from src.transform.merge import merge
+    manifest = load_manifest(ws)
+    if manifest is None:
+        raise ValueError("Primero hay que escribir la ontología alineada (paso S6-T07).")
+    graphs = [load_graph(m.source) for m in user_modules(ws, manifest)]
+    return serialize(merge(graphs, manifest["ontology_iri"]), fmt)
+
+
+def previous_single_file(ws, version: int, fmt: str | OutputFormat = "turtle") -> bytes | None:
+    """Version ``version`` as one file, from its Turtle package in history/ (None when that
+    version kept no package: versions before S10-T03)."""
+    from src.provenance.upload import MODULE_SUFFIX
+    from src.transform.merge import merge, package_graphs
+    folder = ud.history_dir(ws, version)
+    package = folder / package_name(ws, "turtle", version)
+    manifest = folder / MANIFEST_FILE
+    if not package.exists() or not manifest.exists():
+        return None
+    keep = json.loads(manifest.read_text(encoding="utf-8"))["ontology_iri"]
+    return serialize(merge(package_graphs(package.read_bytes(), skip=MODULE_SUFFIX), keep), fmt)
 
 
 def write_package(ws, fmt: str | OutputFormat = "turtle") -> Path:

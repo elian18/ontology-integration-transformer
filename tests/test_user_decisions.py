@@ -352,8 +352,8 @@ def test_the_page_shows_version_2_and_what_the_person_decided(aligned, env, targ
     [row] = [r for r in v["rows"] if r["Concepto"] == "PersonalData"]
     assert (row["Estado"], row["Decidido por"], row["Relación"]) == (
         "Decidida por el usuario", "usuario", "skos:broadMatch")
-    assert [d["file_name"] for d in svc.download_options(aligned.id)] == [
-        f"mi-gdpr-alineada-v2-{k}.zip" for k in ("rdfxml", "owl", "turtle", "jsonld")]
+    assert [d["file_name"] for d in svc.final_downloads(aligned.id)["buttons"]] == [
+        f"mi-gdpr-dpv-aligned-v2{e}" for e in (".rdf", ".owl", ".ttl", ".jsonld")]
     [card] = [c for c in v["validation"]["cards"] if c["key"] == uv.AUDIT]
     assert card["text"] == ("Nada que revisar  \nLa regla no aceptó ninguna correspondencia · "
                             "del usuario: 1")

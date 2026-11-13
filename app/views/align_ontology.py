@@ -394,7 +394,7 @@ def step_ready(ws_id: str) -> None:
         _broken(exc)
         return
     st.title(svc.READY_TITLE)
-    st.caption(v["file"])
+    st.caption(v["source"])
     _preview(ws_id)
     st.button(svc.REVIEW_BUTTON, key="align_review_open", type="primary",
               icon=":material/fact_check:", on_click=_open_review)
@@ -577,34 +577,40 @@ def step_decide(ws_id: str) -> None:
 
 
 def step_result(ws_id: str) -> None:
-    """The review (S10-T13 to S10-T15 replace it step by step): what step 3 showed so far."""
+    """Descarga tu ontología: one file per format (S10-T15); the technical details only when
+    the person asks for them."""
     _back(_close_review, "align_review_back")
     try:
         v = svc.view(ws_id)
-        downloads = svc.download_options(ws_id)
+        final = svc.final_downloads(ws_id)
     except Exception as exc:                              # noqa: BLE001 - shown to the person
         _broken(exc)
         return
-    warnings = svc.notes(v)
-    st.success(svc.summary_line(v), title="Tu ontología está lista",
-               icon=":material/check_circle:")
-    for note in warnings:
+    st.title(svc.FINAL_TITLE)
+    st.caption(final["caption"])
+    for note in svc.notes(v):
         st.warning(note, icon=":material/warning:")
-    st.markdown("**Descárgala en el formato que necesites**")
-    for col, d in zip(st.columns(len(downloads)), downloads):
-        col.download_button(d["label"], data=d["data"], file_name=d["file_name"],
-                            mime="application/zip", key=f"align_dl_{d['key']}", help=d["help"],
-                            on_click="ignore", icon=":material/download:", width="stretch")
-    st.caption(svc.package_caption(v))
-    _validation(v)
-    pages = {"Resumen": _summary_tab, "Conceptos": _concepts_tab, "Para revisar": _review_tab}
-    if (v["validation"] or {}).get("questions"):
-        pages[svc.QUESTIONS_TAB] = _questions_tab
-    if v["evidence"]:
-        pages[svc.LAW_TAB] = _law_tab
-    for tab, show in zip(st.tabs(list(pages)), pages.values()):
-        with tab:
-            show(v)
+    for col, d in zip(st.columns(len(final["buttons"])), final["buttons"]):
+        col.download_button(d["label"], data=d["data"], file_name=d["file_name"], mime=d["mime"],
+                            key=f"align_dl_{d['key']}", help=d["help"], on_click="ignore",
+                            icon=":material/download:", width="stretch", type="primary")
+    st.caption(svc.FINAL_NOTE)
+    if final["previous"]:
+        p = final["previous"]
+        st.download_button(p["label"], data=p["data"], file_name=p["file_name"],
+                           mime="text/turtle", key="align_dl_previous", on_click="ignore",
+                           type="tertiary", icon=":material/history:")
+    if st.toggle(svc.DETAILS_TOGGLE, key="align_details"):
+        _validation(v)
+        pages = {"Resumen": _summary_tab, "Conceptos": _concepts_tab,
+                 "Para revisar": _review_tab}
+        if (v["validation"] or {}).get("questions"):
+            pages[svc.QUESTIONS_TAB] = _questions_tab
+        if v["evidence"]:
+            pages[svc.LAW_TAB] = _law_tab
+        for tab, show in zip(st.tabs(list(pages)), pages.values()):
+            with tab:
+                show(v)
     st.button("Alinear otro archivo", key="align_again", icon=":material/restart_alt:",
               on_click=_home)
 

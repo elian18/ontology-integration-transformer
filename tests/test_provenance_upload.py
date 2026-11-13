@@ -546,14 +546,6 @@ def test_render_records(toy):
     assert up.render_records([], "Nada") == "La procedencia no dice nada de Nada."
 
 
-def test_the_page_says_the_zip_carries_it():
-    from app.services.align_ontology import package_caption
-    assert package_caption({"core": False}) == (
-        "Cada .zip trae tu ontología con sus módulos, su procedencia (PROV-O: quién decidió "
-        "cada correspondencia), alignment.csv y un catálogo para abrirla en Protégé. Protégé "
-        "5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL o Turtle.")
-
-
 def test_the_console_line():
     entry = {"file": "output/mi-provenance.ttl", "triples": 99,
              "counts": {"correspondences": {"current": {"base": 2, "usuario": 1}, "total": 3,

@@ -17,7 +17,7 @@ from src.alignment.law_definitions import (ARTICLES, INVALID, LAW_CONCEPT, NO_SO
                                            NOT_APPLICABLE, PENDING, DefinitionSettings,
                                            ask_definitions, definition_settings, validate_answer)
 from src.alignment.law_evidence import align_with_law
-from src.alignment.user_alignment import align_workspace, render_console
+from src.alignment.user_alignment import align_workspace, build_user_package, render_console
 from src.workspace.store import CACHE_DIR, DONE, KIND_LAW, KIND_ONTOLOGY, open_upload
 from tests.test_alignment_bundle import _resolve
 from tests.test_alignment_propose import DeciderLLM, Embed, make_env, targets  # noqa: F401
@@ -526,8 +526,7 @@ def test_the_page_tells_what_the_law_defined(env, monkeypatch):
     assert list(review["Pizza"]) == ["Concepto", "Estado", "Definición de la ley",
                                      "Artículos de la ley"]
     assert review["Erasure"]["Definición de la ley"] == DEFINED["Erasure"]
-    names = svc.zip_names(svc.download(run.ws.id, "turtle")["data"])
-    assert "mi-gdpr-definitions.ttl" in names
+    assert "mi-gdpr-definitions.ttl" in build_user_package(run.ws, "turtle").included
 
 
 def test_definitions_caption_and_note():
