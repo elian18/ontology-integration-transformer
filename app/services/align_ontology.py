@@ -18,7 +18,8 @@ from src.validation import upload_validation as uv
 from src.validation.shapes import VIOLATION
 from src.validation.shape_inspector import (BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW,
                                             current_color)
-from src.workspace.store import KIND_LAW, KIND_ONTOLOGY, WorkspaceError, load_workspace
+from src.workspace.store import (KIND_LAW, KIND_ONTOLOGY, STEP_LABELS, WorkspaceError,
+                                 load_workspace, steps_for)
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
 LAW_TYPES = ["txt", "pdf"]
@@ -85,6 +86,24 @@ MODE_RUNNING = {MODE_ONTOLOGY: "Alineando tu ontología…",
                 MODE_LAW: "Convirtiendo tu ley en una ontología alineada…",
                 MODE_BOTH: "Alineando tu ontología con ayuda de la ley…"}
 FILE_NAMES = {KIND_ONTOLOGY: "tu ontología", KIND_LAW: "tu ley"}
+
+# Each step of the run in plain words, for the progress bar (S10-T11).
+STEP_TEXT = {"segment": "Leyendo tu ley", "index": "Ordenando los artículos de tu ley",
+             "extract": "Buscando con la IA los conceptos de tu ley",
+             "accept": "Revisando los conceptos encontrados", "profile": "Armando tu ontología",
+             "definitions": "Completando las definiciones con tu ley",
+             "inherit": "Reutilizando lo que ya está revisado",
+             "candidates": "Buscando sus equivalentes en el vocabulario de privacidad",
+             "propose": "Eligiendo con la IA el mejor equivalente",
+             "labels": "Poniendo los nombres en español e inglés",
+             "evidence": "Buscando en tu ley el artículo de cada concepto",
+             "audit": "La IA revisa los enlaces", "write": "Escribiendo tu ontología",
+             "shapes": "Revisando que esté bien formada",
+             "logic": "Revisando que no tenga contradicciones",
+             "questions": "Comprobando que responda preguntas básicas",
+             "package": "Preparando la descarga"}
+PROGRESS_START = "Empezando…"
+NEXT_LABEL = "Ver tu ontología"
 
 # Wording of the states shown to the person (codes from user_alignment), in display order.
 STATE_LABELS = {ua.INHERITED_ALIGNED: "Validada en la base",
@@ -217,6 +236,24 @@ def run(mode: str, files: dict[str, tuple[str, bytes]], **kwargs) -> str:
         from src.alignment.law_evidence import align_with_law
         ws, _manifest, _zip = align_with_law(*files[KIND_ONTOLOGY], *files[KIND_LAW], **common)
     return ws.id
+
+
+_STEP_KEYS = {label: key for key, label in STEP_LABELS.items()}
+
+
+def progress_of(mode: str, label: str) -> tuple[str, float]:
+    """What the progress bar says when the run starts the step called ``label`` (the name the
+    pipeline gives it) and how much of the run is already done (0 to 1)."""
+    key = _STEP_KEYS.get(label)
+    steps = steps_for(mode)
+    done = steps.index(key) / len(steps) if key in steps else 0.0
+    return f"{STEP_TEXT.get(key, label)}…", done
+
+
+def file_size(n: int) -> str:
+    """'378,4 KB', '1,2 MB' (in thousands)."""
+    size = f"{n / 1e6:.1f} MB" if n >= 1e6 else f"{n / 1e3:.1f} KB"
+    return size.replace(".", ",")
 
 
 def ready(mode: str, files: dict[str, tuple[str, bytes] | None]) -> bool:

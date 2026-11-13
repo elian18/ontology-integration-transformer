@@ -34,11 +34,28 @@ def _restart(mode: str | None = None) -> None:
 
 
 def _home(path: str | None = None) -> None:
-    """Go to the start (``path`` None) or into one of its two paths."""
+    """Go to the start (``path`` None) or into one of its two paths: the files go too."""
     _restart()
-    ss.pop("align_path", None)
+    for key in ("align_path", "align_files", "align_done"):
+        ss.pop(key, None)
     if path is not None:
         ss["align_path"] = path
+
+
+def _to_upload() -> None:
+    """From the result back to the files of its mode: they stay, nothing is computed again."""
+    ss.pop("align_ws", None)
+
+
+def _show(key: str, ws_id: str) -> None:
+    ss["align_key"], ss["align_ws"] = key, ws_id
+
+
+def _change(kind: str) -> None:
+    """Put the uploader of ``kind`` back, with a new key (S7-T12)."""
+    ss.get("align_files", {}).pop(kind, None)
+    ss.pop("align_failed", None)
+    ss["align_round"] = ss.get("align_round", 0) + 1
 
 
 def _retry() -> None:
@@ -102,17 +119,31 @@ def step_choose() -> None:
 # ------------------------------------------------------------------ step 2
 
 def _uploads(mode: str) -> dict:
-    """The uploaders of ``mode`` side by side; their keys change with every new round."""
+    """The files of ``mode`` side by side: the ones already uploaded are kept (and shown), the
+    others get an uploader whose key changes with every new round."""
     round_ = ss.get("align_round", 0)
+    kept = ss.setdefault("align_files", {})
     kinds = svc.MODE_FILES[mode]
-    files = {}
     for col, kind in zip(st.columns(len(kinds)), kinds):
         types = svc.ACCEPTED_TYPES if kind == svc.KIND_ONTOLOGY else svc.LAW_TYPES
         with col:
+            if kind in kept:
+                _kept(kind, *kept[kind])
+                continue
             up = st.file_uploader(svc.UPLOAD_LABELS[kind], type=types,
                                   key=f"align_{kind}_{round_}", help=svc.DATA_NOTE)
-        files[kind] = (up.name, up.getvalue()) if up is not None else None
-    return files
+            if up is not None:
+                kept[kind] = (up.name, up.getvalue())
+    return {kind: kept.get(kind) for kind in kinds}
+
+
+def _kept(kind: str, name: str, data: bytes) -> None:
+    st.markdown(svc.UPLOAD_LABELS[kind])
+    with st.container(border=True, horizontal=True, vertical_alignment="center",
+                      key=f"align_kept_{kind}"):
+        st.markdown(f":material/description: **{svc.plain(name)}** · {svc.file_size(len(data))}")
+        st.button("Cambiar", key=f"align_change_{kind}", type="tertiary",
+                  icon=":material/swap_horiz:", on_click=_change, args=(kind,))
 
 
 def _files_key(mode: str, files: dict) -> str:
@@ -137,15 +168,25 @@ def step_upload(mode: str) -> None:
         st.caption(svc.missing_text(mode, files))
         return
     key = _files_key(mode, files)
+    done = ss.setdefault("align_done", {})
+    if key in done:                                       # back from the result: no new run
+        st.button(svc.NEXT_LABEL, key="align_next", type="primary",
+                  icon=":material/arrow_forward:", on_click=_show, args=(key, done[key]))
+        return
     failed = ss.get("align_failed")
     if failed and failed[0] == key:                       # the same files failed before
         _failed(failed[1])
         return
     error = None
     with st.status(svc.MODE_RUNNING[mode], expanded=True) as status:
+        bar = st.progress(0.0, text=svc.PROGRESS_START)
+
+        def say(label: str) -> None:
+            text, fraction = svc.progress_of(mode, label)
+            bar.progress(fraction, text=text)
+            status.write(text)
         try:
-            ws_id = svc.run(mode, files, progress=lambda label: status.write(f"{label}…"),
-                            base=_base(), targets=_targets())
+            ws_id = svc.run(mode, files, progress=say, base=_base(), targets=_targets())
         except Exception as exc:                          # noqa: BLE001 - shown to the person
             error = svc.error_message(exc)
             status.update(label="No se pudo terminar la alineación", state="error",
@@ -156,7 +197,8 @@ def step_upload(mode: str) -> None:
         ss["align_failed"] = (key, error)
         _failed(error)
         return
-    ss["align_key"], ss["align_ws"] = key, ws_id
+    done[key] = ws_id
+    _show(key, ws_id)
     st.rerun()
 
 
@@ -290,6 +332,8 @@ def _validation(v: dict) -> None:
 
 
 def step_result(ws_id: str) -> None:
+    if ss.get("align_mode") in svc.MODES:                 # its files are kept: go back to them
+        _back(_to_upload, "align_result_back")
     try:
         v = svc.view(ws_id)
         downloads = svc.download_options(ws_id)
