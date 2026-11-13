@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 import csv
-import io
 import re
 from functools import lru_cache, partial
+from pathlib import Path
 
-from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.console import counted
 from src.provenance import upload as up
-from src.transform.convert import (OUTPUT_FORMATS, ConversionError, input_format, output_format,
-                                   serialize)
+from src.transform.convert import OUTPUT_FORMATS, ConversionError, input_format, serialize
 from src.validation import ai_auditor as au
 from src.validation import question_explainer as qe
 from src.validation import questions as qs
@@ -23,7 +21,6 @@ from src.workspace.store import (KIND_LAW, KIND_ONTOLOGY, STEP_LABELS, Workspace
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
 LAW_TYPES = ["txt", "pdf"]
-FORMATS = [(f.key, f.label) for f in OUTPUT_FORMATS.values()]
 DEFAULT_FORMAT = "turtle"
 
 # The two paths of the start (S10-T09): align and transform, or only change the format.
@@ -306,6 +303,7 @@ def view(ws_id: str) -> dict:
         "mode": mode,
         "mode_label": MODES.get(mode, mode),
         "file": manifest["uploaded_file"],
+        "source": source_name(ws),
         "created": manifest["created"],
         "version": manifest.get("alignment_version"),
         "concepts": s["concepts"],
@@ -540,31 +538,10 @@ def filter_rows(rows: list[dict], state: str | None) -> list[dict]:
     return rows if not state or state == "Todos" else [r for r in rows if r["Estado"] == state]
 
 
-def download(ws_id: str, fmt: str) -> dict:
-    """The zip in ``fmt`` (built in memory; the alignment itself is not recomputed)."""
-    ws = load_workspace(ws_id, cfg=workspace_cfg())
-    package = ua.build_user_package(ws, fmt)
-    spec = output_format(fmt)
-    return {"data": package.data, "file_name": ua.package_name(ws, spec),
-            "label": spec.label, "main_file": package.main_file,
-            "note": PROTEGE_JSONLD_NOTE if spec.key == "jsonld" else None}
-
-
-def zip_names(data: bytes) -> list[str]:
-    import zipfile
-    return zipfile.ZipFile(io.BytesIO(data)).namelist()
-
-
 # ------------------------------------------------------------------ step 3 of the assistant (S8-T01)
 
 REVIEW_COLUMNS = ["Concepto", "Término del DPV", "Relación", "Confianza de la IA",
                   "Justificación"]
-
-
-def summary_line(v: dict) -> str:
-    """The line of the success banner: what was uploaded and what came out."""
-    return (f"{v['file']} · {counted(v['concepts'], 'concepto', 'conceptos')} · "
-            f"{counted(v['mappings'], 'correspondencia', 'correspondencias')} con el DPV")
 
 
 def notes(v: dict) -> list[str]:
@@ -591,14 +568,6 @@ def summary_captions(v: dict) -> list[str]:
     return out
 
 
-def package_caption(v: dict) -> str:
-    """The line under the four download buttons."""
-    core = " y OntoPriv-Core, que tu ontología importa" if v["core"] else ""
-    return (f"Cada .zip trae tu ontología con sus módulos{core}, su procedencia (PROV-O: "
-            "quién decidió cada correspondencia), alignment.csv y un catálogo para abrirla en "
-            "Protégé. Protégé 5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL o Turtle.")
-
-
 def suggested_rows(rows: list[dict]) -> list[dict]:
     """What the AI proposed with high confidence and the rule left out ("Para revisar")."""
     return [{c: r.get(c, "") for c in REVIEW_COLUMNS}
@@ -616,21 +585,6 @@ def evidence_rows(rows: list[dict]) -> list[dict]:
             out[r["Concepto"]] = {c: r[c] for c in columns if c in r}
     return list(out.values())
 
-
-def package_bytes(ws_id: str, fmt: str, cfg: dict | None = None) -> bytes:
-    """The zip of ``ws_id`` in ``fmt``, built now (what a download button calls when clicked)."""
-    return ua.build_user_package(load_workspace(ws_id, cfg=cfg), fmt).data
-
-
-def download_options(ws_id: str) -> list[dict]:
-    """The four download buttons of step 3, one per format: the short name on the button
-    ("OWL"), the full one in its help ("OWL (RDF/XML)"). Nothing is built here: ``data`` is a
-    function that Streamlit calls only when the person clicks that button."""
-    cfg = workspace_cfg()
-    ws = load_workspace(ws_id, cfg=cfg)
-    return [{"key": key, "label": label.split(" (")[0], "help": label,
-             "file_name": ua.package_name(ws, key),
-             "data": partial(package_bytes, ws_id, key, cfg)} for key, label in FORMATS]
 
 # ------------------------------------------------------------------ validation panel (S8-T11)
 
@@ -1105,7 +1059,7 @@ def preview(ws_id: str) -> dict:
                 chosen.append(b)
     rest = sorted((iri for iri in names if iri not in chosen), key=lambda iri: iri in links)
     chosen += rest[:PREVIEW_CONCEPTS - len(chosen)]      # the ones without a term first
-    file = manifest.get("uploaded_file") or "Tu ontología"
+    file = source_name(ws)
     nodes = [{"id": PREVIEW_ROOT, "label": file, "kind": "root", "title": file}]
     nodes += [{"id": iri, "label": names[iri], "kind": "aligned" if iri in links else "none",
                "title": f"{names[iri]}: {states[iri]}"} for iri in chosen]
@@ -1420,3 +1374,66 @@ def apply_answers(ws_id: str, answers: dict[int, str], extra: list[dict] = (), *
     if not out["applied"] and left:
         uq.refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm)
     return out
+
+
+# ------------------------------------------------------------------ the download (S10-T15)
+
+FINAL_TITLE = "Descarga tu ontología"
+FINAL_CAPTION = ("Un solo archivo con todo: tus conceptos, sus equivalentes en el DPV, los "
+                 "nombres en español e inglés y sus definiciones{core}. Ábrelo directamente en "
+                 "Protégé.")
+FINAL_CORE = ", junto con lo que usa de la base del sistema (OntoPriv-Core)"
+FINAL_NOTE = "Protégé 5.6 no abre JSON-LD: para Protégé usa RDF/XML, OWL o Turtle."
+DETAILS_TOGGLE = "Ver los detalles técnicos"
+
+
+def _source(ws) -> dict:
+    """What the person uploaded: the law in "Una ley" (the ontology is built from it), else
+    the ontology."""
+    inputs = ws.manifest["inputs"]
+    return inputs["law" if inputs["ontology"].get("generated_from") == "law" else "ontology"]
+
+
+def source_name(ws) -> str:
+    """'gdpr-en.pdf' (not "Perfil de gdpr-en.pdf"), 'Mi GDPR.ttl'."""
+    return _source(ws)["original_name"]
+
+
+def aligned_stem(ws) -> str:
+    """'gdpr-en-dpv-aligned', 'mi-gdpr-dpv-aligned': the name of the file the person gets."""
+    return f"{Path(_source(ws)['stored_as']).stem}-dpv-aligned"
+
+
+def final_bytes(ws_id: str, key: str, cfg: dict | None = None) -> bytes:
+    """The aligned ontology as one file in ``key`` (what a button calls when clicked)."""
+    return ua.single_file(load_workspace(ws_id, cfg=cfg), key)
+
+
+def previous_bytes(ws_id: str, version: int, cfg: dict | None = None) -> bytes:
+    return ua.previous_single_file(load_workspace(ws_id, cfg=cfg), version, "turtle")
+
+
+def final_downloads(ws_id: str) -> dict:
+    """The four buttons of the last screen (one file each, built only when clicked) and, from
+    version 2 on, the previous version in Turtle when history/ kept its package."""
+    from src.alignment import user_decisions as ud
+    cfg = workspace_cfg()
+    ws = load_workspace(ws_id, cfg=cfg)
+    manifest = ua.load_manifest(ws) or {}
+    version = ud.current_version(ws)
+    stem = aligned_stem(ws)
+    tag = f"-v{version}" if version > 1 else ""
+    buttons = [{"key": f.key, "label": f.label.split(" (")[0],
+                "help": TRANSFORM_JSONLD if f.key == "jsonld" else f.label,
+                "file_name": f"{stem}{tag}{f.extension}", "mime": f.media_type,
+                "data": partial(final_bytes, ws_id, f.key, cfg)}
+               for f in OUTPUT_FORMATS.values()]
+    previous = None
+    old = version - 1
+    if old >= 1 and (ud.history_dir(ws, old) / ua.package_name(ws, "turtle", old)).exists():
+        previous = {"label": f"Descargar la versión anterior (versión {old}, Turtle)",
+                    "file_name": f"{stem}-v{old}.ttl",
+                    "data": partial(previous_bytes, ws_id, old, cfg)}
+    core = FINAL_CORE if (manifest.get("modules") or {}).get("core") else ""
+    return {"version": version, "buttons": buttons, "previous": previous,
+            "caption": FINAL_CAPTION.format(core=core)}
