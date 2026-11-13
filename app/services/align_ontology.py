@@ -1314,3 +1314,109 @@ def walkthrough(ws_id: str) -> list[dict]:
     for r in _rows(ws):
         rows.setdefault(r["concept_iri"], r)
     return [_found(ws, manifest, rows), _linked(manifest, rows), _checked(ws)]
+
+
+# ------------------------------------------------------------------ you decide (S10-T14)
+
+DECIDE_TITLE = "Tú decides"
+DECIDE_LEAD = ("Encontramos {n} para afinar. Responder es opcional: lo que no toques se queda "
+               "como está.")
+NOTHING_TO_DECIDE = "No encontramos nada en duda: no hace falta que decidas nada."
+APPLIED_TITLE = "¡Lista con los cambios que aprobaste!"
+NOTHING_APPLIED = "No cambiaste nada: tu ontología se queda como estaba."
+RECALCULATING = "Recalculando tu ontología…"
+OLD_QUESTIONS = ("Las preguntas eran de la versión {old} y tu ontología ya va en la {new}: "
+                 "vuelve a mirarlas.")
+ADJUST_MAX = 3                            # DPV candidates offered for another concept
+
+
+def decisions_view(ws_id: str) -> dict:
+    """The questions of the current version (S10-T05) as the web asks them, one at a time."""
+    from src.alignment import user_questions as uq
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    data = uq.load_questions(ws) or {"version": None, "questions": []}
+    questions = [{"n": q["n"], "text": plain(q["text"]),
+                  "why": plain(_SENTENCE.split(q.get("reason") or "", maxsplit=1)[0]),
+                  "concept": q["doubts"][0], "leave": q["leave"],
+                  "options": {**{o["letter"]: plain(o["text"]) + (
+                      " (recomendada)" if n == q.get("recommended") else "")
+                      for n, o in enumerate(q["options"])}, q["leave"]: uq.LEAVE}}
+                 for q in data["questions"]]
+    return {"version": data["version"], "questions": questions}
+
+
+def _after_text(c) -> str:
+    """'Safeguards: ahora está relacionado con Safeguard' (plain words, no SKOS)."""
+    now = [f"{RELATION_VERBS.get(up.local(m.get('relation') or ''), 'se relaciona con')} "
+           f"{m.get('dpv_name')}" for m in c.after]
+    return f"{c.concept_name}: ahora " + (" y ".join(now) if now else "no tiene equivalente")
+
+
+def adjust_options(ws_id: str, iri: str, *, targets=None) -> list[dict]:
+    """What another concept can become: one of its DPV candidates (the decider's, best first)
+    or no correspondence; each option already passed the fixed rule of S10-T03."""
+    from src.alignment import user_decisions as ud
+    from src.alignment.propose import load_result as decisions_result
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    cfg = workspace_cfg()
+    current = [r for r in _rows(ws) if r.get("concept_iri") == iri
+               and r.get("status") in ua.WRITTEN and r.get("dpv_iri")]
+    entry = next((e for e in (decisions_result(ws) or {}).get("entries", [])
+                  if e.get("key") == iri), {})
+    replaces = current[0]["dpv_iri"] if len(current) == 1 else None
+
+    def valid(change) -> bool:      # alone: the rule takes one change per concept in a list
+        return ud.check(ws, [change], targets=targets, cfg=cfg)[0].ok
+    options = [(f"Es lo mismo que {up.local(term)}",
+                ud.Change(iri, ud.SET, relation="skos:exactMatch", dpv=term, replaces=replaces))
+               for term in entry.get("candidates", [])]
+    options = [o for o in options if valid(o[1])][:ADJUST_MAX]   # not what it already is
+    remove = ("No tiene equivalente (quitar la correspondencia)", ud.Change(iri, ud.REMOVE))
+    options += [remove] if valid(remove[1]) else []              # only when it has one
+    return [{"text": text, "change": {"action": c.action, "relation": c.relation,
+                                      "dpv": c.dpv, "replaces": c.replaces}}
+            for text, c in options]
+
+
+def apply_answers(ws_id: str, answers: dict[int, str], extra: list[dict] = (), *,
+                  targets=None, llm=None, use_llm: bool | None = None, sleep_fn=None) -> dict:
+    """The answers ({question: letter}) and the other concepts the person adjusted become one
+    new version (S10-T03); "Dejar como está" is remembered and not asked again."""
+    from src.alignment import user_decisions as ud
+    from src.alignment import user_questions as uq
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    cfg = workspace_cfg()
+    data = uq.load_questions(ws) or {"version": ud.current_version(ws), "questions": []}
+    version = ud.current_version(ws)
+    if data["questions"] and data["version"] != version:
+        raise WorkspaceError(OLD_QUESTIONS.format(old=data["version"], new=version))
+    asked = {q["n"]: q for q in data["questions"]}
+    changes, left = [], []
+    for n, letter in sorted(answers.items()):
+        q = asked[n]
+        if letter == q["leave"]:
+            left += [{"concept_key": key, "version": version, "question": q["text"],
+                      "at": ud._now()} for key in q["doubts"]]
+            continue
+        option = next(o for o in q["options"] if o["letter"] == letter)
+        changes += [ud.Change(c["concept"], c["action"], relation=c["relation"], dpv=c["dpv"],
+                              replaces=c["replaces"], note=f"{q['text']} → {option['text']}")
+                    for c in option["apply"]]
+    changes += [ud.Change(e["concept"], e["action"], relation=e.get("relation"),
+                          dpv=e.get("dpv"), replaces=e.get("replaces"), note=e.get("note"))
+                for e in extra]
+    if left:
+        uq.keep(ws, left)
+    out = {"applied": False, "version": version, "left": len(left), "changes": [],
+           "refused": []}
+    if changes:
+        result = ud.apply(ws, changes, cfg=cfg, targets=targets, llm=llm, use_llm=use_llm,
+                          sleep_fn=sleep_fn)
+        out.update(applied=result["applied"], version=result["version"],
+                   changes=[_after_text(c) for c in result["checked"] if c.ok],
+                   refused=[f"{c.concept_name or up.local(c.change.concept)}: {c.reason}"
+                            for c in result["checked"]
+                            if not c.ok])
+    if not out["applied"] and left:
+        uq.refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm)
+    return out

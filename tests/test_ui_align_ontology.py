@@ -424,10 +424,12 @@ def _pick(at, mode: str) -> None:
 
 
 def _to_review(at) -> None:
-    """From "¡Tu ontología está lista!" through the three steps of "Lo que hicimos"."""
+    """From "¡Tu ontología está lista!" through the three steps of "Lo que hicimos" and "Tú
+    decides" (nothing changed)."""
     at.button(key="align_review_open").click().run()
     for _ in range(3):
         at.button(key="align_walk_next").click().run()
+    at.button(key="align_keep_all").click().run()
 
 
 def _titles(at) -> list[str]:
