@@ -9,7 +9,8 @@ from src.alignment.bundle import PROTEGE_JSONLD_NOTE
 from src.alignment import user_alignment as ua
 from src.console import counted
 from src.provenance import upload as up
-from src.transform.convert import OUTPUT_FORMATS, ConversionError, output_format
+from src.transform.convert import (OUTPUT_FORMATS, ConversionError, input_format, output_format,
+                                   serialize)
 from src.validation import ai_auditor as au
 from src.validation import question_explainer as qe
 from src.validation import questions as qs
@@ -39,6 +40,11 @@ START_CAPTION = "¿Qué quieres hacer?"
 MODES_CAPTION = ("¿Qué tienes? El resto es automático: alineación con el Data Privacy "
                  "Vocabulary (DPV) y etiquetas en español e inglés.")
 TRANSFORM_NOTE = "Tu archivo no pasa por la IA: solo se convierte al formato que elijas."
+TRANSFORM_READY = "Tu ontología está lista para descargar"
+TRANSFORM_JSONLD = ("JSON-LD: para aplicaciones web y de datos enlazados. Protégé 5.6 no lo "
+                    "abre.")
+TRANSFORM_CAPTION = ("El contenido es el mismo en los cuatro formatos. Protégé 5.6 no abre "
+                     "JSON-LD: para Protégé usa RDF/XML, OWL o Turtle.")
 
 # The three modes (S7-T12): code, what the person reads, what is uploaded, in display order.
 MODE_ONTOLOGY, MODE_LAW, MODE_BOTH = KIND_ONTOLOGY, KIND_LAW, "ontology+law"
@@ -968,3 +974,37 @@ def card(records: list[dict], iri: str, rows: list[dict], *, version=1, file: st
             "headline": _headline(records, rows, version),
             "origin": _origin(records, file, mode), "versions": _version_rows(records),
             "steps": [_step(r, records) for r in records]}
+
+
+# ------------------------------------------------------------------ only transform (S10-T10)
+
+@lru_cache(maxsize=4)
+def _uploaded_graph(name: str, data: bytes):
+    """The uploaded ontology read once per file (no workspace, no AI)."""
+    from rdflib import Graph
+    fmt = input_format(name)                  # a .owx or an unknown extension says why
+    graph = Graph()
+    try:
+        graph.parse(data=data, format=fmt)
+    except Exception as exc:                  # rdflib raises many parser-specific errors
+        raise ConversionError(f"No se pudo leer {name}: {exc}") from exc
+    if not len(graph):
+        raise ConversionError(f"{name} está vacío: no tiene nada que convertir.")
+    return graph
+
+
+def transformed_bytes(name: str, data: bytes, key: str) -> bytes:
+    """The uploaded ontology written in ``key`` (what a download button calls when clicked)."""
+    return serialize(_uploaded_graph(name, data), key)
+
+
+def transform_downloads(name: str, data: bytes) -> list[dict]:
+    """The four buttons of "Solo transformar": the file is read now (an error shows at once);
+    each format is written only when its button is clicked."""
+    _uploaded_graph(name, data)
+    stem = name.rsplit(".", 1)[0] or "ontologia"
+    return [{"key": f.key, "label": f.label.split(" (")[0],
+             "help": TRANSFORM_JSONLD if f.key == "jsonld" else f.label,
+             "file_name": f"{stem}{f.extension}", "mime": f.media_type,
+             "data": partial(transformed_bytes, name, data, f.key)}
+            for f in OUTPUT_FORMATS.values()]
