@@ -1131,3 +1131,186 @@ def preview_caption(p: dict) -> str:
     part = (f"Se ven {p['shown']} de tus {p['total']} conceptos. " if p["shown"] < p["total"]
             else "")
     return part + PREVIEW_CAPTION
+
+
+# ------------------------------------------------------------- what we did, step by step (S10-T13)
+
+WALK_TITLES = ("Qué encontramos", "Cómo los enlazamos con el vocabulario de privacidad",
+               "Cómo la revisamos")
+WALK_EXAMPLES = 5
+DPV_LEAD = ("El DPV (Data Privacy Vocabulary, del W3C) es el vocabulario de referencia para "
+            "hablar de privacidad. Enlazar tus conceptos con él permite que otros sistemas "
+            "entiendan tu ontología.")
+# Each state in plain words: (one, many), with {n} for the number.
+WALK_STATES = (
+    ((ua.INHERITED_ALIGNED,), ("{n} ya estaba revisado por una persona en la base del sistema.",
+                               "{n} ya estaban revisados por una persona en la base del "
+                               "sistema.")),
+    ((ua.ACCEPTED,), ("La IA eligió el equivalente de {n} entre los candidatos del DPV y la "
+                      "regla del sistema lo aceptó.", "La IA eligió el equivalente de {n} entre "
+                      "los candidatos del DPV y la regla del sistema los aceptó.")),
+    ((ua.USER_ALIGNED,), ("Tú decidiste {n}.", "Tú decidiste {n}.")),
+    ((ua.SUGGESTED,), ("En {n}, la IA propuso un equivalente que la regla no aceptó: te lo "
+                       "preguntaremos.", "En {n}, la IA propuso un equivalente que la regla no "
+                       "aceptó: te los preguntaremos.")),
+    ((ua.INHERITED_NO_MATCH, ua.RULE_NO_MATCH, ua.USER_NO_MATCH),
+     ("{n} no tiene un equivalente en el DPV (no todo concepto lo tiene).",
+      "{n} no tienen un equivalente en el DPV (no todo concepto lo tiene).")),
+    ((ua.NO_PROPOSAL, ua.UNDECIDED), ("En {n} no hubo una propuesta lo bastante clara.",
+                                      "En {n} no hubo una propuesta lo bastante clara.")),
+    ((ua.NOT_ALIGNABLE,), ("{n} es un ejemplo de datos y no se enlaza.",
+                           "{n} son ejemplos de datos y no se enlazan.")),
+)
+# A correspondence as a sentence: "Consentimiento es igual a Consent".
+RELATION_VERBS = {"exactMatch": "es igual a", "closeMatch": "se parece a",
+                  "broadMatch": "es un tipo de", "narrowMatch": "es más general que",
+                  "relatedMatch": "está relacionado con", "seeAlso": "se relaciona con"}
+REVIEW_LEADS = {GREEN: "Todo está en orden.",
+                YELLOW: "Está lista para usarse; hay detalles que puedes mirar.",
+                RED: "Encontramos un problema que conviene corregir antes de usarla."}
+NO_REVIEW = ("Esta ontología se alineó antes de que existiera la revisión: vuelve a subir el "
+             "archivo para revisarla.")
+
+
+def _plural(n: int, one: str, many: str) -> str:
+    return (one if n == 1 else many).format(n=n)
+
+
+def _and(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else f"{', '.join(items[:-1])} y {items[-1]}"
+
+
+def _arts(numbers) -> str:
+    """'del art. 4', 'de los arts. 4, 25 y 89'."""
+    nums = [str(n) for n in sorted(set(numbers))]
+    return f"del art. {nums[0]}" if len(nums) == 1 else f"de los arts. {_and(nums)}"
+
+
+def _name(r: dict) -> str:
+    """'**Datos personales** (PersonalData)', or the name alone."""
+    label, name = r.get("label_es") or "", r.get("concept_name") or ""
+    if label and label.lower() != name.lower():
+        return f"**{plain(label)}** ({plain(name)})"
+    return f"**{plain(name)}**"
+
+
+def _found(ws, manifest: dict, rows: dict) -> dict:
+    profile = manifest.get("profile")
+    concepts = manifest["summary"]["concepts"]
+    points, examples = [], []
+    if profile:                                                # "Una ley"
+        x = (profile.get("law_concepts") or {}).get("extraction") or profile.get(
+            "extraction") or {}
+        read = f" ({counted(x['articles_total'], 'artículo', 'artículos')})" if x else ""
+        lead = (f"Leímos {plain(profile['law'])}{read} y la IA encontró "
+                f"{counted(concepts, 'concepto', 'conceptos')} de protección de datos.")
+        points.append(f"{_plural(profile['classes'], '{n} es una idea o un actor', '{n} son '
+                                 'ideas o actores')} (como «consentimiento» o «responsable») y "
+                      f"{_plural(profile['properties'], '{n} es una relación', '{n} son '
+                                 'relaciones')} entre ellos.")
+        if profile.get("reused"):
+            points.append(_plural(profile["reused"], "{n} ya estaba en la base del sistema y se "
+                                  "reutiliza tal cual.", "{n} ya estaban en la base del sistema "
+                                  "y se reutilizan tal cual."))
+        by_name = {r["concept_name"]: r for r in rows.values()}
+        entries = sorted((e for e in (_law_concepts(ws) or {}).get("entries", [])
+                          if e.get("status") == "accepted" and e.get("articles")),
+                         key=lambda e: e["name"] not in by_name)    # with its Spanish name first
+        examples = [f"{_name(by_name.get(e['name'], {'concept_name': e['name']}))} · sale "
+                    f"{_arts(e['articles'])}" for e in entries[:WALK_EXAMPLES]]
+    else:                                                      # an ontology (and a law)
+        lead = (f"Tu ontología ({plain(manifest['uploaded_file'])}) tiene "
+                f"{counted(concepts, 'concepto', 'conceptos')}.")
+        defined = manifest.get("law_definitions") or {}
+        if defined and not defined.get("skipped"):
+            added = defined["law_concept"] + defined["articles"]
+            points.append(f"A {defined['missing']} les faltaba la definición; tu ley "
+                          f"({plain(defined['law'])}) dio {added}.")
+        evidence = manifest.get("law_evidence") or {}
+        if evidence.get("links"):
+            points.append(f"Buscamos en {plain(evidence['law'])} los artículos más cercanos a "
+                          f"cada concepto: {evidence['with_evidence']} de "
+                          f"{evidence['concepts']} tienen alguno.")
+        examples = [_name(r) + (f" · cerca {_arts(map(int, nums))} de tu ley" if (
+            nums := re.findall(r"art\. (\d+)", r.get("law_evidence") or "")) else "")
+            for r in list(rows.values())[:WALK_EXAMPLES]]
+    labels = manifest.get("labels") or {}
+    if labels.get("translated"):
+        points.append(_plural(labels["translated"], "La IA completó el nombre en español e "
+                              "inglés de 1 concepto.", "La IA completó los nombres en español e "
+                              "inglés de {n} conceptos."))
+    return {"title": WALK_TITLES[0], "lead": lead, "points": points,
+            "examples_title": "Algunos de tus conceptos", "examples": examples}
+
+
+def _linked(manifest: dict, rows: dict) -> dict:
+    by = manifest["summary"]["by_status"]
+    points = [_plural(n, one, many) for codes, (one, many) in WALK_STATES
+              if (n := sum(by.get(c, 0) for c in codes))]
+    examples = []
+    for r in rows.values():
+        if r.get("status") in ua.WRITTEN and r.get("dpv_name") and len(examples) < WALK_EXAMPLES:
+            verb = RELATION_VERBS.get(up.local(r.get("relation") or ""), "se relaciona con")
+            examples.append(f"{_name(r)} {verb} *{plain(r['dpv_name'])}*")
+    return {"title": WALK_TITLES[1], "lead": DPV_LEAD, "points": points,
+            "examples_title": "Algunos enlaces", "examples": examples}
+
+
+def _checked(ws) -> dict:
+    result = uv.load_result(ws)
+    if result is None:
+        return {"title": WALK_TITLES[2], "lead": NO_REVIEW, "points": [], "examples_title": "",
+                "examples": []}
+    ins, points = result["inspectors"], []
+    for key, ok, bad, base in (
+            (uv.SHAPES, "Está bien formada: cumple las reglas de lo que se entrega",
+             ("{n} error de forma nuevo", "{n} errores de forma nuevos"),
+             ("el único problema de forma que aparece", "los {n} problemas de forma que "
+              "aparecen", "lo", "los")),
+            (uv.LOGIC, "No tiene contradicciones propias",
+             ("{n} contradicción nueva", "{n} contradicciones nuevas"),
+             ("la única contradicción que aparece", "las {n} contradicciones que aparecen",
+              "la", "las"))):
+        b = ins.get(key) or {}
+        if b.get("status") in (None, uv.NOT_RUN, uv.FAILED):
+            continue
+        text = ok if not b["new"] else "Tiene " + _plural(b["new"], *bad)
+        if b.get("inherited"):
+            n = b["inherited"]
+            one, many, it, them = base
+            text += (f"; {_plural(n, one, many)} ya {'estaba' if n == 1 else 'estaban'} en tu "
+                     f"archivo o en la base del sistema: no {it if n == 1 else them} causó la "
+                     "alineación")
+        points.append(text + ".")
+    q = (ins.get(uv.QUESTIONS) or {})
+    if q.get("summary"):
+        s = q["summary"]
+        applies = s[GREEN] + s[YELLOW] + s[qs.GRAY]
+        first = next((r["question"] for r in q.get("results", []) if r.get("applies", True)), "")
+        points.append(f"Responde {s[GREEN]} de {applies} preguntas básicas, como «{first}»."
+                      if first else f"Responde {s[GREEN]} de {applies} preguntas básicas.")
+    a = ins.get(uv.AUDIT) or {}
+    if a.get("summary", {}).get("accepted") and a.get("status") != uv.NOT_RUN:
+        s = a["summary"]
+        parts = [_plural(s["coherente"], "{n} está bien", "{n} están bien"),
+                 _plural(s["dudosa"], "{n} es dudoso", "{n} son dudosos"),
+                 _plural(s["incoherente"], "{n} parece errado", "{n} parecen errados")]
+        points.append(_plural(s["accepted"], "La IA volvió a revisar el enlace que eligió: ",
+                              "La IA volvió a revisar los {n} enlaces que eligió: ")
+                      + _and(parts) + ".")
+    elif a.get("status") == uv.NOT_RUN and a.get("summary", {}).get("accepted"):
+        points.append("La IA no pudo volver a revisar los enlaces que eligió.")
+    return {"title": WALK_TITLES[2], "lead": REVIEW_LEADS.get(result["status"], ""),
+            "points": points, "examples_title": "", "examples": []}
+
+
+def walkthrough(ws_id: str) -> list[dict]:
+    """The three screens of "Lo que hicimos" in plain words: no SHACL, SPARQL, Jena or IRIs."""
+    ws = load_workspace(ws_id, cfg=workspace_cfg())
+    manifest = ua.load_manifest(ws)
+    if manifest is None or "decider" not in manifest:
+        raise WorkspaceError("La alineación de este archivo no terminó; vuelve a subirlo.")
+    rows = {}
+    for r in _rows(ws):
+        rows.setdefault(r["concept_iri"], r)
+    return [_found(ws, manifest, rows), _linked(manifest, rows), _checked(ws)]
