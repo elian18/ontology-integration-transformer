@@ -72,8 +72,22 @@ def step_transform() -> None:
     _back(_home, "align_home")
     st.title(svc.PATHS[svc.PATH_TRANSFORM])
     st.caption(svc.PATH_HELP[svc.PATH_TRANSFORM])
-    st.file_uploader(svc.UPLOAD_LABELS[svc.KIND_ONTOLOGY], type=svc.ACCEPTED_TYPES,
-                     key=f"transform_{ss.get('align_round', 0)}", help=svc.TRANSFORM_NOTE)
+    up = st.file_uploader(svc.UPLOAD_LABELS[svc.KIND_ONTOLOGY], type=svc.ACCEPTED_TYPES,
+                          key=f"transform_{ss.get('align_round', 0)}", help=svc.TRANSFORM_NOTE)
+    if up is None:
+        return
+    try:
+        downloads = svc.transform_downloads(up.name, up.getvalue())
+    except Exception as exc:                              # noqa: BLE001 - shown to the person
+        st.error(svc.error_message(exc))
+        return
+    st.success(up.name, title=svc.TRANSFORM_READY, icon=":material/check_circle:")
+    st.markdown("**Descárgala en el formato que necesites**")
+    for col, d in zip(st.columns(len(downloads)), downloads):
+        col.download_button(d["label"], data=d["data"], file_name=d["file_name"], mime=d["mime"],
+                            key=f"transform_dl_{d['key']}", help=d["help"], on_click="ignore",
+                            icon=":material/download:", width="stretch")
+    st.caption(svc.TRANSFORM_CAPTION)
 
 
 # ------------------------------------------------------------------ step 1
