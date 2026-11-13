@@ -234,6 +234,7 @@ def test_the_page_shows_the_card_of_the_chosen_concept(page, aligned, env, targe
     _apply(aligned, env, targets, "PersonalData broadMatch PersonalData")
     at = page()
     at.session_state["align_ws"] = aligned.id
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     box = at.selectbox(key="align_concept")
     assert box.value is None and box.label == "Concepto" and box.help == svc.PROVENANCE_HELP
@@ -266,6 +267,7 @@ def test_the_page_shows_the_card_of_the_chosen_concept(page, aligned, env, targe
 def test_the_page_says_why_a_concept_has_no_correspondence(page, aligned):  # noqa: F811
     at = page()
     at.session_state["align_ws"] = aligned.id
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     at.selectbox(key="align_concept").set_value(str(EX.Pizza)).run()
     assert not at.exception
@@ -281,6 +283,7 @@ def test_the_page_of_an_alignment_older_than_the_provenance(page, aligned):  # n
     path.write_text(json.dumps(m), encoding="utf-8")
     at = page()
     at.session_state["align_ws"] = aligned.id
+    at.session_state["align_review"] = True              # the review (S10-T12)
     at.run()
     at.selectbox(key="align_concept").set_value(str(EX.Consent)).run()
     assert not at.exception
