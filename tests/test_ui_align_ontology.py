@@ -423,6 +423,13 @@ def _pick(at, mode: str) -> None:
     at.button(key=f"align_pick_{mode}").click().run()
 
 
+def _to_review(at) -> None:
+    """From "¡Tu ontología está lista!" through the three steps of "Lo que hicimos"."""
+    at.button(key="align_review_open").click().run()
+    for _ in range(3):
+        at.button(key="align_walk_next").click().run()
+
+
 def _titles(at) -> list[str]:
     return [t.value for t in at.title]
 
@@ -666,7 +673,7 @@ def test_the_page_starts_when_the_files_of_the_mode_are_there(live):
     uploads["law"] = ("ley.txt", LAW_E2E.encode("utf-8"))
     at.run()
     assert not at.exception and _titles(at) == ["¡Tu ontología está lista!"]   # S10-T12
-    at.button(key="align_review_open").click().run()
+    _to_review(at)
     assert not at.exception and not at.error and not at.warning
     assert at.success[0].value.startswith("Mi GDPR.ttl · 4 conceptos")
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]

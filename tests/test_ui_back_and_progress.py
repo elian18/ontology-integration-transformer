@@ -11,7 +11,8 @@ from app.services import align_ontology as svc
 from src.workspace.store import ALL_STEPS, STEP_LABELS, WorkspaceError, steps_for
 from tests.test_alignment_propose import TTL, env, targets  # noqa: F401
 from tests.test_law_evidence import LAW_E2E
-from tests.test_ui_align_ontology import (TITLE, _pick, _titles, _zips, cfg,  # noqa: F401
+from tests.test_ui_align_ontology import (TITLE, _pick, _titles, _to_review, _zips,  # noqa: F401
+                                          cfg,
                                           live, page)
 
 
@@ -85,7 +86,7 @@ def test_back_keeps_the_files_and_computes_nothing(counted):
     uploads["law"] = ("ley.txt", LAW_E2E.encode("utf-8"))
     at.run()
     assert not at.exception and _titles(at) == [READY] and calls == ["ontology", "ontology+law"]
-    at.button(key="align_review_open").click().run()
+    _to_review(at)
     assert _zips(at)
     at.button(key="align_again").click().run()                 # start over: the files go
     assert _titles(at) == [TITLE] and "align_files" not in at.session_state

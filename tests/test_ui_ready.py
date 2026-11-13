@@ -109,9 +109,9 @@ def test_the_ready_screen(page, aligned):  # noqa: F811
     assert at.caption[2].value == svc.REVIEW_HINT
     assert not at.download_button and not at.success and not at.tabs and not at.dataframe
     assert not [m for m in at.markdown if "concepto" in m.value]          # no figures
-    button.click().run()                                                  # the review
-    assert not at.exception and _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
-    at.button(key="align_review_back").click().run()                      # back to "lista"
+    button.click().run()                                     # "Lo que hicimos" (S10-T13)
+    assert not at.exception and _titles(at) == [svc.WALK_TITLES[0]] and not at.download_button
+    at.button(key="align_walk_back").click().run()                        # back to "lista"
     assert _titles(at) == [svc.READY_TITLE] and not at.download_button
     at.button(key="align_result_back").click().run()                      # back to the files
     assert _titles(at) == ["Mi ontología"] and "align_review" not in at.session_state

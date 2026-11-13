@@ -25,7 +25,7 @@ def _restart(mode: str | None = None) -> None:
     """Go to the three modes (``mode`` None) or to the upload of ``mode``: new uploaders,
     nothing computed."""
     ss["align_round"] = ss.get("align_round", 0) + 1
-    for key in ("align_key", "align_ws", "align_failed", "align_review"):
+    for key in ("align_key", "align_ws", "align_failed", "align_review", "align_step"):
         ss.pop(key, None)
     if mode is None:
         ss.pop("align_mode", None)
@@ -354,12 +354,22 @@ def _preview(ws_id: str) -> None:
     st.caption(svc.preview_caption(p))
 
 
+def _walk_to(step: int) -> None:
+    """Step 0 is "¡Tu ontología está lista!", 1 to 3 "Lo que hicimos", after them the review."""
+    ss.pop("align_review", None)
+    ss.pop("align_step", None)
+    if step > len(svc.WALK_TITLES):
+        ss["align_review"] = True
+    elif step > 0:
+        ss["align_step"] = step
+
+
 def _open_review() -> None:
-    ss["align_review"] = True
+    _walk_to(1)
 
 
 def _close_review() -> None:
-    ss.pop("align_review", None)
+    _walk_to(len(svc.WALK_TITLES))
 
 
 def _broken(exc: Exception) -> None:
@@ -383,6 +393,29 @@ def step_ready(ws_id: str) -> None:
     st.button(svc.REVIEW_BUTTON, key="align_review_open", type="primary",
               icon=":material/fact_check:", on_click=_open_review)
     st.caption(svc.REVIEW_HINT)
+
+
+def step_walk(ws_id: str, step: int) -> None:
+    """Lo que hicimos, paso a paso: three short screens in plain words (S10-T13)."""
+    _back(lambda: _walk_to(step - 1), "align_walk_back")
+    try:
+        s = svc.walkthrough(ws_id)[step - 1]
+    except Exception as exc:                              # noqa: BLE001 - shown to the person
+        _broken(exc)
+        return
+    total = len(svc.WALK_TITLES)
+    st.progress(step / total, text=f"Paso {step} de {total}")
+    st.title(s["title"])
+    st.markdown(s["lead"])
+    if s["points"]:
+        st.markdown("\n".join(f"- {point}" for point in s["points"]))
+    if s["examples"]:
+        with st.container(border=True):
+            st.markdown(f"**{s['examples_title']}**")
+            st.markdown("\n".join(f"- {example}" for example in s["examples"]))
+    st.button("Siguiente" if step < total else "Continuar", key="align_walk_next",
+              type="primary", icon=":material/arrow_forward:", on_click=_walk_to,
+              args=(step + 1,))
 
 
 def step_result(ws_id: str) -> None:
@@ -422,6 +455,8 @@ def step_result(ws_id: str) -> None:
 
 if ss.get("align_ws") and ss.get("align_review"):
     step_result(ss["align_ws"])
+elif ss.get("align_ws") and ss.get("align_step"):
+    step_walk(ss["align_ws"], ss["align_step"])
 elif ss.get("align_ws"):
     step_ready(ss["align_ws"])
 elif ss.get("align_mode") in svc.MODES:
