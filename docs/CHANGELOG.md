@@ -1313,3 +1313,311 @@ verde en la corrida de punta a punta (13 min 39 s).
     cambiarían;
   - en la corrida de punta a punta la IA respondió desde la caché, así que sus cifras son las de
     las corridas que la llamaron.
+
+---
+
+## v1.0.0 — Sprint 10 (Trazabilidad y ciclo de corrección)
+
+**Entregable:** la versión estable del componente. La web tiene un asistente con dos caminos,
+"Alinear y transformar" y "Solo transformar", y termina con un solo archivo por formato,
+`<nombre>-dpv-aligned`. Lo que queda en duda en cada subida se pregunta con opciones fijas
+("Tú decides"). Cada respuesta pasa por una regla fija y crea una versión nueva; la anterior
+queda en el historial. La base y cada subida traen su procedencia en PROV-O: quién decidió
+cada correspondencia (base, regla o usuario), cuándo y en qué versión. Una corrección de la
+base llega sola a las subidas que heredaron de ella y al puente con el GDPR. Las preguntas
+redactadas por la IA se midieron y no se adoptaron; la IA revisora sigue solo explicando.
+
+### Qué se construyó
+- Consola (S10-T01) — los últimos plurales usan `counted`, y el modelo de embeddings carga
+  sin los avisos de Hugging Face Hub.
+- `src/workspace/store.py` (S10-T02) — las subidas comparten la caché de respuestas de la IA
+  en `data/workspaces/_cache/`. La clave es el sha256 del prompt, el modelo y lo que se
+  pregunta. Lo que cada espacio guardaba antes se mueve ahí una sola vez. Antes, cada subida
+  solo reusaba la suya.
+- `src/alignment/user_decisions.py` (S10-T03) — los cambios del usuario. Una regla fija
+  revisa cada cambio:
+  - que el término exista en el DPV 2.3 y que la relación sea SKOS;
+  - que una propiedad vaya con una propiedad y que haya un solo cambio por concepto;
+  - que un individuo no se alinee.
+
+  Lo aceptado va a un registro que solo crece (`work/user-decisions.jsonl`) y la alineación
+  se escribe como una versión nueva. La anterior queda en `history/v<N>/` con sus cuatro
+  paquetes. El cambio nunca edita el archivo subido, la regla del decisor ni la base: queda
+  encima de lo que decidieron la base y la regla, correspondencia por correspondencia.
+- `src/alignment/user_questions.py` + `question_eval.py` + prompt `ask.v1` (S10-T04) — una
+  pregunta con opciones por cada duda, hasta 10. Las dudas son dos:
+  - las sugeridas (la IA eligió un término con confianza alta y la regla no lo aceptó);
+  - las aceptadas por la regla que la IA revisora marcó como incoherentes o dudosas.
+
+  Las opciones son tomar la sugerida, cambiar a la relación que propone la IA revisora,
+  quitar la correspondencia o dejarla como está. La pregunta muestra lo que dijo cada IA y no
+  recomienda ninguna opción. Las preguntas redactadas por la IA (`ask.v1`, que junta dudas y
+  recomienda una opción) se midieron con personas simuladas sobre las 552 decisiones de la
+  base y no se adoptaron (ver Resultados).
+- Preguntas en la consola (S10-T05) — cada subida escribe sus preguntas en
+  `work/user-questions.json` y la consola las muestra. `--responder "1=a,3=b"` las convierte
+  en cambios de S10-T03, en una sola versión. "Dejar como está" se recuerda
+  (`work/user-kept.jsonl`), así que lo respondido no se vuelve a preguntar.
+- `src/provenance/model.py` + `base.py` (S10-T06) — la procedencia de la base en PROV-O y en
+  los cuatro formatos (`ontopriv-provenance`). Cada correspondencia y cada concepto sin
+  correspondencia dice quién y cuándo, y si se confirmó una propuesta del asistente o se
+  decidió sin ella. También registra los conceptos que la IA tomó de la LOPDP (con su
+  artículo), las reparaciones R1 y R2 y el puente con el GDPR. Pasa por la forma y la lógica;
+  no usa IA.
+- `src/provenance/upload.py` + `records.rq` (S10-T07) — la procedencia de cada subida dentro
+  de su paquete. Dice quién decidió cada correspondencia (base, regla o usuario) y en qué
+  versión. `--ver NOMBRE` la muestra con una consulta SPARQL fija.
+- Ficha de procedencia (S10-T08) — en la web, la ficha de un concepto dice de dónde salió,
+  sus versiones y cómo se produjo.
+- Inicio con dos caminos (S10-T09) — "Alinear y transformar" lleva a los tres modos; "Solo
+  transformar" (S10-T10) convierte una ontología a otro formato sin pasar por la IA.
+- Barra de progreso en palabras simples y botón "Atrás" que conserva los archivos subidos
+  (S10-T11).
+- "¡Tu ontología está lista!" (S10-T12) — vista previa en grafo de los conceptos y sus
+  equivalentes en el DPV (`streamlit-agraph`), y un botón para revisarla.
+- "Lo que hicimos" (S10-T13) — tres pantallas con ejemplos de la propia subida: qué se
+  encontró, cómo se enlazó con el DPV y cómo se revisó.
+- "Tú decides" (S10-T14) — las preguntas una a una; responder es opcional. "Ajustar otro
+  concepto" cambia cualquier otra correspondencia y busca otro término del DPV. La ontología
+  se recalcula con los cambios aprobados.
+- `src/transform/merge.py` (S10-T15) — la descarga final es un solo archivo por formato,
+  `<nombre>-dpv-aligned`: la unión de los módulos, con la ontología del usuario como única
+  `owl:Ontology` y sin los `owl:imports` entre módulos. Se abre directamente en Protégé. Los
+  detalles técnicos (validación, conceptos, procedencia, lo que queda para revisar) pasan a
+  "Ver los detalles técnicos". La versión anterior también se puede descargar.
+- Correcciones de la base y del puente (S10-T16):
+  - una corrección de la base guarda la decisión anterior como versión previa en la
+    procedencia (`prov:wasRevisionOf`, `prov:wasInvalidatedBy`);
+  - `inherited.json` guarda la huella de la base que leyó, así que una subida vuelve a
+    heredar cuando la base cambia;
+  - `py -m src.alignment.gdpr_bridge --espacio ESPACIO` (con `EDITABLE_BASE=1`) copia la
+    versión actual de una subida de GDPRtEXT a `data/reference/`, y
+    `gdprtext-dpv-alignment.json` dice de qué subida y versión sale.
+- Propiedades `rdf:Property` y `rdfs:Property` (S10-T17) — las propiedades declaradas así,
+  sin tipo OWL, se cuentan, se alinean y se validan. Se probó con las ontologías de la tabla
+  1.4 del estado del arte que se pudieron descargar (DPCat).
+- Corrida de punta a punta, README y esta versión (S10-T18).
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Los comentarios del usuario tienen una forma fija.** El Scrumban pedía una caja de
+  comentarios. Se recogen como respuestas a preguntas con opciones y como cambios con una forma
+  fija ("Ajustar otro concepto" en la web, `--cambio` en la consola). Así pasan siempre por la
+  misma regla y quedan auditables.
+- **No hay botón "Confirmar esta versión".** Cada respuesta ya deja una versión nueva y la
+  anterior queda en el historial, así que no hace falta un paso más.
+- **Las preguntas son fijas, no de la IA.** El criterio para adoptar `ask.v1` se fijó antes
+  de medir y no se cumplió (ver Resultados).
+- **Lo que decide el usuario no entra al resto del sistema.** Sus respuestas no son
+  precedentes del decisor, y la IA revisora no vuelve a revisar un concepto que el usuario
+  decidió. En la procedencia, el usuario aparece como "usuario", sin nombre.
+- **Las propiedades nunca se alinean solas.** Con la corrección de la base, la segunda grilla
+  del decisor elige ahora una regla que acepta propiedades con `exactMatch` (75,6 %). Pasa el
+  piso de 75 % por una sola decisión, y la validación cruzada da 63,3 % en el percentil 10.
+  Por eso la regla en uso no cambia.
+- **El mismo nombre no basta para aceptar solo.** En la base, de 23 conceptos con el mismo
+  nombre que su término del DPV, 9 son `exactMatch`; entre clases, 10 de 15 (67 %), por debajo
+  del 75 %.
+- **Una corrección no borra nada.** La decisión anterior queda en el registro y en la
+  procedencia, marcada como reemplazada, y la versión anterior de una subida queda en
+  `history/`.
+- **La caché de la IA es compartida.** La misma pregunta a la IA, con el mismo prompt y el
+  mismo modelo, da la misma respuesta en cualquier subida y no gasta cuota dos veces.
+
+### Resultados
+**Corrida de punta a punta (S10-T18)**, el 2026-11-14 (UTC), en Windows con Java 24.0.2 y
+Apache Jena 6.2.0:
+- la base se rehízo desde OntoPriv: núcleo, perfil, alineación, cuatro formatos, paquetes,
+  validación, preguntas, puente y procedencia;
+- se corrieron las mediciones del decisor, de la IA revisora y de las preguntas de la IA, los
+  tres modos con sus archivos y DPCat, y un ciclo real de preguntas;
+- la IA respondió casi todo desde la caché compartida. Gemini se llamó 11 veces, donde la
+  corrección de la base cambió un prompt:
+  - el decisor, 4 veces en su evaluación, 2 en GDPRtEXT ("Mi ontología") y 2 en el GDPR;
+  - la IA revisora, 1 vez en su medición y 1 en el GDPR;
+  - las preguntas de la IA, 1 vez.
+
+**Corrección de la base (S10-T16).** `NationalDataProtectionRegistry` (concepto de la LOPDP)
+estaba alineado con `ProtectionOfNationalSecurity`. Se corrigió a `broadMatch
+PublicRegisterOfEntities`. Siguen siendo 190 correspondencias; la anterior queda como versión
+previa.
+
+| Base del sistema | v0.9.0 | v1.0.0 |
+|---|---|---|
+| Tripletas (núcleo, perfil y alineación) | 5233 | 5233 |
+| Correspondencias con el DPV | 190 | 190 (1 corregida) |
+| Forma (pySHACL): heredadas / avisos | 1 / 1605 | 1 / 1605 (4,0 s) |
+| Lógica (Jena, OWL Micro): heredadas / avisos | 5 / 1303 | 5 / 1303 (8,7 s) |
+| Lógica (owlrl): heredadas | 1 | 1 (16,3 s) |
+| Preguntas de competencia: verde / amarillo / gris | 18 / 5 / 0 | 18 / 5 / 0 (6,8 s) |
+| Puente con el GDPR: pares (coherentes / dudosos / incoherentes) | 34 (31 / 1 / 2) | 31 (31 / 0 / 0) |
+| Procedencia (PROV-O) | — | 13988 tripletas |
+
+- El núcleo tiene 350 entidades y 1930 tripletas; el perfil, 354 entidades y 2918 tripletas.
+  Las reparaciones son las de v0.9.0: 84 propiedades con varios dominios, 35 con varios rangos
+  y 34 con doble tipo.
+- Los cuatro formatos y OntoPriv original siguen dando las mismas filas en las preguntas.
+  Las explicaciones de las 5 amarillas salieron de la caché.
+- **Puente:** usa la versión 3 de la subida `gdprtext-ontology-b863b1da` (sha256
+  a016e1835983). En esa subida se respondieron dos dudas:
+  - `IntegrityAndConfidentiality` pasó a `relatedMatch ConfidentialityAgreement`, que es lo que
+    proponía la IA revisora;
+  - a `InfoAboutProcessing` se le quitó la correspondencia.
+
+  Con eso salieron los 3 pares que la IA revisora marcaba en v0.9.0. Quedan 31 pares por 22
+  términos del DPV, todos coherentes, en 258 tripletas. No hay hallazgos nuevos.
+- **Procedencia de la base:**
+  - las 190 correspondencias dicen quién y cuándo: 159 confirman una propuesta del asistente
+    y 31 las decidió la persona sola;
+  - también la tienen los 379 conceptos sin correspondencia;
+  - los 93 conceptos que la IA tomó de la LOPDP (25 nuevos, 66 ya en OntoPriv y 2
+    rechazados) llevan su artículo;
+  - registra 119 reparaciones R1, 34 R2 y los 31 pares del puente.
+
+  Los cuatro formatos dan las mismas tripletas, y no hay hallazgos nuevos.
+
+**El decisor, medido otra vez (S7-T05).** La corrección cambió los precedentes de 3
+conceptos, así que el decisor volvió a decidirlos (4 llamadas). Sobre las 552 decisiones,
+dejando fuera cada una:
+
+| Regla | Propuestas | Correctas | Precisión | Cobertura |
+|---|---|---|---|---|
+| En uso (v0.7.0 a v0.9.0) | 68 | 51 | 75,0 % | 29,5 % |
+| **En uso (v1.0.0)**: propiedades nunca automáticas | **68** | **52** | **76,5 %** | **30,1 %** |
+| Elegida ahora por la segunda grilla: propiedades solo con `exactMatch` | 82 | 62 | 75,6 % | 35,8 % |
+
+- Validación cruzada de la segunda grilla: 72,5 % (p10 63,3 %, p90 82,6 %), cobertura 32,7 %.
+  En v0.7.0 eran 72,0 % (p10 62,5 %, p90 86,4 %).
+- Confirmación sin reajustar, igual que en v0.7.0: en GDPRtEXT, 18 propuestas y 17 correctas
+  (94,4 %), con cobertura de 81,0 % de 21; en la muestra ciega, 6 y 3 (50,0 %).
+
+**IA revisora (S8-T09), medida otra vez:** de las 68 correspondencias que acepta la regla,
+52 son iguales a la decisión de la persona y 16 distintas (1 llamada). Dejar fuera las
+incoherentes atrapa 3 de las 16 y quita 4 de las 52: la precisión pasa de 76,5 % a 78,7 %.
+No llega a los 5 puntos del criterio, así que la IA revisora sigue solo explicando.
+
+**Preguntas de la IA (S10-T04)**, con dos personas simuladas sobre las 552 decisiones:
+- son 15 familias de la base y 84 dudas;
+- "siempre la recomendada" toma la opción que recomienda la IA;
+- "la persona" toma la opción que deja sus conceptos más cerca de las decisiones del Sprint 5.
+
+| | Preguntas | Sirven | Precisión | Cobertura |
+|---|---|---|---|---|
+| Regla sola | — | — | 76,5 % | 30,1 % |
+| Con IA, siempre la recomendada | 25 | — | 66,7 % | 39,3 % |
+| Con IA, la persona | 25 | 7 | 80,5 % | 35,8 % |
+| **Preguntas fijas, la persona** | **60** | **32** | **85,7 %** | **45,1 %** |
+
+- `ask.v1` no se adopta. Falla las tres condiciones fijadas antes de medir:
+  1. seguir su recomendación baja la precisión de la regla sola;
+  2. sirven 7 de 25, menos de la mitad;
+  3. con la persona, rinde menos que las preguntas fijas.
+- En S10-T04, antes de la corrección, las cifras eran parecidas (24 preguntas y 8 sirven;
+  66,3 % siguiendo su recomendación) y la decisión fue la misma. 10 de las 25 preguntas de la
+  IA juntan varias dudas; las fijas hacen una por duda.
+
+**Subidas reales.** Una subida repetida reutiliza su espacio de trabajo. Como la herencia
+cambió de versión en S10-T17, todas volvieron a heredar de la base corregida.
+
+| Subida | Conceptos | Heredados (corresp.) | Regla | Usuario | Sugeridas | Sin corresp. | Sin propuesta | Versión |
+|---|---|---|---|---|---|---|---|---|
+| GDPRtEXT, "Mi ontología" | 235 | 21 (23) | 76 → 75 | 0 → 1 | 20 | 81 | 37 | v1 → v2 |
+| GDPRtEXT + GDPR, "Mi ontología y una ley" | 235 | 21 (23) | 74 | 2 conceptos (1 corresp.) | 20 | 82 | 37 | v3 |
+| GDPR (inglés), "Una ley" | 122 | 20 (24) | 22 | 2 | 13 | 51 | 14 | v3 |
+| Ley 1581 de 2012, Colombia, "Una ley" | 27 | 10 (12) | 3 | 0 | 4 | 8 | 2 | v1 |
+| DPCat, "Mi ontología" | 7 | 0 | 2 | 2 | 0 | 1 | 2 | v3 |
+
+| Subida | Forma | Lógica (Jena) | Preguntas (SPARQL) | IA revisora | Para el usuario |
+|---|---|---|---|---|---|
+| GDPRtEXT, "Mi ontología" (v2) | amarillo: 0 nuevas, 232 heredadas, 4 avisos | verde: 0 | verde: 7 de 7; G08 no aplica | amarillo: 10 incoherentes y 1 dudosa de 75 | 10 preguntas sobre 17 dudas |
+| GDPRtEXT + GDPR (v3) | amarillo: igual | verde: 0 | verde: 7 de 7; G08 no aplica | amarillo: 9 incoherentes y 1 dudosa de 74 | 10 preguntas sobre 16 dudas |
+| GDPR, "Una ley" (v3) | amarillo: 0 nuevas, 1 heredada, 728 avisos | amarillo: 0 nuevas, 5 heredadas, 1236 avisos | verde: 8 de 8 | amarillo: 0 incoherentes y 1 dudosa de 22 | 9 preguntas sobre 9 dudas |
+| Colombia, "Una ley" (v1) | amarillo: 0 nuevas, 1 heredada, 740 avisos | amarillo: 0 nuevas, 5 heredadas, 1236 avisos | amarillo: 7 de 8 (falla G03) | verde: 0 de 3 | 3 preguntas, las 3 sobre propiedades |
+| DPCat (v3) | verde: 0 | verde: 0 | amarillo: 1 de 7 (G02 a G07); G08 no aplica | verde: 0 de 2 | ninguna |
+
+- **Ciclo real de preguntas**, sobre GDPRtEXT en "Mi ontología" (`gdprtext-ontology-d35361ae`):
+  - la versión 1 hizo 10 preguntas sobre 18 dudas;
+  - con `--responder "1=a"`, `FactorsForImpactAssessment` pasó de `exactMatch` a
+    `relatedMatch ImpactAssessment`, lo que proponía la IA revisora;
+  - la versión 2 quedó lista en 11,4 s, sin llamar a la IA, y la versión 1 quedó en
+    `history/v1/` con sus cuatro descargas;
+  - la IA revisora no vuelve a revisar ese concepto, así que en la versión 2 quedan 17 dudas.
+- **Procedencia de las subidas** (tripletas; correspondencias por quién las decidió):
+
+  | Subida | Tripletas | Base | Regla | Usuario | Reemplazadas |
+  |---|---|---|---|---|---|
+  | GDPRtEXT, v1 → v2 | 4912 → 4940 | 23 | 76 → 75 | 0 → 1 | 0 → 1 |
+  | GDPRtEXT + GDPR, v3 | 4965 | 23 | 74 | 1 | 2 |
+  | GDPR, v3 | 4915 | 24 | 22 | 2 | 1 |
+  | Colombia, v1 | 1268 | 12 | 3 | 0 | 0 |
+  | DPCat, v3 | 325 | 0 | 2 | 2 | 0 |
+- **GDPRtEXT** es el que más cambió desde v0.9.0: la regla acepta 76 en vez de 80. El decisor
+  volvió a decidir con la base corregida, que le cambia algunos precedentes: 2 llamadas nuevas
+  y 194 respuestas desde la caché. Con la versión 1, la IA revisora marca 11 incoherentes y 1
+  dudosa de 76 (en v0.9.0, de 80).
+- **El GDPR como "Una ley"** tiene 122 conceptos aceptados (74 clases y 48 propiedades):
+  - 13 reutilizan el IRI de OntoPriv-Core y 1 se enlaza al núcleo por ser muy parecido;
+  - el perfil importa OntoPriv-Core y tiene 567 tripletas;
+  - responde las 8 preguntas en verde, mientras que la ley de Colombia sigue sin bases legales
+    alineadas (G03).
+- **DPCat** declara sus propiedades con `rdfs:Property`. Antes de S10-T17 se leía como 5
+  clases. Ahora tiene 7 conceptos, y las 2 dudas (`ROPA` y `hasStatus`) se respondieron. Sus
+  términos del DPV no son derechos, bases legales, finalidades, categorías de datos, actores
+  ni operaciones, así que G02 a G07 quedan en amarillo, y la IA lo explica así.
+
+### Cómo usar
+Web (demo):
+
+    py -m streamlit run app/app.py
+
+En el inicio se elige "Alinear y transformar" o "Solo transformar". El README explica el
+asistente, las preguntas y las versiones.
+
+Consola:
+
+    py -m src.alignment.user_alignment --espacio ESPACIO --responder "1=a,3=b"
+    py -m src.alignment.user_alignment --espacio ESPACIO --cambio "Concepto quitar" [--aplicar]
+    py -m src.alignment.question_eval [--max-llamadas 20]   # preguntas de la IA frente a las fijas
+    py -m src.provenance.base [--ver NOMBRE]                # procedencia de la base
+    py -m src.provenance.upload --espacio ESPACIO --ver NOMBRE
+    py -m src.alignment.gdpr_bridge --espacio ESPACIO       # con EDITABLE_BASE=1
+
+### Pruebas
+Archivos nuevos en este sprint: `tests/test_user_decisions.py`, `test_user_questions.py`,
+`test_upload_questions.py`, `test_question_eval.py`, `test_provenance_base.py`,
+`test_provenance_upload.py`, `test_ui_provenance_card.py`, `test_ui_transform.py`,
+`test_ui_back_and_progress.py`, `test_ui_ready.py`, `test_ui_walkthrough.py`,
+`test_ui_decide.py` y `test_ui_final.py`. Se ampliaron `test_user_alignment.py`,
+`test_gdpr_bridge.py`, `test_core_inventory.py`, `test_validation_shapes.py`,
+`test_ui_align_ontology.py`, `test_ui_validation_panel.py`, `test_workspace.py`,
+`test_console.py`, `test_alignment_propose.py`, `test_labels.py`, `test_law_definitions.py`,
+`test_validation_ai_auditor.py`, `test_validation_shape_inspector.py` y
+`test_validation_upload.py`.
+- La web se prueba con Streamlit AppTest y se revisó en el navegador con Playwright.
+- La IA y los embeddings usan modelos falsos; las pruebas que los llaman de verdad están
+  marcadas `slow`.
+- Una prueba que necesita "sin clave" simula que falta `LLM_API_KEY`, porque la máquina de
+  desarrollo sí la tiene.
+- Cada tarea pasó por pruebas de mutación.
+
+Suite del proyecto: 1272 pruebas, 1256 sin las marcadas `slow`. En la corrida de punta a punta
+(16 min 6 s) pasaron 1271. La que faltó fue la prueba `slow` de `question_eval`: necesitaba
+las respuestas del decisor y de la IA revisora para la base corregida. Después de rehacerlas
+pasó, con las 13 de su archivo.
+
+### Alcance y pendientes
+- **Sprint 11 (Despliegue):** WIDOCO para la página de documentación de la ontología
+  generada, enlazada desde la web. Después empieza la redacción del documento.
+- **Limitaciones para la tesis:**
+  - las preguntas no cubren todo: las dudas sin propuesta y los conceptos sin correspondencia
+    solo se cambian con "Ajustar otro concepto" o `--cambio`;
+  - el máximo de 10 preguntas por versión deja dudas para la versión siguiente (GDPRtEXT tiene
+    18);
+  - la IA revisora acierta poco como filtro (3 de 16), así que solo explica;
+  - las cifras del decisor se mueven con cada corrección de la base, porque las decisiones
+    son a la vez la referencia y los precedentes: una corrección movió 1,5 puntos la
+    precisión de la regla en uso;
+  - el puente depende de la alineación de GDPRtEXT que se fijó; con otra versión cambiarían
+    los pares;
+  - OntoPriv sigue siendo inconsistente (5 hallazgos con Jena y 1 con owlrl), y la base sigue
+    sin los axiomas anónimos que el Sprint 3 dejó fuera;
+  - de las ontologías de la tabla 1.4 del estado del arte, solo DPCat se pudo descargar.

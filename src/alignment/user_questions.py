@@ -18,7 +18,8 @@ doubts with the same pattern and recommends an option) were measured on the base
 adopted (py -m src.alignment.question_eval, November 2026): with names only it could not tell
 the right suggestions from the wrong ones (it asked about 16 of the 33 right ones and 13 of the
 37 you left without correspondence) and following its recommendation lowered the precision
-from 75.0 % to 66.3 %. ``user_questions.ai`` keeps it off.
+from 75.0 % to 66.3 % (76.5 % to 66.7 % with the base corrected in S10-T16). ``user_questions.ai``
+keeps it off.
 
 Every option goes through the fixed rule of S10-T03 (``user_decisions.check_state``); the AI
 options also have to change only the concepts of their question, with terms shown for them."""

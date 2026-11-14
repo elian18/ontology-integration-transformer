@@ -1,12 +1,13 @@
 """Measure the questions of the AI with simulated people, without labelling (S10-T04).
 
-Result (November 2026, 12 calls): ask.v1 was not adopted. It asked 24 questions and 8 served;
-following its recommendation lowered the precision from 75.0 % to 66.3 %; with the person it
-reached 80.3 % and 35.3 % against 84.6 % and 44.5 % of the fixed questions. The uploads ask the
+Result (S10-T18, with the base corrected in S10-T16): ask.v1 is not adopted. It asked 25
+questions and 7 served; following its recommendation lowered the precision from 76.5 % to
+66.7 %; with the person it reached 80.5 % and 35.8 % against 85.7 % and 45.1 % of the fixed
+questions (S10-T04, before the correction: 24 and 8; 75.0 % to 66.3 %). The uploads ask the
 fixed questions (``user_questions.fixed_questions``). A new run reads the cache (0 calls).
 
 Simulated uploads. The 552 decisions of the base decided as if they were new (leave one out:
-the decisions that calibrated the rule, 75.0 % precision and 29.5 % coverage) and the review of
+the decisions that calibrated the rule, 76.5 % precision and 30.1 % coverage) and the review of
 the AI reviewer of what the rule accepted, both from their caches (0 calls). Each family of
 OntoPriv-Core is one upload, and the concepts the AI took from the LOPDP another one: from 3 to
 104 concepts, like the real uploads. In each one the AI asks (prompt ask.v1, at most 10
