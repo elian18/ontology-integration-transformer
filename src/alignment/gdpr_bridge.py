@@ -3,13 +3,15 @@
 # module of their own, each one marked "encadenado por el DPV" with the term it goes through.
 # The alignment of GDPRtEXT it uses is fixed in data/reference, so the bridge is rebuilt without
 # the AI and always gives the same pairs. The reviewing AI explains each pair in a CSV apart:
-# nothing it says enters the ontology.
+# nothing it says enters the ontology. With --espacio, the current version of an upload of
+# GDPRtEXT (with what the person decided in it) becomes that fixed alignment (S10-T16).
 from __future__ import annotations
 
 import argparse
 import csv
 import hashlib
 import json
+import os
 import time
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
@@ -36,6 +38,8 @@ STRICT = (SKOS.exactMatch, SKOS.closeMatch)
 LOOSE = STRICT + (SKOS.broadMatch, SKOS.narrowMatch, SKOS.relatedMatch)
 DEFAULTS = {"gdprtext": "data/input/gdprtext-ontology.ttl",
             "gdprtext_alignment": "data/reference/gdprtext-dpv-alignment.ttl"}
+ORIGIN_FILE = "gdprtext-dpv-alignment.json"    # next to the fixed alignment: where it came from
+EDITABLE_FLAG = "EDITABLE_BASE"                 # the switch of the pages that change the base
 CSV_COLUMNS = ["ontopriv", "ontopriv_label", "ontopriv_source", "gdprtext", "gdprtext_label",
                "gdpr_articles", "dpv_terms", "ontopriv_relation", "gdprtext_relation",
                "verdict", "ai_relation", "explanation"]
@@ -254,6 +258,46 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def origin_path(cfg: dict | None = None) -> Path:
+    return paths(cfg)["gdprtext_alignment"].with_name(ORIGIN_FILE)
+
+
+def origin(cfg: dict | None = None) -> dict | None:
+    """The upload and version the fixed alignment was copied from, while it is that copy."""
+    path, fixed = origin_path(cfg), paths(cfg)["gdprtext_alignment"]
+    if not path.exists() or not fixed.exists():
+        return None
+    note = json.loads(path.read_text(encoding="utf-8"))
+    return note if note.get("sha256") == _sha256(fixed) else None
+
+
+def adopt(ws_id: str, cfg: dict | None = None, *, root: str | Path | None = None) -> dict:
+    """The current version of an upload of GDPRtEXT becomes the fixed alignment (S10-T16): its
+    alignment module byte for byte, and a note with the upload and the version. It changes the
+    bridge of the base, so only with EDITABLE_BASE=1."""
+    from src.alignment import user_alignment as ua
+    from src.alignment import user_decisions as ud
+    from src.workspace.store import load_workspace
+    if os.getenv(EDITABLE_FLAG, "").strip() != "1":
+        raise PermissionError(f"Esto cambia el puente de la base: agrega {EDITABLE_FLAG}=1 a tu "
+                              ".env y vuelve a correrlo.")
+    ws = load_workspace(ws_id, cfg=cfg, root=root)
+    manifest = ua.load_manifest(ws)
+    if manifest is None:
+        raise ValueError(f"La alineación de {ws_id} no terminó; vuelve a correrla.")
+    if manifest.get("ontology_iri") != GDPRTEXT_IRI:
+        raise ValueError(f"{ws_id} no es una subida de GDPRtEXT (su ontología es "
+                         f"{manifest.get('ontology_iri')}).")
+    data = (ws.path / manifest["files"]["alignment"]).read_bytes()
+    paths(cfg)["gdprtext_alignment"].write_bytes(data)
+    note = {"workspace": ws.id, "version": ud.current_version(ws),
+            "file": manifest["files"]["alignment"], "sha256": hashlib.sha256(data).hexdigest(),
+            "copied": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    origin_path(cfg).write_text(json.dumps(note, ensure_ascii=False, indent=2) + "\n",
+                                encoding="utf-8")
+    return note
+
+
 def write_csv(rows: list[dict], path: Path) -> None:
     with open(path, "w", newline="", encoding="utf-8-sig") as fh:   # BOM: Excel shows accents
         w = csv.DictWriter(fh, fieldnames=CSV_COLUMNS, extrasaction="ignore")
@@ -329,7 +373,8 @@ def build(cfg: dict | None = None, *, llm=None, use_llm: bool | None = None,
            "gdprtext": {"file": si._shown(where["gdprtext"], ROOT),
                         "sha256": _sha256(where["gdprtext"])},
            "gdprtext_alignment": {"file": si._shown(where["gdprtext_alignment"], ROOT),
-                                  "sha256": _sha256(where["gdprtext_alignment"])},
+                                  "sha256": _sha256(where["gdprtext_alignment"]),
+                                  "from": origin(cfg)},
            "pairs": len(pairs), "terms": len({t for p in pairs for t, _, _ in p.terms}),
            "loose_pairs": len(loose), "triples": len(graph),
            "files": [si._shown(f, ROOT) for f in files], "validation": validation,
@@ -373,9 +418,12 @@ def validation_lines(v: dict | None, what: str = "el puente") -> list[str]:
 
 def render(out: dict) -> str:
     p, ai, s = out["prompt"], out["ai"], out["summary"]
+    fixed = out["gdprtext_alignment"]
+    came = fixed.get("from")
     lines = ["Puente de la base con el GDPR (S9-T09)",
-             f"  Alineación de GDPRtEXT usada (fija): {out['gdprtext_alignment']['file']} "
-             f"(sha256 {out['gdprtext_alignment']['sha256'][:12]})",
+             f"  Alineación de GDPRtEXT usada (fija): {fixed['file']} "
+             f"(sha256 {fixed['sha256'][:12]})"
+             + (f", versión {came['version']} de la subida {came['workspace']}" if came else ""),
              f"  Pares OntoPriv ↔ GDPRtEXT con exactMatch o closeMatch en los dos lados: "
              f"{out['pairs']}, por {counted(out['terms'], 'término', 'términos')} del DPV "
              f"(con cualquier relación SKOS serían {out['loose_pairs']}; no entran)",
@@ -403,13 +451,20 @@ def _run(argv: list[str] | None = None) -> int:
         prog="py -m src.alignment.gdpr_bridge",
         description="Escribe el puente de la base con el GDPR (pares OntoPriv ↔ GDPRtEXT "
                     "encadenados por el DPV), lo valida y la IA revisora explica cada par.")
+    parser.add_argument("--espacio", metavar="ESPACIO",
+                        help="antes, copia la versión actual de esa subida de GDPRtEXT a "
+                             "data/reference (necesita EDITABLE_BASE=1)")
     parser.add_argument("--sin-ia", action="store_true", help="sin la IA revisora (solo caché)")
     parser.add_argument("--motor", choices=["jena", "owlrl"], help="motor de la lógica")
     args = parser.parse_args(argv)
     cfg = load_config()
     try:
+        if args.espacio:
+            note = adopt(args.espacio, cfg)
+            print(f"Copiada la versión {note['version']} de la subida {note['workspace']} a "
+                  f"{paths(cfg)['gdprtext_alignment']} (de dónde vino: {origin_path(cfg)})")
         out = build(cfg, use_llm=False if args.sin_ia else None, engine=args.motor)
-    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+    except (FileNotFoundError, ValueError, RuntimeError, PermissionError) as exc:
         print(f"Error: {exc}")
         return 1
     print(render(out))

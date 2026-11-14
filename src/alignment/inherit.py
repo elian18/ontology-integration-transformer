@@ -27,13 +27,16 @@ is automatic and is recorded with its rule and score, so the output can say "her
 OntoPriv:Consent (mismo nombre)".
 
 Embeddings are only computed for the concepts that rules 1 and 2 did not match (sample.ttl
-needs none). The result is saved in the workspace (``work/inherited.json``).
+needs none). The result is saved in the workspace (``work/inherited.json``) with a fingerprint
+of the base it read: after a correction of the base, running the upload again inherits it
+(S10-T16).
 
 CLI: ``py -m src.alignment.inherit ARCHIVO [--sin-embeddings]``.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections import Counter
 from dataclasses import asdict, dataclass, field
@@ -339,7 +342,8 @@ def inherit_for_workspace(ws, *, base: BaseIndex | None = None, embed_fn=None,
         raise
     ws.work_dir.mkdir(parents=True, exist_ok=True)
     (ws.work_dir / RESULT_FILE).write_text(
-        json.dumps(report.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+        json.dumps({**report.to_dict(), "base_fingerprint": base_fingerprint(base)}, indent=2,
+                   ensure_ascii=False), encoding="utf-8")
     s = report.summary()
     ws.mark_step("inherit", DONE, f"{s['inherited']} de {s['concepts']} conceptos heredados",
                  **{k: s[k] for k in ("concepts", "inherited", "inherited_aligned",
@@ -351,6 +355,20 @@ def inherit_for_workspace(ws, *, base: BaseIndex | None = None, embed_fn=None,
 def load_result(ws) -> dict | None:
     path = ws.work_dir / RESULT_FILE
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def base_fingerprint(base: BaseIndex) -> str:
+    """sha256 of what the inheritance reads from the base (S10-T16)."""
+    rows = [[c.key, c.status, c.name, c.label, c.definition, list(c.kinds), sorted(c.aliases),
+             sorted(json.dumps(m, sort_keys=True, ensure_ascii=False) for m in c.mappings)]
+            for c in sorted(base.concepts, key=lambda c: c.key)]
+    return hashlib.sha256(json.dumps(rows, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def is_current(result: dict | None, base: BaseIndex) -> bool:
+    """The saved inheritance read this same base (an older one, without fingerprint, did not
+    say: it is done again)."""
+    return bool(result) and result.get("base_fingerprint") == base_fingerprint(base)
 
 
 # --------------------------------------------------------------------------- console
