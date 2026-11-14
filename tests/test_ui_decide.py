@@ -44,6 +44,8 @@ def test_the_questions_as_the_web_asks_them(asking):
                     "c": "Dejar como está"}}
     assert second["options"] == {"a": "Sí, es casi lo mismo que DataController",
                                  "b": "Dejar como está"}
+    assert second["why"] == ("La IA lo propuso: «Decisión de prueba para DataController». La "
+                             "regla no lo aceptó: no pasó la regla.")    # both reasons (S10-T17)
 
 
 def test_a_recommended_option_says_so(asking, monkeypatch):

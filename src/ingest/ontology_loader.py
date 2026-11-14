@@ -6,19 +6,45 @@ when an entity is declared as several incompatible types at once).
 
 Accepted interchange formats: RDF/XML, Turtle, JSON-LD.
 OWL/XML (.owx) is OntoPriv's native format; convert it once to RDF/XML with Protégé, since
-rdflib does not parse OWL/XML."""
+rdflib does not parse OWL/XML.
+
+A property declared only with ``rdf:Property`` (valid RDF; the DPV declares its own so) counts as
+a property too, and so does one declared with ``rdfs:Property``, a frequent typo of it (DPCat
+has it): a data property when its range is a literal, an object property otherwise (S10-T17).
+The OWL flavor is still told only from what is typed in OWL."""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 import hashlib
 
 import rdflib
-from rdflib.namespace import RDF, RDFS, OWL
+from rdflib.namespace import OWL, RDF, RDFS, XSD
 
 _RDFLIB_FORMATS = {".rdf": "xml", ".owl": "xml", ".xml": "xml",
                    ".ttl": "turtle", ".jsonld": "json-ld", ".json": "json-ld"}
 _SOURCE_FORMATS = {".rdf": "rdf/xml", ".owl": "rdf/xml", ".xml": "rdf/xml",
                    ".ttl": "turtle", ".jsonld": "json-ld", ".json": "json-ld"}
+RDFS_PROPERTY = rdflib.URIRef(f"{RDFS}Property")     # not an RDF term: a typo of rdf:Property
+
+
+def _literal(node) -> bool:
+    return node in (RDFS.Literal, RDF.langString) or str(node).startswith(str(XSD))
+
+
+def plain_properties(g: rdflib.Graph) -> tuple[set, set]:
+    """(object, data) properties declared only with rdf:Property or rdfs:Property."""
+    typed = set(g.subjects(RDF.type, OWL.ObjectProperty)) | set(
+        g.subjects(RDF.type, OWL.DatatypeProperty))
+    plain = (set(g.subjects(RDF.type, RDF.Property))
+             | set(g.subjects(RDF.type, RDFS_PROPERTY))) - typed
+    data = {p for p in plain if any(_literal(r) for r in g.objects(p, RDFS.range))}
+    return plain - data, data
+
+
+def misspelled_properties(g: rdflib.Graph) -> list[str]:
+    """Local names of what is declared with rdfs:Property (to tell the person)."""
+    return sorted(str(p).rsplit("#", 1)[-1].rsplit("/", 1)[-1]
+                  for p in g.subjects(RDF.type, RDFS_PROPERTY) if isinstance(p, rdflib.URIRef))
 
 
 @dataclass
@@ -75,7 +101,8 @@ def load_ontology(path: str | Path, characterize: bool = True) -> OntologyReport
     obj_props = set(graph.subjects(RDF.type, OWL.ObjectProperty))
     data_props = set(graph.subjects(RDF.type, OWL.DatatypeProperty))
     individuals = set(graph.subjects(RDF.type, OWL.NamedIndividual))
-    props = obj_props | data_props | set(graph.subjects(RDF.type, RDF.Property))
+    plain_obj, plain_data = plain_properties(graph)
+    props = obj_props | data_props | plain_obj | plain_data
 
     op_dp_overlap = obj_props & data_props
     class_prop_overlap = classes & props
@@ -92,8 +119,8 @@ def load_ontology(path: str | Path, characterize: bool = True) -> OntologyReport
         sha256=_sha256(path),
         n_triples=len(graph),
         n_classes=len(classes),
-        n_object_props=len(obj_props),
-        n_data_props=len(data_props),
+        n_object_props=len(obj_props | plain_obj),
+        n_data_props=len(data_props | plain_data),
         n_individuals=len(individuals),
         n_op_dp_overlap=len(op_dp_overlap),
         n_class_prop_overlap=len(class_prop_overlap),

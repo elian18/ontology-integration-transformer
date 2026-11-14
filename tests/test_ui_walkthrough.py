@@ -3,15 +3,23 @@ done: what was found, how it was linked with the DPV and how it was checked. No 
 Jena or IRIs. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
+import csv
 import json
 
 from app.services import align_ontology as svc
 from src.validation import upload_validation as uv
-from tests.test_alignment_propose import env, targets  # noqa: F401
+from tests.test_alignment_propose import TTL, DeciderLLM, Embed, env, targets  # noqa: F401
 from tests.test_ui_align_ontology import (_titles, _zips, aligned, both_aligned, cfg,  # noqa: F401
                                           law_aligned, law_cfg, page)
 
 TECHNICAL = ("SHACL", "SPARQL", "Jena", "razonador", "http://", "https://", "skos:", "owl:")
+
+
+TYPO = TTL + """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+ex:hasStatus a rdfs:Property .
+ex:associatedWithBreach a rdfs:Property .
+ex:hasRecipient a rdf:Property .
+"""
 
 
 def _all_text(steps) -> str:
@@ -158,3 +166,36 @@ def test_a_broken_workspace_in_the_steps(page):  # noqa: F811
     at.run()
     assert not at.exception and not at.get("progress")
     assert any("No existe el espacio de trabajo" in e.value for e in at.error)
+
+
+def test_properties_declared_with_rdfs_property_are_told(env, targets, monkeypatch):  # noqa: F811
+    """S10-T17: DPCat declares its two properties with rdfs:Property, which is not an RDF term.
+    They are aligned as properties all the same, and the first screen says so."""
+    monkeypatch.setattr(svc, "workspace_cfg", lambda: env.cfg)
+    ws_id = svc.align("dpcat.ttl", TYPO.encode("utf-8"), base=env.base, targets=targets,
+                      embed_fn=Embed(), llm=DeciderLLM(), chroma_path=env.chroma,
+                      sleep_fn=lambda s: None)
+    found = svc.walkthrough(ws_id)[0]
+    assert found["lead"] == "Tu ontología (dpcat.ttl) tiene 7 conceptos."    # 4 classes, 3 props
+    assert ("Tu archivo declara 2 propiedades (associatedWithBreach y hasStatus) con "
+            "rdfs:Property, que no existe en RDF (lo correcto es rdf:Property); igual las "
+            "tomamos como propiedades.") in found["points"]
+    ws = svc.load_workspace(ws_id, cfg=env.cfg)
+    with open(ws.output_dir / "alignment.csv", encoding="utf-8-sig") as f:
+        names = {r["concept_name"] for r in csv.DictReader(f)}
+    assert {"hasStatus", "associatedWithBreach", "hasRecipient"} <= names
+
+
+def test_one_property_declared_with_rdfs_property(env, targets, monkeypatch):  # noqa: F811
+    monkeypatch.setattr(svc, "workspace_cfg", lambda: env.cfg)
+    one = TYPO.replace("ex:associatedWithBreach a rdfs:Property .\n", "")
+    ws_id = svc.align("dpcat.ttl", one.encode("utf-8"), base=env.base, targets=targets,
+                      embed_fn=Embed(), llm=DeciderLLM(), chroma_path=env.chroma,
+                      sleep_fn=lambda s: None)
+    assert ("Tu archivo declara 1 propiedad (hasStatus) con rdfs:Property, que no existe en RDF "
+            "(lo correcto es rdf:Property); igual la tomamos como propiedad.") in \
+        svc.walkthrough(ws_id)[0]["points"]
+
+
+def test_an_ontology_without_the_typo_says_nothing(aligned):  # noqa: F811
+    assert not any("rdfs:Property" in x for x in svc.walkthrough(aligned[0])[0]["points"])

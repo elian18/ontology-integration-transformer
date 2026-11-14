@@ -1180,6 +1180,15 @@ def _found(ws, manifest: dict, rows: dict) -> dict:
             added = defined["law_concept"] + defined["articles"]
             points.append(f"A {defined['missing']} les faltaba la definición; tu ley "
                           f"({plain(defined['law'])}) dio {added}.")
+        typos = manifest.get("misspelled_properties") or []
+        if typos:                                              # S10-T17
+            names = _and([plain(x) for x in typos])
+            points.append(_plural(len(typos), f"Tu archivo declara 1 propiedad ({names}) con "
+                                  "rdfs:Property, que no existe en RDF (lo correcto es "
+                                  "rdf:Property); igual la tomamos como propiedad.",
+                                  f"Tu archivo declara {{n}} propiedades ({names}) con "
+                                  "rdfs:Property, que no existe en RDF (lo correcto es "
+                                  "rdf:Property); igual las tomamos como propiedades."))
         evidence = manifest.get("law_evidence") or {}
         if evidence.get("links"):
             points.append(f"Buscamos en {plain(evidence['law'])} los artículos más cercanos a "
@@ -1290,7 +1299,8 @@ def decisions_view(ws_id: str) -> dict:
     ws = load_workspace(ws_id, cfg=workspace_cfg())
     data = uq.load_questions(ws) or {"version": None, "questions": []}
     questions = [{"n": q["n"], "text": plain(q["text"]),
-                  "why": plain(_SENTENCE.split(q.get("reason") or "", maxsplit=1)[0]),
+                  "why": plain(q.get("reason") or ""),     # what the AI said and why the rule
+                                                            # did not take it (S10-T17)
                   "concept": q["doubts"][0], "leave": q["leave"],
                   "options": {**{o["letter"]: plain(o["text"]) + (
                       " (recomendada)" if n == q.get("recommended") else "")

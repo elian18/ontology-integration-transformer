@@ -248,6 +248,12 @@ def test_completeness_of_classes_and_properties():
                                         "DefinitionCompletenessShape"}
 
 
+def test_completeness_of_a_property_declared_with_rdf_property():          # S10-T17
+    result = [f for f in found("ex:hasStatus a rdf:Property .") if f.severity == WARNING]
+    assert sorted(f.message for f in result) == [
+        "No tiene definición.", "No tiene etiqueta en español.", "No tiene etiqueta en inglés."]
+
+
 def test_completeness_leaves_out_the_standard_vocabularies_and_blank_nodes():
     declared = "\n".join(f"<{ns}Thing{i}> a owl:Class ." for i, ns in
                          enumerate(KNOWN_VOCAB_NAMESPACES))
