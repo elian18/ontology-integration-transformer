@@ -52,7 +52,7 @@ decider:                      # S7-T03..T06: the alignment decider (retrieve -> 
   pause_seconds: 5            # pause between calls (free tier: 15 requests per minute)
   max_tokens: 8192            # max answer length per call
   article_chars: 1200         # length of the law article shown as evidence (S7-T05, S7-T11)
-  rule:                       # S7-T05 (py -m src.alignment.decider_eval): second grid; on the base 75,0 % precision, 29,5 % coverage (cross-validation: 72,0 %)
+  rule:                       # S7-T05 (py -m src.alignment.decider_eval): second grid; on the base 76,5 % precision, 30,1 % coverage since the correction of S10-T16 (75,0 % and 29,5 % before; cross-validation of the grid: 72,5 %)
     accept: [alta]            # LLM confidences that become an automatic answer
     min_score: 0.5            # minimum hybrid score of the chosen candidate
     relations: [skos:exactMatch, skos:closeMatch, skos:broadMatch, skos:narrowMatch]   # classes: every relation but relatedMatch

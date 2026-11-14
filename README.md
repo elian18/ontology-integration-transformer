@@ -3,20 +3,26 @@
 Componente de Integración y Transformación de Ontologías de Privacidad para
 Sistemas de Cumplimiento Legal (Trabajo de Integración Curricular, EPN).
 
-Toma una ontología o un texto de ley, la caracteriza y (en fases siguientes) la alinea
-con el DPV usando OntoPriv como base, para generar una ontología nueva descargable en
-varios formatos.
+Toma una ontología de privacidad, un texto de ley o los dos, y los alinea con el DPV
+(Data Privacy Vocabulary 2.3) usando como base OntoPriv y la LOPDP, revisadas a mano una
+sola vez. Devuelve una ontología nueva en RDF/XML, OWL, Turtle o JSON-LD, validada y con
+la procedencia de cada correspondencia. También convierte una ontología de un formato a
+otro sin tocar su contenido. El historial de cada sprint está en `docs/CHANGELOG.md`.
 
 ## Requisitos
 - Python 3.13 (en Windows se invoca con `py`)
-- Java 21 o superior (probado con Java 24) y Apache Jena 6.2.0 para el razonador de la
-  validación; sin ellos el inspector de lógica usa owlrl (OWL 2 RL en Python)
+- Java 21 o superior (probado con Java 24) y Apache Jena 6.2.0 para el razonador y las
+  consultas SPARQL de la validación; sin ellos se usan owlrl (OWL 2 RL) y rdflib
+- Una clave de un LLM compatible con la API de OpenAI (probado con `gemini-3.1-flash-lite`)
 
 ## Instalación
     py -m venv .venv
     source .venv/Scripts/activate    # Git Bash en Windows
     py -m pip install -r requirements.txt
     cp .env.example .env             # y colocar la clave del LLM (LLM_API_KEY, LLM_MODEL, LLM_BASE_URL)
+
+El `.env` no se sube a git. `EDITABLE_BASE=0` deja la base del sistema en solo lectura
+(ver "La base del sistema").
 
 ## Razonador (Apache Jena)
 Jena no se instala con pip: se descarga una vez dentro de `tools/` (git lo ignora).
@@ -30,42 +36,158 @@ Jena no se instala con pip: se descarga una vez dentro de `tools/` (git lo ignor
 
 La carpeta y el razonador se configuran en el bloque `validation` de `config/config.yaml`.
 
-## Uso
-Reporte de insumos por consola (ontología + ley + DPV):
-
-    py -m src.ingest.cli
-
-Interfaz web (demostrador):
-
+## La web
     py -m streamlit run app/app.py
 
-Alinear una ontología por consola (igual que la web: cada subida se valida con la forma,
-la lógica y la IA revisora; el detalle va en el .zip, en `validation-log.txt`):
+La página de inicio ofrece dos caminos.
 
-    py -m src.alignment.user_alignment data/input/sample.ttl
+**Solo transformar.** Subes una ontología y la descargas en otro formato. Tu archivo no
+pasa por la IA y el contenido es el mismo en los cuatro formatos.
 
-Validación de la base o de un espacio de trabajo (forma con SHACL, lógica con el razonador):
+**Alinear y transformar.** Un asistente en cinco pasos:
+1. **¿Qué tienes?** Eliges el modo:
+   - *Mi ontología*: una ontología (.rdf, .owl, .ttl o .jsonld);
+   - *Una ley*: un texto legal (.txt o PDF). La IA extrae sus conceptos, una regla fija
+     los acepta y se arma un perfil que importa OntoPriv-Core;
+   - *Mi ontología y una ley*: la ley completa las definiciones que le faltan a tu ontología
+     y da los artículos de evidencia de cada concepto.
+2. **Se procesa.** Una barra de progreso dice en palabras simples qué está haciendo:
+   - reutiliza lo que ya está revisado en la base;
+   - busca los equivalentes en el DPV y la IA elige el mejor (una regla fija decide qué entra);
+   - pone los nombres en español e inglés y la IA revisa los enlaces;
+   - revisa que esté bien formada, sin contradicciones, y que responda preguntas básicas.
 
-    py -m src.validation.shape_inspector --base
-    py -m src.validation.logic_inspector --base
-    py -m src.validation.logic_inspector ESPACIO --motor owlrl
+   El botón "Atrás" vuelve al paso anterior sin perder los archivos que subiste.
+3. **¡Tu ontología está lista!** Una vista previa en grafo muestra tus conceptos y sus
+   equivalentes en el DPV.
+4. **Lo que hicimos.** Tres pantallas explican lo que se encontró, cómo se enlazó con el DPV
+   y cómo se revisó, con ejemplos de tu propia ontología.
+5. **Tú decides.** Las preguntas sobre lo que quedó en duda, una a una (ver "Las preguntas y
+   las versiones"). Responder es opcional. "Ajustar otro concepto" permite cambiar cualquier
+   otra correspondencia y buscar otro término del DPV.
 
-La IA revisa las correspondencias que aceptó la regla (solo explica; `--medir` la compara con
-las 552 decisiones de la base):
+Al final, **Descarga tu ontología** da un solo archivo por formato,
+`<nombre>-dpv-aligned`, con tus conceptos, sus equivalentes en el DPV, las etiquetas es/en,
+las definiciones y lo que usa de OntoPriv-Core. Se abre directamente en Protégé; Protégé 5.6
+no abre JSON-LD. Si hay una versión anterior, también se puede descargar.
 
+"Ver los detalles técnicos" muestra lo demás:
+- la validación en cuatro tarjetas: Forma (SHACL), Lógica (razonador), Preguntas (SPARQL)
+  e IA revisora;
+- la tabla de conceptos con su estado;
+- la ficha de procedencia de cada concepto;
+- lo que queda para revisar;
+- las preguntas de competencia y los artículos de la ley.
+
+"Herramientas de construcción" reúne las páginas con las que se construyó la base: Núcleo,
+Propuestas IA, Aprobar conceptos IA, Alineación DPV y Preguntas de la base.
+
+## Las preguntas y las versiones
+**Qué se pregunta.** Lo que queda en duda en una subida:
+- las *sugeridas*: la IA eligió un término con confianza alta y la regla no lo aceptó, como
+  las propiedades, que nunca se alinean solas;
+- las correspondencias que la regla aceptó y la IA revisora marcó como incoherentes o
+  dudosas.
+
+Hay una pregunta por duda, hasta 10, con opciones fijas: tomar la sugerida, cambiar a la
+relación que propone la IA revisora, quitar la correspondencia o dejarla como está. La
+pregunta muestra lo que dijo cada IA, sin recomendar una opción: decides tú. Las preguntas
+redactadas por la IA (prompt `ask.v1`) se midieron y no se adoptaron (ver
+`docs/CHANGELOG.md`, v1.0.0).
+
+**Cómo se aplica una respuesta.** Cada respuesta y cada ajuste pasa por una regla fija. La
+regla revisa que el término exista en el DPV 2.3, que la relación sea SKOS, que una propiedad
+vaya con una propiedad y que haya un cambio por concepto. Lo aceptado:
+- se guarda en `work/user-decisions.jsonl`;
+- crea una versión nueva de la alineación;
+- deja la anterior en `history/v<N>/` con sus cuatro descargas.
+
+"Dejar como está" también se recuerda, y lo respondido no se vuelve a preguntar. Lo que
+decides no cambia tu archivo, la regla ni la base: queda encima de lo que decidieron la base
+y la regla, correspondencia por correspondencia. Tus respuestas no se usan como precedentes
+del decisor, y la IA revisora no vuelve a revisar lo que decidiste.
+
+**Procedencia.** Cada versión trae su procedencia (PROV-O) dentro del paquete. Dice quién
+decidió cada correspondencia (base, regla o usuario), cuándo y con qué versión, y enlaza
+cada corrección con la que reemplazó.
+
+## Consola
+Alinear una ontología (igual que la web: cada subida se valida con la forma, la lógica, las
+preguntas de competencia y la IA revisora; el detalle va en el paquete, en
+`validation-log.txt`):
+
+    py -m src.alignment.user_alignment ONTOLOGIA [--formato turtle] [--sin-ia]   # Mi ontología
+    py -m src.core.law_profile LEY [--formato turtle]                            # Una ley
+    py -m src.alignment.law_evidence ONTOLOGIA LEY        # Mi ontología y una ley
+
+La consola muestra las preguntas de la subida y el comando para responderlas. Cada respuesta
+o cambio deja una versión nueva:
+
+    py -m src.alignment.user_alignment --espacio ESPACIO --responder "1=a,3=b"
+    py -m src.alignment.user_alignment --espacio ESPACIO \
+        --cambio "EmploymentContext broadMatch ProcessingContext"
+    py -m src.alignment.user_alignment --espacio ESPACIO \
+        --cambio "InfoAboutProcessing quitar" --aplicar
+
+Sin `--aplicar`, `--cambio` solo muestra si la regla acepta el cambio. Otras formas:
+`"Concepto relación Término en vez de OtroTérmino"`. `ESPACIO` es el id o la carpeta de la
+subida en `data/workspaces/`. Ahí está cada subida, con sus carpetas `input/`, `work/`,
+`output/` y `history/`. Las respuestas de la IA se guardan en `data/workspaces/_cache/`, que
+comparten todas las subidas.
+
+Procedencia de un concepto:
+
+    py -m src.provenance.upload --espacio ESPACIO --ver NOMBRE
+    py -m src.provenance.base --ver NOMBRE
+
+Validación de la base o de una subida:
+
+    py -m src.validation.shape_inspector --base | ESPACIO
+    py -m src.validation.logic_inspector --base | ESPACIO [--motor jena|owlrl]
+    py -m src.validation.questions --base | ESPACIO [--motor jena|rdflib]
     py -m src.validation.ai_auditor ESPACIO
-    py -m src.validation.ai_auditor --medir
+
+Mediciones (se comparan con las 552 decisiones de la base; las respuestas de la IA salen de
+su caché):
+
+    py -m src.alignment.decider_eval          # el decisor y su regla
+    py -m src.validation.ai_auditor --medir   # la IA revisora
+    py -m src.alignment.question_eval         # las preguntas de la IA frente a las fijas
+
+## La base del sistema
+OntoPriv-Core, el perfil de Ecuador (LOPDP) y su alineación con el DPV, revisada a mano
+una vez (552 conceptos, 190 correspondencias). Se rehace desde OntoPriv:
+
+    py -m src.core.emit                    # núcleo y perfil, con las reparaciones
+    py -m src.alignment.write              # la alineación, desde el registro de decisiones
+    py -m src.transform.convert data/output/ontopriv-core.rdf \
+        data/output/profile-ecuador-lopdp.rdf data/output/ontopriv-dpv-alignment.rdf --to all
+    py -m src.alignment.bundle             # paquetes para Protégé
+    py -m src.alignment.gdpr_bridge        # puente con el GDPR (OntoPriv ↔ GDPRtEXT por el DPV)
+    py -m src.provenance.base              # procedencia (PROV-O) en los cuatro formatos
+
+Con `EDITABLE_BASE=1` en `.env`, la página "Alineación DPV" de "Herramientas de construcción"
+corrige una decisión de la base. La corrección se agrega al registro
+(`data/review/alignment-decisions.jsonl`) y la anterior queda como versión previa en la
+procedencia. Después se rehacen la alineación y lo que sigue con los comandos de arriba. Las
+subidas que heredaron de la base se actualizan solas la próxima vez que corren.
+
+El puente usa una alineación fija de GDPRtEXT, copiada de una subida. Para tomar su versión
+actual (también con `EDITABLE_BASE=1`):
+
+    py -m src.alignment.gdpr_bridge --espacio ESPACIO
 
 ## Pruebas
     py -m pytest -q                  # suite completa
-    py -m pytest -m "not slow" -q    # rápida (omite la prueba de red/LLM)
+    py -m pytest -m "not slow" -q    # rápida: sin el LLM, los embeddings ni Jena reales
 
 ## Insumos base del proyecto
 - OntoPriv (RDF/XML, exportada de Protégé): ontología base, perfil OWL Full.
 - LOPDP (PDF): texto normativo, 77 artículos.
 - DPV 2.3 (Turtle): vocabulario de referencia para la alineación.
+- GDPRtEXT (Turtle) y el GDPR en inglés (PDF): ejemplo principal de una subida y del puente.
 
 ## Formatos
-- Ontología (semántico): RDF/XML, Turtle, JSON-LD como entrada y salida.
+- Ontología (semántico): RDF/XML, OWL (RDF/XML), Turtle y JSON-LD, como entrada y salida.
   OWL/XML solo como entrada (se convierte a RDF/XML con Protégé).
 - Texto de ley (documento de origen): .txt y PDF, solo como entrada.
