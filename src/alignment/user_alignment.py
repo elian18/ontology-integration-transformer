@@ -771,7 +771,7 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
                     chroma_path=None, sleep_fn=None, core: Graph | None = None):
     """The steps of ``align_upload`` on a workspace that already holds its ontology (an
     upload, or the profile of a law in the "solo ley" mode, S7-T10)."""
-    from src.alignment.inherit import inherit_for_workspace
+    from src.alignment import inherit as inh
     from src.alignment.propose import is_current, propose_for_workspace
     from src.workspace.store import STEP_LABELS
     say = progress or (lambda label: None)
@@ -782,17 +782,20 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         from src.core.law_profile import load_core, refresh_profile
         core = core if core is not None else load_core(cfg)
         refresh_profile(ws, base=base, embed_fn=embed_fn, cfg=cfg, core=core, progress=say)
-    if inherited_result(ws) is None:
+    old = inherited_result(ws)
+    if old is not None and base is None:
+        base = inh.load_base(cfg=cfg)
+    if old is None or not inh.is_current(old, base):    # S10-T16: the base was corrected
         say(STEP_LABELS["inherit"])
-        inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
+        inh.inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
         ran["inherit"] = True
     if with_law and not ld.is_current(ld.load_result(ws), ws, cfg, use_llm):
         ld.definitions_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm, cfg=cfg,
                                      sleep_fn=sleep_fn, progress=progress)
         ran["definitions"] = True
     definitions = ld.load_result(ws)
-    if not is_current(decisions_result(ws), cfg, use_llm,
-                      ld.fingerprint(ld.for_decider(definitions, cfg))):
+    if ran["inherit"] or not is_current(decisions_result(ws), cfg, use_llm,
+                                        ld.fingerprint(ld.for_decider(definitions, cfg))):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
                               targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,

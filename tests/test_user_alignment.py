@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import re
 import sys
 import types
@@ -358,6 +359,45 @@ def test_labels_left_pending_are_completed_on_the_next_upload(env, targets):
                             **kw)
     assert "Completar las etiquetas en español e inglés" in seen
     assert m2["labels"]["pending"] == 0 and m2["modules"]["labels"] == LABELS
+
+
+def test_after_a_correction_of_the_base_the_upload_inherits_it(env, targets):
+    """S10-T16: the saved inheritance keeps a fingerprint of the base; when the base changes,
+    running the upload again inherits again and decides again (from the cache)."""
+    from dataclasses import replace
+    embed, llm = Embed(), DeciderLLM()
+    kw = dict(fmt="turtle", embed_fn=embed, llm=llm, targets=targets, cfg=env.cfg,
+              chroma_path=env.chroma, sleep_fn=lambda s: None)
+    w, _, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, **kw)
+    assert inh.is_current(inh.load_result(w), env.base)
+    fixed = [{"dpv_iri": D + "ConsentRecord", "dpv_name": "ConsentRecord",
+              "relation": "skos:closeMatch", "reviewer": "Elian Gavilanes",
+              "decided_at": "2026-11-14T10:00:00+00:00", "decided_by": "person"}]
+    corrected = replace(env.base, concepts=[replace(c, mappings=fixed) if c.name == "Consent"
+                                            else c for c in env.base.concepts])
+    assert inh.base_fingerprint(corrected) != inh.base_fingerprint(env.base)
+    assert inh.base_fingerprint(replace(env.base, concepts=env.base.concepts[::-1])) == \
+        inh.base_fingerprint(env.base)                               # order does not matter
+    calls, seen = llm.calls, []
+    _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=corrected,
+                           progress=seen.append, **kw)
+    assert seen[:2] == ["Heredar lo validado", "Buscar candidatos del DPV"]
+    assert m["recomputed"]["inherit"] and m["recomputed"]["decider"]
+    assert m["decider"]["ai"]["calls"] == 0                    # decided again from the cache
+    assert llm.calls == calls + 1          # only the competency question whose answer changed
+    [consent] = [i for i in inh.load_result(w)["inherited"] if i["name"] == "Consent"]
+    assert [(x["relation"], x["dpv_iri"]) for x in consent["mappings"]] == [
+        ("skos:closeMatch", D + "ConsentRecord")]
+    assert (EX + "Consent", SKOS.closeMatch, D + "ConsentRecord") in {
+        (str(s), p, str(o)) for s, p, o in load_graph(w.output_dir / "mi-gdpr-dpv-alignment.ttl")}
+    _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=corrected, **kw)
+    assert not m["recomputed"]["inherit"] and not m["recomputed"]["decider"]
+    saved = inh.load_result(w)
+    saved.pop("base_fingerprint")                                # as before S10-T16
+    (w.work_dir / inh.RESULT_FILE).write_text(json.dumps(saved), encoding="utf-8")
+    assert not inh.is_current(inh.load_result(w), corrected)
+    _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=corrected, **kw)
+    assert m["recomputed"]["inherit"] and inh.is_current(inh.load_result(w), corrected)
 
 
 def test_a_workspace_of_v060_is_decided_again(env, targets):

@@ -109,7 +109,7 @@ user_questions:               # S10-T04: questions with options about what stays
   definition_chars: 300       # length of each definition shown to the AI
 bridge:                       # S9-T09: the bridge of the base with the GDPR, OntoPriv <-> GDPRtEXT pairs chained by the DPV (py -m src.alignment.gdpr_bridge)
   gdprtext: "data/input/gdprtext-ontology.ttl"                       # GDPRtEXT (labels, descriptions and GDPR articles shown to the AI)
-  gdprtext_alignment: "data/reference/gdprtext-dpv-alignment.ttl"   # its alignment with the DPV, fixed: copied from the upload gdprtext-ontology-b863b1da, so the bridge is rebuilt without the AI
+  gdprtext_alignment: "data/reference/gdprtext-dpv-alignment.ttl"   # its alignment with the DPV, fixed: a copy of an upload of GDPRtEXT (which one and which version: gdprtext-dpv-alignment.json next to it; --espacio replaces it), so the bridge is rebuilt without the AI
 provenance:                   # S10-T06: PROV-O of the base, module ontopriv-provenance (py -m src.provenance.base); no AI
   people:                     # names in the decisions log that belong to one person (one prov:Person)
     "Elian Gavilanes": ["Elian"]

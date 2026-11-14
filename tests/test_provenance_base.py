@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from rdflib import BNode, Graph, Literal, URIRef
@@ -18,7 +19,8 @@ from src.alignment import gdpr_bridge as gb
 from src.alignment.decisions import (DECISION_APPROVED, DECISION_DUPLICATE, DECISION_REJECTED,
                                      DECISIONS_FILE, TARGET_CONCEPT, append_decision,
                                      make_decision, read_log)
-from src.alignment.mapping_review import approve, mapping_concepts, mark_no_match
+from src.alignment.mapping_review import (approve, mapping_concepts, mark_no_match, reject,
+                                          undo)
 from src.alignment.write import alignment_iri, build_graph as alignment_graph, collect
 from src.core.emit import PROFILE_IRI
 from src.provenance import base as pb
@@ -176,7 +178,7 @@ def test_the_names_of_one_person_are_one_agent():
 
 def test_each_correspondence_says_who_and_when(toy):
     inp, g, counts = toy
-    assert counts["mappings"] == {"total": 3, "assistant": 1, "person": 2}
+    assert counts["mappings"] == {"total": 3, "assistant": 1, "person": 2, "replaced": 0}
     assert pb.missing(g, inp.alignment) == []
     elian = _node("person-elian-gavilanes")
     first = _record(g, ONTO + "Consent", SKOS.exactMatch, DPV + "Consent")
@@ -195,6 +197,120 @@ def test_each_correspondence_says_who_and_when(toy):
     assert str(g.value(first, RDFS.label)) == "Consent skos:exactMatch dpv:Consent"
     assert pb.local(first) == "mapping-" + pm.digest(
         alignment_iri(PROFILE_IRI), ONTO + "Consent", str(SKOS.exactMatch), DPV + "Consent")
+
+
+def _corrected(tmp_path):
+    """The toy base, corrected later as in S10-T16: ImpactAssessment gets a searched term
+    (broadMatch), the old one is discarded and the new one changes to closeMatch."""
+    inp = _inputs(tmp_path)
+    log = inp.files["log"]
+    by = {c.key: c for c in mapping_concepts(inp.data, read_log(log), SRC)}
+    kw = dict(reviewer="Elian Gavilanes", source_id=SRC, log_path=log, metadata=META)
+    found = SimpleNamespace(iri=DPV + "ImpactAssessment", name="ImpactAssessment",
+                            kind="class")
+    approve(by["ai:ImpactAssessment"], found.iri, "skos:broadMatch", target=found,
+            decided_at="2026-11-14T10:00:00+00:00", **kw)
+    reject(by["ai:ImpactAssessment"], DPV + "DPIA", decided_at="2026-11-14T10:01:00+00:00",
+           **kw)
+    approve(by["ai:ImpactAssessment"], found.iri, "skos:closeMatch", target=found,
+            decided_at="2026-11-14T10:02:00+00:00", **kw)
+    inp.records = read_log(log)
+    inp.alignment = alignment_graph(collect(inp.data, inp.records, SRC))
+    return inp
+
+
+def test_the_approvals_of_each_concept_and_their_versions(tmp_path):
+    inp = _corrected(tmp_path)
+    history = pb.approvals(inp.records, SRC)
+    impact = history["ai:ImpactAssessment"]
+    assert [(local_name(a.decision.dpv_iri), a.decision.relation, a.version,
+             a.ended.decision if a.ended else None) for a in impact] == [
+        ("DPIA", "skos:exactMatch", 1, "rejected"),
+        ("ImpactAssessment", "skos:broadMatch", 2, "approved"),
+        ("ImpactAssessment", "skos:closeMatch", 3, None)]
+    assert [b.version for b in pb.revised(impact[2], impact)] == [2]
+    assert [b.version for b in pb.revised(impact[1], impact)] == [1]
+    assert pb.revised(impact[0], impact) == []
+    assert [a.version for a in history[ONTO + "Consent"]] == [1, 1]     # nothing ended
+    assert pb.approvals(inp.records, "otra-fuente") == {}
+
+
+def test_approving_again_changes_nothing_and_undoing_ends_it(tmp_path):
+    inp = _inputs(tmp_path)
+    log = inp.files["log"]
+    by = {c.key: c for c in mapping_concepts(inp.data, read_log(log), SRC)}
+    kw = dict(reviewer="Elian", source_id=SRC, log_path=log, metadata=META)
+    approve(by[ONTO + "Consent"], DPV + "Consent", "skos:exactMatch",
+            decided_at="2026-11-14T09:00:00+00:00", **kw)               # the same again
+    undo(by[ONTO + "Consent"], DPV + "ConsentRecord", reviewer="Elian", source_id=SRC,
+         log_path=log, decided_at="2026-11-14T09:05:00+00:00")
+    inp.records = read_log(log)
+    inp.alignment = alignment_graph(collect(inp.data, inp.records, SRC))
+    consent = pb.approvals(inp.records, SRC)[ONTO + "Consent"]
+    assert [(a.version, a.at, a.ended.decision if a.ended else None) for a in consent] == [
+        (1, "2026-10-02T09:00:00+00:00", None), (1, "2026-10-02T09:01:00+00:00", "pending")]
+    g, counts = pb.build_graph(inp, _settings())
+    assert counts["mappings"]["replaced"] == 1
+    [old] = [r for r in g.subjects(RDF.type, RDF.Statement)]
+    assert str(g.value(old, RDFS.comment)).endswith(
+        "Deshecha por Elian Gavilanes el 2026-11-14.")
+    assert g.value(old, PROV.wasRevisionOf) is None and not list(
+        g.subjects(PROV.wasRevisionOf, old))                  # nothing replaced it
+
+
+def local_name(iri: str) -> str:
+    return iri.rsplit("#", 1)[-1]
+
+
+def test_a_corrected_correspondence_revises_the_one_before(tmp_path):
+    inp = _corrected(tmp_path)
+    g, counts = pb.build_graph(inp, _settings())
+    assert counts["mappings"]["replaced"] == 2 and counts["mappings"]["total"] == 3
+    assert pb.missing(g, inp.alignment) == []
+    now = _record(g, PROFILE_IRI + "#ImpactAssessment", SKOS.closeMatch,
+                  DPV + "ImpactAssessment")
+    assert g.value(now, OWL.versionInfo) == Literal("3")
+    assert g.value(now, PROV.generatedAtTime) == pm.when("2026-11-14T10:02:00+00:00")
+    v2 = g.value(now, PROV.wasRevisionOf)
+    v1 = g.value(v2, PROV.wasRevisionOf)
+    assert str(g.value(v2, RDFS.label)) == ("ImpactAssessment skos:broadMatch "
+                                            "dpv:ImpactAssessment (versión 2, ya no está en "
+                                            "la base)")
+    assert str(g.value(v2, RDFS.comment)).endswith(
+        "Cambiada a skos:closeMatch por Elian Gavilanes el 2026-11-14.")
+    assert str(g.value(v1, RDFS.comment)) == (
+        "Decidida por Elian Gavilanes el 2026-10-02 en la tarjeta de revisión, sin propuesta "
+        "del asistente. Descartada por Elian Gavilanes el 2026-11-14.")
+    assert pb.local(v1) == pb.local(pb.mapping_record(
+        PROFILE_IRI + "#ImpactAssessment", SKOS.exactMatch, DPV + "DPIA")) + "-v1"
+    for old, at in ((v1, "2026-11-14T10:01:00+00:00"), (v2, "2026-11-14T10:02:00+00:00")):
+        assert (old, RDF.type, RDF.Statement) in g and (old, RDF.type, OWL.Axiom) not in g
+        assert g.value(old, PROV.invalidatedAtTime) == pm.when(at)
+        assert g.value(old, PROV.wasInvalidatedBy) == _node("activity-mapping-review")
+        assert g.value(old, PROV.wasAttributedTo) == _node("person-elian-gavilanes")
+        assert g.value(old, _node("decidedBy")) == Literal("base", lang="es")
+    assert (g.value(v1, OWL.versionInfo), g.value(v2, OWL.versionInfo)) == (
+        Literal("1"), Literal("2"))
+    assert g.value(v1, RDF.object) == URIRef(DPV + "DPIA")
+    assert g.value(v1, PROV.wasRevisionOf) is None
+    review = _node("activity-mapping-review")
+    assert g.value(review, PROV.endedAtTime) == pm.when("2026-11-14T10:02:00+00:00")
+    consent = _record(g, ONTO + "Consent", SKOS.exactMatch, DPV + "Consent")
+    assert g.value(consent, OWL.versionInfo) == Literal("1")
+    assert g.value(consent, PROV.wasRevisionOf) is None
+    lines = pb.render_records(g, PROFILE_IRI + "#ImpactAssessment").splitlines()
+    heads = [x for x in lines if x.startswith("  · ImpactAssessment skos:")]
+    assert heads == [
+        "  · ImpactAssessment skos:closeMatch dpv:ImpactAssessment",     # in force first
+        "  · ImpactAssessment skos:broadMatch dpv:ImpactAssessment (versión 2, ya no está en "
+        "la base)",
+        "  · ImpactAssessment skos:exactMatch dpv:DPIA (versión 1, ya no está en la base)"]
+    assert ("    Reemplaza a: ImpactAssessment skos:broadMatch dpv:ImpactAssessment (versión 2, "
+            "ya no está en la base)") in lines
+    assert ("    La reemplazó: ImpactAssessment skos:broadMatch dpv:ImpactAssessment (versión "
+            "2, ya no está en la base)") in lines
+    assert sum(x.startswith("    Reemplaza a: ") for x in lines) == 2
+    assert sum(x.startswith("    La reemplazó: ") for x in lines) == 2
 
 
 def test_a_confirmed_proposal_comes_from_the_assistant(toy):
@@ -341,6 +457,22 @@ def test_each_pair_of_the_bridge_comes_from_the_base(toy):
     assert plans == {_node("plan-prompt-bridge-v1")}
     assert g.value(_node("plan-prompt-bridge-v1"), DCTERMS.identifier) == Literal(
         "sha256:" + "b" * 64)
+
+
+def test_the_fixed_alignment_says_which_upload_it_came_from(tmp_path):
+    inp = _inputs(tmp_path)
+    fixed = tmp_path / "fija.ttl"
+    fixed.write_text("fija", encoding="utf-8")
+    inp.files["gdprtext_alignment"] = fixed
+    g, _ = pb.build_graph(inp, _settings())
+    assert not list(g.objects(_node("file-gdprtext-alignment"), PROV.wasDerivedFrom))
+    inp.bridge = {**BRIDGE, "gdprtext_alignment": {"from": {"workspace": "gdprtext-ontology-1",
+                                                            "version": 2}}}
+    g, _ = pb.build_graph(inp, _settings())
+    upload = _node("upload-gdprtext-ontology-1-v2")
+    assert list(g.objects(_node("file-gdprtext-alignment"), PROV.wasDerivedFrom)) == [upload]
+    assert str(g.value(upload, RDFS.label)) == "Versión 2 de la subida gdprtext-ontology-1"
+    assert (upload, RDF.type, PROV.Entity) in g
 
 
 def test_without_the_bridge_there_are_no_pairs(tmp_path):
@@ -500,6 +632,13 @@ def test_render():
         "total": 5, "approved": 2, "duplicate": 2, "rejected": 1}}))
     assert "(2 confirmando una propuesta del asistente, 1 decidida por la persona sola)" in plural
     assert ": 5 (2 nuevos, 2 ya existían en OntoPriv, 1 rechazado)" in plural
+    assert "Correcciones" not in plural
+    for n, text in ((1, "1 correspondencia reemplazada; la anterior queda como versión previa"),
+                    (2, "2 correspondencias reemplazadas; las anteriores quedan como versiones "
+                        "previas")):
+        fixed = pb.render(_out(counts={**_out()["counts"], "mappings": {
+            "total": 3, "assistant": 1, "person": 2, "replaced": n}})).splitlines()
+        assert fixed[4] == f"  Correcciones: {text}"
     assert "  Sin quién y cuándo: 1, por ejemplo A exactMatch B" in other
     assert "  Persona: Ana" in other.splitlines()
     assert "  Puente con el GDPR: no está construido (py -m src.alignment.gdpr_bridge)" in other
@@ -543,11 +682,11 @@ def test_settings_from_the_config():
 def test_the_provenance_of_the_base(tmp_path):
     out = pb.build(engine=ENGINE, out_dir=tmp_path)
     c = out["counts"]
-    assert c["mappings"] == {"total": 190, "assistant": 159, "person": 31}
+    assert c["mappings"] == {"total": 190, "assistant": 159, "person": 31, "replaced": 1}
     assert c["no_match"] == 379
     assert c["law_concepts"] == {"total": 93, "approved": 25, "duplicate": 66, "rejected": 2}
     assert c["repairs"] == {"R1": 119, "R2": 34}
-    assert c["bridge"]["pairs"] == 34
+    assert c["bridge"]["pairs"] == 31
     assert out["missing"] == [] and out["same_in_all_formats"]
     assert out["people"] == [{"name": "Elian Gavilanes", "also_signed_as": ["Elian"]}]
     v = out["validation"]
@@ -575,8 +714,16 @@ def test_the_provenance_of_the_base(tmp_path):
            "agregan a esa entidad. Decidido por Elian Gavilanes el 2026-10-01." in \
         portability.splitlines()
     registry = pb.render_records(g, PROFILE_IRI + "#NationalDataProtectionRegistry")
-    assert "  · NationalDataProtectionRegistry skos:broadMatch dpv:ProtectionOfNationalSecurity" \
+    heads = [x for x in registry.splitlines() if x.startswith("  · NationalDataProtection")]
+    assert heads[-2:] == [                                     # corrected in S10-T16
+        "  · NationalDataProtectionRegistry skos:broadMatch dpv:PublicRegisterOfEntities",
+        "  · NationalDataProtectionRegistry skos:broadMatch dpv:ProtectionOfNationalSecurity "
+        "(versión 1, ya no está en la base)"]
+    assert ("    Reemplaza a: NationalDataProtectionRegistry skos:broadMatch "
+            "dpv:ProtectionOfNationalSecurity (versión 1, ya no está en la base)") \
         in registry.splitlines()
+    fixed = g.value(_node("file-gdprtext-alignment"), PROV.wasDerivedFrom)
+    assert str(g.value(fixed, RDFS.label)) == "Versión 3 de la subida gdprtext-ontology-b863b1da"
 
 
 @needs_base

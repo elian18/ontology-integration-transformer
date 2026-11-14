@@ -1,13 +1,16 @@
 """Tests for the bridge of the base with the GDPR (S9-T09).
 
 Toy graphs check how the pairs are chained and written; the real base and the alignment of
-GDPRtEXT fixed in data/reference check the 34 pairs, that rebuilding gives the same ones, that
-Forma and Lógica find nothing new and that a fake AI explains each pair once (cache)."""
+GDPRtEXT fixed in data/reference (version 3 of the upload, S10-T16) check the 31 pairs, that
+rebuilding gives the same ones, that
+Forma and Lógica find nothing new and that a fake AI explains each pair once (cache). A toy upload
+checks that its current version becomes the fixed alignment only with EDITABLE_BASE (S10-T16)."""
 from __future__ import annotations
 
 import csv
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from rdflib import BNode, Graph, Literal, Namespace, URIRef
@@ -188,7 +191,7 @@ def test_the_reviewing_ai_takes_another_prompt_and_text(tmp_path):
 def test_the_bridge_of_the_base(tmp_path):
     llm = ReviewLLM({"ConfidentialityAgreement": "dudosa"})
     out = gb.build(llm=llm, use_llm=True, engine=ENGINE, out_dir=tmp_path)
-    assert (out["pairs"], out["terms"], out["loose_pairs"]) == (34, 22, 256)
+    assert (out["pairs"], out["terms"], out["loose_pairs"]) == (31, 22, 253)
     assert llm.calls == 4                                               # 10 per call
     assert set(llm.prompts) == {gb.PROMPT.text}
     assert out["validation"]["shapes"]["new_violations"] == 0
@@ -196,8 +199,10 @@ def test_the_bridge_of_the_base(tmp_path):
     assert out["validation"]["logic"]["new_errors"] == 0
     assert out["validation"]["logic"]["new_warnings"] == 0
     assert gb.clean(out["validation"])
-    assert out["summary"] == {"coherente": 32, "dudosa": 2, "incoherente": 0, "inválida": 0,
+    assert out["summary"] == {"coherente": 30, "dudosa": 1, "incoherente": 0, "inválida": 0,
                               "pending": 0}
+    names = {(r["ontopriv"], r["gdprtext"]) for r in out["rows"]}
+    assert not {g for _, g in names} & {"InfoAboutProcessing", "IntegrityAndConfidentiality"}
     rows = {(r["ontopriv"], r["gdprtext"]): r for r in out["rows"]}
     given = rows[("Consent", "GivenConsent")]
     assert (given["dpv_terms"], given["ontopriv_relation"], given["gdprtext_relation"]) == (
@@ -206,22 +211,24 @@ def test_the_bridge_of_the_base(tmp_path):
     assert given["explanation"] == "Explicación de Consent."
     with open(tmp_path / gb.CSV_FILE, encoding="utf-8-sig", newline="") as fh:
         table = list(csv.DictReader(fh))
-    assert len(table) == 34 and list(table[0]) == gb.CSV_COLUMNS
+    assert len(table) == 31 and list(table[0]) == gb.CSV_COLUMNS
     assert all(r["explanation"] for r in table)
     module = Graph().parse(tmp_path / f"{gb.MODULE}.ttl")
-    assert len(list(module.subject_objects(SKOS.closeMatch))) == 34
-    assert len(list(module.subjects(RDF.type, OWL.Axiom))) == 34
+    assert len(list(module.subject_objects(SKOS.closeMatch))) == 31
+    assert len(list(module.subjects(RDF.type, OWL.Axiom))) == 31
     assert "Explicación" not in (tmp_path / f"{gb.MODULE}.ttl").read_text(encoding="utf-8")
     saved = json.loads((tmp_path / gb.RESULT_FILE).read_text(encoding="utf-8"))
-    assert saved["pairs"] == 34 and saved["prompt"] == gb.PROMPT.manifest()
+    assert saved["pairs"] == 31 and saved["prompt"] == gb.PROMPT.manifest()
     assert saved["gdprtext_alignment"]["file"] == "data/reference/gdprtext-dpv-alignment.ttl"
+    assert {k: saved["gdprtext_alignment"]["from"][k] for k in ("workspace", "version")} == {
+        "workspace": "gdprtext-ontology-b863b1da", "version": 3}
     text = gb.render(out)
     assert "  Sin hallazgos nuevos: el puente no rompe ninguna regla ni agrega contradicciones." \
         in text
     assert "    [coherente] Consent ↔ GivenConsent · por dpv:Consent (exactMatch / exactMatch)" \
         in text
     assert "         Explicación de Consent." in text
-    assert " · 32 coherentes, 2 dudosas, 0 incoherentes; solo explica" in text
+    assert " · 30 coherentes, 1 dudosa, 0 incoherentes; solo explica" in text
     one = {**out, "summary": {**out["summary"], "coherente": 1, "dudosa": 1, "incoherente": 1}}
     assert " · 1 coherente, 1 dudosa, 1 incoherente; solo explica" in gb.render(one)
 
@@ -233,7 +240,7 @@ def test_rebuilding_gives_the_same_pairs_and_asks_nothing(tmp_path):
     module = Graph().parse(tmp_path / f"{gb.MODULE}.rdf")
     again = ReviewLLM()
     second = gb.build(llm=again, use_llm=True, check=False, out_dir=tmp_path)
-    assert again.calls == 0 and second["ai"]["cached"] == 34
+    assert again.calls == 0 and second["ai"]["cached"] == 31
     assert [(r["ontopriv"], r["gdprtext"]) for r in second["rows"]] == \
         [(r["ontopriv"], r["gdprtext"]) for r in first["rows"]]
     assert (tmp_path / f"{gb.MODULE}.ttl").read_bytes() == ttl
@@ -253,8 +260,8 @@ def test_without_the_ai_the_pairs_wait(tmp_path, monkeypatch):
     out = gb.build(use_llm=True, check=False, out_dir=tmp_path)
     assert out["ai"]["available"] is False
     assert out["ai"]["error"] == "Falta la variable 'LLM_API_KEY' en .env"
-    assert out["summary"]["pending"] == 34 and out["pairs"] == 34
-    assert ", 34 sin revisar; solo explica" in gb.render(out)
+    assert out["summary"]["pending"] == 31 and out["pairs"] == 31
+    assert ", 31 sin revisar; solo explica" in gb.render(out)
     assert "    [sin revisar] " in gb.render(out)
     off = gb.build(use_llm=False, check=False, out_dir=tmp_path / "otra")
     assert off["ai"]["error"] == "se pidió --sin-ia"
@@ -311,3 +318,109 @@ def test_the_cli(monkeypatch, capsys):
         FileNotFoundError("Falta data/reference/gdprtext-dpv-alignment.ttl")))
     assert gb._run([]) == 1
     assert "Error: Falta data/reference/gdprtext-dpv-alignment.ttl" in capsys.readouterr().out
+
+
+# ------------------------------------------------------------------ an upload as the fixed one
+
+def _upload(root: Path, ws_id: str, iri: str = gb.GDPRTEXT_IRI, *, version=2,
+            finished=True) -> bytes:
+    ws = root / ws_id
+    (ws / "output").mkdir(parents=True)
+    (ws / "workspace.json").write_text(json.dumps({"id": ws_id, "alignment_version": version}),
+                                       encoding="utf-8")
+    data = f"# alineación de {ws_id}\n".encode("utf-8")
+    (ws / "output" / "x-dpv-alignment.ttl").write_bytes(data)
+    if finished:
+        (ws / "output" / "alignment-manifest.json").write_text(json.dumps(
+            {"ontology_iri": iri, "files": {"alignment": "output/x-dpv-alignment.ttl"}}),
+            encoding="utf-8")
+    return data
+
+
+def _cfg(tmp_path):
+    return {"bridge": {"gdprtext_alignment": str(tmp_path / "ref" / "fija.ttl"),
+                       "gdprtext": str(tmp_path / "ref" / "gdprtext.ttl")},
+            "workspaces": {"dir": str(tmp_path / "ws")}}
+
+
+def test_an_upload_becomes_the_fixed_alignment(tmp_path, monkeypatch):
+    cfg = _cfg(tmp_path)
+    (tmp_path / "ref").mkdir()
+    fixed = tmp_path / "ref" / "fija.ttl"
+    fixed.write_text("# la de antes\n", encoding="utf-8")
+    data = _upload(tmp_path / "ws", "gdprtext-ontology-b863b1da")
+    monkeypatch.delenv(gb.EDITABLE_FLAG, raising=False)
+    with pytest.raises(PermissionError, match="agrega EDITABLE_BASE=1 a tu .env"):
+        gb.adopt("gdprtext-ontology-b863b1da", cfg)
+    assert fixed.read_text(encoding="utf-8") == "# la de antes\n" and gb.origin(cfg) is None
+    monkeypatch.setenv(gb.EDITABLE_FLAG, "1")
+    note = gb.adopt("gdprtext-ontology-b863b1da", cfg)
+    assert fixed.read_bytes() == data
+    assert gb.origin_path(cfg) == tmp_path / "ref" / gb.ORIGIN_FILE
+    assert {k: note[k] for k in ("workspace", "version", "file")} == {
+        "workspace": "gdprtext-ontology-b863b1da", "version": 2,
+        "file": "output/x-dpv-alignment.ttl"}
+    assert gb.origin(cfg) == note
+    fixed.write_bytes(data + b"# a mano\n")                  # no longer that copy
+    assert gb.origin(cfg) is None
+
+
+def test_only_a_finished_upload_of_gdprtext(tmp_path, monkeypatch):
+    cfg = _cfg(tmp_path)
+    (tmp_path / "ref").mkdir()
+    monkeypatch.setenv(gb.EDITABLE_FLAG, "1")
+    _upload(tmp_path / "ws", "mi-gdpr-1", "http://example.org/mi-gdpr")
+    with pytest.raises(ValueError, match="mi-gdpr-1 no es una subida de GDPRtEXT \\(su "
+                                         "ontología es http://example.org/mi-gdpr\\)"):
+        gb.adopt("mi-gdpr-1", cfg)
+    _upload(tmp_path / "ws", "gdprtext-2", finished=False)
+    with pytest.raises(ValueError, match="La alineación de gdprtext-2 no terminó"):
+        gb.adopt("gdprtext-2", cfg)
+    with pytest.raises(ValueError, match="No existe el espacio de trabajo nada"):
+        gb.adopt("nada", cfg)
+    assert not (tmp_path / "ref" / "fija.ttl").exists()
+
+
+def test_the_bridge_says_where_its_fixed_alignment_came_from(tmp_path, monkeypatch):
+    (tmp_path / "ref").mkdir()
+    cfg = _cfg(tmp_path)
+    monkeypatch.setenv(gb.EDITABLE_FLAG, "1")
+    _upload(tmp_path / "ws", "gdprtext-3", version=3)
+    note = gb.adopt("gdprtext-3", cfg)
+    (tmp_path / "ref" / "gdprtext.ttl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(si, "base_parts", lambda cfg=None: ([si.Part(
+        "alignment", "a.ttl", si.BASE, Graph(), "x", tmp_path / "a.ttl")], None))
+    out = gb.build(cfg, use_llm=False, check=False, out_dir=tmp_path / "out",
+                   targets=SimpleNamespace(targets=[]))
+    assert out["gdprtext_alignment"]["from"] == note
+    assert out["pairs"] == 0
+    text = gb.render(out).splitlines()
+    assert text[1].endswith(", versión 3 de la subida gdprtext-3")
+    out["gdprtext_alignment"]["from"] = None
+    assert gb.render(out).splitlines()[1].endswith(")")
+
+
+def test_the_cli_takes_an_upload_first(monkeypatch, capsys):
+    order = []
+    canned = {"prompt": gb.PROMPT.manifest(), "pairs": 0, "terms": 0, "loose_pairs": 0,
+              "triples": 1, "files": [], "validation": None,
+              "gdprtext_alignment": {"file": "data/reference/gdprtext-dpv-alignment.ttl",
+                                     "sha256": "a" * 64, "from": {"workspace": "g-1",
+                                                                  "version": 2}},
+              "ai": {"available": False, "error": "se pidió --sin-ia"},
+              "summary": {"coherente": 0, "dudosa": 0, "incoherente": 0, "inválida": 0,
+                          "pending": 0}, "rows": []}
+    monkeypatch.setattr(gb, "adopt", lambda ws, cfg: order.append(("adopt", ws)) or {
+        "workspace": ws, "version": 2})
+    monkeypatch.setattr(gb, "build", lambda cfg, **kw: order.append(("build",)) or canned)
+    assert gb._run(["--espacio", "g-1", "--sin-ia"]) == 0
+    assert order == [("adopt", "g-1"), ("build",)]
+    out = capsys.readouterr().out
+    assert out.startswith("Copiada la versión 2 de la subida g-1 a ")
+    assert gb.ORIGIN_FILE in out.splitlines()[0]
+    assert ", versión 2 de la subida g-1" in out
+    monkeypatch.setattr(gb, "adopt", lambda ws, cfg: (_ for _ in ()).throw(
+        PermissionError("Esto cambia el puente de la base")))
+    order.clear()
+    assert gb._run(["--espacio", "g-1"]) == 1 and order == []
+    assert "Error: Esto cambia el puente de la base" in capsys.readouterr().out

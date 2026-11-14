@@ -430,7 +430,8 @@ def _questions_page(at) -> dict:
             "queries": [e.label for e in at.expander].count("Ver la consulta SPARQL"),
             "code": [c.value for c in at.code],
             "tabs": [t.label for t in at.tabs],
-            "zips": len([d for d in at.download_button if d.key != "align_dl_log"])}
+            "zips": len([d for d in at.download_button                 # the four formats
+                         if d.key not in ("align_dl_log", "align_dl_previous")])}
 
 
 def test_the_page_shows_the_questions_in_green_yellow_and_gray(page, yellow):

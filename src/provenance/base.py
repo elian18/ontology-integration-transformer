@@ -1,6 +1,7 @@
 # PROV-O of the base (S10-T06): who decided each correspondence of the base with the DPV and
 # when, how each concept the AI took from the LOPDP was produced and who decided it (with its
-# article), the repairs R1 and R2 of the core and the profile, and the bridge with the GDPR.
+# article), the repairs R1 and R2 of the core and the profile, and the bridge with the GDPR. A
+# correspondence a person corrected later is a revision of the one it replaced (S10-T16).
 # It reads what the pipeline already wrote, in a module of its own (ontopriv-provenance) in four
 # formats; it calls no AI and never changes the base.
 from __future__ import annotations
@@ -160,6 +161,51 @@ def _day(value) -> str:
     return str(value or "")[:10]
 
 
+@dataclass
+class Approval:
+    """One correspondence a person approved in the base, with what ended it, if anything."""
+    decision: object                # the approving Decision
+    ended: object | None = None     # the Decision that withdrew or changed it
+    version: int = 1
+
+    @property
+    def at(self) -> str:
+        return self.decision.decided_at or ""
+
+
+def approvals(records: list, source_id: str) -> dict[str, list[Approval]]:
+    """concept_key -> every correspondence approved for it, oldest first (S10-T16). An
+    approval ends with the next decision on the same DPV term (undo, discard or another SKOS
+    type). Its version is 1 + the ended approvals that came before it."""
+    from src.alignment.decisions import DECISION_APPROVED, TARGET_MAPPING
+    open_: dict = {}
+    out: dict[str, list[Approval]] = {}
+    for d in records:
+        if d.source_id != source_id or d.target != TARGET_MAPPING or not d.dpv_iri:
+            continue
+        before = open_.get((d.concept_key, d.dpv_iri))
+        if before is not None:
+            if d.decision == DECISION_APPROVED and d.relation == before.decision.relation:
+                continue                                  # approved again as it was
+            before.ended = d
+            del open_[(d.concept_key, d.dpv_iri)]
+        if d.decision == DECISION_APPROVED:
+            a = Approval(d)
+            open_[(d.concept_key, d.dpv_iri)] = a
+            out.setdefault(d.concept_key, []).append(a)
+    for items in out.values():
+        items.sort(key=lambda a: a.at)
+        for a in items:
+            a.version = 1 + sum(1 for b in items if b.ended is not None and b.at < a.at)
+    return out
+
+
+def revised(a: Approval, items: list[Approval]) -> list[Approval]:
+    """The ended approvals of the same concept that ``a`` replaces (one version before)."""
+    return [b for b in items if b.ended is not None and b.at < a.at
+            and b.version == a.version - 1]
+
+
 # --------------------------------------------------------------------------- the graph
 
 class _Base:
@@ -174,6 +220,7 @@ class _Base:
         self.counts: dict = {}
         self.mapping_nodes: dict = {}         # (subject, relation, term) -> record
         self.decision_nodes: dict = {}        # AI concept key -> record of its decision
+        self.versions: dict = {}              # id(Approval) -> its record (S10-T16)
 
     # ------------------------------------------------------------------ helpers
     def file(self, name: str, label: str, comment: str | None = None):
@@ -361,7 +408,8 @@ class _Base:
         self.mapping_review = self._review(
             "activity-mapping-review", "Revisión de las correspondencias con el DPV",
             "Una persona decidió la correspondencia de cada concepto con el DPV, o que no tiene, "
-            "en la tarjeta de revisión o confirmando una propuesta del asistente (S5).",
+            "en la tarjeta de revisión o confirmando una propuesta del asistente (S5); las "
+            "correcciones posteriores se hacen en la misma página.",
             [d for d in logged if d.target == TARGET_MAPPING],
             [f.get("candidates"), f.get("proposals")])
         self.alignment_write = rec.activity(
@@ -545,6 +593,9 @@ class _Base:
                 f"{len(logged - written)} del registro no están en el módulo. Vuelve a "
                 "escribirla: py -m src.alignment.write")
         current = mapping_decisions(inp.records, inp.source_id)
+        history = approvals(inp.records, inp.source_id)
+        concepts = mapping_concepts(inp.data, inp.records, inp.source_id, PROFILE_IRI)
+        iris = {c.key: c.iri for c in concepts}
         attached = {}
         for dup in content.duplicates:
             if dup.get("duplicate_of"):
@@ -558,7 +609,9 @@ class _Base:
                               self._mapping_text(m, d))
             rec.axiom(node, m["subject_iri"], prop, m["dpv_iri"])
             rec.g.add((node, self.decided_by, Literal("base", lang="es")))
-            rec.g.add((node, OWL.versionInfo, Literal("1")))
+            now = next(a for a in history[m["concept_key"]]
+                       if a.decision.dpv_iri == m["dpv_iri"] and a.ended is None)
+            rec.g.add((node, OWL.versionInfo, Literal(str(now.version))))
             rec.generated(node, self.mapping_review, rec.person(d.reviewer), d.decided_at)
             self._sources(node, d, m["concept_key"], m["found_by"] == "candidates")
             for n in sorted(set(m.get("concept_articles") or [])
@@ -566,9 +619,11 @@ class _Base:
                 rec.g.add((node, PROV.hadPrimarySource, self.article(n)))
             rec.add(node, DCTERMS.isPartOf, self.module.get("alignment"))
             self.mapping_nodes[(m["subject_iri"], str(prop), m["dpv_iri"])] = node
+            self.versions[id(now)] = node
             by[m["decided_by"] == DECIDED_BY_ASSISTANT] += 1
+        ended = self.ended(history, iris)
         none = 0
-        for c in mapping_concepts(inp.data, inp.records, inp.source_id, PROFILE_IRI):
+        for c in concepts:
             if concept_status(c, current) != STATUS_NO_MATCH:
                 continue
             d = current[c.key][""]
@@ -582,8 +637,50 @@ class _Base:
                 rec.g.add((node, PROV.hadPrimarySource, self.article(n)))
             none += 1
         self.counts["mappings"] = {"total": len(content.mappings), "assistant": by[True],
-                                   "person": by[False]}
+                                   "person": by[False], "replaced": ended}
         self.counts["no_match"] = none
+
+    def ended(self, history: dict[str, list[Approval]], iris: dict[str, str]) -> int:
+        """The correspondences a person approved and later withdrew or changed (S10-T16):
+        described (rdf:Statement), not asserted, and invalidated when they were; the one that
+        replaced them is a revision of them."""
+        rec, n = self.rec, 0
+        for key, items in history.items():
+            for a in items:
+                if a.ended is None:
+                    continue
+                d, gone = a.decision, a.ended
+                subject = d.snapshot.get("subject_iri") or iris.get(key) or key
+                prop = SKOS[d.relation.split(":", 1)[1]]
+                name = d.snapshot.get("concept_name") or local(subject)
+                node = rec.entity(
+                    f"{local(mapping_record(subject, prop, d.dpv_iri))}-v{a.version}",
+                    f"{name} {d.relation} dpv:{local(d.dpv_iri)} (versión {a.version}, ya no "
+                    "está en la base)", f"{self._who(d)}. {self._ended_text(gone)}.")
+                rec.g.add((node, RDF.type, RDF.Statement))
+                rec.g.add((node, RDF.subject, URIRef(subject)))
+                rec.g.add((node, RDF.predicate, prop))
+                rec.g.add((node, RDF.object, URIRef(d.dpv_iri)))
+                rec.g.add((node, self.decided_by, Literal("base", lang="es")))
+                rec.g.add((node, OWL.versionInfo, Literal(str(a.version))))
+                rec.generated(node, self.mapping_review, rec.person(d.reviewer), d.decided_at)
+                rec.g.add((node, PROV.wasInvalidatedBy, self.mapping_review))
+                rec.add(node, PROV.invalidatedAtTime, when(gone.decided_at))
+                self.versions[id(a)] = node
+                n += 1
+        for items in history.values():
+            for a in items:
+                for b in revised(a, items):
+                    rec.add(self.versions.get(id(a)), PROV.wasRevisionOf,
+                            self.versions.get(id(b)))
+        return n
+
+    def _ended_text(self, d) -> str:
+        from src.alignment.decisions import DECISION_APPROVED, DECISION_REJECTED
+        who = f"por {self.rec.people.name(d.reviewer)} el {_day(d.decided_at)}"
+        if d.decision == DECISION_APPROVED:
+            return f"Cambiada a {d.relation} {who}"
+        return ("Descartada " if d.decision == DECISION_REJECTED else "Deshecha ") + who
 
     def _sources(self, node, d, key: str, from_candidates: bool) -> None:
         from src.alignment.assistant_review import PROPOSED_BY
@@ -673,6 +770,14 @@ class _Base:
                                                     self.files.get("gdprtext_alignment"),
                                                     self.files.get("gdprtext")) if x is not None],
             ended=out.get("created"), plan=rule)
+        came = (out.get("gdprtext_alignment") or {}).get("from")
+        if came and self.files.get("gdprtext_alignment") is not None:     # S10-T16
+            upload = rec.entity(
+                f"upload-{slug(came['workspace'])}-v{came['version']}",
+                f"Versión {came['version']} de la subida {came['workspace']}",
+                "La alineación de GDPRtEXT con lo que decidió el usuario en esa subida; quién "
+                "decidió cada correspondencia lo dice la procedencia de la subida.")
+            rec.g.add((self.files["gdprtext_alignment"], PROV.wasDerivedFrom, upload))
         node = self.module["bridge"]
         rec.g.add((node, PROV.wasGeneratedBy, building))
         rec.add(node, PROV.generatedAtTime, when(out.get("created")))
@@ -839,6 +944,10 @@ def render(out: dict) -> str:
              f"({m['assistant']} confirmando una propuesta del asistente, "
              + counted(m["person"], "decidida por la persona sola",
                        "decididas por la persona sola") + ")",
+             *(["  Correcciones: " + (
+                 "1 correspondencia reemplazada; la anterior queda como versión previa"
+                 if m["replaced"] == 1 else f"{m['replaced']} correspondencias reemplazadas; "
+                 "las anteriores quedan como versiones previas")] if m.get("replaced") else []),
              f"  Conceptos sin correspondencia: {c['no_match']}, con quién y cuándo",
              f"  Conceptos que la IA tomó de la {LAW}: {lc['total']} "
              f"({counted(lc['approved'], 'nuevo', 'nuevos')}, "
@@ -883,7 +992,9 @@ def _order(record) -> tuple:
 
 def render_records(g: Graph, term: str) -> str:
     lines = [f"Procedencia de {local(term)} ({term})"]
-    for r in sorted(records_about(g, term), key=_order):
+    found = records_about(g, term)
+    for r in sorted(found, key=lambda r: (_order(r)[0], (r, RDF.type, RDF.Statement) in g,
+                                          -int(g.value(r, OWL.versionInfo) or 0), str(r))):
         d = describe(g, r)
         lines.append(f"  · {d['label']}")
         if d["comment"]:
@@ -897,6 +1008,11 @@ def render_records(g: Graph, term: str) -> str:
             lines.append(f"    Viene de: {'; '.join(d['derived_from'])}")
         if d["led_to"]:
             lines.append(f"    Llevó a: {'; '.join(d['led_to'])}")
+        for p, text in ((PROV.wasRevisionOf, "Reemplaza a"), (None, "La reemplazó")):
+            names = sorted(str(g.value(x, RDFS.label)) for x in (
+                g.objects(r, p) if p else g.subjects(PROV.wasRevisionOf, r)))
+            if names:
+                lines.append(f"    {text}: {'; '.join(names)}")
         for n in d["notes"]:
             lines.append(f"    {n['label']} ({n['by'] or n['activity']}): {n['comment']}")
     return "\n".join(lines)
