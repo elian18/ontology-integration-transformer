@@ -400,6 +400,27 @@ def test_after_a_correction_of_the_base_the_upload_inherits_it(env, targets):
     assert m["recomputed"]["inherit"] and inh.is_current(inh.load_result(w), corrected)
 
 
+def test_an_upload_read_before_rdf_property_counted_is_read_again(env, targets):
+    """S10-T17: a saved inheritance from before (concepts_version 1) took the concepts another
+    way, so the upload is read again: inheritance, decider and labels (from the cache)."""
+    embed, llm = Embed(), DeciderLLM()
+    kw = dict(fmt="turtle", embed_fn=embed, llm=llm, targets=targets, cfg=env.cfg,
+              chroma_path=env.chroma, sleep_fn=lambda s: None)
+    w, _, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, **kw)
+    saved = inh.load_result(w)
+    assert saved["concepts_version"] == inh.CONCEPTS_VERSION == 2
+    (w.work_dir / inh.RESULT_FILE).write_text(json.dumps({**saved, "concepts_version": 1}),
+                                              encoding="utf-8")
+    assert not inh.is_current(inh.load_result(w), env.base)
+    calls = llm.calls
+    _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, **kw)
+    assert {k: m["recomputed"][k] for k in ("inherit", "decider", "labels")} == {
+        "inherit": True, "decider": True, "labels": True}
+    assert llm.calls == calls and inh.is_current(inh.load_result(w), env.base)
+    _, m, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, **kw)
+    assert not any(m["recomputed"][k] for k in ("inherit", "decider", "labels"))
+
+
 def test_a_workspace_of_v060_is_decided_again(env, targets):
     kw = dict(fmt="turtle", embed_fn=Embed(), llm=DeciderLLM(), base=env.base, targets=targets,
               cfg=env.cfg, chroma_path=env.chroma, sleep_fn=lambda s: None)

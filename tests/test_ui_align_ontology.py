@@ -77,6 +77,26 @@ def both_aligned(env, targets, monkeypatch):  # noqa: F811
     return _run(env, targets, svc.MODE_BOTH, files, Embed(), DeciderLLM(), seen), seen
 
 
+def test_with_a_law_the_concepts_read_again_get_definitions_and_articles(
+        env, targets, both_aligned):  # noqa: F811
+    """S10-T17: when the upload is read again (here, an inheritance from before rdf:Property
+    counted), the law gives definitions and articles again too: there may be new concepts."""
+    from src.alignment import inherit as inh
+    ws = load_workspace(both_aligned[0], cfg=env.cfg)
+    saved = inh.load_result(ws)
+    (ws.work_dir / inh.RESULT_FILE).write_text(json.dumps({**saved, "concepts_version": 1}),
+                                               encoding="utf-8")
+    files = {"ontology": ("Mi GDPR.ttl", TTL.encode("utf-8")),
+             "law": ("ley.txt", LAW_E2E.encode("utf-8"))}
+
+    def again():
+        _run(env, targets, svc.MODE_BOTH, files, Embed(), DeciderLLM())
+        return ua.load_manifest(ws)["recomputed"]
+    first = again()
+    assert all(first[k] for k in ("inherit", "definitions", "decider", "labels", "evidence"))
+    assert not any(again()[k] for k in ("inherit", "definitions", "evidence"))
+
+
 def test_align_runs_every_step_and_names_them(aligned):
     ws_id, seen = aligned
     assert ws_id.startswith("mi-gdpr-")

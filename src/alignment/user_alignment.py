@@ -20,6 +20,7 @@ from src.alignment import law_evidence as ev
 from src.alignment import user_decisions as ud
 from src.alignment.propose import load_result as decisions_result
 from src.console import counted
+from src.ingest.ontology_loader import misspelled_properties
 from src.core.emit import CORE_FILE, CORE_IRI
 from src.transform import labels as lab
 from src.transform.convert import OutputFormat, load_graph, output_format, serialize
@@ -494,6 +495,7 @@ def write_user_alignment(ws, cfg: dict | None = None, core: Graph | None = None,
                          "prompts": prompts},
             "base": {"source_id": (inherited.get("settings") or {}).get("base_source_id"),
                      "decisions_log_sha256": _sha256(paths["log"])},
+            "misspelled_properties": misspelled_properties(user_graph),       # S10-T17
             "notes": [
                 "El módulo de alineación contiene las correspondencias heredadas de la base "
                 "(decididas por una persona) y las aceptadas automáticamente por la regla; "
@@ -789,23 +791,25 @@ def align_workspace(ws, *, fmt: str = "turtle", use_llm: bool | None = None, emb
         say(STEP_LABELS["inherit"])
         inh.inherit_for_workspace(ws, base=base, embed_fn=embed_fn, cfg=cfg)
         ran["inherit"] = True
-    if with_law and not ld.is_current(ld.load_result(ws), ws, cfg, use_llm):
+    again = ran["inherit"]                    # other concepts: the steps on them run again
+    if with_law and (again or not ld.is_current(ld.load_result(ws), ws, cfg, use_llm)):
         ld.definitions_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm, cfg=cfg,
                                      sleep_fn=sleep_fn, progress=progress)
         ran["definitions"] = True
     definitions = ld.load_result(ws)
-    if ran["inherit"] or not is_current(decisions_result(ws), cfg, use_llm,
-                                        ld.fingerprint(ld.for_decider(definitions, cfg))):
+    if again or not is_current(decisions_result(ws), cfg, use_llm,
+                               ld.fingerprint(ld.for_decider(definitions, cfg))):
         say(STEP_LABELS["candidates"])
         propose_for_workspace(ws, embed_fn=embed_fn, llm=llm, use_llm=use_llm,
                               targets=targets, cfg=cfg, base=base, chroma_path=chroma_path,
                               sleep_fn=sleep_fn)
         ran["decider"] = True
-    if not lab.is_current(lab.load_result(ws), cfg, use_llm):
+    if again or not lab.is_current(lab.load_result(ws), cfg, use_llm):
         say(STEP_LABELS["labels"])
         lab.labels_for_workspace(ws, llm=llm, use_llm=use_llm, cfg=cfg, sleep_fn=sleep_fn)
         ran["labels"] = True
-    if with_law and not ev.is_current(ev.load_result(ws), cfg, ld.fingerprint(definitions)):
+    if with_law and (again or not ev.is_current(ev.load_result(ws), cfg,
+                                                ld.fingerprint(definitions))):
         say(STEP_LABELS["evidence"])
         ev.evidence_for_workspace(ws, embed_fn=embed_fn, cfg=cfg)
         ran["evidence"] = True

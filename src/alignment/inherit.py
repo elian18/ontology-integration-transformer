@@ -342,8 +342,9 @@ def inherit_for_workspace(ws, *, base: BaseIndex | None = None, embed_fn=None,
         raise
     ws.work_dir.mkdir(parents=True, exist_ok=True)
     (ws.work_dir / RESULT_FILE).write_text(
-        json.dumps({**report.to_dict(), "base_fingerprint": base_fingerprint(base)}, indent=2,
-                   ensure_ascii=False), encoding="utf-8")
+        json.dumps({**report.to_dict(), "base_fingerprint": base_fingerprint(base),
+                    "concepts_version": CONCEPTS_VERSION}, indent=2, ensure_ascii=False),
+        encoding="utf-8")
     s = report.summary()
     ws.mark_step("inherit", DONE, f"{s['inherited']} de {s['concepts']} conceptos heredados",
                  **{k: s[k] for k in ("concepts", "inherited", "inherited_aligned",
@@ -357,6 +358,9 @@ def load_result(ws) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
+CONCEPTS_VERSION = 2             # S10-T17: a property declared with rdf:Property is a concept
+
+
 def base_fingerprint(base: BaseIndex) -> str:
     """sha256 of what the inheritance reads from the base (S10-T16)."""
     rows = [[c.key, c.status, c.name, c.label, c.definition, list(c.kinds), sorted(c.aliases),
@@ -366,9 +370,10 @@ def base_fingerprint(base: BaseIndex) -> str:
 
 
 def is_current(result: dict | None, base: BaseIndex) -> bool:
-    """The saved inheritance read this same base (an older one, without fingerprint, did not
-    say: it is done again)."""
-    return bool(result) and result.get("base_fingerprint") == base_fingerprint(base)
+    """The saved inheritance read this same base and took the concepts the same way (an older
+    one, without fingerprint or version, did not say: it is done again)."""
+    return (bool(result) and result.get("concepts_version") == CONCEPTS_VERSION
+            and result.get("base_fingerprint") == base_fingerprint(base))
 
 
 # --------------------------------------------------------------------------- console

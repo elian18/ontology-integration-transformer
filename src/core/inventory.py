@@ -17,6 +17,10 @@ Family rule (works for one-root and many-root ontologies alike):
   root itself maps to "(raiz)").
 - If there are several roots, the roots themselves are the families.
 A property's family is taken from its ``rdfs:domain`` class when it has one.
+
+S10-T17: a property declared only with ``rdf:Property`` (valid RDF; the DPV declares its own
+so) is a property too, and so is one declared with ``rdfs:Property``, a frequent typo of it
+(DPCat has it): data property when its range is a literal, object property otherwise.
 """
 from __future__ import annotations
 
@@ -24,9 +28,9 @@ from dataclasses import dataclass, field
 from collections import defaultdict, Counter
 
 import rdflib
-from rdflib.namespace import RDF, RDFS, OWL
+from rdflib.namespace import OWL, RDF, RDFS
 
-from src.ingest.ontology_loader import OntologyReport
+from src.ingest.ontology_loader import OntologyReport, plain_properties
 
 # Labels used both in the entity rows and in the Spanish console output.
 KIND_CLASS = "clase"
@@ -108,10 +112,11 @@ def build_inventory(report: OntologyReport) -> OntologyInventory:
         raise ValueError("El reporte no trae grafo cargado; llama a load_ontology primero.")
     g = report.graph
 
-    # Same sets Sprint 1 uses, so the totals reconcile exactly.
+    # The sets Sprint 1 uses (the totals reconcile on OntoPriv), plus the plain rdf:Property.
     classes = set(g.subjects(RDF.type, OWL.Class)) | set(g.subjects(RDF.type, RDFS.Class))
-    obj_props = set(g.subjects(RDF.type, OWL.ObjectProperty))
-    data_props = set(g.subjects(RDF.type, OWL.DatatypeProperty))
+    plain_obj, plain_data = plain_properties(g)
+    obj_props = set(g.subjects(RDF.type, OWL.ObjectProperty)) | plain_obj
+    data_props = set(g.subjects(RDF.type, OWL.DatatypeProperty)) | plain_data
     individuals = set(g.subjects(RDF.type, OWL.NamedIndividual))
 
     # Only named (URIRef) entities are partitionable; anonymous nodes are counted, not listed.

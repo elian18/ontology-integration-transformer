@@ -8,7 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from src.ingest.ontology_loader import load_ontology, characterization_summary
+from src.ingest.ontology_loader import (characterization_summary, load_ontology,
+                                       misspelled_properties)
 from src.core.inventory import (
     build_inventory, inventory_summary,
     KIND_CLASS, KIND_OBJECT_PROP, KIND_DATA_PROP,
@@ -100,3 +101,40 @@ def test_summary_is_json_safe(tmp_path):
     json.dumps(summary)  # must not raise
     assert summary["totals"]["classes"] == 4
     assert set(summary["by_namespace"].keys()) == {"http://example.org/o#"}
+
+RDFS_ONLY = _PREFIXES + """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+:A a rdfs:Class .
+:B a rdfs:Class .
+:links a rdf:Property ; rdfs:domain :A ; rdfs:range :B .
+:named a rdf:Property ; rdfs:range xsd:string .
+:says a rdf:Property ; rdfs:range rdfs:Literal .
+:hasStatus a rdfs:Property ; rdfs:range :B .
+:both a owl:ObjectProperty, rdf:Property .
+"""
+
+
+def test_a_property_declared_with_rdf_property_counts(tmp_path):
+    """S10-T17: DPCat declares its properties with rdfs:Property (a typo of rdf:Property);
+    the DPV declares its own with rdf:Property. Both are properties now, of data when their
+    range is a literal; the OWL flavor still only looks at what is typed in OWL."""
+    report = _load_ttl(tmp_path, RDFS_ONLY)
+    inv = build_inventory(report)
+    kinds = {e.local_name: e.kinds for e in inv.entries}
+    assert kinds == {"A": (KIND_CLASS,), "B": (KIND_CLASS,), "links": (KIND_OBJECT_PROP,),
+                     "named": (KIND_DATA_PROP,), "says": (KIND_DATA_PROP,),
+                     "hasStatus": (KIND_OBJECT_PROP,), "both": (KIND_OBJECT_PROP,)}
+    by_local = {e.local_name: e for e in inv.entries}
+    assert (by_local["links"].family, by_local["links"].range) == ("A", "B")
+    s = characterization_summary(report)
+    assert {k: s["structure"][k] for k in ("classes", "object_properties", "data_properties")} \
+        == {"classes": 2, "object_properties": 3, "data_properties": 2}
+    assert all(inv.totals[k] == s["structure"][k] for k in s["structure"])
+    assert report.ontology_flavor == "dl-compatible"         # :both is an owl:ObjectProperty
+    assert misspelled_properties(report.graph) == ["hasStatus"]
+    rdfs = _load_ttl(tmp_path, RDFS_ONLY.replace(":both a owl:ObjectProperty, rdf:Property .",
+                                                 ""), "rdfs.ttl")
+    assert rdfs.ontology_flavor == "rdfs"
+    assert misspelled_properties(_load_ttl(tmp_path, SINGLE_ROOT, "s.ttl").graph) == []
+    punned = _load_ttl(tmp_path, _PREFIXES + ":C a rdfs:Class, rdfs:Property .", "p.ttl")
+    assert (punned.n_class_prop_overlap, punned.ontology_flavor) == (1, "owl-full")
