@@ -8,9 +8,34 @@ __pycache__/
 
 # datos pesados y artefactos intermedios
 data/interim/
-data/output/
 data/workspaces/
 *.owl.bak
+
+# data/output: solo la base va en git (los cinco módulos en cuatro formatos, el catálogo para
+# Protégé y los candidatos de los que se hereda); mediciones, reportes y paquetes no
+data/output/*
+!data/output/ontopriv-core.rdf
+!data/output/ontopriv-core.owl
+!data/output/ontopriv-core.ttl
+!data/output/ontopriv-core.jsonld
+!data/output/profile-ecuador-lopdp.rdf
+!data/output/profile-ecuador-lopdp.owl
+!data/output/profile-ecuador-lopdp.ttl
+!data/output/profile-ecuador-lopdp.jsonld
+!data/output/ontopriv-dpv-alignment.rdf
+!data/output/ontopriv-dpv-alignment.owl
+!data/output/ontopriv-dpv-alignment.ttl
+!data/output/ontopriv-dpv-alignment.jsonld
+!data/output/ontopriv-gdpr-alignment.rdf
+!data/output/ontopriv-gdpr-alignment.owl
+!data/output/ontopriv-gdpr-alignment.ttl
+!data/output/ontopriv-gdpr-alignment.jsonld
+!data/output/ontopriv-provenance.rdf
+!data/output/ontopriv-provenance.owl
+!data/output/ontopriv-provenance.ttl
+!data/output/ontopriv-provenance.jsonld
+!data/output/catalog-v001.xml
+!data/output/alignment-candidates.json
 
 # base vectorial local
 chroma_db/
@@ -20,6 +45,10 @@ models/
 
 # Apache Jena descargado (razonador, ver README)
 tools/
+
+# instrucciones para asistentes de programación que instala Streamlit (enlaces a .venv)
+.agents/
+.claude/
 
 # Sprint 1: artefactos generados y de prueba
 data/input/sample.*

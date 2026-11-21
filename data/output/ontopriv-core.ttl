@@ -1,0 +1,2126 @@
+@prefix OntologiaLOPDP: <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#> .
+@prefix ley-organica-proteccion-datos-personales: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+OntologiaLOPDP:law001 a ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:a_process_of OntologiaLOPDP:verification001 ;
+    OntologiaLOPDP:account_with_a_certifying_entity OntologiaLOPDP:certifying_entity001 ;
+    OntologiaLOPDP:consent_is_emphasized OntologiaLOPDP:consentimiento001 ;
+    OntologiaLOPDP:has_elements_of_transfer_and_communication OntologiaLOPDP:transfer_or_communication001 ;
+    OntologiaLOPDP:has_the_following_principles_to_consider OntologiaLOPDP:principles001 ;
+    OntologiaLOPDP:has_the_following_roles OntologiaLOPDP:members_of_the_protection_system001 ;
+    OntologiaLOPDP:security_security_presents_itself_as OntologiaLOPDP:personal_data_security001 ;
+    OntologiaLOPDP:the_law_has_the_following_rights OntologiaLOPDP:rights001 .
+
+ley-organica-proteccion-datos-personales:Criteria a owl:ObjectProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Holder_with_disability a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Specialized_regulations a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:a_data_protection_delegate_will_be_assigned a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Delegate ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Delegate .
+
+ley-organica-proteccion-datos-personales:account_with_a a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Deceased_owner ;
+    rdfs:range ley-organica-proteccion-datos-personales:Successor_right_holder ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Deceased_owner .
+
+ley-organica-proteccion-datos-personales:accrediting_compliance_with_the_mechanisms a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:actions_regarding_health_data_processing a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:actions_regarding_independence_of_control a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:activity_in_respect_to_proactive_and_demonstrated_responsibility a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:activity_of_the_legal_representative_owner a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Legal_representative_owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Legal_representative_owner .
+
+ley-organica-proteccion-datos-personales:activity_within_opposition_law a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:activity_within_right_of_access a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:activity_within_the_right_of_correction_and_update a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:activity_within_the_right_of_deletion a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_of_deletion ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:affects_to a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_security_vulnerability ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_security_vulnerability .
+
+ley-organica-proteccion-datos-personales:age a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:allow_evaluate a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:answer_the_claim a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:applicability a ley-organica-proteccion-datos-personales:Applicability,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:scope_of_legislation "La Ley Orgánica de Protección de Datos Personales se aplicará en ciertos escenarios" .
+
+ley-organica-proteccion-datos-personales:application_scenarios_for_processing_of_data_without_consent a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:are_constituted_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Exceptions_of_rights ley-organica-proteccion-datos-personales:Exercise_of_rights ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations ley-organica-proteccion-datos-personales:Right_of_access ley-organica-proteccion-datos-personales:Right_of_deletion ley-organica-proteccion-datos-personales:Right_of_opposition ley-organica-proteccion-datos-personales:Right_to_consult ley-organica-proteccion-datos-personales:Right_to_correction_and_update ley-organica-proteccion-datos-personales:Right_to_digital_education ley-organica-proteccion-datos-personales:Right_to_information ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:associated_to a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Quality ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Quality .
+
+ley-organica-proteccion-datos-personales:assumptions_for_processing_the_data_in_the_event_of_a_data_challenge a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment .
+
+ley-organica-proteccion-datos-personales:authorization_for_treatment_of_anonymized_health_data a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:before_answering_the_claim a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:before_the_revocation_of_consent_is_considered_to_be_considered a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:can_count_on a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Revocation_of_consent ;
+    rdfs:range ley-organica-proteccion-datos-personales:Recall_mechanisms ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Revocation_of_consent .
+
+ley-organica-proteccion-datos-personales:can_give_explicit_consent_to_treatment a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Holder_between_15_to_17_years_old ley-organica-proteccion-datos-personales:Holder_over_17_years_old ley-organica-proteccion-datos-personales:Holder_under_15_years_old ) ] ;
+    rdfs:range xsd:boolean ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:cannot_be_done_with_the_processing_of_credit_data a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:cases_in_which_the_owner_should_be_informed a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:characteristics_that_the_information_transferred_to_the_owner_must_have a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:claims a ley-organica-proteccion-datos-personales:Claims,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:answer_the_claim "The responsible party must respond to the request within 10 days, either with an affirmative or negative answer, notifying and executing the corresponding actions." ;
+    ley-organica-proteccion-datos-personales:are_destined_to ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:before_answering_the_claim "The Personal Data Protection Authority may carry out actions including preliminary investigations, information gathering and evaluation of the circumstances of the case, in accordance with the provisions of the Organic Administrative Code." ;
+    ley-organica-proteccion-datos-personales:claims_of "Claims related to the exercise of the holder's rights in the processing of personal data",
+        "Complaints related to compliance with obligations of the data controller",
+        "Complaints related to the application of principles in data processing" ;
+    ley-organica-proteccion-datos-personales:in_the_face_of_a_denial_or_no_response_to_the_claim "The data subject may bring civil, criminal or constitutional actions as deemed necessary.",
+        "The holder may file an administrative complaint with the Personal Data Protection Authority." ;
+    ley-organica-proteccion-datos-personales:may_be_done_by_means "Digitals",
+        "Physicists" ;
+    ley-organica-proteccion-datos-personales:may_be_made_by ley-organica-proteccion-datos-personales:data_owner ;
+    ley-organica-proteccion-datos-personales:may_be_made_in_shape "Free" ;
+    ley-organica-proteccion-datos-personales:submit_in_case_of_claim "Presentar quejas",
+        "Submit petitions",
+        "Submit requirements" .
+
+ley-organica-proteccion-datos-personales:claims_of a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:conditions_for_legitimate_treatment a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Consent ley-organica-proteccion-datos-personales:Data_processing ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:conditions_for_the_suspension_of_treatment a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment .
+
+ley-organica-proteccion-datos-personales:contact_data a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Delegate ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Delegate .
+
+ley-organica-proteccion-datos-personales:control_functions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:count_with_the_following a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:credit_data_processing a ley-organica-proteccion-datos-personales:Credit_data_processing,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:allow_evaluate "The commercial conduct of the data subject",
+        "The conclusion of business in general of the data subject.",
+        "The data subject's ability to pay" ;
+    ley-organica-proteccion-datos-personales:cannot_be_done_with_the_processing_of_credit_data "The following may not be communicated",
+        "The following may not be disseminated",
+        "They may not have a secondary purpose" ;
+    ley-organica-proteccion-datos-personales:credit_data_relative_with "Banking obligations",
+        "Commercial obligations",
+        "Financial obligations",
+        "Obligaciones de carácter financiero" ;
+    ley-organica-proteccion-datos-personales:destined "For analysis purposes only" ;
+    ley-organica-proteccion-datos-personales:enforceable_obligation_for_credit_data "After five years have elapsed since the obligation has become due, the following may not be reported" ;
+    ley-organica-proteccion-datos-personales:for_information_about "Capital adequacy",
+        "Creditworthiness",
+        "Fulfillment of commercial obligations",
+        "Fulfillment of credit obligations" ;
+    ley-organica-proteccion-datos-personales:sources_from_whence_the_credit_data_was_obtained "Public access sources",
+        "Sources from information provided by the data owner" .
+
+ley-organica-proteccion-datos-personales:credit_data_relative_with a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:data_not_subject_to_processing_according_to_the_right_to_not_be_the_object_of_automated_decisions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Sensitive_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sensitive_data .
+
+ley-organica-proteccion-datos-personales:data_processing_is_intended_for_individuals a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Profile_making ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Profile_making .
+
+ley-organica-proteccion-datos-personales:data_related_to a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Sensitive_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sensitive_data .
+
+ley-organica-proteccion-datos-personales:data_subjects_to_treatment_according_to_the_right_to_not_be_the_object_of_automated_decisions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Sensitive_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sensitive_data .
+
+ley-organica-proteccion-datos-personales:data_types_are_comprised_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_types ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Personal_data ley-organica-proteccion-datos-personales:Special_personal_data_categories ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_types .
+
+ley-organica-proteccion-datos-personales:deadline_in_days_for_the_right_of_access a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:int ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:deadline_in_days_for_the_right_to_oppose_opposition a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:deceased_owner a ley-organica-proteccion-datos-personales:Deceased_owner,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:account_with_a ley-organica-proteccion-datos-personales:successor_right_holder ;
+    ley-organica-proteccion-datos-personales:description "An individual who, in life, was the owner of personal data and has died." .
+
+ley-organica-proteccion-datos-personales:delegate_comments a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:description a owl:DatatypeProperty ;
+    rdfs:comment "La propiedad \"descripción\" cumple la función de proporcionar detalles explicativos sobre la naturaleza y características de cada clase" ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:description_responsible_for_channeling_exercise_of_rights a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:designation a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:destined a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:determine_the_compatibility a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:duration_of_charge a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:enforceable_obligation_for_credit_data a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:exceptions_from_rights_for_the_right_to_automated_assessments a ley-organica-proteccion-datos-personales:Exceptions_of_rights,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:for ley-organica-proteccion-datos-personales:right_not_to_be_object_to_automated_evaluations ;
+    ley-organica-proteccion-datos-personales:rights_to_not_be_the_object_of_automated_assessments "Is based on the explicit consent of the owner",
+        "It is authorized by the applicable regulations, court order, resolution or reasoned mandate of the competent technical authority, for which adequate measures must be established to safeguard the fundamental rights and freedoms of the holder.",
+        "The automated decision does not entail serious impacts or verifiable risks for the owner",
+        "The automated decision is necessary for the conclusion or performance of a contract between the data subject and the controller or processor of personal data." ;
+    ley-organica-proteccion-datos-personales:the_right_to_not_be_object_to_automated_assessments_may_not_be_revocable "A data subject cannot be made to waive the right not to be subject to automated valuations in advance by means of contracts",
+        "When a decision is made based only on automated assessments, the data subject must be clearly informed of his or her right not to be subjected to these automated assessments" .
+
+ley-organica-proteccion-datos-personales:exceptions_to_rights_for_rectification_update_deletion_and_opposition a ley-organica-proteccion-datos-personales:Exceptions_of_rights,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:for ley-organica-proteccion-datos-personales:right_of_deletion,
+        ley-organica-proteccion-datos-personales:right_of_opposition,
+        ley-organica-proteccion-datos-personales:right_to_correction_and_update ;
+    ley-organica-proteccion-datos-personales:rights_to_correct_update_update_delete_and_oppose "If the applicant is not the owner of the personal data or his legal representative is not duly accredited.",
+        "In situations where the public interest is involved, the processing of personal data will be allowed, as long as international human rights standards are respected, the principles of the Organic Law for the Protection of Personal Data are complied with and the minimum criteria established by this law are followed.",
+        "In the processing of personal data that are necessary for the filing of information that is part of the State's patrimony, for scientific, historical or statistical research.",
+        "When it may cause damage to rights or affect the legitimate interests of third parties and this is accredited by the database controller at the time of responding to the data subject's request to exercise the respective right, i.e., if the database controller can demonstrate that complying with the data subject's request could damage the rights or legitimate interests of other persons, then it may refuse to comply with the request.",
+        "When it may hinder judicial or administrative proceedings in progress, duly notified.",
+        "When the data are necessary for the formulation, exercise or defense of claims or appeals.",
+        "When the data are necessary to comply with a court order, resolution or reasoned mandate from a competent public authority.",
+        "When the data are necessary to exercise the right to freedom of expression and opinion.",
+        "When the data is necessary for the fulfillment of a legal or contractual obligation.",
+        "When the data is necessary to protect the vital interest of the data subject or another natural person." .
+
+ley-organica-proteccion-datos-personales:exercise_of_rights a ley-organica-proteccion-datos-personales:Exercise_of_rights,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Ability of the data subject to access information and training related to the proper use and processing of his or her personal data." ;
+    ley-organica-proteccion-datos-personales:must_provide_training_and_information "Civil society organizations",
+        "Educational entities",
+        "Providers of information and knowledge society services",
+        "State" .
+
+ley-organica-proteccion-datos-personales:exercise_of_rights_by_the_deceased_owner a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Successor_right_holder ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Successor_right_holder .
+
+ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Inapplicability ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:extended_preservation_of_personal_data_processing a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Conservation ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Conservation .
+
+ley-organica-proteccion-datos-personales:for a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Exceptions_of_rights ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Right_of_access ley-organica-proteccion-datos-personales:Right_of_deletion ley-organica-proteccion-datos-personales:Right_of_opposition ley-organica-proteccion-datos-personales:Right_to_correction_and_update ley-organica-proteccion-datos-personales:Right_to_information ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Exceptions_of_right .
+
+ley-organica-proteccion-datos-personales:for_different_purpose a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:for_health-related_data_without_consent a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:for_information_about a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:for_plurality_of_purposes a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:for_the a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations .
+
+ley-organica-proteccion-datos-personales:functions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:garatize_that a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_consult ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_consult .
+
+ley-organica-proteccion-datos-personales:guaranteeing_digital_education a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_digital_education ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_digital_education .
+
+ley-organica-proteccion-datos-personales:has_as_the_basis_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range ley-organica-proteccion-datos-personales:Legal_interest ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:has_the_characteristic_of_being a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Source_accessible_to_the_public ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Source_accessible_to_the_public .
+
+ley-organica-proteccion-datos-personales:health-related_data_collection_and_processing a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:health_related_data_processing a ley-organica-proteccion-datos-personales:Health_related_data_processing,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:application_scenarios_for_processing_of_data_without_consent "Treatment is necessary for reasons of public interest in the field of public health, such as in situations of serious health threats that transcend borders.",
+        "Treatment is necessary to ensure high standards of quality and safety in medical care, medicines or medical devices.",
+        "When the data processing is related to preventive medicine, the assessment of work capacity, medical diagnosis, the provision of medical or social assistance, or the management of health and social services.",
+        "When treatment is vital to protect the patient's life and the patient is unable to give consent due to physical or legal status" ;
+    ley-organica-proteccion-datos-personales:health-related_data_collection_and_processing "The institutions that make up the National Health System and health professionals may collect and process data related to the health of their patients who are or have been under treatment by those institutions." ;
+    ley-organica-proteccion-datos-personales:in_respect_to_the ley-organica-proteccion-datos-personales:consent ;
+    ley-organica-proteccion-datos-personales:purposes_of_the_processing_of_data_by_private_and_public_entities "Scientific research purposes" ;
+    ley-organica-proteccion-datos-personales:scenarios_for_treatment_by_private_and_public_entities "Provided that the data processing is authorized by the Personal Data Protection Authority.",
+        "Provided that the data used for the research are anonymized." ;
+    ley-organica-proteccion-datos-personales:shall_be_authorized_by ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:supervise_treatment_in_health_service_management_activities "Data processing in activities related to the management of health and social services may only be carried out by professionals subject to the duty of professional secrecy or under their supervision." .
+
+ley-organica-proteccion-datos-personales:holder_between_15_to_17_years_old a ley-organica-proteccion-datos-personales:Holder_between_15_to_17_years_old,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:age "Persons whose age is between 15 and 17 years old" ;
+    ley-organica-proteccion-datos-personales:can_give_explicit_consent_to_treatment true .
+
+ley-organica-proteccion-datos-personales:holder_over_17_years_old a ley-organica-proteccion-datos-personales:Holder_over_17_years_old,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:age "Persons over or equal to 18 years of age" ;
+    ley-organica-proteccion-datos-personales:can_give_explicit_consent_to_treatment true .
+
+ley-organica-proteccion-datos-personales:holder_under_15_years_old a ley-organica-proteccion-datos-personales:Holder_under_15_years_old,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:age "Persons under 15 years of age" ;
+    ley-organica-proteccion-datos-personales:can_give_explicit_consent_to_treatment false ;
+    ley-organica-proteccion-datos-personales:must_have_a ley-organica-proteccion-datos-personales:legal_representative_owner .
+
+ley-organica-proteccion-datos-personales:how_the_information_may_be_transmitted_to_the_owner a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:in_case_of_impugning_the_exaccuracy_of_data_a a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:in_case_of_no_direct_obtaining_by_the_owner a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:in_case_of_processing_it_must_be_compliant_with a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_or_database_of_criminal_infractions ;
+    rdfs:range ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_or_database_of_criminal_infractions .
+
+ley-organica-proteccion-datos-personales:in_case_of_suspension_of_treatment_must_resort_to a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:in_cases_of_automated_evaluations a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:in_cases_of_direct_data_gathering_by_the a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:in_direct_marketing_cases a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_of_opposition ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_of_opposition .
+
+ley-organica-proteccion-datos-personales:in_respect_to_the a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:in_the_case_of_no_direct_data_collection_by_the a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:in_the_event_of_a_challenge_of_data_exaccuracy a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:in_the_face_of_a_denial_or_no_response_to_the_claim a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:inapplicability a ley-organica-proteccion-datos-personales:Inapplicability,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:is_the_non_application_of_the_law_in ley-organica-proteccion-datos-personales:anonymized_data,
+        ley-organica-proteccion-datos-personales:data_or_database_of_criminal_infractions,
+        ley-organica-proteccion-datos-personales:deceased_persons_data,
+        ley-organica-proteccion-datos-personales:family_or_domestic_activities,
+        ley-organica-proteccion-datos-personales:journalistic_activities,
+        ley-organica-proteccion-datos-personales:legal_persons_data,
+        ley-organica-proteccion-datos-personales:personal_data_under_specialized_regulations ;
+    ley-organica-proteccion-datos-personales:scope_of_legislation "The Organic Law on Personal Data Protection will not apply in certain cases." .
+
+ley-organica-proteccion-datos-personales:inclusiveness_in a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_digital_education ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_digital_education .
+
+ley-organica-proteccion-datos-personales:incurring_the_owner_to_the_personal_data_protection_authority a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment .
+
+ley-organica-proteccion-datos-personales:information_suceptible_to_treatment_is_accessible a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Legal_persons_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Legal_persons_data .
+
+ley-organica-proteccion-datos-personales:irrevocability a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:is_authorized_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Certifying_entity ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Certifying_entity .
+
+ley-organica-proteccion-datos-personales:is_based_on a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:is_distinct_from_data_collection_in_the a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Purpose ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Purpose .
+
+ley-organica-proteccion-datos-personales:is_given_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_seals ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_seals .
+
+ley-organica-proteccion-datos-personales:is_implemented_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Proactive_and_demonstrated_accountability ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Proactive_and_demonstrated_accountability .
+
+ley-organica-proteccion-datos-personales:is_in_charge_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Quality ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Quality .
+
+ley-organica-proteccion-datos-personales:is_supervised_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Independence_of_control ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Independence_of_control .
+
+ley-organica-proteccion-datos-personales:is_the_non_application_of_the_law_in a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Inapplicability ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Anonymized_data ley-organica-proteccion-datos-personales:Data_or_database_of_criminal_infractions ley-organica-proteccion-datos-personales:Deceased_persons_data ley-organica-proteccion-datos-personales:Family_or_domestic_activities ley-organica-proteccion-datos-personales:Journalistic_activities ley-organica-proteccion-datos-personales:Legal_persons_data ley-organica-proteccion-datos-personales:Personal_data_under_specialized_regulations ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:it_is_not_imputable_to_be_inaccurate_when a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:justification_for_revocation a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Revocation_of_consent .
+
+ley-organica-proteccion-datos-personales:know_in_the_right_to_information a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_information ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_information .
+
+ley-organica-proteccion-datos-personales:known_as a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:limitation_on_exercise_of_rights_by_secondary_laws a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:low_legitimate_interest a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_processing .
+
+ley-organica-proteccion-datos-personales:may_be_done_by_means a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:may_be_made_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:may_be_made_in_shape a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:mechanisms_to_secure_the_right_of_access_of_the_credit_data_holder a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners .
+
+ley-organica-proteccion-datos-personales:minor_infractions a ley-organica-proteccion-datos-personales:Minor_infractions,
+        owl:DatatypeProperty,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:committed_by ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ley-organica-proteccion-datos-personales:Personal_data_protection_authority ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:must_be a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Recall_mechanisms ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Recall_mechanisms .
+
+ley-organica-proteccion-datos-personales:must_be_aware_of_the_possibility_of_realizing a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_information ;
+    rdfs:range ley-organica-proteccion-datos-personales:Revocation_of_consent ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_information .
+
+ley-organica-proteccion-datos-personales:must_comply_with a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:range ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:must_comply_with_the_principles_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_information ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Loyalty ley-organica-proteccion-datos-personales:Transparency ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:must_guarantee a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Recall_mechanisms ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Recall_mechanisms .
+
+ley-organica-proteccion-datos-personales:must_have_a a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Holder_under_15_years_old ;
+    rdfs:range ley-organica-proteccion-datos-personales:Legal_representative_owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Holder_under_15_years_old .
+
+ley-organica-proteccion-datos-personales:must_have_been_complied_with_regard_to_proactive_responsibility a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Principles ley-organica-proteccion-datos-personales:Rights ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:must_provide_training_and_information a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Exercise_of_rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Exercise_of_rights .
+
+ley-organica-proteccion-datos-personales:must_render_accounts_regarding_the_treatment_with a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Owner ley-organica-proteccion-datos-personales:Personal_data_protection_authority ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:nature_of_the_entity a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:normativa_especializada a owl:NamedIndividual .
+
+ley-organica-proteccion-datos-personales:obligations a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:obtaining_personal_data_directly_by_the_owner a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:organic_law_on_personal_data_protection a ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:target "The fundamental purpose of the Organic Law on Personal Data Protection is to ensure the effective application of the right to the protection of personal data. This right covers both access to and decision-making on information and data of a personal nature and the guarantee of their due protection. To this end, the law regulates, foresees and develops principles, rights, obligations and protection mechanisms necessary to comprehensively safeguard the privacy and security of personal data." .
+
+ley-organica-proteccion-datos-personales:personal_data_are_composed_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Biometric_data ley-organica-proteccion-datos-personales:Credit_data ley-organica-proteccion-datos-personales:Deceased_persons_data ley-organica-proteccion-datos-personales:Genetic_data ley-organica-proteccion-datos-personales:Health_Related_Data ley-organica-proteccion-datos-personales:Sensitive_data ley-organica-proteccion-datos-personales:Specialized_subject_data ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:processing a ley-organica-proteccion-datos-personales:Processing,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "El conjunto de acciones o procedimientos que se aplican a los datos o información con el fin de transformarlos, analizarlos, organizarlos o manipularlos de alguna manera para obtener resultados específicos" ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:data_processing,
+        ley-organica-proteccion-datos-personales:scope_of_application .
+
+ley-organica-proteccion-datos-personales:purposes_of_the_processing_of_data_by_private_and_public_entities a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:regarding_treatment a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Revocation_of_consent ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_processing ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Revocation_of_consent .
+
+ley-organica-proteccion-datos-personales:regulated_treatment_in_specialized_regulations_regarding a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Specialized_subject_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Specialized_subject_data .
+
+ley-organica-proteccion-datos-personales:requirements_that_must_be_met a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:responsable_de_canalizar_el_ejercicio_de_derechos a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:responsible_for_channeling_the_exercise_of_rights a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:responsible_for_establishing_the_deadlines_for_suspension_or_periodic_review_within_data_processing_is a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Conservation ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Conservation .
+
+ley-organica-proteccion-datos-personales:responsible_for_implementing_safety_measures a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Security ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Security .
+
+ley-organica-proteccion-datos-personales:revocation a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:right_account_encumbered a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Right_of_access ley-organica-proteccion-datos-personales:Right_of_deletion ley-organica-proteccion-datos-personales:Right_of_opposition ley-organica-proteccion-datos-personales:Right_to_correction_and_update ley-organica-proteccion-datos-personales:Rights ) ] ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:right_to_access_and_availability a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_digital_education ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_digital_education .
+
+ley-organica-proteccion-datos-personales:right_to_access_by_credit_data_holders a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners .
+
+ley-organica-proteccion-datos-personales:right_to_update_correction_or_deletion_of_the_credit_data_holder a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners .
+
+ley-organica-proteccion-datos-personales:rights_of_credit_data_holders a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners .
+
+ley-organica-proteccion-datos-personales:rights_of_credit_data_owners a ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:mechanisms_to_secure_the_right_of_access_of_the_credit_data_holder "Delivery of printouts of the reports so that the owner of the credit data can verify the veracity and accuracy of its content, without being able to use it for credit or commercial purposes.",
+        "Direct observation through screens that the credit reference service providers will make available on the holder of credit data" ;
+    ley-organica-proteccion-datos-personales:right_to_access_by_credit_data_holders "As often as requested by the credit data subject with respect to the information that credit reference service providers have about him/her.",
+        "It shall be free of charge" ;
+    ley-organica-proteccion-datos-personales:right_to_update_correction_or_deletion_of_the_credit_data_holder "The owner of the credit data may demand the right to update, rectify or delete the credit data before the sources of information through a written request." ;
+    ley-organica-proteccion-datos-personales:rights_of_credit_data_holders "Personal access to the information of which it is the owner of credit data.",
+        "That the credit report allows to know clearly and accurately the condition of your credit history.",
+        "That the sources of information update, rectify or eliminate, as the case may be, information that is unlawful, false, inaccurate, erroneous, incomplete or outdated." ;
+    ley-organica-proteccion-datos-personales:source_of_information_activity_on_the_application "If the credit data review process is initiated, it is necessary to clearly indicate in the reports issued that the information that is the subject of the request is being reviewed at the request of the holder.",
+        "The sources of information must resolve the request within a maximum period of 15 days from its submission, either admitting it or rejecting it with a detailed explanation of the reasons" .
+
+ley-organica-proteccion-datos-personales:rights_to_correct_update_update_delete_and_oppose a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Exceptions_of_rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Exceptions_of_right .
+
+ley-organica-proteccion-datos-personales:rights_to_not_be_the_object_of_automated_assessments a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Exceptions_of_rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Exceptions_of_right .
+
+ley-organica-proteccion-datos-personales:scenarios_for_treatment_by_private_and_public_entities a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:scope_of_legislation a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Scope_of_application ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Scope_of_application .
+
+ley-organica-proteccion-datos-personales:sensitive_data_processing a ley-organica-proteccion-datos-personales:Sensitive_data_processing,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The processing of sensitive personal data is prohibited, except in specific situations where it is justified." ;
+    ley-organica-proteccion-datos-personales:sensitive_data_processing_scenarios "The owner has given his/her explicit consent for the processing of his/her personal data, clearly specifying the purposes for which the data is to be processed.",
+        "The processing is necessary for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes.",
+        "The processing is necessary for the performance of obligations and exercise of rights specific to the controller or the data subject in the field of labor law, social security and social protection.",
+        "The processing is necessary to protect the vital interests of the data subject or of another natural person, in the event that the data subject is physically or legally incapable of giving consent.",
+        "The processing relates to personal data that the data subject has manifestly made public",
+        "Treatment is performed by order of a judicial authority." .
+
+ley-organica-proteccion-datos-personales:sensitive_data_processing_scenarios a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Sensitive_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sensitive_data_processing .
+
+ley-organica-proteccion-datos-personales:serious_infractions a ley-organica-proteccion-datos-personales:Serious_infractions,
+        owl:DatatypeProperty,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:committed_by ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:personal_data_protection_authority,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ley-organica-proteccion-datos-personales:Personal_data_protection_authority ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:shall_at_least_comply_with_the_minimum_with a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Specialized_subject_data ;
+    rdfs:range ley-organica-proteccion-datos-personales:Minimum_criteria ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Specialized_subject_data .
+
+ley-organica-proteccion-datos-personales:shall_be a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Purpose ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Purpose .
+
+ley-organica-proteccion-datos-personales:shall_be_authorized_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:shall_be_observed_by a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Delegate ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Delegate .
+
+ley-organica-proteccion-datos-personales:son_establecidos_por a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Recall_mechanisms ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Recall_mechanisms .
+
+ley-organica-proteccion-datos-personales:source_of_information_activity_on_the_application a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners .
+
+ley-organica-proteccion-datos-personales:sources_from_whence_the_credit_data_was_obtained a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Credit_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Credit_data_processing .
+
+ley-organica-proteccion-datos-personales:special_categories_of_personal_data_are_composed_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Special_personal_data_categories ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_under_17_years_old ley-organica-proteccion-datos-personales:Disabled_owner_data ley-organica-proteccion-datos-personales:Health_Related_Data ley-organica-proteccion-datos-personales:Sensitive_data ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Special_personal_data_categories .
+
+ley-organica-proteccion-datos-personales:submit_in_case_of_claim a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Claims ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims .
+
+ley-organica-proteccion-datos-personales:supervise_treatment_in_health_service_management_activities a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Health_related_data_processing ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Health_related_data_processing .
+
+ley-organica-proteccion-datos-personales:target a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:terminología a ley-organica-proteccion-datos-personales:Terminology,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_composed_of ley-organica-proteccion-datos-personales:anonymization,
+        ley-organica-proteccion-datos-personales:certifying_entity,
+        ley-organica-proteccion-datos-personales:consent,
+        ley-organica-proteccion-datos-personales:data_base,
+        ley-organica-proteccion-datos-personales:data_processing,
+        ley-organica-proteccion-datos-personales:data_types,
+        ley-organica-proteccion-datos-personales:legal_interest,
+        ley-organica-proteccion-datos-personales:personal_data_protection_seals,
+        ley-organica-proteccion-datos-personales:personal_data_security_vulnerability,
+        ley-organica-proteccion-datos-personales:profile_making,
+        ley-organica-proteccion-datos-personales:pseudonymization,
+        ley-organica-proteccion-datos-personales:source_accessible_to_the_public,
+        ley-organica-proteccion-datos-personales:turnover ;
+    ley-organica-proteccion-datos-personales:description "Dentro de está clase se detalla los términos con los que se puede encontrar dentro de ontología" .
+
+ley-organica-proteccion-datos-personales:territorial_application a ley-organica-proteccion-datos-personales:Territorial,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:scope_of_legislation "The Organic Law on Personal Data Protection will apply in certain scenarios, notwithstanding the existence of other international rules or regulations, i.e., the Organic Law on Personal Data Protection will apply regardless of any other international regulations that may exist." ;
+    ley-organica-proteccion-datos-personales:the_law_applies_in ley-organica-proteccion-datos-personales:data_processing,
+        ley-organica-proteccion-datos-personales:location_of_the_personal_data_protection_system_members .
+
+ley-organica-proteccion-datos-personales:territorial_application_scenario a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Territorial ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Territorial .
+
+ley-organica-proteccion-datos-personales:the_law_applies_in a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Territorial ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_processing ley-organica-proteccion-datos-personales:Location_of_the_personal_data_protection_system_integrants ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Territorial .
+
+ley-organica-proteccion-datos-personales:the_right_to_not_be_object_to_automated_assessments_may_not_be_revocable a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Exceptions_of_rights ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Exceptions_of_right .
+
+ley-organica-proteccion-datos-personales:time_of_attention_in_days_for_the_right_of_removal a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_of_deletion ;
+    rdfs:range xsd:int ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:time_of_attention_within_days_for_the_right_of_correction_and_update a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:range xsd:int ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Controller .
+
+ley-organica-proteccion-datos-personales:to_comply_with_quality_you_must a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:to_deal_with_and_communicate_personal_data_must a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:to_determine_behaviors_or_standards_relative_to a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Profile_making ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Profile_making .
+
+ley-organica-proteccion-datos-personales:treatment_suceptible_information a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Legal_persons_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Legal_persons_data .
+
+ley-organica-proteccion-datos-personales:type_authority a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:type_of_organism_participation a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:type_of_person a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:types_of_safety_measures a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Security .
+
+ley-organica-proteccion-datos-personales:valid a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:when_it_can_be_opposed_to_treatment a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_of_opposition ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_of_opposition .
+
+ley-organica-proteccion-datos-personales:when_it_can_be_produced a owl:DatatypeProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Revocation_of_consent .
+
+ley-organica-proteccion-datos-personales:when_personal_data_may_be_deleted a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_of_deletion ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_of_deletion .
+
+ley-organica-proteccion-datos-personales:where_you_can_consult a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_to_consult ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_to_consult .
+
+ley-organica-proteccion-datos-personales:will_be_subject_to a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Specialized_subject_data ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Specialized_subject_data .
+
+ley-organica-proteccion-datos-personales:will_not_be_able_to_deal a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations ;
+    rdfs:range ley-organica-proteccion-datos-personales:Sensitive_data ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations .
+
+<http://www.semanticweb.org/ontopriv-core> a owl:Ontology .
+
+OntologiaLOPDP:free_consent001 a owl:NamedIndividual ;
+    OntologiaLOPDP:Informed "When the owner of the data is notified of its use or transfer" ;
+    OntologiaLOPDP:Not_informed "When the owner of the data is not informed of the use or transfer of such data." ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:free_consent001 .
+
+OntologiaLOPDP:informed_consent001 a owl:NamedIndividual ;
+    OntologiaLOPDP:Informed "When the owner is informed of how his or her data will be used or transferred." ;
+    OntologiaLOPDP:Not_informed "When the owner is not informed about how his data will be used or transferred." ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:informed_consent001 .
+
+OntologiaLOPDP:specific_consent001 a owl:NamedIndividual ;
+    OntologiaLOPDP:Informed "When any specific consent is requested from the data subject" ;
+    OntologiaLOPDP:Not_informed "When no specific consent is requested from the data subject." ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:specific_consent001 .
+
+OntologiaLOPDP:unequivocal_consent001 a owl:NamedIndividual ;
+    OntologiaLOPDP:Informed "When any unambiguous consent is requested from the data subject" ;
+    OntologiaLOPDP:Not_informed "When unambiguous consent is not requested from the data subject" ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:unequivocal_consent001 .
+
+ley-organica-proteccion-datos-personales:Anonymization a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Application_favorable_to_the_owner a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Confidentiality a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Consent_defects a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:Data_base a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Juridicity a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Legality a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Minimum_criteria .
+
+ley-organica-proteccion-datos-personales:Minimization a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Need a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Minimum_criteria .
+
+ley-organica-proteccion-datos-personales:Proportionality a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Pseudonymization a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Recipient a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Relevance a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Turnover a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:anonymization a ley-organica-proteccion-datos-personales:Anonymization,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The implementation of measures to prevent the identification or re-identification of a natural person shall be carried out without incurring disproportionate efforts. This implies that privacy-preserving actions shall be taken without requiring excessive resources, time or effort that are not justified by the benefits or purpose pursued." .
+
+ley-organica-proteccion-datos-personales:anonymized_data a ley-organica-proteccion-datos-personales:Anonymized_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "As soon as the data is no longer anonymized or anonymized, its processing will be subject to compliance with the obligations of this Law, especially the obligation to have a lawful basis for continuing to process the data in a non-anonymized or non-anonymized manner." .
+
+ley-organica-proteccion-datos-personales:application_favorable_to_the_owner a ley-organica-proteccion-datos-personales:Application_favorable_to_the_owner,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "In situations where there is uncertainty as to how to interpret and apply the legal or contractual provisions related to the protection of personal data, judicial and administrative officials must opt for the interpretation that benefits the owner of such data, i.e., the owner must be favored in terms of protection and safeguarding of his personal data in case of ambiguity or doubt in the application of the Organic Law for the Protection of Personal Data." .
+
+ley-organica-proteccion-datos-personales:biometric_data a ley-organica-proteccion-datos-personales:Biometric_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Unique personal data, related to the physical or physiological characteristics, or behaviors of a natural person that allows or confirms the unique identification of such person, such as facial images or fingerprint data, among others." .
+
+ley-organica-proteccion-datos-personales:certifying_entity a ley-organica-proteccion-datos-personales:Certifying_entity,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Entity that has the capacity to issue certifications in the area of personal data protection, in a non-exclusive manner, which means that it is not the only entity with this power, and other organizations may also grant certifications in the same area." ;
+    ley-organica-proteccion-datos-personales:is_authorized_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:confidentiality a ley-organica-proteccion-datos-personales:Confidentiality,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Information obtained from the processing of personal data must be handled with care and kept secret. This means that the information should not be used or shared for purposes other than those for which it was collected, unless there are special circumstances permitted by law that justify further processing of the data." .
+
+ley-organica-proteccion-datos-personales:consent_defects a ley-organica-proteccion-datos-personales:Consent_defects,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "They refer to situations in which the person does not fully understand what he/she is authorizing or when his/her consent is not truly free and voluntary." .
+
+ley-organica-proteccion-datos-personales:conservation a ley-organica-proteccion-datos-personales:Conservation,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The conservation of personal data implies keeping them for a period that does not exceed the time necessary to fulfill the purpose for which they were initially collected and processed." ;
+    ley-organica-proteccion-datos-personales:extended_preservation_of_personal_data_processing "Archival purposes in the public interest, i.e., preservation of data for archival purposes that benefit the public interest, such as preserving the historical or administrative memory of a society.",
+        "Historical research purposes for the purpose of studying events, periods or aspects of the past to better understand history, the evolution of society, cultures or institutions over time.",
+        "Scientific research purposes, that is, when the processing of personal data is used for scientific studies that seek to generate knowledge, understand natural or social phenomena, validate theories or contribute to the advancement of a particular discipline.",
+        "Statistical research purposes with the objective of performing quantitative and qualitative analyses to understand patterns, trends and relationships in a specific population or phenomenon." ;
+    ley-organica-proteccion-datos-personales:responsible_for_establishing_the_deadlines_for_suspension_or_periodic_review_within_data_processing_is ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:credit_data a ley-organica-proteccion-datos-personales:Credit_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Data that integrate the economic behavior of natural persons, to analyze their financial capacity." .
+
+ley-organica-proteccion-datos-personales:data_base a ley-organica-proteccion-datos-personales:Data_base,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "A structured data set encompasses any form, mode of creation, storage, organization, type of medium, treatment, processing, location or access, whether centralized, decentralized or distributed functionally or geographically." .
+
+ley-organica-proteccion-datos-personales:data_or_database_of_criminal_infractions a ley-organica-proteccion-datos-personales:Data_or_database_of_criminal_infractions,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "Data or databases established for the prevention, investigation, detection or prosecution of criminal offenses or execution of criminal sanctions, carried out by the competent state agencies in compliance with their legal functions. In any of these cases, international human rights standards and the principles of this Law must be complied with, and at least the criteria of legality, proportionality and necessity must be met." .
+
+ley-organica-proteccion-datos-personales:data_types a ley-organica-proteccion-datos-personales:Data_types,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:data_types_are_comprised_of ley-organica-proteccion-datos-personales:personal_data,
+        ley-organica-proteccion-datos-personales:special_personal_data_categories ;
+    ley-organica-proteccion-datos-personales:description "Within the Organic Law for the Protection of Personal Data, different types of data are classified and classified as follows" .
+
+ley-organica-proteccion-datos-personales:data_under_17_years_old a ley-organica-proteccion-datos-personales:Data_under_17_years_old,
+        owl:NamedIndividual .
+
+ley-organica-proteccion-datos-personales:disabled_owner_data a ley-organica-proteccion-datos-personales:Disabled_owner_data,
+        owl:NamedIndividual .
+
+ley-organica-proteccion-datos-personales:family_or_domestic_activities a ley-organica-proteccion-datos-personales:Family_or_domestic_activities,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "Refers to those actions related to family and family relationships. In this context, the use of personal data could be associated with family matters, exchange of information between family members or other activities that take place within the family environment." ;
+    ley-organica-proteccion-datos-personales:in_case_of_processing_it_must_be_compliant_with ley-organica-proteccion-datos-personales:principios .
+
+ley-organica-proteccion-datos-personales:genetic_data a ley-organica-proteccion-datos-personales:Genetic_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Unique personal data related to inherited or acquired genetic characteristics of a natural person that provide unique information about an individual's physiology or health." .
+
+ley-organica-proteccion-datos-personales:independence_of_control a ley-organica-proteccion-datos-personales:Independence_of_control,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Capacity of the Data Protection Authority to carry out its functions of supervision and application of the Organic Law on Data Protection in an impartial manner and without external interference." ;
+    ley-organica-proteccion-datos-personales:is_supervised_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:journalistic_activities a ley-organica-proteccion-datos-personales:Journalistic_activities,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "Refers to the practices and processes involved in the production and dissemination of news and editorial content by journalistic professionals." .
+
+ley-organica-proteccion-datos-personales:juridicity a ley-organica-proteccion-datos-personales:Juridicity,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Personal data must be processed in strict compliance with the principles, rights and obligations established in the Constitution, international instruments, this Law, its Regulations and other applicable rules and jurisprudence." .
+
+ley-organica-proteccion-datos-personales:legal_persons_data a ley-organica-proteccion-datos-personales:Legal_persons_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "Data that identifies or makes identifiable legal entities" ;
+    ley-organica-proteccion-datos-personales:information_suceptible_to_treatment_is_accessible "Public" ;
+    ley-organica-proteccion-datos-personales:treatment_suceptible_information "In the case of public servants, the historical and updated information of their asset declaration and remuneration shall be submitted for processing.",
+        "Personal data concerning the contact of professionals and commercial data",
+        "Representatives, partners and shareholders of legal entities, as well as public servants, may be subject to the processing of personal data in the context of their professional practice, line of business, competencies, powers, attributions or positions. This processing refers specifically to information such as names and surnames, functions or positions held, postal or e-mail addresses and professional telephone numbers." .
+
+ley-organica-proteccion-datos-personales:legal_representative_owner a ley-organica-proteccion-datos-personales:Legal_representative_owner,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:activity_of_the_legal_representative_owner "Ensure that the rights and privacy of the owner he/she represents are respected at all times.",
+        "Make informed decisions about the processing of the personal data of the owner he/she represents.",
+        "Provide consent for the processing of data on behalf of the data subject he/she represents." ;
+    ley-organica-proteccion-datos-personales:description "The legal representative of an owner who is unable to give consent acts on behalf of and in the interest of the owner in situations where the owner is unable to give consent due to incapacity, minority or other similar circumstances." .
+
+ley-organica-proteccion-datos-personales:legality a ley-organica-proteccion-datos-personales:Legality,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Data processing must be carried out in accordance with the Organic Law on Personal Data Protection." .
+
+ley-organica-proteccion-datos-personales:location_of_the_personal_data_protection_system_members a ley-organica-proteccion-datos-personales:Location_of_the_personal_data_protection_system_integrants,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:territorial_application_scenario "If the controller or processor of personal data is not domiciled in the national territory, the Organic Law on Personal Data Protection may apply due to a specific contract or public international law regulations. In other words, even if the controller or processor does not reside in Ecuador, they may be subject to comply with the country's data protection law due to contractual agreements or international regulations.",
+        "If the data subject resides in Ecuador and the controller or processor has no establishment in the country, and the data processing is linked to activities that include the offer of goods or services to data subjects, whether or not it involves payment, or is intended to monitor their behavior, provided that such monitoring is carried out within Ecuadorian territory.",
+        "If the person in charge of or responsible for the processing of personal data is domiciled in any part of national territory" .
+
+ley-organica-proteccion-datos-personales:minimization_of_personal_data a ley-organica-proteccion-datos-personales:Minimization,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "It implies that the amount of data collected must be limited and restricted to what is strictly necessary to fulfill the purpose of the processing." .
+
+ley-organica-proteccion-datos-personales:need a ley-organica-proteccion-datos-personales:Need,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Data processing must be necessary to achieve the intended purpose and no more data must be collected than is necessary for that specific purpose." .
+
+ley-organica-proteccion-datos-personales:personal_data_protection_seals a ley-organica-proteccion-datos-personales:Personal_data_protection_seals,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Recognition awarded for having implemented best practices in the processes, thus contributing to promote the holder's confidence." ;
+    ley-organica-proteccion-datos-personales:is_given_by ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:personal_data_security_vulnerability a ley-organica-proteccion-datos-personales:Personal_data_security_vulnerability,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:affects_to "Availability of personal data",
+        "Confidentiality of personal data",
+        "Integrity of personal data" ;
+    ley-organica-proteccion-datos-personales:description "Security incident" .
+
+ley-organica-proteccion-datos-personales:personal_data_under_specialized_regulations a ley-organica-proteccion-datos-personales:Personal_data_under_specialized_regulations,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "Personal data whose processing is regulated in specialized regulations of equal or higher hierarchy in matters of risk management for natural disasters; and, security and defense of the State, in any of these cases must comply with international standards in the field of human rights and the principles of this Law, and at least with the criteria of legality, proportionality and necessity." .
+
+ley-organica-proteccion-datos-personales:proactive_and_demonstrated_accountability a ley-organica-proteccion-datos-personales:Proactive_and_demonstrated_accountability,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The person or entity responsible for handling personal data must take measures in advance to protect that information and personal data, which implies demonstrating that mechanisms and actions have been implemented to ensure that the data are handled securely and in accordance with the Organic Law on Personal Data Protection." ;
+    ley-organica-proteccion-datos-personales:is_implemented_by ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:profile_making a ley-organica-proteccion-datos-personales:Profile_making,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:data_processing_is_intended_for_individuals "Natural" ;
+    ley-organica-proteccion-datos-personales:description "Refers to any personal data processing process that aims to evaluate, analyze or predict various aspects of a natural person." ;
+    ley-organica-proteccion-datos-personales:to_determine_behaviors_or_standards_relative_to "Economic situation",
+        "Health",
+        "Intereses",
+        "Location",
+        "Other similar aspects",
+        "Personal preferences",
+        "Physical movement",
+        "Professional performance",
+        "Skills" .
+
+ley-organica-proteccion-datos-personales:pseudonymization a ley-organica-proteccion-datos-personales:Pseudonymization,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The process of processing personal data in such a way that it cannot be directly attributed to a data subject without the use of additional information. This additional information is kept separately and is subject to technical and organizational measures designed to ensure that personal data cannot be linked to an identified or identifiable natural person." .
+
+ley-organica-proteccion-datos-personales:quality a ley-organica-proteccion-datos-personales:Quality,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:associated_to ley-organica-proteccion-datos-personales:personal_data ;
+    ley-organica-proteccion-datos-personales:description "Personal data needs to be accurate, complete, complete and clear. This means that the data must be accurate and free of errors, accurately reflecting the reality of the person to whom it pertains." ;
+    ley-organica-proteccion-datos-personales:is_in_charge_of ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:recall_mechanisms a ley-organica-proteccion-datos-personales:Recall_mechanisms,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Means that must be available for an individual to revoke his consent to the processing of his personal data" ;
+    ley-organica-proteccion-datos-personales:must_be "Simple procedure, similar to the procedure by which consent was obtained" ;
+    ley-organica-proteccion-datos-personales:must_guarantee "Effectiveness, i.e., achieving revocation of consent",
+        "Efficiency, i.e. that the revocation of consent does not take too much time or effort, both on the part of the data subject and the data controller.",
+        "Expeditiousness, i.e., the speed or promptness with which the consent revocation process is conducted",
+        "Free of charge, which implies that the consent revocation process should not generate additional costs for the data subject." ;
+    ley-organica-proteccion-datos-personales:son_establecidos_por ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:recipient a ley-organica-proteccion-datos-personales:Recipient,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:control_functions "Person who has been notified with personal data" ;
+    ley-organica-proteccion-datos-personales:type_of_person "Natural or Legal" .
+
+ley-organica-proteccion-datos-personales:relevance_of_personal_data a ley-organica-proteccion-datos-personales:Relevance,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "That the data collected must be relevant and directly related to the specific purpose for which it is collected." .
+
+ley-organica-proteccion-datos-personales:right_of_access a ley-organica-proteccion-datos-personales:Right_of_access,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The holder has the right to access and obtain free of charge all his personal data, as well as the detailed information in accordance with the right to information, without the need for any justification whatsoever." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:right_to_information ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:right_to_consult a ley-organica-proteccion-datos-personales:Right_to_consult,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:garatize_that "The consultation is free of charge",
+        "The consultation is public" ;
+    ley-organica-proteccion-datos-personales:where_you_can_consult "National Registry of Personal Data Protection" .
+
+ley-organica-proteccion-datos-personales:right_to_digital_education a ley-organica-proteccion-datos-personales:Right_to_digital_education,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:guaranteeing_digital_education "Higher education system",
+        "The national education system" ;
+    ley-organica-proteccion-datos-personales:inclusiveness_in "People with special educational needs",
+        "Students of all levels",
+        "Teachers or professors" ;
+    ley-organica-proteccion-datos-personales:right_to_access_and_availability "Appropriate, healthy, constructive, safe and responsible use and management of information and communication technologies.",
+        "Development in Information and Communication Technologies",
+        "Information and Communication Technologies Training",
+        "Information and Communication Technology Learning",
+        "Knowledge of Information and Communication Technologies.",
+        "Training in Information and Communication Technologies" .
+
+ley-organica-proteccion-datos-personales:right_to_suspension_of_treatment a ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:assumptions_for_processing_the_data_in_the_event_of_a_data_challenge "Claims defense",
+        "Claims exercise",
+        "Formulation of claims" ;
+    ley-organica-proteccion-datos-personales:conditions_for_the_suspension_of_treatment "The controller no longer needs the personal data for the purposes of the processing, but the data subject needs the data for the formulation, exercise or defense of claims",
+        "The processing is unlawful and the data subject opposes the deletion of the personal data and requests instead the limitation of its use.",
+        "When the data subject contests the accuracy of the personal data, while the data controller verifies the accuracy of the personal data" ;
+    ley-organica-proteccion-datos-personales:description "The data subject shall have the right to obtain from the data controller the suspension of data processing, when certain scenarios are met" ;
+    ley-organica-proteccion-datos-personales:incurring_the_owner_to_the_personal_data_protection_authority "In the event that the data controller or processor refuses to suspend the processing of the data requested by the data subject" ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:scope_of_application a ley-organica-proteccion-datos-personales:Scope_of_application,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:scope_of_legislation "The law will apply to the processing of personal data regardless of the medium in which it is stored, whether in automated or non-automated formats. This implies that the law is equally applicable to data stored in automated systems, such as electronic databases, as well as to data that may exist in non-automated formats, such as physical documents or paper files." .
+
+ley-organica-proteccion-datos-personales:security a ley-organica-proteccion-datos-personales:Security,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Implementation of adequate and necessary measures to protect personal data against risks, threats and vulnerabilities, considering the current state of technology" ;
+    ley-organica-proteccion-datos-personales:responsible_for_implementing_safety_measures ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:types_of_safety_measures "Organizational measures, i.e. measures that refer to the internal policies, procedures and structures that an organization implements to protect personal data.",
+        "Technical measures, i.e. measures that involve the use of technology to protect personal data, these may include the use of firewalls, data encryption, intrusion detection software, biometric access controls, among others.",
+        "Type of measures covering aspects such as physical security of equipment and data centers, risk management, business continuity and security incident response." .
+
+ley-organica-proteccion-datos-personales:source_accessible_to_the_public a ley-organica-proteccion-datos-personales:Source_accessible_to_the_public,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Databases that can be consulted by any person" ;
+    ley-organica-proteccion-datos-personales:has_the_characteristic_of_being "Generalized, i.e. indicates that access is widely available and available to a large audience",
+        "Public access",
+        "Unconditional, i.e. access is not subject to specific restrictions or conditions, therefore, anyone can access without the need to comply with particular requirements or restrictions." .
+
+ley-organica-proteccion-datos-personales:special_personal_data_categories a ley-organica-proteccion-datos-personales:Special_personal_data_categories,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Refers to sensitive information that requires additional protection due to its sensitive or potentially damaging nature if misused." ;
+    ley-organica-proteccion-datos-personales:special_categories_of_personal_data_are_composed_of ley-organica-proteccion-datos-personales:data_under_17_years_old,
+        ley-organica-proteccion-datos-personales:disabled_owner_data,
+        ley-organica-proteccion-datos-personales:health_related_data,
+        ley-organica-proteccion-datos-personales:sensitive_data .
+
+ley-organica-proteccion-datos-personales:specialized_subject_data a ley-organica-proteccion-datos-personales:Specialized_subject_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Data subject to specific regulations established by other Ecuadorian or foreign laws." ;
+    ley-organica-proteccion-datos-personales:regulated_treatment_in_specialized_regulations_regarding "Datos en materia de desastres naturales, es decir, eventos catastróficos causados por fenómenos naturales como terremotos, huracanes, inundaciones, incendios forestales, entre otros, que pueden causar daños significativos a la vida, la propiedad y el medio ambiente",
+        "Datos en materia de sectores regulados, es decir, áreas de actividad que están sujetas a regulaciones detalladas y específicas establecidas por leyes o normativas sectoriales ecuatoriana",
+        "Freedom of expression data, i.e. the fundamental right of individuals to express their opinions, ideas and thoughts without censorship or repression by the State or other entities",
+        "National security and state defense data, i.e. activities and policies aimed at protecting the territorial integrity, sovereignty and national interests of a country against internal and external threats, including acts of terrorism, espionage and military aggression.",
+        "Personal data provided to administrative or judicial authorities, i.e. personal data that must be provided to government authorities, whether administrative (e.g. government agencies) or judicial (e.g. courts), in compliance with lawful requests supported by law and in the exercise of their lawful powers.",
+        "Risk management data, i.e., processes and practices used to identify, assess and mitigate potential risks faced by organizations in their business activities or service delivery." ;
+    ley-organica-proteccion-datos-personales:shall_at_least_comply_with_the_minimum_with ley-organica-proteccion-datos-personales:minimum_criteria ;
+    ley-organica-proteccion-datos-personales:will_be_subject_to "If necessary, compliance with international human rights standards shall be ensured.",
+        "Principles established in specialized regulations",
+        "Principles of the Organic Law for the Protection of Personal Data" .
+
+ley-organica-proteccion-datos-personales:successor_right_holder a ley-organica-proteccion-datos-personales:Successor_right_holder,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Person or entity legally appointed to represent and exercise the rights and obligations related to the personal data of a deceased individual." ;
+    ley-organica-proteccion-datos-personales:exercise_of_rights_by_the_deceased_owner "To contact the person responsible for the processing of personal data in order to request access, rectification and updating or deletion of the personal data of the deceased person he/she represents." .
+
+ley-organica-proteccion-datos-personales:turnover a ley-organica-proteccion-datos-personales:Turnover,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "This refers to the total income generated by the sale of products and the rendering of services carried out by commercial entities during the last fiscal year corresponding to their activities, which is calculated by deducting Value Added Tax (VAT) and other taxes directly related to economic operations." .
+
+ley-organica-proteccion-datos-personales:Anonymized_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Biometric_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:Credit_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:Data_under_17_years_old a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Special_personal_data_categories .
+
+ley-organica-proteccion-datos-personales:Disabled_owner_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Special_personal_data_categories .
+
+ley-organica-proteccion-datos-personales:Family_or_domestic_activities a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Genetic_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:Holder_between_15_to_17_years_old a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Holder_over_17_years_old a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Journalistic_activities a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Legal_interest a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Location_of_the_personal_data_protection_system_integrants a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Territorial .
+
+ley-organica-proteccion-datos-personales:Loyalty a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Personal_data_under_specialized_regulations a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Transparency a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:deceased_persons_data a ley-organica-proteccion-datos-personales:Deceased_persons_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:explanation_of_concept_of_inapplicability "This exemption establishes that the law does not apply to data related to deceased individuals, recognizing the special nature of post mortem information. The exemption allows the processing of data relating to individuals who are deceased, without being subject to the general provisions of this law." .
+
+ley-organica-proteccion-datos-personales:health_related_data a ley-organica-proteccion-datos-personales:Health_Related_Data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Personal data relating to the physical or mental health of an individual, including the provision of health care services, which reveal information about his or her health status" .
+
+ley-organica-proteccion-datos-personales:legal_interest a ley-organica-proteccion-datos-personales:Legal_interest,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Legal justification for the processing of personal data that is not directly related to the individual's consent, compliance with a legal obligation or the performance of a contract." .
+
+ley-organica-proteccion-datos-personales:loyalty a ley-organica-proteccion-datos-personales:Loyalty,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The data subject should clearly know that they are collecting, using or processing your personal data, and how it will be treated." .
+
+ley-organica-proteccion-datos-personales:minimum_criteria a ley-organica-proteccion-datos-personales:Minimum_criteria,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_composed_of ley-organica-proteccion-datos-personales:legality,
+        ley-organica-proteccion-datos-personales:need,
+        ley-organica-proteccion-datos-personales:proportionality .
+
+ley-organica-proteccion-datos-personales:personal_data a ley-organica-proteccion-datos-personales:Personal_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Data that identifies or makes identifiable a natural person, directly or indirectly." ;
+    ley-organica-proteccion-datos-personales:it_is_not_imputable_to_be_inaccurate_when "If the inaccurate data was obtained directly by the controller from the data subject",
+        "If the inaccurate data were obtained by the data controller from a public record",
+        "If the inaccurate data were obtained by the data controller through an intermediary, following the regulations applicable in the sector that allow the intervention of an intermediary to collect and transmit the data to the data controller" ;
+    ley-organica-proteccion-datos-personales:must_comply_with ley-organica-proteccion-datos-personales:principios ;
+    ley-organica-proteccion-datos-personales:personal_data_are_composed_of ley-organica-proteccion-datos-personales:biometric_data,
+        ley-organica-proteccion-datos-personales:credit_data,
+        ley-organica-proteccion-datos-personales:deceased_persons_data,
+        ley-organica-proteccion-datos-personales:genetic_data,
+        ley-organica-proteccion-datos-personales:health_related_data,
+        ley-organica-proteccion-datos-personales:sensitive_data,
+        ley-organica-proteccion-datos-personales:specialized_subject_data ;
+    ley-organica-proteccion-datos-personales:to_comply_with_quality_you_must "Accurate, i.e. the personal data must be precise and faithfully reflect the reality or situation they represent, without errors, contradictions or inaccuracies.",
+        "Accurate, that personal data must be correct and accurately reflect reality without errors or inaccuracies.",
+        "Clear, i.e. personal data must be understandable and not give rise to ambiguous or confusing interpretations.",
+        "Complete, i.e. the personal data must include all relevant and necessary details for the purpose of processing, without omitting important information.",
+        "Integral, that is to say, the personal data must not have been altered, modified or corrupted in any way that affects its veracity.",
+        "Updated, i.e. personal data must reflect the most recent situation of the person or object to which it refers, and be modified or updated when necessary to maintain its validity.",
+        "Verifiable, i.e. personal data must be verifiable and capable of being checked against reliable sources or evidence to confirm its authenticity and validity." .
+
+ley-organica-proteccion-datos-personales:proportionality a ley-organica-proteccion-datos-personales:Proportionality,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "It involves ensuring that the way in which personal data is handled is balanced and appropriate in relation to the purposes for which the data was collected and the nature of the information involved" .
+
+ley-organica-proteccion-datos-personales:revocation_of_consent a ley-organica-proteccion-datos-personales:Revocation_of_consent,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:can_count_on ley-organica-proteccion-datos-personales:recall_mechanisms ;
+    ley-organica-proteccion-datos-personales:justification_for_revocation "No justification required for revocation of consent" ;
+    ley-organica-proteccion-datos-personales:regarding_treatment ley-organica-proteccion-datos-personales:data_processing ;
+    ley-organica-proteccion-datos-personales:when_it_can_be_produced "At any time, when the holder deems it pertinent" .
+
+ley-organica-proteccion-datos-personales:right_not_to_be_object_to_automated_evaluations a ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The holder has the right not to be subjected to decisions that are based in whole or in part on automated assessments, including profiling, if these decisions have a legal impact on him or her or threaten his or her fundamental rights and freedoms" ;
+    ley-organica-proteccion-datos-personales:for_the ley-organica-proteccion-datos-personales:data_owner ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:consent ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:will_not_be_able_to_deal ley-organica-proteccion-datos-personales:sensitive_data .
+
+ley-organica-proteccion-datos-personales:right_of_deletion a ley-organica-proteccion-datos-personales:Right_of_deletion,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The data subject has the right to have his or her personal data deleted by the controller in certain specific cases" ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:when_personal_data_may_be_deleted "Revoke previously given consent or indicate that consent has not been given for one or more specific purposes, without the need to provide any justification",
+        "The personal data have fulfilled the purpose for which they were collected or processed",
+        "The processing affects fundamental rights or individual liberties of the data subject.",
+        "The processing does not comply with the established principles of the Organic Law on Personal Data Protection.",
+        "The processing is not necessary or relevant for the fulfillment of the purpose",
+        "The term of conservation of personal data has expired.",
+        "There is a legal obligation" .
+
+ley-organica-proteccion-datos-personales:right_of_opposition a ley-organica-proteccion-datos-personales:Right_of_opposition,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:deadline_in_days_for_the_right_to_oppose_opposition "15"^^xsd:decimal ;
+    ley-organica-proteccion-datos-personales:description "The owner has the right to oppose or refuse the processing of his/her personal data under certain scenarios" ;
+    ley-organica-proteccion-datos-personales:in_direct_marketing_cases "The data subject can always object to the processing of his personal data for direct marketing, including profiling, in which case the personal data will no longer be processed for this purpose." ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:when_it_can_be_opposed_to_treatment "If the Organic Law on Personal Data Protection explicitly permits the type of processing in progress or proposed",
+        "If the data are not publicly available and are not related to matters of public interest required by other Ecuadorian laws",
+        "If the processing of personal data is for the purpose of direct marketing",
+        "If the treatment does not affect the rights of others",
+        "When the consent of the data subject is not necessary for the processing as a consequence of the concurrence of a legitimate interest." .
+
+ley-organica-proteccion-datos-personales:right_to_correction_and_update a ley-organica-proteccion-datos-personales:Right_to_correction_and_update,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The holder has the right to obtain from the data controller the rectification and updating of inaccurate or incomplete personal data." ;
+    ley-organica-proteccion-datos-personales:right_account_encumbered ley-organica-proteccion-datos-personales:responsible_for_treatment .
+
+ley-organica-proteccion-datos-personales:right_to_information a ley-organica-proteccion-datos-personales:Right_to_information,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:know_in_the_right_to_information "Any other purpose or additional treatment",
+        "How to exercise your rights of access, deletion, rectification, updating, opposition, cancellation, limitation of processing and not to be subject to automatic decisions.",
+        "Identity and contact details of the personal data protection officer, if applicable",
+        "The different types of treatment",
+        "The existence of a database containing your personal data",
+        "The existence of automated evaluations and decisions, including profiling",
+        "The identity and contact details of the person responsible for processing personal data, including address, telephone number and e-mail address",
+        "The impact of providing incorrect or inaccurate personal data",
+        "The legal basis for the treatment",
+        "The option to revoke consent at any time",
+        "The origin of the personal data if it was not obtained directly from the data subject.",
+        "The period during which the data will be kept",
+        "The possible consequences for the holder if he/she provides or refuses to provide his/her personal data",
+        "Treatment purposes",
+        "Where and how to file complaints with the data controller and the Personal Data Protection Authority" ;
+    ley-organica-proteccion-datos-personales:must_be_aware_of_the_possibility_of_realizing ley-organica-proteccion-datos-personales:revocation_of_consent ;
+    ley-organica-proteccion-datos-personales:must_comply_with_the_principles_of ley-organica-proteccion-datos-personales:loyalty,
+        ley-organica-proteccion-datos-personales:transparency .
+
+ley-organica-proteccion-datos-personales:rights a ley-organica-proteccion-datos-personales:Rights,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_constituted_of ley-organica-proteccion-datos-personales:right_not_to_be_object_to_automated_evaluations,
+        ley-organica-proteccion-datos-personales:right_of_access,
+        ley-organica-proteccion-datos-personales:right_of_deletion,
+        ley-organica-proteccion-datos-personales:right_of_opposition,
+        ley-organica-proteccion-datos-personales:right_to_consult,
+        ley-organica-proteccion-datos-personales:right_to_correction_and_update,
+        ley-organica-proteccion-datos-personales:right_to_digital_education,
+        ley-organica-proteccion-datos-personales:right_to_information,
+        ley-organica-proteccion-datos-personales:right_to_suspension_of_treatment ;
+    ley-organica-proteccion-datos-personales:description_responsible_for_channeling_exercise_of_rights "It involves consideration of the individuals responsible for ensuring that the rights of the holder are properly exercised." ;
+    ley-organica-proteccion-datos-personales:irrevocability "The holder's rights are non-transferable and cannot be waived; therefore, any clause or provision that contradicts this will be considered null and void." ;
+    ley-organica-proteccion-datos-personales:limitation_on_exercise_of_rights_by_secondary_laws "Regulations or rules complementary to the Personal Data Protection Law may not restrict or limit the rights of the owner." ;
+    ley-organica-proteccion-datos-personales:responsable_de_canalizar_el_ejercicio_de_derechos ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:responsible_for_channeling_the_exercise_of_rights "Competent judges in accordance with the procedure established in the Organic Law on Personal Data Protection." .
+
+ley-organica-proteccion-datos-personales:transparency a ley-organica-proteccion-datos-personales:Transparency,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "The processing of personal data must be transparent, therefore, all information on this process must be easily accessible and understandable, using simple and clear language." .
+
+ley-organica-proteccion-datos-personales:Certifying_entity a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Deceased_owner a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Deceased_persons_data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:Health_Related_Data a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:Independence_of_control a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Personal_data_protection_seals a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Personal_data_security_vulnerability a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Proactive_and_demonstrated_accountability a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Sensitive_data_processing a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Applicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Applicability .
+
+ley-organica-proteccion-datos-personales:Source_accessible_to_the_public a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:consent a ley-organica-proteccion-datos-personales:Consent,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:characteristics_that_the_information_transferred_to_the_owner_must_have "Clear, simple and easy to understand language",
+        "Preferably, the information should be available in the language chosen by the owner." ;
+    ley-organica-proteccion-datos-personales:conditions_for_legitimate_treatment "By consent of the owner for the processing of his personal data for one or more specific purposes." ;
+    ley-organica-proteccion-datos-personales:description "Expression by which the owner of the personal data grants his/her authorization to the data controller to process such data." ;
+    ley-organica-proteccion-datos-personales:for_health-related_data_without_consent "The consent of the owner shall not be required for the processing of health data." ;
+    ley-organica-proteccion-datos-personales:for_plurality_of_purposes "It is necessary to specify that such consent is given for all the purposes for which consent is being requested." ;
+    ley-organica-proteccion-datos-personales:how_the_information_may_be_transmitted_to_the_owner "Within any testable mode" ;
+    ley-organica-proteccion-datos-personales:in_cases_of_direct_data_gathering_by_the ley-organica-proteccion-datos-personales:data_owner ;
+    ley-organica-proteccion-datos-personales:in_the_case_of_no_direct_data_collection_by_the ley-organica-proteccion-datos-personales:data_owner ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:consent_defects,
+        ley-organica-proteccion-datos-personales:revocation_of_consent ;
+    ley-organica-proteccion-datos-personales:to_deal_with_and_communicate_personal_data_must "The manifestation of the holder's will to do so must be counted, i.e., when the data subject has given his/her consent for the processing or communication of personal data to occur." ;
+    ley-organica-proteccion-datos-personales:valid "Free from defects of consent",
+        "Informed to ensure transparency and the right to information",
+        "Specific with respect to the means and purposes of processing",
+        "Unequivocal, no doubt about the authorization granted by the holder" .
+
+ley-organica-proteccion-datos-personales:delegate a ley-organica-proteccion-datos-personales:Delegate,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:a_data_protection_delegate_will_be_assigned "When it refers to the large-scale processing of special categories of data, in accordance with the provisions of the regulations of the Organic Law on Personal Data Protection.",
+        "When the activities of the person responsible for or in charge of the processing of personal data require a permanent and systematized control due to the volume, nature, scope or purposes of the processing, as established in the Organic Law for the Protection of Personal Data or in the regulations issued by the Authority for the Protection of Personal Data.",
+        "When the data processing is not related to national security or defense of the State, and does not involve classified or confidential information as stipulated in the specialized laws in this area.",
+        "When the treatment is carried out by those who make up the public sector in accordance with Article 225 of the Constitution of the Republic." ;
+    ley-organica-proteccion-datos-personales:contact_data "E-mail address",
+        "Home address",
+        "Names and surnames",
+        "Telephone number" ;
+    ley-organica-proteccion-datos-personales:control_functions "Advise on risk analysis, impact assessment and evaluation of security measures, and supervise their implementation.",
+        "Advise the responsible party, the personnel of the responsible party and the person in charge of the processing of personal data, on the provisions contained in the Organic Law for the Protection of Personal Data, the regulations, directives, guidelines and other regulations issued by the Authority for the Protection of Personal Data.",
+        "Cooperate with the Personal Data Protection Authority and act as a point of contact with such entity, in relation to issues concerning the processing of personal data.",
+        "Perform such other functions as the Personal Data Protection Authority may assign, especially in the case of special categories of personal data.",
+        "Supervise compliance with the provisions contained in the Personal Data Protection Law and the regulations, directives, guidelines and other regulations issued by the Personal Data Protection Authority." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:shall_be_observed_by ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:type_of_person "Natural" .
+
+ley-organica-proteccion-datos-personales:sensitive_data a ley-organica-proteccion-datos-personales:Sensitive_data,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:data_not_subject_to_processing_according_to_the_right_to_not_be_the_object_of_automated_decisions "Sensitive data of children and adolescents may not be processed unless expressly authorized by the legal representative.",
+        "Sensitive data of the data subject may not be processed without his/her express authorization." ;
+    ley-organica-proteccion-datos-personales:data_related_to "Cultural identity",
+        "Datos biométricos",
+        "Ethnicity",
+        "Gender Identity",
+        "Genetic data",
+        "Health",
+        "Ideology",
+        "Judicial past",
+        "Migratory status",
+        "Political affiliation",
+        "Religion",
+        "Sexual Orientation",
+        "Stateless persons and refugees in need of international protection",
+        "Those whose improper treatment may give rise to discrimination, infringe or may infringe fundamental rights and freedoms." ;
+    ley-organica-proteccion-datos-personales:data_subjects_to_treatment_according_to_the_right_to_not_be_the_object_of_automated_decisions "When the processing is necessary to protect an essential public interest, as assessed according to international human rights standards, and meets at least the minimum criteria" ;
+    ley-organica-proteccion-datos-personales:description "Refers to information specific or linked to certain sensitive or particular categories of a person." ;
+    ley-organica-proteccion-datos-personales:shall_at_least_comply_with_the_minimum_with ley-organica-proteccion-datos-personales:minimum_criteria .
+
+ley-organica-proteccion-datos-personales:Data_or_database_of_criminal_infractions a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Exceptions_of_right a owl:ObjectProperty ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Exercise_of_rights a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Holder_under_15_years_old a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Legal_representative_owner a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:Minimum_criteria a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Right_of_access a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_to_correction_and_update a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Successor_right_holder a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_Owner ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_Owner .
+
+ley-organica-proteccion-datos-personales:principios a ley-organica-proteccion-datos-personales:Principles,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_composed_of ley-organica-proteccion-datos-personales:Purpose,
+        ley-organica-proteccion-datos-personales:application_favorable_to_the_owner,
+        ley-organica-proteccion-datos-personales:confidentiality,
+        ley-organica-proteccion-datos-personales:conservation,
+        ley-organica-proteccion-datos-personales:independence_of_control,
+        ley-organica-proteccion-datos-personales:juridicity,
+        ley-organica-proteccion-datos-personales:loyalty,
+        ley-organica-proteccion-datos-personales:minimization_of_personal_data,
+        ley-organica-proteccion-datos-personales:proactive_and_demonstrated_accountability,
+        ley-organica-proteccion-datos-personales:proportionality,
+        ley-organica-proteccion-datos-personales:quality,
+        ley-organica-proteccion-datos-personales:relevance_of_personal_data,
+        ley-organica-proteccion-datos-personales:security,
+        ley-organica-proteccion-datos-personales:transparency ;
+    ley-organica-proteccion-datos-personales:description "La Ley Orgnánica de Protección de Datos Personale se regirá por un conjunto de principios, sin perjuicio de otros principios establecidos en la Constitución de la República, los instrumentos internacionales ratificados por el Estado u otras normas jurídicas" .
+
+ley-organica-proteccion-datos-personales:Conservation a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Profile_making a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Quality a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Scope_of_application a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Applicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Processing .
+
+ley-organica-proteccion-datos-personales:Security a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:data_processing a ley-organica-proteccion-datos-personales:Data_processing,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:before_the_revocation_of_consent_is_considered_to_be_considered "It is considered lawful, i.e. even if the data subject decides to revoke his/her consent to data processing, this does not invalidate or invalidate the data processing that was lawfully carried out prior to the revocation of consent." ;
+    ley-organica-proteccion-datos-personales:conditions_for_legitimate_treatment "For processing of personal data contained in publicly accessible databases",
+        "Personal data involved in data processing may be used prior to entering into a contract if requested by the data subject, or during the performance of a contract to fulfill the obligations of the data controller, a person designated to handle the data, or another legally authorized party.",
+        "Processing personal data to satisfy a legitimate interest of the data controller or a third party. However, this legitimate interest cannot prevail over the fundamental rights of the data subjects.",
+        "That it is carried out by the data controller in compliance with a legal obligation.",
+        "That the collection, storage, use or any other operation carried out with personal data is justified in the performance of a task in the public interest or in the exercise of public powers vested in the data controller.",
+        "To be carried out by the data controller, by court order",
+        "To protect the vital interests of the data subject or of another natural person, such as life, health or integrity" ;
+    ley-organica-proteccion-datos-personales:description "Any action or set of actions performed on personal data, whether by means of fully automated, partially automated or non-automated technical processes. These actions include, but are not limited to: collecting, compiling, obtaining, recording, organizing, structuring, preserving, safeguarding, adapting, modifying, deleting, indexing, extracting, consulting, processing, using, possessing, exploiting, distributing, assigning, communicating, transferring or otherwise providing access to, collating, interconnecting, limiting, deleting, destroying and, in general, any use of personal data." ;
+    ley-organica-proteccion-datos-personales:determine_the_compatibility "Consideration should be given to the logical expectations that the data subject might have about the future use of his or her data, based on his or her relationship with the data controller",
+        "It should be verified that there are sufficient safeguards both in the original processing and in the proposed new processing to protect the rights and privacy of data subjects.",
+        "The environment and circumstances in which the data were first obtained should be analyzed.",
+        "The information provided to the data subject during the initial collection process should be taken into account.",
+        "The potential impact of further processing of the data on data subjects should be analyzed",
+        "The type of personal data collected and its sensitivity must be evaluated." ;
+    ley-organica-proteccion-datos-personales:for_different_purpose "If they are compatible with the purposes for which they were collected." ;
+    ley-organica-proteccion-datos-personales:has_as_the_basis_of ley-organica-proteccion-datos-personales:legal_interest ;
+    ley-organica-proteccion-datos-personales:is_based_on ley-organica-proteccion-datos-personales:principios ;
+    ley-organica-proteccion-datos-personales:low_legitimate_interest "Only data that is strictly necessary to fulfill the purposes established in relation to the consent given and the intended processing may be processed.",
+        "The Data Protection Authority has the power to request a risk report from the data controller to assess possible threats to the legitimate expectations of data subjects and their fundamental rights.",
+        "The data controller must ensure that the data processing is transparent to the data subject." ;
+    ley-organica-proteccion-datos-personales:territorial_application_scenario "The processing of personal data is carried out in any part of the national territory." .
+
+ley-organica-proteccion-datos-personales:Legal_persons_data a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Inapplicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Processing a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:Purpose a ley-organica-proteccion-datos-personales:Purpose,
+        owl:Class,
+        owl:NamedIndividual,
+        owl:ObjectProperty ;
+    ley-organica-proteccion-datos-personales:description "Personal data may not be processed for purposes other than those established at the time of collection, unless the conditions permitting further processing as set forth in the Organic Law on the Protection of Personal Data are met." ;
+    ley-organica-proteccion-datos-personales:is_distinct_from_data_collection_in_the ley-organica-proteccion-datos-personales:data_processing ;
+    ley-organica-proteccion-datos-personales:shall_be "Communicated to the owner of the data, therefore, the owner of the data must be informed in a clear and understandable manner about the purposes of the processing, so that he/she can make informed decisions about the use of his/her personal data.",
+        "Determined, i.e., they must be specific and well defined, without ambiguity, so that it is clear what will be done with the data collected.",
+        "Explicit, i.e. they must be transparent and easily understandable for the data subject, without leaving room for confusing interpretations.",
+        "Legitimate, which means that they must be based on valid legal grounds and comply with data protection regulations." ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Principles .
+
+ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_to_consult a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Special_personal_data_categories a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_types ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_types .
+
+ley-organica-proteccion-datos-personales:Territorial a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Scope_of_application ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Applicability,
+        ley-organica-proteccion-datos-personales:Scope_of_application .
+
+ley-organica-proteccion-datos-personales:data_owner a ley-organica-proteccion-datos-personales:Data_Owner,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:cases_in_which_the_owner_should_be_informed "When the personal data is not obtained directly from the owner",
+        "When the personal data were obtained from a source accessible to the public" ;
+    ley-organica-proteccion-datos-personales:control_functions "Person whose data is processed" ;
+    ley-organica-proteccion-datos-personales:count_with_the_following ley-organica-proteccion-datos-personales:rights ;
+    ley-organica-proteccion-datos-personales:in_case_of_impugning_the_exaccuracy_of_data_a ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:in_case_of_no_direct_obtaining_by_the_owner "The holder shall be informed within thirty (30) days or at the time of the first communication with the holder." ;
+    ley-organica-proteccion-datos-personales:in_case_of_suspension_of_treatment_must_resort_to ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:in_cases_of_automated_evaluations "You may challenge automated decisions regarding the data subject's data before the data controller.",
+        "You may request from the controller a detailed and reasoned explanation of the decision taken regarding the processing of your personal data.",
+        "You may request from the data controller information on the types of data used and the source from which the data was obtained.",
+        "You may request the evaluation criteria on the automated program.",
+        "You may submit comments on the processing of your personal data." ;
+    ley-organica-proteccion-datos-personales:obtaining_personal_data_directly_by_the_owner "Information on how such data will be used must be provided to the data subject prior to collection, i.e., at the time the personal data is requested or collected from the data subject." ;
+    ley-organica-proteccion-datos-personales:type_of_person "Natural" .
+
+ley-organica-proteccion-datos-personales:Data_Processor a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Data_types a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Delegate a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Exceptions_of_rights a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Recall_mechanisms a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Revocation_of_consent ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Revocation_of_consent .
+
+ley-organica-proteccion-datos-personales:Right_of_deletion a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_of_opposition a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_to_digital_education a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_to_information a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Right_to_suspension_of_treatment a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Specialized_subject_data a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:data_processor a ley-organica-proteccion-datos-personales:Data_Processor,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:control_functions "Processor of personal data on behalf of and for the account of a controller of personal data" ;
+    ley-organica-proteccion-datos-personales:delegate_comments "Ensure that the involvement of the personal data protection officer, in all matters relating to personal data protection, is appropriate and timely.",
+        "Ensure that the personal data protection officer establishes direct communication with the highest executive and decision-making levels of the data processor.",
+        "Facilitate access to the personal data of the processing operations, as well as all the resources and elements necessary to guarantee the correct and free performance of its functions.",
+        "They may not dismiss or sanction the personal data protection officer for the proper performance of his or her duties.",
+        "Train and update the personal data protection officer on the subject, in accordance with the technical regulations issued by the Personal Data Protection Authority." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:delegate ;
+    ley-organica-proteccion-datos-personales:minor_infractions "Failure to allow or cooperate with audits or inspections carried out by the data controller or other auditor authorized by the Personal Data Protection Authority",
+        "Failure to comply with the corrective measures ordered by the Personal Data Protection Authority.",
+        "Failure to cooperate with the data controller to enable the data controller to respond adequately to requests from data subjects",
+        "Failure to provide the data controller with all the information necessary to comply with the obligations established by the Organic Law on Personal Data Protection and the corresponding regulations." ;
+    ley-organica-proteccion-datos-personales:nature_of_the_entity "Public or Private" ;
+    ley-organica-proteccion-datos-personales:obligations "Allowing audits and inspections by accredited auditors",
+        "Comply with any other obligation established by applicable regulations or other Ecuadorian laws.",
+        "Conduct security adequacy assessments prior to the processing of personal data.",
+        "Designate a Data Protection Officer when necessary.",
+        "Develop customized data protection policies",
+        "Ensure that data processors comply with regulations and best practices.",
+        "Establish confidentiality agreements with personnel and data controllers.",
+        "Implement administrative, technical and legal measures to guarantee the proper treatment of data",
+        "Maintain the National Registry of Personal Data Protection up to date.",
+        "Notifying the Personal Data Protection Authority and the data owner of violations of the security measures implemented for the processing of personal data in accordance with the procedure established for this purpose.",
+        "Periodically evaluate the effectiveness of the administrative, technical and legal measures adopted.",
+        "Take the necessary technological, physical, administrative, organizational and legal measures to prevent, deter, reduce, mitigate and control identified risks and breaches.",
+        "Treat personal data in accordance with the Organic Law on Personal Data Protection and relevant regulations.",
+        "Use risk analysis and management methodologies adapted to the particularities of data processing and the parties involved." ;
+    ley-organica-proteccion-datos-personales:serious_infractions "Failure to comply with corrective measures or partial or defective compliance with them, provided that a sanction for a minor infraction has been applied beforehand for this reason.",
+        "Failure to implement mechanisms designed to maintain the confidentiality, integrity, availability and resilience of personal data",
+        "Failure to implement preventive and corrective measures in the security of personal data in order to avoid violations.",
+        "Failure to notify the data controller of any breach of security of personal data in accordance with the Organic Law on Personal Data Protection or with unjustified delay.",
+        "Failure to process personal data in accordance with the provisions of the contract with the data controller",
+        "Failure to sign contracts containing confidentiality and appropriate treatment of personal data clauses with the personnel in charge of the treatment of personal data or whoever has knowledge of the personal data.",
+        "Not to delete the personal data transferred or communicated to the person in charge of the processing of personal data, once its assignment has been completed.",
+        "Processing personal data without respecting the principles and rights established in the Organic Law for the Protection of Personal Data, its regulations and the rules issued by the Authority for the Protection of Personal Data." ;
+    ley-organica-proteccion-datos-personales:type_authority "Public" ;
+    ley-organica-proteccion-datos-personales:type_of_organism_participation "Alone or together with others" ;
+    ley-organica-proteccion-datos-personales:type_of_person "Natural or Legal" .
+
+ley-organica-proteccion-datos-personales:Revocation_of_consent a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Consent .
+
+ley-organica-proteccion-datos-personales:Sensitive_data a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Personal_data ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Personal_data .
+
+ley-organica-proteccion-datos-personales:personal_data_protection_authority a ley-organica-proteccion-datos-personales:Personal_data_protection_authority,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:actions_regarding_health_data_processing "For when dealing with anonymized health data" ;
+    ley-organica-proteccion-datos-personales:actions_regarding_independence_of_control "Investigation action, which involves carrying out investigations into possible violations of data protection legislation in an independent and partial manner.",
+        "Prevention action, which consists of promoting good practices and providing guidance and advice to organizations and citizens on how to protect personal data and comply with privacy regulations.",
+        "Sanction action, which arises once violations of data protection legislation are identified, whereby the Data Protection Authority has the power to impose appropriate and proportionate sanctions." ;
+    ley-organica-proteccion-datos-personales:authorization_for_treatment_of_anonymized_health_data "A favorable report from the Health Authority, which confirms that the technical protocol complies with the standards and regulations established by the Organic Law on Personal Data Protection and other related laws.",
+        "Provide technical protocol containing the necessary details to ensure the protection of health data." ;
+    ley-organica-proteccion-datos-personales:control_functions "It is the control and oversight body responsible for guaranteeing all citizens the protection of their personal data, and for taking all necessary actions to ensure that the principles, rights, guarantees and procedures set forth in the Organic Law on Personal Data Protection and its implementing regulations are respected." ;
+    ley-organica-proteccion-datos-personales:designation "The Personal Data Protection Authority shall be appointed in accordance with the provisions of the Constitution of the Republic.",
+        "The appointment is made from a list of three candidates provided by the President of the Republic",
+        "The selection is based on criteria of specialization and merit, and the process is public, allowing for citizen challenges." ;
+    ley-organica-proteccion-datos-personales:duration_of_charge "The Personal Data Protection Authority will exercise its functions for a period of 5 years." ;
+    ley-organica-proteccion-datos-personales:functions "Apply sanctions to those responsible, delegates, persons in charge and third parties, in accordance with the provisions of the Organic Law on Personal Data Protection.",
+        "Attending to consultations on personal data protection matters",
+        "Control and supervise the exercise of the right to personal data protection within the data processing carried out through the National System of Public Registries.",
+        "Create, manage and administer the National Registry of Personal Data Protection, and collaborate with public and private entities to ensure its correct operation.",
+        "Establish guidelines for the analysis, evaluation and selection of personal data security measures.",
+        "Exercise the supervision, control and evaluation of the activities carried out by the person responsible for and in charge of the processing of personal data.",
+        "Investigate, analyze and resolve complaints filed by data subjects, as well as those initiated by the Personal Data Protection Authority, in addition to imposing appropriate sanctions",
+        "Issue guidelines for the design and content of the personal data processing policy.",
+        "Keep a statistical record of personal data security breaches and identify possible security measures for each of them.",
+        "Perform or delegate technical audits to the processing of personal data.",
+        "Periodically publish a guide to personal data protection regulations.",
+        "Promote adequate and effective coordination with accountability officers and participate in international and regional initiatives for the protection of personal data protection.",
+        "Promote and encourage the exercise of the right to the protection of personal data, as well as the awareness and understanding of the risks, rules, guarantees and rights of individuals in relation to the processing and use of their personal data, with special emphasis on activities aimed at priority groups such as children and adolescents.",
+        "To dictate standard data protection clauses and verify the content of additional or specific clauses or guarantees.",
+        "To issue general or technical regulations, criteria and other acts necessary for the exercise of its powers and the guarantee of the exercise of the right to the protection of personal data.",
+        "To represent internationally the interests related to the protection of personal data." ;
+    ley-organica-proteccion-datos-personales:known_as "Data Protection Superintendent" ;
+    ley-organica-proteccion-datos-personales:requirements_that_must_be_met "Must have at least a fourth level degree and a minimum of 10 years of experience in areas related to the regulation of the Organic Law for the Protection of Personal Data.",
+        "The Personal Data Protection Authority must be a professional in law, information systems, communication or technology." ;
+    ley-organica-proteccion-datos-personales:revocation "His mandate can only be revoked by impeachment after an impeachment trial conducted by the National Assembly.",
+        "Its mandate can only be revoked in accordance with the grounds established in the Ecuadorian laws regulating public service." ;
+    ley-organica-proteccion-datos-personales:type_authority "Public" .
+
+ley-organica-proteccion-datos-personales:Applicability a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Processing ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Processing ;
+    owl:disjointWith ley-organica-proteccion-datos-personales:Inapplicability .
+
+ley-organica-proteccion-datos-personales:Rights_of_credit_data_owners a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Rights .
+
+ley-organica-proteccion-datos-personales:Inapplicability a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Processing ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Processing .
+
+ley-organica-proteccion-datos-personales:Credit_data_processing a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Applicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Applicability .
+
+ley-organica-proteccion-datos-personales:Claims a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Applicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Applicability .
+
+ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection a owl:Class,
+        owl:ObjectProperty .
+
+ley-organica-proteccion-datos-personales:Health_related_data_processing a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Applicability ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Applicability .
+
+ley-organica-proteccion-datos-personales:Data_processing a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:responsible_for_treatment a ley-organica-proteccion-datos-personales:Data_Controller,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:accrediting_compliance_with_the_mechanisms "Implementation of certification systems, which are formal processes through which an independent entity evaluates and verifies compliance with the requirements established in standards, regulations or norms related to data protection.",
+        "Make use of self- and co-regulatory schemes, i.e. programs or frameworks in which organizations voluntarily commit to comply with certain data protection standards and principles.",
+        "Use of best practices, i.e. recommended methods and processes that have proven to be effective in the protection of personal data.",
+        "Use of protection codes, which are associated with a set of principles, guidelines and specific rules established by data protection authorities to regulate the handling of personal data in certain sectors or contexts.",
+        "Use of standards, i.e., follow guidelines and criteria established by internationally recognized organizations for the handling and protection of personal data." ;
+    ley-organica-proteccion-datos-personales:activity_in_respect_to_proactive_and_demonstrated_responsibility "Implementation of mechanisms for the protection of personal data, which implies guaranteeing compliance with the principles, rights and obligations established in the Organic Law for the Protection of Personal Data.",
+        "To demonstrate compliance with these mechanisms and applicable regulations, that is, to have evidence and documents that demonstrate that the mechanisms and applicable regulations are being followed." ;
+    ley-organica-proteccion-datos-personales:activity_within_opposition_law "The controller shall cease processing the personal data, unless it can demonstrate compelling legitimate grounds justifying the processing which outweigh the interests, rights and freedoms of the data subject, or for the purposes of the lodging, exercise or defense of claims." ;
+    ley-organica-proteccion-datos-personales:activity_within_right_of_access "The person responsible for the processing of personal data must implement adequate means to facilitate the exercise of the right of access by the data subject"^^rdf:langString ;
+    ley-organica-proteccion-datos-personales:activity_within_the_right_of_correction_and_update "The data controller must respond to requests for rectification and updating, and if necessary, inform the recipient of the data so that he/she can also carry out the corresponding update." ;
+    ley-organica-proteccion-datos-personales:activity_within_the_right_of_deletion "The controller shall implement methods and techniques aimed at deleting, rendering unreadable, or rendering unrecognizable in a definitive and secure manner personal data." ;
+    ley-organica-proteccion-datos-personales:contact_data "Address of legal domicile",
+        "E-mail address",
+        "Names and surnames",
+        "Telephone number" ;
+    ley-organica-proteccion-datos-personales:control_functions "Responsible for deciding on the purpose and processing of personal data" ;
+    ley-organica-proteccion-datos-personales:deadline_in_days_for_the_right_of_access 15 ;
+    ley-organica-proteccion-datos-personales:deadline_in_days_for_the_right_to_oppose_opposition 15 ;
+    ley-organica-proteccion-datos-personales:delegate_comments "Ensure that the involvement of the personal data protection officer, in all matters relating to personal data protection, is appropriate and timely.",
+        "Ensure that the personal data protection officer establishes direct communication with the highest executive and decision-making levels of the data controller.",
+        "Facilitate access to the personal data of the processing operations, as well as all the resources and elements necessary to guarantee the correct and free performance of its functions.",
+        "They may not dismiss or sanction the personal data protection officer for the proper performance of his or her duties.",
+        "Train and update the personal data protection officer on the subject, in accordance with the technical regulations issued by the Personal Data Protection Authority." ;
+    ley-organica-proteccion-datos-personales:in_the_event_of_a_challenge_of_data_exaccuracy "The accuracy of the personal data must be verified, so it must be placed in the database, where the challenged information is contained, that it has been the subject of disagreement by the data owner." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:delegate,
+        ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:minor_infractions "Choosing a processor of personal data that does not offer sufficient guarantees to make effective the exercise of the right to the protection of personal data.",
+        "Failure to attend, late or unjustified response to requests or complaints from the holder",
+        "Failure to comply with the corrective measures ordered by the Personal Data Protection Authority.",
+        "Failure to implement data protection by design and by default",
+        "Failure to maintain available personal data protection policies related to the processing of personal data" ;
+    ley-organica-proteccion-datos-personales:must_have_been_complied_with_regard_to_proactive_responsibility ley-organica-proteccion-datos-personales:principios,
+        ley-organica-proteccion-datos-personales:rights ;
+    ley-organica-proteccion-datos-personales:must_render_accounts_regarding_the_treatment_with ley-organica-proteccion-datos-personales:data_owner,
+        ley-organica-proteccion-datos-personales:personal_data_protection_authority ;
+    ley-organica-proteccion-datos-personales:nature_of_the_entity "Public or Private" ;
+    ley-organica-proteccion-datos-personales:obligations "Allowing audits and inspections by accredited auditors",
+        "Comply with any other obligation established by applicable regulations or other Ecuadorian laws.",
+        "Conduct security adequacy assessments prior to the processing of personal data.",
+        "Designate a Data Protection Officer when necessary.",
+        "Develop customized data protection policies",
+        "Ensuring that data controllers comply with regulations and best practices",
+        "Establish confidentiality agreements with personnel and processors.",
+        "Implement administrative, technical and legal measures to guarantee the proper treatment of data",
+        "Integrate data protection from system design onwards",
+        "Maintain the National Registry of Personal Data Protection up to date.",
+        "Notifying the Personal Data Protection Authority and the data owner of violations of the security measures implemented for the processing of personal data in accordance with the procedure established for this purpose.",
+        "Periodically evaluate the effectiveness of the administrative, technical and legal measures adopted.",
+        "Take the necessary technological, physical, administrative, organizational and legal measures to prevent, deter, reduce, mitigate and control identified risks and breaches.",
+        "Treat personal data in accordance with the Organic Law on Personal Data Protection and relevant regulations.",
+        "Use risk analysis and management methodologies adapted to the particularities of data processing and the parties involved." ;
+    ley-organica-proteccion-datos-personales:serious_infractions "Do not sign contracts that include confidentiality clauses with those who handle personal data.",
+        "Failure to allow or cooperate with audits or inspections by an accredited auditor",
+        "Failure to comply with corrective measures or insufficient compliance, especially if previous sanctions have been imposed for minor infractions and there is a recidivism.",
+        "Failure to conduct impact assessments when necessary",
+        "Failure to designate a data protection officer when necessary",
+        "Failure to implement measures to prevent and control data security risks",
+        "Failure to inform the Data Protection Authority and the Data Controller about security breaches affecting individual rights.",
+        "Failure to keep the National Data Protection Registry up to date as required.",
+        "Failure to notify the holder of security breaches affecting his rights",
+        "Failure to put in place adequate measures to protect personal data as required by law and relevant regulations",
+        "Failure to register the required information in the National Data Protection Registry.",
+        "Failure to use appropriate methodologies to analyze and manage the risks associated with personal data",
+        "Sharing of personal data without following legal requirements and established procedures",
+        "Using information or data for purposes other than those initially stated" ;
+    ley-organica-proteccion-datos-personales:time_of_attention_in_days_for_the_right_of_removal "15"^^xsd:decimal ;
+    ley-organica-proteccion-datos-personales:time_of_attention_within_days_for_the_right_of_correction_and_update 15 ;
+    ley-organica-proteccion-datos-personales:type_authority "Public" ;
+    ley-organica-proteccion-datos-personales:type_of_organism_participation "Alone or together with others" ;
+    ley-organica-proteccion-datos-personales:type_of_person "Natural or Legal" .
+
+ley-organica-proteccion-datos-personales:Personal_data a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Data_types ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Data_types .
+
+ley-organica-proteccion-datos-personales:Consent a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Terminology ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Terminology .
+
+ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system a ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system,
+        owl:Class,
+        owl:NamedIndividual,
+        owl:ObjectProperty ;
+    ley-organica-proteccion-datos-personales:are_composed_of ley-organica-proteccion-datos-personales:data_owner,
+        ley-organica-proteccion-datos-personales:data_processor,
+        ley-organica-proteccion-datos-personales:delegate,
+        ley-organica-proteccion-datos-personales:personal_data_protection_authority,
+        ley-organica-proteccion-datos-personales:recipient,
+        ley-organica-proteccion-datos-personales:responsible_for_treatment ;
+    ley-organica-proteccion-datos-personales:description "They are all those persons who participate in the Personal Data Protection Law." ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:Terminology a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:Personal_data_protection_authority a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Principles a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:Data_Owner a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Data_Controller a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+ley-organica-proteccion-datos-personales:Rights a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+

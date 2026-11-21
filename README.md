@@ -156,7 +156,22 @@ su caché):
 
 ## La base del sistema
 OntoPriv-Core, el perfil de Ecuador (LOPDP) y su alineación con el DPV, revisada a mano
-una vez (552 conceptos, 190 correspondencias). Se rehace desde OntoPriv:
+una vez (552 conceptos, 190 correspondencias). Viene en el repositorio, en `data/output`:
+
+| Módulo | Qué es |
+|---|---|
+| `ontopriv-core` | El núcleo reutilizable, sacado de OntoPriv |
+| `profile-ecuador-lopdp` | El perfil de Ecuador, que importa el núcleo |
+| `ontopriv-dpv-alignment` | Las correspondencias con el DPV y los conceptos tomados de la LOPDP |
+| `ontopriv-gdpr-alignment` | El puente con el GDPR (OntoPriv ↔ GDPRtEXT por el DPV) |
+| `ontopriv-provenance` | Quién decidió cada correspondencia y cuándo (PROV-O) |
+
+Cada módulo está en `.rdf`, `.owl`, `.ttl` y `.jsonld`. `catalog-v001.xml` le dice a Protégé
+dónde están los módulos que se importan, y `alignment-candidates.json` guarda los candidatos
+de los que el programa hereda lo revisado. Lo demás de `data/output` (mediciones, reportes,
+paquetes) no se sube a git.
+
+Se rehace desde OntoPriv:
 
     py -m src.core.emit                    # núcleo y perfil, con las reparaciones
     py -m src.alignment.write              # la alineación, desde el registro de decisiones
@@ -191,3 +206,8 @@ actual (también con `EDITABLE_BASE=1`):
 - Ontología (semántico): RDF/XML, OWL (RDF/XML), Turtle y JSON-LD, como entrada y salida.
   OWL/XML solo como entrada (se convierte a RDF/XML con Protégé).
 - Texto de ley (documento de origen): .txt y PDF, solo como entrada.
+
+## Licencia
+El código y la base se publican con la licencia Apache 2.0 (`LICENSE`). La base es una obra
+derivada de OntoPriv (Gabriela Suntaxi, Kelvin Ojeda y Francisco Rodríguez, EPN), que también
+es Apache 2.0; `NOTICE` dice de dónde viene cada material y qué se cambió.
