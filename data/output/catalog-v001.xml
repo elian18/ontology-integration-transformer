@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri id="modulo-1" name="http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment" uri="ontopriv-dpv-alignment.rdf"/>
+    <uri id="modulo-2" name="http://www.semanticweb.org/profiles/ecuador-lopdp" uri="profile-ecuador-lopdp.rdf"/>
+    <uri id="modulo-3" name="http://www.semanticweb.org/ontopriv-core" uri="ontopriv-core.rdf"/>
+</catalog>

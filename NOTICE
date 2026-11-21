@@ -1,0 +1,48 @@
+ontology-integration-transformer
+Copyright 2026 Elian Alexander Gavilanes Miranda, Escuela Politécnica Nacional (EPN)
+
+Trabajo de Integración Curricular "Integración y Transformación de Ontologías de Privacidad
+para Sistemas de Cumplimiento Legal" (EPN). El código y la base de conocimiento se publican
+con la licencia Apache 2.0 (ver LICENSE).
+
+Basado en OntoPriv
+------------------
+La base de conocimiento (data/output) es una obra derivada de OntoPriv, la ontología legal de
+la Ley Orgánica de Protección de Datos Personales (LOPDP) del Ecuador, de Gabriela Suntaxi,
+Kelvin Ojeda y Francisco Rodríguez (EPN), publicada con la licencia Apache 2.0 en
+https://github.com/kelvinojedaepn/OntoPriv (abril de 2024).
+
+  - G. Suntaxi, K. Ojeda y F. Rodríguez, "OntoPriv: Enhancing Understanding and Compliance
+    in Privacy Legislation via Legal Ontologies", 2024 Latin American Computer Conference
+    (CLEI), 2024, pp. 1-10. https://doi.org/10.1109/CLEI64178.2024.10700326
+  - G. Suntaxi, K. Ojeda, F. Rodríguez, P. del Hierro, J. Miño y D. A. Flores, "OntoPriv:
+    Towards Designing a DPV-based Legal Ontology for Knowledge Retrieval and Compliance in
+    Privacy Legislation", 2025.
+
+Los archivos originales de OntoPriv están sin cambios en data/input/ontopriv.owx y
+data/input/ontopriv.rdf (la misma ontología exportada a RDF/XML con Protégé).
+
+Cambios hechos a OntoPriv en la base (data/output):
+  - ontopriv-core y profile-ecuador-lopdp: OntoPriv separada en un núcleo reutilizable y un
+    perfil de Ecuador que lo importa, con dos reparaciones:
+      R1: las propiedades con varios dominios o rangos (P19 de OOPS!) pasan a uno solo, la
+          unión de esas clases;
+      R2: las propiedades declaradas de objeto y de datos a la vez se quedan con un solo tipo.
+    Se dejaron fuera los axiomas anónimos de OntoPriv (5 owl:AllDisjointClasses y 38 reglas
+    SWRL).
+  - ontopriv-dpv-alignment: correspondencias SKOS con el Data Privacy Vocabulary (DPV 2.3),
+    revisadas a mano, y los conceptos nuevos tomados de la LOPDP.
+  - ontopriv-gdpr-alignment: puente con el GDPR a través de GDPRtEXT.
+  - ontopriv-provenance: procedencia (PROV-O) de cada decisión.
+  - alignment-candidates.json: candidatos del DPV de cada concepto, de los que el programa
+    hereda lo revisado.
+
+Otros materiales que se usan
+----------------------------
+  - Data Privacy Vocabulary (DPV) 2.3, del W3C Data Privacy Vocabularies and Controls
+    Community Group (https://w3id.org/dpv): copia en vocab/dpv.ttl.
+  - GDPRtEXT, de Harshvardhan J. Pandit (ADAPT Centre), licencia CC BY 4.0: copia en
+    data/input/gdprtext-ontology.ttl.
+  - Ley Orgánica de Protección de Datos Personales del Ecuador, Reglamento General de
+    Protección de Datos (UE) 2016/679 y Ley 1581 de 2012 de Colombia: textos legales en
+    data/input.

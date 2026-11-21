@@ -1,0 +1,577 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Administrative_or_judicial_authorities> skos:broadMatch dpv:Authority .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Admitted_Countries> skos:broadMatch dpv:Country .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Advise_on_risk_analysis> skos:relatedMatch dpv:hasRiskAssessment .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Applicable_safety_measures> dcterms:source "LOPDP, art. 41"@es ;
+    skos:closeMatch dpv:TechnicalOrganisationalMeasure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer> skos:relatedMatch dpv:AuthorisationProcedure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent> skos:broadMatch dpv:Consent .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls> skos:exactMatch dpv:Child .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Claims_defense> skos:relatedMatch dpv:DisputeManagement .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Commercial> skos:relatedMatch dpv:CommercialPurpose .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_Seniors_data> skos:relatedMatch dpv:ElderlyDataSubject .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_persons_minors> skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_protection_mechanisms> skos:relatedMatch dpv:DataSecurityManagement .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Deceased_persons_data> skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Domestic_Companies> skos:broadMatch dpv:Organisation .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Epidemiological_studies> skos:broadMatch dpv:ScientificResearch .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_for_international_transfers_or_communications> skos:closeMatch dpv:DataTransferLegalBasis .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_to_consent_for_national_transfers> skos:relatedMatch dpv:DataTransferLegalBasis .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design> dcterms:source "LOPDP, art. 39"@es,
+        "LOPDP, art. 47"@es ;
+    skos:closeMatch dpv:PrivacyByDesign .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Governmental_information_security_mechanism> dcterms:source "LOPDP, art. 38"@es ;
+    skos:relatedMatch dpv:InformationSecurityPolicy .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Impact_assessment> skos:closeMatch dpv:hasImpactAssessment .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Informed> skos:relatedMatch dpv:hasInformedStatus .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International> dcterms:source "LOPDP, art. 55"@es,
+        "LOPDP, art. 57"@es ;
+    skos:broadMatch dpv:Transfer .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International_companies> skos:broadMatch dpv:Organisation .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Large_scale_treatment> skos:broadMatch dpv:hasProcessingScale .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal> skos:relatedMatch dpv:LegalMeasure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_institutions> skos:relatedMatch dpv:JudicialOrganisation .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_or_regulatory_obligation> skos:relatedMatch dpv:hasObligation .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_relationship> skos:relatedMatch dpv:Contract .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Name> skos:closeMatch dpv:hasName .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#National_Scope> skos:closeMatch dpv:NationalScale .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Not_informed> skos:relatedMatch dpv:hasInformedStatus .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Notification> dcterms:source "LOPDP, art. 43"@es ;
+    skos:broadMatch dpv:Notification .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Obligations_of_the_responsible_person_and_manager> skos:broadMatch dpv:hasObligation .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Organizational> skos:relatedMatch dpv:OrganisationalMeasure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Perform_evaluations> skos:relatedMatch dpv:hasAssessment .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security> skos:closeMatch dpv:DataSecurityManagement .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Preservation_time> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Protection_policies> skos:broadMatch dpv:hasPolicy .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_governments> skos:closeMatch dpv:PublicSectorBody .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest> skos:closeMatch dpv:PublicInterest .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Purpose> skos:closeMatch dpv:hasPurpose .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Right_to_portability> dcterms:source "LOPDP, art. 17"@es ;
+    skos:broadMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk> skos:relatedMatch dpv:hasRisk .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk_analysis_of_threats_and_vulnerabilities> dcterms:source "LOPDP, art. 40"@es ;
+    skos:closeMatch dpv:SecurityAssessment .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Scope> skos:closeMatch dpv:hasScope .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Serious> skos:relatedMatch dpv:hasSeverity .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Slight> skos:relatedMatch dpv:hasSeverity .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public> skos:exactMatch dpv:PublicDataSource .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Systematic_evaluation> skos:broadMatch dpv:hasAssessment .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Technical_measurements> skos:closeMatch dpv:TechnicalMeasure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Techniques> skos:relatedMatch dpv:TechnicalMeasure .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Teenagers> skos:broadMatch dpv:Child .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Transfer_or_communication> dcterms:source "LOPDP, art. 33"@es ;
+    skos:closeMatch dpv:Transfer .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Unauthorized_consent> skos:relatedMatch dpv:ConsentInvalidated .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Very_serious> skos:relatedMatch dpv:hasSeverity .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Vital_interest_of_another_person> skos:closeMatch dpv:VitalInterestOfNaturalPerson .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Volume> skos:closeMatch dpv:hasDataVolume .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of> skos:relatedMatch dpv:hasRight .
+
+<http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#time_of_right_to_elimination> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymization> dcterms:source "LOPDP, art. 31"@es,
+        "LOPDP, art. 4"@es ;
+    skos:exactMatch dpv:Anonymisation .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data> skos:closeMatch dpv:AnonymisedData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Applicability> skos:relatedMatch dpv:Applicability .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Application_favorable_to_the_owner> dcterms:source "LOPDP, art. 10"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data> dcterms:source "LOPDP, art. 4"@es ;
+    skos:relatedMatch dpv:BiometricAuthentication .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity> dcterms:source "LOPDP, art. 54"@es ;
+    skos:relatedMatch dpv:Certification .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Collection> skos:closeMatch dpv:Collect .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Confidentiality> dcterms:source "LOPDP, art. 10"@es,
+        "LOPDP, art. 50"@es ;
+    skos:relatedMatch dpv:ConfidentialData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent> dcterms:source "LOPDP, art. 33"@es,
+        "LOPDP, art. 4"@es ;
+    skos:exactMatch dpv:Consent .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Conservation> dcterms:source "LOPDP, art. 10"@es ;
+    skos:relatedMatch dpv:StorageDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Corrective_measures> dcterms:source "LOPDP, art. 65"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Credit_data> dcterms:source "LOPDP, art. 28"@es ;
+    skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller> dcterms:source "LOPDP, art. 17"@es,
+        "LOPDP, art. 33"@es,
+        "LOPDP, art. 4"@es,
+        "LOPDP, art. 41"@es,
+        "LOPDP, art. 49"@es,
+        "LOPDP, art. 57"@es,
+        "LOPDP, art. 67"@es,
+        "LOPDP, art. 9"@es ;
+    skos:exactMatch dpv:DataController .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner> dcterms:source "LOPDP, art. 10"@es,
+        "LOPDP, art. 17"@es,
+        "LOPDP, art. 33"@es,
+        "LOPDP, art. 4"@es ;
+    skos:exactMatch dpv:DataSubject .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor> dcterms:source "LOPDP, art. 10"@es,
+        "LOPDP, art. 34"@es,
+        "LOPDP, art. 4"@es,
+        "LOPDP, art. 41"@es,
+        "LOPDP, art. 49"@es,
+        "LOPDP, art. 57"@es,
+        "LOPDP, art. 69"@es ;
+    skos:exactMatch dpv:DataProcessor .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_base> dcterms:source "LOPDP, art. 4"@es ;
+    skos:relatedMatch dpv:Data .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing> skos:exactMatch dpv:Processing .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types> skos:closeMatch dpv:Data .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_under_17_years_old> skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Deceased_persons_data> skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Delegate> dcterms:source "LOPDP, art. 4"@es,
+        "LOPDP, art. 48"@es,
+        "LOPDP, art. 49"@es ;
+    skos:exactMatch dpv:DataProtectionOfficer .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Disabled_owner_data> skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exceptions_of_rights> dcterms:source "LOPDP, art. 18"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights> dcterms:source "LOPDP, art. 24"@es ;
+    skos:closeMatch dpv:RightExerciseActivity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Genetic_data> dcterms:source "LOPDP, art. 4"@es ;
+    skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_Related_Data> dcterms:source "LOPDP, art. 30"@es ;
+    skos:broadMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_related_data_processing> skos:broadMatch dpv:PersonalDataProcess .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_between_15_to_17_years_old> skos:broadMatch dpv:Child .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_over_17_years_old> skos:broadMatch dpv:Adult .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_under_15_years_old> skos:broadMatch dpv:Child .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_with_disability> skos:relatedMatch dpv:VulnerableDataSubject .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Inapplicability> skos:relatedMatch dpv:Applicability .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Juridicity> dcterms:source "LOPDP, art. 10"@es ;
+    skos:relatedMatch dpv:Lawfulness .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest> dcterms:source "LOPDP, art. 9"@es ;
+    skos:exactMatch dpv:LegitimateInterest .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_persons_data> skos:broadMatch dpv:NonPersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_representative_owner> skos:closeMatch dpv:GuardianOfDataSubject .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legality> skos:relatedMatch dpv:Lawful .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Loyalty> dcterms:source "LOPDP, art. 10"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minimization> dcterms:source "LOPDP, art. 10"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minor_infractions> dcterms:source "LOPDP, art. 67"@es ;
+    skos:relatedMatch dpv:ObligationViolated .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Need> skos:relatedMatch dpv:Necessity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Organic_Law_on_Personal_Data_Protection> skos:broadMatch dpv:Law .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data> dcterms:source "LOPDP, art. 4"@es ;
+    skos:exactMatch dpv:PersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority> dcterms:source "LOPDP, art. 4"@es,
+        "LOPDP, art. 41"@es,
+        "LOPDP, art. 49"@es,
+        "LOPDP, art. 57"@es,
+        "LOPDP, art. 65"@es,
+        "LOPDP, art. 76"@es,
+        "LOPDP, art. 77"@es,
+        "LOPDP, art. 9"@es ;
+    skos:exactMatch dpv:DataProtectionAuthority .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals> skos:closeMatch dpv:CertificationSeal .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Principles> dcterms:source "LOPDP, art. 57"@es ;
+    skos:broadMatch dpv:Principle .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proactive_and_demonstrated_accountability> dcterms:source "LOPDP, art. 10"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing> dcterms:source "LOPDP, art. 4"@es ;
+    skos:exactMatch dpv:Processing .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Profile_making> skos:exactMatch dpv:Profiling .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proportionality> dcterms:source "LOPDP, art. 10"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Pseudonymization> skos:exactMatch dpv:Pseudonymisation .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Purpose> dcterms:source "LOPDP, art. 10"@es ;
+    skos:relatedMatch dpv:Purpose .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Quality> dcterms:source "LOPDP, art. 10"@es ;
+    skos:relatedMatch dpv:DataQualityManagement .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Recipient> skos:exactMatch dpv:Recipient .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent> skos:closeMatch dpv:WithdrawConsent .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations> dcterms:source "LOPDP, art. 20"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:AutomatedDecisionMaking .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_access> dcterms:source "LOPDP, art. 13"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:Access .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion> dcterms:source "LOPDP, art. 15"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:StorageDeletion .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_opposition> dcterms:source "LOPDP, art. 16"@es ;
+    skos:broadMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_consult> dcterms:source "LOPDP, art. 22"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:Consult .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_correction_and_update> dcterms:source "LOPDP, art. 14"@es ;
+    skos:broadMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_digital_education> dcterms:source "LOPDP, art. 23"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:DigitalLiteracy .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_information> dcterms:source "LOPDP, art. 12"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:relatedMatch dpv:RightNotice .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_suspension_of_treatment> dcterms:source "LOPDP, art. 19"@es ;
+    skos:broadMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights> dcterms:source "LOPDP, art. 57"@es ;
+    skos:closeMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights_of_credit_data_owners> dcterms:source "LOPDP, art. 29"@es ;
+    skos:broadMatch dpv:DataSubjectRight .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sanctions> dcterms:source "LOPDP, art. 71"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Scope_of_application> skos:closeMatch dpv:hasScope .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Security> dcterms:source "LOPDP, art. 10"@es,
+        "LOPDP, art. 37"@es ;
+    skos:relatedMatch dpv:EnforceSecurity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data> dcterms:source "LOPDP, art. 26"@es,
+        "LOPDP, art. 4"@es ;
+    skos:closeMatch dpv:SensitivePersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data_processing> skos:relatedMatch dpv:SensitivePersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Serious_infractions> dcterms:source "LOPDP, art. 68"@es ;
+    skos:relatedMatch dpv:ObligationViolated .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public> skos:exactMatch dpv:PublicDataSource .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Special_personal_data_categories> dcterms:source "LOPDP, art. 25"@es ;
+    skos:closeMatch dpv:SpecialCategoryPersonalData .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Successor_right_holder> dcterms:source "LOPDP, art. 27"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Transparency> dcterms:source "LOPDP, art. 10"@es ;
+    skos:relatedMatch dpv:PrivacyNotice .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Turnover> dcterms:source "LOPDP, art. 73"@es .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Violations> skos:relatedMatch dpv:RuleViolated .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#a_data_protection_delegate_will_be_assigned> skos:relatedMatch dpv:hasDataProtectionOfficer .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#affects_to> skos:closeMatch dpv:hasImpactOn .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#contact_data> skos:closeMatch dpv:hasContact .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_of_access> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_to_oppose_opposition> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#duration_of_charge> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_different_purpose> skos:relatedMatch dpv:hasPurpose .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_plurality_of_purposes> skos:relatedMatch dpv:hasPurpose .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#has_as_the_basis_of> skos:closeMatch dpv:hasLegalBasis .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_authorized_by> skos:relatedMatch dpv:hasAuthority .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_implemented_by> skos:closeMatch dpv:isImplementedByEntity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#justification_for_revocation> skos:broadMatch dpv:hasJustification .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#minor_infractions> skos:relatedMatch dpv:hasSeverity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#need_of> skos:closeMatch dpv:hasNecessity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#obligations> skos:closeMatch dpv:hasObligation .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#scope_of_legislation> skos:relatedMatch dpv:hasScope .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#serious_infractions> skos:relatedMatch dpv:hasSeverity .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#sources_from_whence_the_credit_data_was_obtained> skos:broadMatch dpv:hasDataSource .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#territorial_application_scenario> skos:relatedMatch dpv:hasJurisdiction .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#the_law_applies_in> skos:relatedMatch dpv:hasApplicableLaw .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_in_days_for_the_right_of_removal> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_within_days_for_the_right_of_correction_and_update> skos:broadMatch dpv:hasDuration .
+
+<http://www.semanticweb.org/ley-organica-proteccion-datos-personales#types_of_safety_measures> skos:relatedMatch dpv:hasTechnicalOrganisationalMeasure .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#AdequateProtectionLevel> a owl:Class ;
+    rdfs:label "nivel adecuado de protección"@es ;
+    dcterms:source "LOPDP, art. 56"@es ;
+    skos:definition "Estándar requerido para que países u organizaciones puedan recibir datos personales de forma segura."@es ;
+    skos:relatedMatch dpv:DataProtectionAuthority .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#AdministrativeProcedure> a owl:Class ;
+    rdfs:label "procedimiento administrativo"@es ;
+    dcterms:source "LOPDP, art. 64"@es ;
+    skos:broadMatch dpv:GovernanceProcedures ;
+    skos:closeMatch dpv:AuthorisationProcedure ;
+    skos:definition "Proceso formal ante la Autoridad de Protección de Datos cuando un requerimiento previo es negado o no contestado."@es ;
+    skos:relatedMatch dpv:ApprovalProcedure .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#BindingCorporateRules> a owl:Class ;
+    rdfs:label "normas corporativas vinculantes"@es ;
+    dcterms:source "LOPDP, art. 58"@es ;
+    skos:broadMatch dpv:LegalCompliance ;
+    skos:definition "Reglas de obligatorio cumplimiento para el grupo empresarial que regulan la transferencia internacional de datos."@es ;
+    skos:narrowMatch dpv:ContractualTerms ;
+    skos:relatedMatch dpv:FulfilmentOfContractualObligation .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#CessationOfTreatment> a owl:Class ;
+    rdfs:label "cese del tratamiento"@es ;
+    dcterms:source "LOPDP, art. 65"@es ;
+    skos:definition "Medida correctiva que consiste en detener el tratamiento de datos bajo condiciones o plazos determinados."@es ;
+    skos:narrowMatch dpv:UntilTimeDuration .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct> a owl:Class ;
+    rdfs:label "códigos de conducta"@es ;
+    dcterms:source "LOPDP, art. 53"@es ;
+    skos:definition "Instrumentos sectoriales promovidos para el cumplimiento de la normativa de protección de datos."@es ;
+    skos:exactMatch dpv:CodeOfConduct .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement> a owl:Class ;
+    rdfs:label "contratos de confidencialidad"@es ;
+    dcterms:source "LOPDP, art. 47"@es ;
+    skos:definition "Instrumento legal para garantizar el manejo adecuado de datos personales por parte del personal y encargados."@es ;
+    skos:exactMatch dpv:ConfidentialityAgreement .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DataBreachException> a owl:Class ;
+    rdfs:label "excepciones a la notificación de vulneración"@es ;
+    dcterms:source "LOPDP, art. 46"@es ;
+    skos:definition "Casos específicos donde no es necesario notificar al titular sobre una vulneración de seguridad bajo condiciones demostrables."@es ;
+    skos:narrowMatch dpv:DataBreachNotice .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DataDeletion> a owl:Class ;
+    rdfs:label "eliminación de los datos"@es ;
+    dcterms:source "LOPDP, art. 65"@es ;
+    skos:definition "Medida correctiva que consiste en suprimir los datos personales objeto de la infracción."@es ;
+    skos:exactMatch dpv:Delete ;
+    skos:relatedMatch dpv:DataDeletionPolicy .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DataDeletionMethods> a owl:Class ;
+    rdfs:label "Métodos de eliminación"@es ;
+    dcterms:source "LOPDP, art. 15"@es ;
+    skos:definition "Técnicas para hacer ilegibles o irreconocibles los datos de forma definitiva y segura."@es ;
+    skos:exactMatch dpv:DataSanitisationTechnique ;
+    skos:narrowMatch dpv:DataRedaction ;
+    skos:relatedMatch dpv:DataDeletionPolicy .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DataProtectionAudit> a owl:Class ;
+    rdfs:label "auditorías de protección de datos"@es ;
+    dcterms:source "LOPDP, art. 58"@es ;
+    skos:definition "Mecanismo de verificación sobre el cumplimiento de las normas corporativas vinculantes."@es ;
+    skos:exactMatch dpv:PersonalDataAudit .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DataSecurityBreach> a owl:Class ;
+    rdfs:label "Vulneración de la seguridad de los datos personales"@es ;
+    dcterms:source "LOPDP, art. 4"@es ;
+    skos:definition "Incidente de seguridad que afecta la confidencialidad, disponibilidad o integridad de los datos personales."@es ;
+    skos:relatedMatch dpv:DataBreachRecord .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DirectRequirement> a owl:Class ;
+    rdfs:label "requerimiento directo"@es ;
+    dcterms:source "LOPDP, art. 62"@es ;
+    skos:closeMatch dpv:RequestRequiresAction ;
+    skos:definition "Acción gratuita que puede ejercer el titular ante el responsable del tratamiento sobre sus derechos."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#DutyOfConfidentiality> a owl:Class ;
+    rdfs:label "Deber de confidencialidad"@es ;
+    dcterms:source "LOPDP, art. 30"@es ;
+    skos:definition "Obligación de responsables, encargados y terceras personas en el tratamiento de datos de salud para garantizar su seguridad y complementar el secreto profesional."@es ;
+    skos:relatedMatch dpv:ContractConfidentialityClause .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment> a owl:Class ;
+    rdfs:label "evaluación de impacto del tratamiento de datos personales"@es ;
+    dcterms:source "LOPDP, art. 42"@es ;
+    skos:definition "Proceso obligatorio realizado por el responsable para identificar riesgos altos en el tratamiento de datos personales."@es ;
+    skos:exactMatch dpv:ImpactAssessment .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#MinorAutomatedDecisionRight> a owl:Class ;
+    rdfs:label "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas"@es ;
+    dcterms:source "LOPDP, art. 21"@es ;
+    skos:broadMatch dpv:DataSubjectRight ;
+    skos:definition "Prohibición de tratar datos sensibles o de menores de edad mediante valoraciones automatizadas, salvo autorización expresa o interés público esencial."@es ;
+    skos:relatedMatch dpv:AutomatedDecisionMaking .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#NationalDataProtectionRegistry> a owl:Class ;
+    rdfs:label "Registro Nacional de protección de datos personales"@es ;
+    dcterms:source "LOPDP, art. 51"@es ;
+    skos:broadMatch dpv:PublicRegisterOfEntities ;
+    skos:definition "Sistema donde el responsable debe reportar y mantener actualizada la información sobre el tratamiento de datos."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#PersonalDataProtection> a owl:Class ;
+    rdfs:label "protección de datos personales"@es ;
+    dcterms:source "LOPDP, art. 1"@es ;
+    skos:definition "Derecho que incluye el acceso y decisión sobre información y datos de carácter personal."@es ;
+    skos:relatedMatch dpv:SensitivePersonalData .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#PrivacyByDefault> a owl:Class ;
+    rdfs:label "protección de datos por defecto"@es ;
+    dcterms:source "LOPDP, art. 39"@es ;
+    skos:definition "Obligación de tratar únicamente los datos personales estrictamente necesarios para cada fin específico."@es ;
+    skos:exactMatch dpv:PrivacyByDefault .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#ProportionalityPrinciple> a owl:Class ;
+    rdfs:label "principio de proporcionalidad"@es ;
+    dcterms:source "LOPDP, art. 71"@es ;
+    skos:broadMatch dpv:Principle ;
+    skos:definition "Criterio utilizado para establecer la cuantía de la multa basado en la intencionalidad, reiteración, perjuicio y reincidencia."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#ProvisionalMeasures> a owl:Class ;
+    rdfs:label "Medidas provisionales o cautelares"@es ;
+    dcterms:source "LOPDP, art. 74"@es ;
+    skos:definition "Medidas de protección o cautelares aplicables por la Autoridad de Protección de Datos Personales según la norma procedimental administrativa."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#Recidivism> a owl:Class ;
+    rdfs:label "reincidencia"@es ;
+    dcterms:source "LOPDP, art. 71"@es ;
+    skos:definition "Circunstancia donde la infracción precedente es de la misma naturaleza que la que se pretende sancionar."@es ;
+    skos:relatedMatch dpv:RuleViolated .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#RiskReport> a owl:Class ;
+    rdfs:label "Informe de riesgo"@es ;
+    dcterms:source "LOPDP, art. 9"@es ;
+    skos:broadMatch dpv:RiskConcept ;
+    skos:closeMatch dpv:RiskAssessment ;
+    skos:definition "Documento requerido por la Autoridad para verificar amenazas a los derechos de los titulares."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#SelfRegulation> a owl:Class ;
+    rdfs:label "Autorregulación"@es ;
+    dcterms:source "LOPDP, art. 52"@es ;
+    skos:broadMatch dpv:CertificationSeal ;
+    skos:definition "Facultad voluntaria de adherirse a códigos de conducta y certificaciones sin eximir la responsabilidad legal."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#TechnicalAndLegalMeasures> a owl:Class ;
+    rdfs:label "medidas técnicas, jurídicas, organizativas o administrativas"@es ;
+    dcterms:source "LOPDP, art. 65"@es ;
+    skos:broadMatch dpv:LegalMeasure,
+        dpv:TechnicalMeasure ;
+    skos:definition "Imposición de medidas para garantizar un tratamiento adecuado de los datos personales."@es ;
+    skos:exactMatch dpv:TechnicalOrganisationalMeasure .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp#UnfulfilledRegistry> a owl:Class ;
+    rdfs:label "Registro Único de Responsables y Encargados Incumplidos"@es ;
+    skos:definition "Registro de responsables y encargados del tratamiento de datos personales que han incurrido en infracciones, con fines sociales, estadísticos, preventivos y de capacitación."@es .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment> a owl:Ontology ;
+    rdfs:label "Alineación con el DPV del perfil Ecuador (LOPDP)"@es ;
+    dcterms:created "2026-11-14T15:38:35+00:00" ;
+    dcterms:references <https://w3id.org/dpv> ;
+    rdfs:comment "Correspondencias SKOS aprobadas por revisión humana entre OntoPriv (núcleo + perfil) y el Data Privacy Vocabulary (DPV 2.3), más los conceptos nuevos extraídos de la ley y aprobados por una persona. El DPV se referencia por IRI; no se importa."@es ;
+    owl:imports <http://www.semanticweb.org/profiles/ecuador-lopdp> .
+

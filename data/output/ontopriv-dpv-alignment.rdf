@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:dct="http://purl.org/dc/terms/"
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Delegate">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 48</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 49</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataProtectionOfficer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#RiskReport">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Informe de riesgo</rdfs:label>
+    <skos:definition xml:lang="es">Documento requerido por la Autoridad para verificar amenazas a los derechos de los titulares.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 9</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#RiskAssessment"/>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#RiskConcept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_or_regulatory_obligation">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasObligation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#obligations">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasObligation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#territorial_application_scenario">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasJurisdiction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Processing"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Loyalty">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#BindingCorporateRules">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">normas corporativas vinculantes</rdfs:label>
+    <skos:definition xml:lang="es">Reglas de obligatorio cumplimiento para el grupo empresarial que regulan la transferencia internacional de datos.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 58</dct:source>
+    <skos:narrowMatch rdf:resource="https://w3id.org/dpv#ContractualTerms"/>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#LegalCompliance"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#FulfilmentOfContractualObligation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 34</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 41</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 49</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 69</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataProcessor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller">
+    <dct:source xml:lang="es">LOPDP, art. 17</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 9</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 33</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 67</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 41</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 49</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataController"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#AdministrativeProcedure">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">procedimiento administrativo</rdfs:label>
+    <skos:definition xml:lang="es">Proceso formal ante la Autoridad de Protección de Datos cuando un requerimiento previo es negado o no contestado.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 64</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ApprovalProcedure"/>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#AuthorisationProcedure"/>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#GovernanceProcedures"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#MinorAutomatedDecisionRight">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas</rdfs:label>
+    <skos:definition xml:lang="es">Prohibición de tratar datos sensibles o de menores de edad mediante valoraciones automatizadas, salvo autorización expresa o interés público esencial.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 21</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#AutomatedDecisionMaking"/>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#NationalDataProtectionRegistry">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Registro Nacional de protección de datos personales</rdfs:label>
+    <skos:definition xml:lang="es">Sistema donde el responsable debe reportar y mantener actualizada la información sobre el tratamiento de datos.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 51</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PublicRegisterOfEntities"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data">
+    <dct:source xml:lang="es">LOPDP, art. 26</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ProportionalityPrinciple">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">principio de proporcionalidad</rdfs:label>
+    <skos:definition xml:lang="es">Criterio utilizado para establecer la cuantía de la multa basado en la intencionalidad, reiteración, perjuicio y reincidencia.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 71</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Principle"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Teenagers">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Child"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk_analysis_of_threats_and_vulnerabilities">
+    <dct:source xml:lang="es">LOPDP, art. 40</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#SecurityAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Administrative_or_judicial_authorities">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Authority"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#justification_for_revocation">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasJustification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DataDeletion">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">eliminación de los datos</rdfs:label>
+    <skos:definition xml:lang="es">Medida correctiva que consiste en suprimir los datos personales objeto de la infracción.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 65</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataDeletionPolicy"/>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Delete"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#CessationOfTreatment">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">cese del tratamiento</rdfs:label>
+    <skos:definition xml:lang="es">Medida correctiva que consiste en detener el tratamiento de datos bajo condiciones o plazos determinados.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 65</dct:source>
+    <skos:narrowMatch rdf:resource="https://w3id.org/dpv#UntilTimeDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proportionality">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Applicable_safety_measures">
+    <dct:source xml:lang="es">LOPDP, art. 41</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#TechnicalOrganisationalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">evaluación de impacto del tratamiento de datos personales</rdfs:label>
+    <skos:definition xml:lang="es">Proceso obligatorio realizado por el responsable para identificar riesgos altos en el tratamiento de datos personales.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 42</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#ImpactAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Right_to_portability">
+    <dct:source xml:lang="es">LOPDP, art. 17</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Need">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Necessity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest">
+    <dct:source xml:lang="es">LOPDP, art. 9</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#LegitimateInterest"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Volume">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasDataVolume"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#Recidivism">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">reincidencia</rdfs:label>
+    <skos:definition xml:lang="es">Circunstancia donde la infracción precedente es de la misma naturaleza que la que se pretende sancionar.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 71</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#RuleViolated"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#UnfulfilledRegistry">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Registro Único de Responsables y Encargados Incumplidos</rdfs:label>
+    <skos:definition xml:lang="es">Registro de responsables y encargados del tratamiento de datos personales que han incurrido en infracciones, con fines sociales, estadísticos, preventivos y de capacitación.</skos:definition>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#has_as_the_basis_of">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasLegalBasis"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Techniques">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#TechnicalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Scope">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasScope"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#PersonalDataProtection">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">protección de datos personales</rdfs:label>
+    <skos:definition xml:lang="es">Derecho que incluye el acceso y decisión sobre información y datos de carácter personal.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 1</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations">
+    <dct:source xml:lang="es">LOPDP, art. 20</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#AutomatedDecisionMaking"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Transfer_or_communication">
+    <dct:source xml:lang="es">LOPDP, art. 33</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#Transfer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DataDeletionMethods">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Métodos de eliminación</rdfs:label>
+    <skos:definition xml:lang="es">Técnicas para hacer ilegibles o irreconocibles los datos de forma definitiva y segura.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 15</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataDeletionPolicy"/>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataSanitisationTechnique"/>
+    <skos:narrowMatch rdf:resource="https://w3id.org/dpv#DataRedaction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_suspension_of_treatment">
+    <dct:source xml:lang="es">LOPDP, art. 19</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 9</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 41</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 49</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 76</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 65</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 77</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataProtectionAuthority"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#SelfRegulation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Autorregulación</rdfs:label>
+    <skos:definition xml:lang="es">Facultad voluntaria de adherirse a códigos de conducta y certificaciones sin eximir la responsabilidad legal.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 52</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#CertificationSeal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Serious_infractions">
+    <dct:source xml:lang="es">LOPDP, art. 68</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ObligationViolated"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Admitted_Countries">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Vital_interest_of_another_person">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#VitalInterestOfNaturalPerson"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <owl:imports rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp"/>
+    <rdfs:label xml:lang="es">Alineación con el DPV del perfil Ecuador (LOPDP)</rdfs:label>
+    <rdfs:comment xml:lang="es">Correspondencias SKOS aprobadas por revisión humana entre OntoPriv (núcleo + perfil) y el Data Privacy Vocabulary (DPV 2.3), más los conceptos nuevos extraídos de la ley y aprobados por una persona. El DPV se referencia por IRI; no se importa.</rdfs:comment>
+    <dct:references rdf:resource="https://w3id.org/dpv"/>
+    <dct:created>2026-11-14T15:38:35+00:00</dct:created>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International">
+    <dct:source xml:lang="es">LOPDP, art. 55</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Transfer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_information">
+    <dct:source xml:lang="es">LOPDP, art. 12</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#RightNotice"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_persons_data">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#NonPersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#AnonymisedData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#AdequateProtectionLevel">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">nivel adecuado de protección</rdfs:label>
+    <skos:definition xml:lang="es">Estándar requerido para que países u organizaciones puedan recibir datos personales de forma segura.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 56</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataProtectionAuthority"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#minor_infractions">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasSeverity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#a_data_protection_delegate_will_be_assigned">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasDataProtectionOfficer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Successor_right_holder">
+    <dct:source xml:lang="es">LOPDP, art. 27</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Confidentiality">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 50</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ConfidentialData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Domestic_Companies">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Organisation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Not_informed">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasInformedStatus"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DirectRequirement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">requerimiento directo</rdfs:label>
+    <skos:definition xml:lang="es">Acción gratuita que puede ejercer el titular ante el responsable del tratamiento sobre sus derechos.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 62</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#RequestRequiresAction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Epidemiological_studies">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#ScientificResearch"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_access">
+    <dct:source xml:lang="es">LOPDP, art. 13</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Access"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DutyOfConfidentiality">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Deber de confidencialidad</rdfs:label>
+    <skos:definition xml:lang="es">Obligación de responsables, encargados y terceras personas en el tratamiento de datos de salud para garantizar su seguridad y complementar el secreto profesional.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 30</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ContractConfidentialityClause"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proactive_and_demonstrated_accountability">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Notification">
+    <dct:source xml:lang="es">LOPDP, art. 43</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Notification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">contratos de confidencialidad</rdfs:label>
+    <skos:definition xml:lang="es">Instrumento legal para garantizar el manejo adecuado de datos personales por parte del personal y encargados.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 47</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#ConfidentialityAgreement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_persons_minors">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Organizational">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#OrganisationalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DataBreachException">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">excepciones a la notificación de vulneración</rdfs:label>
+    <skos:definition xml:lang="es">Casos específicos donde no es necesario notificar al titular sobre una vulneración de seguridad bajo condiciones demostrables.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 46</dct:source>
+    <skos:narrowMatch rdf:resource="https://w3id.org/dpv#DataBreachNotice"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights">
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion">
+    <dct:source xml:lang="es">LOPDP, art. 15</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#StorageDeletion"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#need_of">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasNecessity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_digital_education">
+    <dct:source xml:lang="es">LOPDP, art. 23</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DigitalLiteracy"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Scope_of_application">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasScope"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DataProtectionAudit">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">auditorías de protección de datos</rdfs:label>
+    <skos:definition xml:lang="es">Mecanismo de verificación sobre el cumplimiento de las normas corporativas vinculantes.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 58</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#PersonalDataAudit"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner">
+    <dct:source xml:lang="es">LOPDP, art. 17</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 33</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#DataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#sources_from_whence_the_credit_data_was_obtained">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDataSource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ProvisionalMeasures">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Medidas provisionales o cautelares</rdfs:label>
+    <skos:definition xml:lang="es">Medidas de protección o cautelares aplicables por la Autoridad de Protección de Datos Personales según la norma procedimental administrativa.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 74</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#PublicInterest"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_between_15_to_17_years_old">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Child"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#TechnicalAndLegalMeasures">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">medidas técnicas, jurídicas, organizativas o administrativas</rdfs:label>
+    <skos:definition xml:lang="es">Imposición de medidas para garantizar un tratamiento adecuado de los datos personales.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 65</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#TechnicalMeasure"/>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#LegalMeasure"/>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#TechnicalOrganisationalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Child"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_opposition">
+    <dct:source xml:lang="es">LOPDP, art. 16</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minor_infractions">
+    <dct:source xml:lang="es">LOPDP, art. 67</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ObligationViolated"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_protection_mechanisms">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataSecurityManagement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Conservation">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#StorageDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Corrective_measures">
+    <dct:source xml:lang="es">LOPDP, art. 65</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_to_consent_for_national_transfers">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataTransferLegalBasis"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Informed">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasInformedStatus"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#DataSecurityBreach">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">Vulneración de la seguridad de los datos personales</rdfs:label>
+    <skos:definition xml:lang="es">Incidente de seguridad que afecta la confidencialidad, disponibilidad o integridad de los datos personales.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataBreachRecord"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_consult">
+    <dct:source xml:lang="es">LOPDP, art. 22</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Consult"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_over_17_years_old">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Adult"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_Related_Data">
+    <dct:source xml:lang="es">LOPDP, art. 30</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#types_of_safety_measures">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasTechnicalOrganisationalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Serious">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasSeverity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_authorized_by">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasAuthority"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#BiometricAuthentication"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_governments">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#PublicSectorBody"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights">
+    <dct:source xml:lang="es">LOPDP, art. 24</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#RightExerciseActivity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_in_days_for_the_right_of_removal">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_related_data_processing">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalDataProcess"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Purpose">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Purpose"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights_of_credit_data_owners">
+    <dct:source xml:lang="es">LOPDP, art. 29</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Applicability">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Applicability"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Commercial">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#CommercialPurpose"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Consent"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Application_favorable_to_the_owner">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Inapplicability">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Applicability"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Slight">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasSeverity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_plurality_of_purposes">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasPurpose"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#WithdrawConsent"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#PrivacyByDefault">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">protección de datos por defecto</rdfs:label>
+    <skos:definition xml:lang="es">Obligación de tratar únicamente los datos personales estrictamente necesarios para cada fin específico.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 39</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#PrivacyByDefault"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_relationship">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Contract"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Purpose">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasPurpose"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#AuthorisationProcedure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Protection_policies">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasPolicy"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="es">códigos de conducta</rdfs:label>
+    <skos:definition xml:lang="es">Instrumentos sectoriales promovidos para el cumplimiento de la normativa de protección de datos.</skos:definition>
+    <dct:source xml:lang="es">LOPDP, art. 53</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#CodeOfConduct"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Obligations_of_the_responsible_person_and_manager">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasObligation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Juridicity">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Lawfulness"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#affects_to">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasImpactOn"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 33</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Consent"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#DataSecurityManagement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design">
+    <dct:source xml:lang="es">LOPDP, art. 39</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 47</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#PrivacyByDesign"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Security">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 37</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#EnforceSecurity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Profile_making">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Profiling"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#National_Scope">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#NationalScale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Credit_data">
+    <dct:source xml:lang="es">LOPDP, art. 28</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity">
+    <dct:source xml:lang="es">LOPDP, art. 54</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Certification"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Preservation_time">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymization">
+    <dct:source xml:lang="es">LOPDP, art. 31</dct:source>
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Anonymisation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data_processing">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_representative_owner">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#GuardianOfDataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#LegalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Perform_evaluations">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Governmental_information_security_mechanism">
+    <dct:source xml:lang="es">LOPDP, art. 38</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#InformationSecurityPolicy"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Advise_on_risk_analysis">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasRiskAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_correction_and_update">
+    <dct:source xml:lang="es">LOPDP, art. 14</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Name">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasName"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Principles">
+    <dct:source xml:lang="es">LOPDP, art. 57</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Principle"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#CertificationSeal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Violations">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#RuleViolated"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_under_17_years_old">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#time_of_right_to_elimination">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_of_access">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Special_personal_data_categories">
+    <dct:source xml:lang="es">LOPDP, art. 25</dct:source>
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#SpecialCategoryPersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_base">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Data"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minimization">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Technical_measurements">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#TechnicalMeasure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Genetic_data">
+    <dct:source xml:lang="es">LOPDP, art. 4</dct:source>
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Collection">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#Collect"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#Data"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Systematic_evaluation">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exceptions_of_rights">
+    <dct:source xml:lang="es">LOPDP, art. 18</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legality">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#Lawful"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#contact_data">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasContact"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Turnover">
+    <dct:source xml:lang="es">LOPDP, art. 73</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Transparency">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#PrivacyNotice"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sanctions">
+    <dct:source xml:lang="es">LOPDP, art. 71</dct:source>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_to_oppose_opposition">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Unauthorized_consent">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ConsentInvalidated"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_for_international_transfers_or_communications">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#DataTransferLegalBasis"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_implemented_by">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#isImplementedByEntity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Very_serious">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasSeverity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Organic_Law_on_Personal_Data_Protection">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Law"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International_companies">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Organisation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#the_law_applies_in">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasApplicableLaw"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Claims_defense">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DisputeManagement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Deceased_persons_data">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#serious_infractions">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasSeverity"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Large_scale_treatment">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasProcessingScale"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_different_purpose">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasPurpose"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Processing"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Quality">
+    <dct:source xml:lang="es">LOPDP, art. 10</dct:source>
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#DataQualityManagement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Pseudonymization">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Pseudonymisation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Deceased_persons_data">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_under_15_years_old">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#Child"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_with_disability">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#VulnerableDataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_institutions">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#JudicialOrganisation"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_within_days_for_the_right_of_correction_and_update">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasRisk"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Impact_assessment">
+    <skos:closeMatch rdf:resource="https://w3id.org/dpv#hasImpactAssessment"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_Seniors_data">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#ElderlyDataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#scope_of_legislation">
+    <skos:relatedMatch rdf:resource="https://w3id.org/dpv#hasScope"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Recipient">
+    <skos:exactMatch rdf:resource="https://w3id.org/dpv#Recipient"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Disabled_owner_data">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#PersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#duration_of_charge">
+    <skos:broadMatch rdf:resource="https://w3id.org/dpv#hasDuration"/>
+  </rdf:Description>
+</rdf:RDF>

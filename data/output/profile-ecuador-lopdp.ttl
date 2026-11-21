@@ -1,0 +1,2159 @@
+@prefix OntologiaLOPDP: <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#> .
+@prefix ley-organica-proteccion-datos-personales: <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+OntologiaLOPDP:Accidental_or_illegal_destruction_or_communication a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Accurate a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:Advise a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_delegate_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Delegate_functions .
+
+OntologiaLOPDP:Advise_on_risk_analysis a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Delegate_functions .
+
+OntologiaLOPDP:Alterations a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Analysis_methodologies a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager .
+
+OntologiaLOPDP:Anonymization a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Epidemiological_studies OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Solve_an_emergency OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Applied a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Application .
+
+OntologiaLOPDP:Audit_detail a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Audit .
+
+OntologiaLOPDP:Availability a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:International ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Binding_cooperative_rules a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Celerity a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Data_protection_mechanisms ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Certifying_international_transfer_processes a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Certifying_entity_in_verification .
+
+OntologiaLOPDP:Cessation_of_treatment a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Check a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Claim_defense_details a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Claims_defense ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Clear a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:Commercial_use a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Communicate a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Admitted_Countries ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Company_detail a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:International_companies ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:International_company_data .
+
+OntologiaLOPDP:Compatible a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_to_portability ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Complete a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:Conducting_audits a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Certifying_entity_in_verification .
+
+OntologiaLOPDP:Confidentiality a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Consent_authorized_informed_consent a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Conservation a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Contract a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Exceptions_for_international_transfers_or_communications OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Cooperate_with_the_Personal_Data_Protection_Authority a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Delegate_functions .
+
+OntologiaLOPDP:Corporate_standards a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:International_companies ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:International_company_data .
+
+OntologiaLOPDP:Correct a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Correction a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Commercial OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Deceased_persons_data OntologiaLOPDP:Economic OntologiaLOPDP:Financial OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Credit_detail_data a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Credit_data_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Data_admitted_countries_international_transfer a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Admitted_Countries ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Data_use a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_to_information_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Designation_of_the_authority_process a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Detail_banking_data_or_stock_market_details a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Banking_stock_or_stock_market_data ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Detail_of_investigation_of_infringements a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Infringement_investigation ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Detail_transfer_domestic_domestic_scope a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:National_Scope ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Details_of_the_law_details a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Members_of_the_protection_system_in_verification OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Disposal a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Commercial OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Deceased_persons_data OntologiaLOPDP:Economic OntologiaLOPDP:Financial OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Efficiency a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Data_protection_mechanisms ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Exact a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:Excess_of_authorization a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Applicable_safety_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Access .
+
+OntologiaLOPDP:Explicit a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Purpose .
+
+OntologiaLOPDP:Free_authorized_consent a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+OntologiaLOPDP:General_detail a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Administrative OntologiaLOPDP:Administrative_or_judicial_authorities OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Authorization_for_international_transfer OntologiaLOPDP:Authorized_consent OntologiaLOPDP:Banking OntologiaLOPDP:Banking_stock_or_stock_market_data OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Certifying_entity_in_verification OntologiaLOPDP:Claims_defense OntologiaLOPDP:Commercial OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Continuous_control_for_countries_without_consent OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Data_protection_mechanisms OntologiaLOPDP:Deceased_persons_data OntologiaLOPDP:Domestic_Companies OntologiaLOPDP:Economic OntologiaLOPDP:Epidemiological_studies OntologiaLOPDP:Exceptions OntologiaLOPDP:Exceptions_for_international_transfers_or_communications OntologiaLOPDP:Exceptions_to_consent_for_national_transfers OntologiaLOPDP:Exceptions_to_the_rights_in_verification OntologiaLOPDP:Financial OntologiaLOPDP:Follow-up_from_design OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Infringement_investigation OntologiaLOPDP:International OntologiaLOPDP:International_State_to-State_Cooperation OntologiaLOPDP:International_companies OntologiaLOPDP:Legal OntologiaLOPDP:Legal_institutions OntologiaLOPDP:Legal_interest_in_verification OntologiaLOPDP:Legal_relationship OntologiaLOPDP:National_Scope OntologiaLOPDP:Notification OntologiaLOPDP:Organizational OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Public_governments OntologiaLOPDP:Public_interest OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities OntologiaLOPDP:Safety_principles OntologiaLOPDP:Sanctioning_regime OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Solve_an_emergency OntologiaLOPDP:Sources_accessible_to_the_public OntologiaLOPDP:Technical_measurements OntologiaLOPDP:Techniques OntologiaLOPDP:Teenagers OntologiaLOPDP:Transfer_or_communication OntologiaLOPDP:Transparency_principles OntologiaLOPDP:Treatment_Manager_in_verification OntologiaLOPDP:Unauthorized_consent OntologiaLOPDP:Violations_in_verification OntologiaLOPDP:Vital_interest_of_another_person owl:Thing ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Gratuity a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Data_protection_mechanisms OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Guidelines a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Historical a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Public_governments ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Implementing_verification_processes a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager .
+
+OntologiaLOPDP:Informed a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Authorized_consent OntologiaLOPDP:Consent_in_verification OntologiaLOPDP:Exceptions_for_international_transfers_or_communications OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Consent_in_verification .
+
+OntologiaLOPDP:Integral a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:International_cooperation_between_states_details a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:International_State_to-State_Cooperation ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Issue_certifications a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Certifying_entity_in_verification .
+
+OntologiaLOPDP:Issue_stamps a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Certifying_entity_in_verification .
+
+OntologiaLOPDP:Large_scale_treatment a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Impact_assessment .
+
+OntologiaLOPDP:Legal_institutions_detail a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Legal_institutions ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Legal_or_regulatory_obligation a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Legitimate a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Purpose .
+
+OntologiaLOPDP:Loss a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Maintaining_the_accuracy_of_the_information a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Responsible_for_treatment_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Minor_infractions_national_public_company a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Domestic_Companies ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Mitigate a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Name a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_information .
+
+OntologiaLOPDP:National_company_detail a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Domestic_Companies ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:National_registry_for_the_protection_of_personal_data a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Treatment_Manager_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Members_of_the_protection_system_details .
+
+OntologiaLOPDP:Nature a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_delegate_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Control_systemized_and_stabilized_control .
+
+OntologiaLOPDP:Nature_of_the_data a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Not_applied a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:Application .
+
+OntologiaLOPDP:Not_authorized a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Applicable_safety_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Access .
+
+OntologiaLOPDP:Not_informed a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Authorized_consent OntologiaLOPDP:Consent_in_verification OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Consent_in_verification .
+
+OntologiaLOPDP:Penalties_for_mild_infractions a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Violations_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Penalties_for_serious_infractions a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Violations_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Perform_evaluations a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager .
+
+OntologiaLOPDP:Personal_data_encryption a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Personal_detail a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_information .
+
+OntologiaLOPDP:Precautionary_measures a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Sanctioning_regime ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf owl:topDataProperty .
+
+OntologiaLOPDP:Preservation_time a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Notification OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_to_information_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Prevent a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Protection_policies a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager .
+
+OntologiaLOPDP:Public_interest_detail a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Public_interest ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Reason_for_refusal_of_consent a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Unauthorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Reduce a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Regulations a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Request_information_verification a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Holder_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Revocation a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Revoke_consent a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Safety_from_design_by_defect a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager .
+
+OntologiaLOPDP:Sanctioning_administrative_procedure a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Sanctioning_regime ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Scientist a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Public_governments ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Scope a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_delegate_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Control_systemized_and_stabilized_control .
+
+OntologiaLOPDP:Scope_of_credit_rights a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_to_correct_and_update_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Secrecy_of_communications a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Follow-up_from_design OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Notification OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Security_notification_of_infringement a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Notification OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Responsible_for_treatment_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Self-regulation a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Serious a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Violations_in_verification .
+
+OntologiaLOPDP:Serious_infractions_national_public_company a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Domestic_Companies ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Seudonomización a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Slight a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Violations_in_verification .
+
+OntologiaLOPDP:Specific_authorized_consent a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Specific_threats a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Legal_interest_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Statistician a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Public_governments ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Stop a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Risk .
+
+OntologiaLOPDP:Structured a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_to_portability ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Supervise a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Delegate_functions .
+
+OntologiaLOPDP:Supervision a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Systematic_evaluation a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Impact_assessment .
+
+OntologiaLOPDP:Systematic_observation a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Impact_assessment .
+
+OntologiaLOPDP:Technical_control a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Corrective_measures ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Threat a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Transfer_or_international_communication a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Transmit a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Admitted_Countries ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Transparency a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Unequivocal_authorized_consent a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Authorized_consent ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Updated a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Commercial OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Deceased_persons_data OntologiaLOPDP:Economic OntologiaLOPDP:Financial OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Verifiable a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Clarity_and_accuracy .
+
+OntologiaLOPDP:Very_serious a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Violations_in_verification .
+
+OntologiaLOPDP:Vital_interest_detail_of_another_person a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Vital_interest_of_another_person ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Volume a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_delegate_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Control_systemized_and_stabilized_control .
+
+OntologiaLOPDP:Vulnerabilidad a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:account_with_a_certifying_entity a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Transfer_or_communication ;
+    rdfs:range OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_elements_of_transfer_and_communication .
+
+OntologiaLOPDP:account_with_actions_as a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_security ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Applicable_safety_measures OntologiaLOPDP:Data_protection_mechanisms OntologiaLOPDP:Follow-up_from_design OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Notification OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities OntologiaLOPDP:Technical_measurements ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:security_security_presents_itself_as .
+
+OntologiaLOPDP:and_as_your_age_will_have_to_be_of_your_age a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Data_persons_minors ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:and_the_owner_divides_into .
+
+OntologiaLOPDP:and_in_exceptional_cases_you_have_to a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Rights_in_verification ;
+    rdfs:range OntologiaLOPDP:Exceptions_to_the_rights_in_verification ;
+    rdfs:subPropertyOf OntologiaLOPDP:the_law_has_the_following_rights .
+
+OntologiaLOPDP:can_be a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Consent_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Authorized_consent OntologiaLOPDP:Unauthorized_consent ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:consent_is_emphasized .
+
+OntologiaLOPDP:can_be_rights_of a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Rights_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:the_law_has_the_following_rights .
+
+OntologiaLOPDP:data_persons_minors001 a OntologiaLOPDP:Data_persons_minors,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Children's data must be accessible" ;
+    OntologiaLOPDP:Anonymization "It must be possible to anonymize the data of minors." ;
+    OntologiaLOPDP:Correction "Children's data must be able to be rectified" ;
+    OntologiaLOPDP:Disposal "It must be possible to delete the data of minors" ;
+    OntologiaLOPDP:General_detail "These are data that cannot be used freely by the owner of the information without first having permission or knowing key points about the use of their data." ;
+    OntologiaLOPDP:Updated "Children's data must be able to be updated" ;
+    OntologiaLOPDP:and_the_owner_divides_into OntologiaLOPDP:data_people_over_age_001 .
+
+OntologiaLOPDP:exceptions_to_rights a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions_to_the_rights_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:in_consideration_of_credit_data_is_held a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Credit_data_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking OntologiaLOPDP:Commercial OntologiaLOPDP:Economic OntologiaLOPDP:Financial ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:that_can_be .
+
+OntologiaLOPDP:is_compliant_with_the_following_roles a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Members_of_the_protection_system_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_the_following_roles .
+
+OntologiaLOPDP:right_of_access_time a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_of_access_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:segmented_into_the_following_international_cases a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions_for_international_transfers_or_communications ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking_stock_or_stock_market_data OntologiaLOPDP:Claims_defense OntologiaLOPDP:Infringement_investigation OntologiaLOPDP:International_State_to-State_Cooperation OntologiaLOPDP:Legal_institutions OntologiaLOPDP:Public_interest OntologiaLOPDP:Vital_interest_of_another_person ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:as_to_the_national_and_international_related_to_it_be_held .
+
+OntologiaLOPDP:segmented_into_the_following_national_cases a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions_to_consent_for_national_transfers ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative_or_judicial_authorities OntologiaLOPDP:Epidemiological_studies OntologiaLOPDP:Legal_relationship OntologiaLOPDP:Public_governments OntologiaLOPDP:Solve_an_emergency OntologiaLOPDP:Sources_accessible_to_the_public ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:as_to_the_national_and_international_related_to_it_be_held .
+
+OntologiaLOPDP:that_are_divided_into a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_the_following_principles_to_consider .
+
+OntologiaLOPDP:that_can_be_of_the_type a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Corrective_measures ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative OntologiaLOPDP:Legal OntologiaLOPDP:Organizational OntologiaLOPDP:Techniques ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:the_verification_covers_aspects_such_as .
+
+OntologiaLOPDP:time_of_a_vulnerability_notification a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Notification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:time_of_right_to_elimination a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Right_of_deletion_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:where_in_in_the_international_field_you_have_to_have a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:International ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Admitted_Countries OntologiaLOPDP:Authorization_for_international_transfer OntologiaLOPDP:Continuous_control_for_countries_without_consent OntologiaLOPDP:International_companies ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:where_transfer_and_communication_is_divided_into .
+
+OntologiaLOPDP:where_in_the_national_scope_is_held a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:National_Scope ;
+    rdfs:range OntologiaLOPDP:Domestic_Companies ;
+    rdfs:subPropertyOf OntologiaLOPDP:where_transfer_and_communication_is_divided_into .
+
+ley-organica-proteccion-datos-personales:are_composed_of a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system ley-organica-proteccion-datos-personales:Minimum_criteria ley-organica-proteccion-datos-personales:Principles ley-organica-proteccion-datos-personales:Sanctions ley-organica-proteccion-datos-personales:Terminology ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Application_favorable_to_the_owner ley-organica-proteccion-datos-personales:Certifying_entity ley-organica-proteccion-datos-personales:Confidentiality ley-organica-proteccion-datos-personales:Consent ley-organica-proteccion-datos-personales:Conservation ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Owner ley-organica-proteccion-datos-personales:Data_Processor ley-organica-proteccion-datos-personales:Data_base ley-organica-proteccion-datos-personales:Data_processing ley-organica-proteccion-datos-personales:Data_types ley-organica-proteccion-datos-personales:Delegate ley-organica-proteccion-datos-personales:Independence_of_control ley-organica-proteccion-datos-personales:Juridicity ley-organica-proteccion-datos-personales:Legal_interest ley-organica-proteccion-datos-personales:Legality ley-organica-proteccion-datos-personales:Loyalty ley-organica-proteccion-datos-personales:Minimization ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Need ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ley-organica-proteccion-datos-personales:Personal_data_protection_authority ley-organica-proteccion-datos-personales:Personal_data_protection_seals ley-organica-proteccion-datos-personales:Personal_data_security_vulnerability ley-organica-proteccion-datos-personales:Proactive_and_demonstrated_accountability ley-organica-proteccion-datos-personales:Profile_making ley-organica-proteccion-datos-personales:Proportionality ley-organica-proteccion-datos-personales:Pseudonymization ley-organica-proteccion-datos-personales:Purpose ley-organica-proteccion-datos-personales:Quality ley-organica-proteccion-datos-personales:Recipient ley-organica-proteccion-datos-personales:Relevance ley-organica-proteccion-datos-personales:Security ley-organica-proteccion-datos-personales:Source_accessible_to_the_public ley-organica-proteccion-datos-personales:Transparency ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system,
+        ley-organica-proteccion-datos-personales:Minimum_criteria,
+        ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:are_comprised_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Violations ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions ley-organica-proteccion-datos-personales:Serious_infractions ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Violations .
+
+ley-organica-proteccion-datos-personales:are_destined_to a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Claims ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range ley-organica-proteccion-datos-personales:Data_Controller ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Claims,
+        ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:are_made_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Sanctions ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:before_dictating_corrective_measures a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:by a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions ley-organica-proteccion-datos-personales:Serious_infractions ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:cases_to_incur_in_corrective_measures a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:collection a ley-organica-proteccion-datos-personales:Collection,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:description "Refers to the process of acquiring and obtaining data from various sources, such as sensors, databases, online forms, historical records, among others." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:consent ;
+    ley-organica-proteccion-datos-personales:need_of ley-organica-proteccion-datos-personales:consent .
+
+ley-organica-proteccion-datos-personales:committed_by a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions ley-organica-proteccion-datos-personales:Serious_infractions ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Violations .
+
+ley-organica-proteccion-datos-personales:corrective_measures a ley-organica-proteccion-datos-personales:Corrective_measures,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:before_dictating_corrective_measures "To have a competent technical report that allows correcting, reversing or eliminating conducts contrary to the Organic Law for the Protection of Personal Data and the regulations issued by the Authority for the Protection of Personal Data." ;
+    ley-organica-proteccion-datos-personales:cases_to_incur_in_corrective_measures "In the event that controllers, persons in charge of processing personal data and certification bodies and, if applicable, third parties, are involved in the alleged commission of a minor infringement and are included in the Unified Registry of non-compliant controllers and persons in charge of processing personal data.",
+        "In the event that controllers, persons in charge of the processing of personal data and certification bodies are involved in the alleged commission of a serious infringement",
+        "In the event that controllers, persons in charge of the processing of personal data and certification bodies are involved in the alleged commission of a very serious infringement" ;
+    ley-organica-proteccion-datos-personales:for_minor_infractions "The Personal Data Protection Authority will directly activate the administrative sanctioning procedure, stating in the resolution both the applicable corrective measures and the sanction corresponding to the infraction committed." ;
+    ley-organica-proteccion-datos-personales:for_serious_infractions "The Data Protection Authority will initially apply corrective measures. If they are not adequately complied with, sanctions for serious infringements will be imposed through the administrative sanctioning procedure." ;
+    ley-organica-proteccion-datos-personales:for_very_serious_offenses "The Personal Data Protection Authority will directly activate the administrative sanctioning procedure, stating in the resolution both the applicable corrective measures and the sanction corresponding to the infraction committed." ;
+    ley-organica-proteccion-datos-personales:in_the_case_of_non-compliance_of "Diposiciones prevista en la Ley Orgnánica de Protección de Datos Personales",
+        "Disobedience of the directives and guidelines issued by the Authority for the Protection of Personal Data.",
+        "Infringement of data owner's rights",
+        "Violation of the fundamental principles related to the right to the protection of personal data.",
+        "Violation of the regulations established by the Personal Data Protection Authority." ;
+    ley-organica-proteccion-datos-personales:what_will_be_the_corrective_measures "Data deletion",
+        "The cessation of treatment, under certain conditions or time limits",
+        "The imposition of technical, legal, organizational or administrative measures to ensure proper processing of personal data" ;
+    ley-organica-proteccion-datos-personales:will_be_imposed_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:destined_for a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:determination_of_the_fine_in_respect_to_penalties_for_infringement_of_the_responsible_person_or_person_in_charge_of_treatment a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Minor_infractions_penalties ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:for_minor_infractions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:for_serious_infractions a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:for_very_serious_offenses a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:in_the_case_of_non-compliance_of a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:is_related_to a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Collection ley-organica-proteccion-datos-personales:Data_Controller ley-organica-proteccion-datos-personales:Data_Processor ley-organica-proteccion-datos-personales:Delegate ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ley-organica-proteccion-datos-personales:Processing ley-organica-proteccion-datos-personales:Right_not_to_be_object_to_automated_evaluations ley-organica-proteccion-datos-personales:Right_of_access ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Consent ley-organica-proteccion-datos-personales:Consent_defects ley-organica-proteccion-datos-personales:Data_processing ley-organica-proteccion-datos-personales:Delegate ley-organica-proteccion-datos-personales:Personal_data_protection_authority ley-organica-proteccion-datos-personales:Proportionality ley-organica-proteccion-datos-personales:Revocation_of_consent ley-organica-proteccion-datos-personales:Right_to_information ley-organica-proteccion-datos-personales:Scope_of_application ley-organica-proteccion-datos-personales:Turnover ) ] ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:need_of a owl:ObjectProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Collection ;
+    rdfs:range ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Collection .
+
+ley-organica-proteccion-datos-personales:principle_of_attachment_with_sanction_to_the_responsible_party_or_the_treatment_manager a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Minor_infractions_penalties ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:sanciones a ley-organica-proteccion-datos-personales:Sanctions,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_made_of ley-organica-proteccion-datos-personales:minor_infractions_penalties,
+        ley-organica-proteccion-datos-personales:penalties_for_Serious_Infringements ;
+    ley-organica-proteccion-datos-personales:will_be_imposed_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_to_the_responsible_party_or_the_processor a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_toward_public_servants_or_officials a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Sanctions .
+
+ley-organica-proteccion-datos-personales:violations a ley-organica-proteccion-datos-personales:Violations,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:are_comprised_of ley-organica-proteccion-datos-personales:minor_infractions,
+        ley-organica-proteccion-datos-personales:serious_infractions .
+
+ley-organica-proteccion-datos-personales:what_will_be_the_corrective_measures a owl:DatatypeProperty ;
+    rdfs:domain ley-organica-proteccion-datos-personales:Corrective_measures ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures .
+
+ley-organica-proteccion-datos-personales:will_be_imposed_by a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ley-organica-proteccion-datos-personales:Corrective_measures ley-organica-proteccion-datos-personales:Minor_infractions_penalties ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements ) ] ;
+    rdfs:range ley-organica-proteccion-datos-personales:Personal_data_protection_authority ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Corrective_measures,
+        ley-organica-proteccion-datos-personales:Sanctions .
+
+<http://www.semanticweb.org/profiles/ecuador-lopdp> a owl:Ontology ;
+    owl:imports <http://www.semanticweb.org/ontopriv-core> .
+
+OntologiaLOPDP:Audit a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:a_process_of a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Verification .
+
+OntologiaLOPDP:access_right001 a OntologiaLOPDP:Right_of_access_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:General_detail "This right states that the owner of the information has the right to access it free of charge and in detail within 15 days." ;
+    OntologiaLOPDP:Informed "It can be an informed consent" ;
+    OntologiaLOPDP:Not_informed "May be an uninformed consent" ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Updated "Must be updated" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:access_right001 ;
+    OntologiaLOPDP:right_of_access_time "15 days" .
+
+OntologiaLOPDP:addressee_in_verification001 a OntologiaLOPDP:Addressee_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Details_of_the_law_details "Information" ;
+    OntologiaLOPDP:General_detail "It is the natural or legal person to whom the holder's data will be sent." ;
+    OntologiaLOPDP:Name "Pedro" ;
+    OntologiaLOPDP:Personal_detail "Person receiving the information" ;
+    OntologiaLOPDP:Personal_information "Recipient information" ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:addressee_in_verification001 .
+
+OntologiaLOPDP:administrative001 a OntologiaLOPDP:Administrative,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Applied "When the measure is applied" ;
+    OntologiaLOPDP:Cessation_of_treatment "When the corrective action stops" ;
+    OntologiaLOPDP:Exceptions "Exceptions applicable to administrative companies" ;
+    OntologiaLOPDP:General_detail "Actions to be taken in administrative cases." ;
+    OntologiaLOPDP:Guidelines "Administrative guidelines",
+        "Guidelines to follow" ;
+    OntologiaLOPDP:Not_applied "When a verification process does not apply" ;
+    OntologiaLOPDP:Regulations "Administrative regulations" ;
+    OntologiaLOPDP:that_can_be_of_the_type OntologiaLOPDP:administrative001 .
+
+OntologiaLOPDP:administrative_or_judicial_authorities001 a OntologiaLOPDP:Administrative_or_judicial_authorities,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Exceptions "Administrative and legal exemptions are available" ;
+    OntologiaLOPDP:General_detail "In an investigation process, the holder's data may be used either by a judge or an administrative entity." ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:administrative_or_judicial_authorities001 .
+
+OntologiaLOPDP:admitted_countries001 a OntologiaLOPDP:Admitted_Countries,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Availability "Information must be available" ;
+    OntologiaLOPDP:Communicate "The information must be communicated" ;
+    OntologiaLOPDP:Correct "The information must be corrected" ;
+    OntologiaLOPDP:Data_admitted_countries_international_transfer "Admitted countries information" ;
+    OntologiaLOPDP:General_detail "These are the countries that are allowed to carry out data transfer processes with Ecuador." ;
+    OntologiaLOPDP:Mitigate "The information must be mitigated" ;
+    OntologiaLOPDP:Prevent "Information must be prevented" ;
+    OntologiaLOPDP:Transmit "The information must be transmitted" ;
+    OntologiaLOPDP:where_in_in_the_international_field_you_have_to_have OntologiaLOPDP:admitted_countries001 .
+
+OntologiaLOPDP:and_the_owner_divides_into a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Holder_in_verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Deceased_persons_data ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_the_following_roles .
+
+OntologiaLOPDP:análisis_de_riesgo_amenazas_y_vulnerabilidades001 a OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "Es una tarea que debe realizar el responsable y encargado del tratamiento de los datos para evitar la presencia de esta amenazas." ;
+    OntologiaLOPDP:Risk "Riego presente en un análisis de datos" ;
+    OntologiaLOPDP:Secrecy_of_communications "La transferencia de información debe ser secreta" ;
+    OntologiaLOPDP:Threat "Amenaza a los datos" ;
+    OntologiaLOPDP:Vulnerabilidad "Vulnerabildiad presente en los datos en procesos de transferencia" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:análisis_de_riesgo_amenazas_y_vulnerabilidades001 .
+
+OntologiaLOPDP:applicable_safety_measures001 a OntologiaLOPDP:Applicable_safety_measures,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Check "The applicable security measures must control the risk to the data." ;
+    OntologiaLOPDP:Excess_of_authorization "The applicable security measures must prevent the authorization process in the data." ;
+    OntologiaLOPDP:General_detail "Concrete actions that the responsible and in charge must take into consideration at the moment of a change or mishandling of the data of the owner of the information." ;
+    OntologiaLOPDP:Mitigate "The applicable security measures must mitigate the risk to the data." ;
+    OntologiaLOPDP:Not_authorized "The applicable security measures must prevent unauthorized access to the data." ;
+    OntologiaLOPDP:Prevent "The applicable security measures must prevent the risk to the data." ;
+    OntologiaLOPDP:Reduce "The applicable security measures must reduce the risk to the data." ;
+    OntologiaLOPDP:Secrecy_of_communications "The applicable security measures must be governed by the secrecy of data communications." ;
+    OntologiaLOPDP:Stop "The applicable security measures must prevent data compromise" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:applicable_safety_measures001 .
+
+OntologiaLOPDP:authority001 a OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Advise_on_risk_analysis "Gives assistance on specific issues" ;
+    OntologiaLOPDP:Control_systemized_and_stabilized_control "Follows up on everything" ;
+    OntologiaLOPDP:Cooperate_with_the_Personal_Data_Protection_Authority "cooperates with the authority" ;
+    OntologiaLOPDP:Correct "Corrects errors generated by the responsible parties in the information transfer process." ;
+    OntologiaLOPDP:Designation_of_the_authority_process "The Personal Data Authority is designated in accordance with the provisions of the Constitution of Ecuador." ;
+    OntologiaLOPDP:Details_of_the_law_details "Information on the members of the law" ;
+    OntologiaLOPDP:General_detail "He is in charge of supervising that everything is in order and if there is any inconsistency, he solves it." ;
+    OntologiaLOPDP:Mitigate "Mitigates data risks" ;
+    OntologiaLOPDP:Name "Juan" ;
+    OntologiaLOPDP:Personal_detail "It is responsible for the implementation of corrective actions." ;
+    OntologiaLOPDP:Personal_information "Authority data" ;
+    OntologiaLOPDP:Prevent "Prevents errors" ;
+    OntologiaLOPDP:Sanctioning_administrative_procedure "Performs the corresponding procedure" ;
+    OntologiaLOPDP:Serious "from 10 to 20 unified basic salaries" ;
+    OntologiaLOPDP:Slight "from 1 to 10 basic unified salaries." ;
+    OntologiaLOPDP:Supervise "Supervises the delegate" ;
+    OntologiaLOPDP:Transfer_or_international_communication "The Personal Data Authority is responsible for establishing the international transfer and communication processes." ;
+    OntologiaLOPDP:Very_serious "It is not specified what sanction to take in these cases, more aspects should be considered." ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:authority001 .
+
+OntologiaLOPDP:authorization_for_international_transfer001 a OntologiaLOPDP:Authorization_for_international_transfer,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Excess_of_authorization "When in an international transfer an organization has many privileges" ;
+    OntologiaLOPDP:General_detail "It is the permission you must have to perform an international data transfer." ;
+    OntologiaLOPDP:where_in_in_the_international_field_you_have_to_have OntologiaLOPDP:authorization_for_international_transfer001 .
+
+OntologiaLOPDP:bank_or_stock_bank_data001 a OntologiaLOPDP:Banking_stock_or_stock_market_data,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Detail_banking_data_or_stock_market_details "Details of bank or stock exchange data in an international transfer exception" ;
+    OntologiaLOPDP:General_detail "In an international process involving money, the data of the owner of the information may be used." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:bank_or_stock_bank_data001 .
+
+OntologiaLOPDP:banking001 a OntologiaLOPDP:Banking,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "The holder has access to his bank details" ;
+    OntologiaLOPDP:Correction "Bank details must be able to be rectified" ;
+    OntologiaLOPDP:Detail_banking_data_or_stock_market_details "The banking data has a banking or stock market detail." ;
+    OntologiaLOPDP:Disposal "It must be possible to delete bank details" ;
+    OntologiaLOPDP:General_detail "Bank type data" ;
+    OntologiaLOPDP:Updated "The data must be up to date" ;
+    OntologiaLOPDP:in_consideration_of_credit_data_is_held OntologiaLOPDP:banking001 .
+
+OntologiaLOPDP:boys_and_girls001 a OntologiaLOPDP:Boys_and_girls,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Anonymization "It should be possible to anonymize data on children." ;
+    OntologiaLOPDP:Correction "Children's data must be able to be rectified" ;
+    OntologiaLOPDP:Disposal "Children's data must be able to be removed" ;
+    OntologiaLOPDP:General_detail "They are a special type of owner that needs the explicit consent of their legal representative for the person in charge or owner of the information to make use of them. The age range to be considered as children's data is from 0 to 11 years old." ;
+    OntologiaLOPDP:Supervision "They need the supervision of their parents or legal guardian in order to make use of this information." ;
+    OntologiaLOPDP:and_as_your_age_will_have_to_be_of_your_age OntologiaLOPDP:boys_and_girls001 .
+
+OntologiaLOPDP:certifying_entity001 a OntologiaLOPDP:Certifying_entity_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Certifying_international_transfer_processes "The information transfer process must be certified." ;
+    OntologiaLOPDP:Conducting_audits "Audits must be carried out by certified entities." ;
+    OntologiaLOPDP:General_detail "It is responsible for accrediting the information transfer processes, it is an entity endorsed by the Authority for the Protection of Personal Data." ;
+    OntologiaLOPDP:Issue_certifications "Certification must be issued when any information transfer process is carried out." ;
+    OntologiaLOPDP:Issue_stamps "Stamps should be issued" ;
+    OntologiaLOPDP:account_with_a_certifying_entity OntologiaLOPDP:certifying_entity001 .
+
+OntologiaLOPDP:commercial001 a OntologiaLOPDP:Commercial,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Commercial data must be accessible" ;
+    OntologiaLOPDP:Disposal "It must be possible to delete commercial data",
+        "It must be possible to rectify commercial data" ;
+    OntologiaLOPDP:General_detail "Commercial data to carry out transactions" ;
+    OntologiaLOPDP:Updated "Commercial data must be up to date" ;
+    OntologiaLOPDP:in_consideration_of_credit_data_is_held OntologiaLOPDP:commercial001 .
+
+OntologiaLOPDP:consent_is_emphasized a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Consent_in_verification .
+
+OntologiaLOPDP:consentimiento001 a OntologiaLOPDP:Consent_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:consent_is_emphasized OntologiaLOPDP:consentimiento001 .
+
+OntologiaLOPDP:consentimiento_autorizado001 a OntologiaLOPDP:Authorized_consent,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Commercial_use "No se puede hacer uso de los datos del titular a menos este último así lo decida y puede remitir su consentimiento en cualquier momento, no se puede comercializar o transferir a terceros los datos personales de los usuarios" ;
+    OntologiaLOPDP:Consent_authorized_informed_consent "consentimiento informado ante un hecho" ;
+    OntologiaLOPDP:Free_authorized_consent "consentimiento libre para realizar una o más acciones sobre los datos" ;
+    OntologiaLOPDP:General_detail "El consentimiento autorizado ocurre cuando se le informa al titular de la información sobre el uso que se le va a dar a la misma, además se pide su autorización sobre el uso de esa información.",
+        "El consentimiento no autorizado ocurre cuando no se le informa al titular de la información sobre el uso que se le va a dar a la misma, además no se pide su autorización sobre el uso de esa información." ;
+    OntologiaLOPDP:Informed "Informar sobre lo que se va a hacer" ;
+    OntologiaLOPDP:Not_informed "No informar al titular sobre lo que se va a hacer" ;
+    OntologiaLOPDP:Specific_authorized_consent "consentimiento sobre algo concreto al momento de realizar una transferencia" ;
+    OntologiaLOPDP:Unequivocal_authorized_consent "consentimiento inequívo por parte del titular ante alguna acción" ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:consentimiento_autorizado001 .
+
+OntologiaLOPDP:consentimiento_no_autorizado001 a OntologiaLOPDP:Unauthorized_consent,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Not_informed "No informar al titular sobre la no autorización del consentimiento" ;
+    OntologiaLOPDP:Reason_for_refusal_of_consent "Detalles del por qué no se autorizó el consentimiento para realizar una transferencia" ;
+    OntologiaLOPDP:can_be OntologiaLOPDP:consentimiento_no_autorizado001 .
+
+OntologiaLOPDP:consultation_right001 a OntologiaLOPDP:Right_to_consult_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:General_detail "This right refers to the obligation that the law has in the event of a request for information by the owner of the information." ;
+    OntologiaLOPDP:Informed "It can be an informed consent" ;
+    OntologiaLOPDP:Not_informed "May be an uninformed consent" ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Updated "Must be updated" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:consultation_right001 .
+
+OntologiaLOPDP:continuous_monitoring_for_non-consenting_countries001 a OntologiaLOPDP:Continuous_control_for_countries_without_consent,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Check "A control system must be followed with the information" ;
+    OntologiaLOPDP:Control_systemized_and_stabilized_control "The control must be permanent and systematized." ;
+    OntologiaLOPDP:General_detail "In case the country is not in the list of admitted countries, the transfer can be made as long as a continuous control with this country is carried out." ;
+    OntologiaLOPDP:where_in_in_the_international_field_you_have_to_have OntologiaLOPDP:continuous_monitoring_for_non-consenting_countries001 .
+
+OntologiaLOPDP:corrective_actions001 a OntologiaLOPDP:Corrective_measures,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Application "What will be done" ;
+    OntologiaLOPDP:Applied "Corrective action implemented" ;
+    OntologiaLOPDP:Cessation_of_treatment "When the corrective action stops" ;
+    OntologiaLOPDP:Disposal "A corrective action can be eliminated" ;
+    OntologiaLOPDP:General_detail "These are actions to be taken in case of misuse of data or information provided by the owner of the information." ;
+    OntologiaLOPDP:Guidelines "Guidelines for corrective action",
+        "What will be followed" ;
+    OntologiaLOPDP:Not_applied "When a corrective action is not implemented" ;
+    OntologiaLOPDP:Regulations "Remedial action regulations" ;
+    OntologiaLOPDP:Technical_control "A correct telecommunications service must be provided and the Telecommunications Regulation and Control Agency must check/verify that the measures implemented to share this information are correctly implemented." ;
+    OntologiaLOPDP:the_verification_covers_aspects_such_as OntologiaLOPDP:corrective_actions001 .
+
+OntologiaLOPDP:credit_data001 a OntologiaLOPDP:Credit_data_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Los datos crediticios deben tener un acceso libre para el titular" ;
+    OntologiaLOPDP:Correction "Los datos crediticios deben poderse rectificar" ;
+    OntologiaLOPDP:Credit_detail_data """Estos datos pueden ser usados en procesos de investigación sin el consentimiento del titular.
+
+Por otro parte los datos crediticios son los datos bursátiles o bancarios del titular que en caso de no se necesarios para una investigación no pueden ser usados por terceros sin el consentimiento explícito del titular de la información.""" ;
+    OntologiaLOPDP:Disposal "Los datos crediticios pueden ser eliminados" ;
+    OntologiaLOPDP:General_detail "Son datos de carácter bancario que se pueden usar en algún proceso investigativo." ;
+    OntologiaLOPDP:Purpose "Los datos crediticios en general tienen una finalidad de uso en casos de análisis y no pueden ser comunicados o difundos para cualquier otra finalidad o fin." ;
+    OntologiaLOPDP:Updated "Los datos crediticios pueden ser actualizados" ;
+    OntologiaLOPDP:that_can_be OntologiaLOPDP:credit_data001 .
+
+OntologiaLOPDP:data_protection_mechanisms001 a OntologiaLOPDP:Data_protection_mechanisms,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Celerity "Data protection mechanisms must be speeded up" ;
+    OntologiaLOPDP:Efficiency "Data protection mechanisms must be effective",
+        "Data protection mechanisms must be efficient" ;
+    OntologiaLOPDP:General_detail "Actions that must be taken into account with regard to data so that they are not violated." ;
+    OntologiaLOPDP:Gratuity "Data protection mechanisms must be free of charge" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:data_protection_mechanisms001 .
+
+OntologiaLOPDP:deceased_persons_data001 a OntologiaLOPDP:Deceased_persons_data,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "They must have optimal access" ;
+    OntologiaLOPDP:Correction "It must be possible to rectify" ;
+    OntologiaLOPDP:Disposal "It should be possible to eliminate" ;
+    OntologiaLOPDP:General_detail "These are data of deceased owners, but the person in charge of them, such as their legal representative, can make use of them." ;
+    OntologiaLOPDP:Updated "Must be up to date" ;
+    OntologiaLOPDP:and_the_owner_divides_into OntologiaLOPDP:deceased_persons_data001 .
+
+OntologiaLOPDP:defense_of_claims001 a OntologiaLOPDP:Claims_defense,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Claim_defense_details "Detail on defense claims in an international transfer case" ;
+    OntologiaLOPDP:General_detail "This is used when the data is subject to a defense of claims for a particular subject matter." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:defense_of_claims001 .
+
+OntologiaLOPDP:delegate001 a OntologiaLOPDP:Personal_data_delegate_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Advise "Advises the data protection authority" ;
+    OntologiaLOPDP:Advise_on_risk_analysis "Advises the authority on risk analysis issues." ;
+    OntologiaLOPDP:Audit "Assists in audit processes and performs audits" ;
+    OntologiaLOPDP:Cooperate_with_the_Personal_Data_Protection_Authority "Cooperates with the authority" ;
+    OntologiaLOPDP:Delegate_functions """Among its functions are:
+- Advising the person in charge
+- Supervising the Authority
+- Advise on risk analysis
+- Cooperate with the Authority""" ;
+    OntologiaLOPDP:Details_of_the_law_details "Information" ;
+    OntologiaLOPDP:General_detail "It assists the data processor and data controller in specific cases and monitors them, performs auditing processes and collaborates with the authority to keep the other processes running smoothly." ;
+    OntologiaLOPDP:Name "Antonio" ;
+    OntologiaLOPDP:Nature "The nature of its functions" ;
+    OntologiaLOPDP:Personal_detail "Helps the authority to fulfill its functions" ;
+    OntologiaLOPDP:Personal_information "Delegate information" ;
+    OntologiaLOPDP:Purpose "These are the actions to be performed" ;
+    OntologiaLOPDP:Scope "Scope of functions" ;
+    OntologiaLOPDP:Supervise "He/she is in charge of supervising when the manager's activities require supervision." ;
+    OntologiaLOPDP:Volume "Volume of data handled" ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:delegate001 .
+
+OntologiaLOPDP:economic001 a OntologiaLOPDP:Economic,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Economic data must be accessible" ;
+    OntologiaLOPDP:Correction "It must be possible to rectify economic data" ;
+    OntologiaLOPDP:Disposal "Economic data must be accessible" ;
+    OntologiaLOPDP:General_detail "Momentary data" ;
+    OntologiaLOPDP:Updated "Economic data must be updatable" ;
+    OntologiaLOPDP:in_consideration_of_credit_data_is_held OntologiaLOPDP:economic001 .
+
+OntologiaLOPDP:epidemiological_studies001 a OntologiaLOPDP:Epidemiological_studies,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Anonymization "The holder of the information must have his data anonymized so that a transfer" ;
+    OntologiaLOPDP:Exceptions "Exceptions are available when an epidemiological study is conducted" ;
+    OntologiaLOPDP:General_detail "In a pandemic or epidemic, the holder's information may be used without his/her consent." ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:epidemiological_studies001 .
+
+OntologiaLOPDP:exceptions001 a OntologiaLOPDP:Exceptions,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "It covers all the exceptions to be considered at the national and international level in the transfer of information." ;
+    OntologiaLOPDP:and_emphasis_is_on_the_following_exceptions OntologiaLOPDP:exceptions001 .
+
+OntologiaLOPDP:exceptions_for_transfers_or_international_communications001 a OntologiaLOPDP:Exceptions_for_international_transfers_or_communications,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Contract "There must be a contract" ;
+    OntologiaLOPDP:General_detail "These are scenarios in which the owner's permission is not required to use his or her information." ;
+    OntologiaLOPDP:Informed "Exceptions to international transfer of the holder's data must be reported." ;
+    OntologiaLOPDP:Legal_or_regulatory_obligation "International exceptions must have a legal or regulatory obligation" ;
+    OntologiaLOPDP:as_to_the_national_and_international_related_to_it_be_held OntologiaLOPDP:exceptions_for_transfers_or_international_communications001 .
+
+OntologiaLOPDP:exceptions_to_consent_for_national_transfer001 a OntologiaLOPDP:Exceptions_to_consent_for_national_transfers,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Exceptions "There are exceptions for consenting to a domestic transfer of information" ;
+    OntologiaLOPDP:General_detail "These are scenarios in which the approval of the personal data authority is not required to make use of personal data." ;
+    OntologiaLOPDP:as_to_the_national_and_international_related_to_it_be_held OntologiaLOPDP:exceptions_to_consent_for_national_transfer001 .
+
+OntologiaLOPDP:exceptions_to_rights001 a OntologiaLOPDP:Exceptions_to_the_rights_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "It talks about the cases in which the contemplated rights will not be applied and will be obviated." ;
+    OntologiaLOPDP:and_in_exceptional_cases_you_have_to OntologiaLOPDP:exceptions_to_rights001 ;
+    OntologiaLOPDP:exceptions_to_rights "Exceptional cases where rights do not apply" .
+
+OntologiaLOPDP:financial001 a OntologiaLOPDP:Financial,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Financial data must be accessible" ;
+    OntologiaLOPDP:Correction "Financial data must be rectifiable" ;
+    OntologiaLOPDP:Disposal "It must be possible to delete financial data" ;
+    OntologiaLOPDP:General_detail "Momentary data that involves additional information such as account statements.",
+        "When the objective is to process the data for specific purposes, whether historical, statistical or scientific." ;
+    OntologiaLOPDP:Updated "It must be possible to update financial data" ;
+    OntologiaLOPDP:in_consideration_of_credit_data_is_held OntologiaLOPDP:financial001 .
+
+OntologiaLOPDP:has_the_following_principles_to_consider a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Principles_in_verification .
+
+OntologiaLOPDP:health_data001 a OntologiaLOPDP:Health_data_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "They must have optimal access" ;
+    OntologiaLOPDP:Anonymization "Data must be anonymized" ;
+    OntologiaLOPDP:Correction "It must be possible to rectify" ;
+    OntologiaLOPDP:Disposal "It must be possible to delete data" ;
+    OntologiaLOPDP:General_detail "They are a type of data of the owner, but can be used by companies or public entities, this in case of an emergency involving the integrity of the owner of the information.",
+        "This is data such as criminal history or history of very serious diseases or specific actions that the holder has carried out in breach of a national law or law." ;
+    OntologiaLOPDP:Updated "Must be up to date" ;
+    OntologiaLOPDP:that_can_be OntologiaLOPDP:health_data001 .
+
+OntologiaLOPDP:holder001 a OntologiaLOPDP:Holder_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Contract "The holder is entitled to a contract" ;
+    OntologiaLOPDP:Details_of_the_law_details "General information" ;
+    OntologiaLOPDP:General_detail "It is the person or entity that owns the data." ;
+    OntologiaLOPDP:Informed "The Data Subject must be informed of the status of his or her data at all times and must be informed if his or her data is being misused." ;
+    OntologiaLOPDP:Name "Francisco" ;
+    OntologiaLOPDP:Personal_detail "I am the owner of my information" ;
+    OntologiaLOPDP:Personal_information "Information" ;
+    OntologiaLOPDP:Preservation_time "3O days" ;
+    OntologiaLOPDP:Request_information_verification "The owner of the data can request the verification of his information to the person in charge or responsible for the treatment of his information without cost and as soon as possible." ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:holder001 .
+
+OntologiaLOPDP:infringements001 a OntologiaLOPDP:Violations_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Detail_of_investigation_of_infringements "Detailed information on violations" ;
+    OntologiaLOPDP:Penalties_for_mild_infractions "In the case of the Data Authority, the range is from 1 to 10 unified basic salaries; other members of the law are not considered." ;
+    OntologiaLOPDP:Penalties_for_serious_infractions "In the case of the Data Authority, the range is 10 to 20 unified basic salaries; the other members of the law are not considered." ;
+    OntologiaLOPDP:Very_serious "Infringements that must be treated specially according to the seriousness of the infringement." ;
+    OntologiaLOPDP:Violations_in_verification "Fines for non-compliance with the law vary according to the degree of non-compliance." ;
+    OntologiaLOPDP:the_verification_covers_aspects_such_as OntologiaLOPDP:infringements001 .
+
+OntologiaLOPDP:international_companies001 a OntologiaLOPDP:International_companies,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Company_detail "Company data" ;
+    OntologiaLOPDP:Corporate_standards "Company standards" ;
+    OntologiaLOPDP:General_detail "This subclass refers to what international companies must take into account when making a data transfer, this varies depending on the company." ;
+    OntologiaLOPDP:International_company_data "Information on international companies" ;
+    OntologiaLOPDP:where_in_in_the_international_field_you_have_to_have OntologiaLOPDP:international_companies001 .
+
+OntologiaLOPDP:international_cooperation_between_states001 a OntologiaLOPDP:International_State_to-State_Cooperation,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "When an investigation process is being carried out between nations or states and the holder's data is potentially dangerous." ;
+    OntologiaLOPDP:International_cooperation_between_states_details "International cooperation between states at the international level should be specified." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:international_cooperation_between_states001 .
+
+OntologiaLOPDP:international_scope001 a OntologiaLOPDP:International,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "The main aspects to carry out an international transfer are considered." ;
+    OntologiaLOPDP:where_transfer_and_communication_is_divided_into OntologiaLOPDP:international_scope001 .
+
+OntologiaLOPDP:legal001 a OntologiaLOPDP:Legal,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Applied "When the verification process is applied" ;
+    OntologiaLOPDP:Cessation_of_treatment "When the corrective action stops" ;
+    OntologiaLOPDP:General_detail "Specific measures to be taken in legal cases, seen from the perspective of information transfer." ;
+    OntologiaLOPDP:Guidelines "Guidelines applied" ;
+    OntologiaLOPDP:Not_applied "When the verification process does not apply" ;
+    OntologiaLOPDP:Regulations "Legal regulations" ;
+    OntologiaLOPDP:that_can_be_of_the_type OntologiaLOPDP:legal001 .
+
+OntologiaLOPDP:legal_institutions001 a OntologiaLOPDP:Legal_institutions,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "Las instituciones legales pueden hacer uso de los datos del titular en procesos de investigación sin el consentimiento de este último." ;
+    OntologiaLOPDP:Legal_institutions_detail "In the event that a legal institution requests legal action on the data in an international transfer, it may do so." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:legal_institutions001 .
+
+OntologiaLOPDP:legal_interest001 a OntologiaLOPDP:Legal_interest_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "It is the way in which the data is treated, it must be treated and therefore transferred only when strictly necessary. In addition, the presence of threats is verified." ;
+    OntologiaLOPDP:Public_interest_detail "Information" ;
+    OntologiaLOPDP:Specific_threats "Threats that may affect the legitimate interest of a transfer of information" ;
+    OntologiaLOPDP:Vital_interest_detail_of_another_person "Vital information about another person" ;
+    OntologiaLOPDP:the_verification_covers_aspects_such_as OntologiaLOPDP:legal_interest001 .
+
+OntologiaLOPDP:legal_relationship001 a OntologiaLOPDP:Legal_relationship,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Exceptions "A legal relationship must exist in the domestic transfer" ;
+    OntologiaLOPDP:General_detail "When the connection of data to a database is required and there is an agreement between the data controller and the data subject, this exception may be used." ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:legal_relationship001 .
+
+OntologiaLOPDP:medidas_técnicas001 a OntologiaLOPDP:Technical_measurements,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "Son principalmente medidas tecnológicas que se usan para proteger los datos del titular." ;
+    OntologiaLOPDP:Technical_measurements "Medidas técnicas para la seguridad de los datos" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:medidas_técnicas001 .
+
+OntologiaLOPDP:members_of_the_protection_system001 a OntologiaLOPDP:Members_of_the_protection_system_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Details_of_the_law_details "Juan Antonio Encargado" ;
+    OntologiaLOPDP:Members_of_the_protection_system_details """It has the following members:
+- Personal Data Protection Authority
+- Personal Data Delegate
+- Recipient
+- Data Controller
+- Personal data processor
+- Responsible for the processing of personal data""" ;
+    OntologiaLOPDP:has_the_following_roles OntologiaLOPDP:members_of_the_protection_system001 .
+
+OntologiaLOPDP:national_area001 a OntologiaLOPDP:National_Scope,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Detail_transfer_domestic_domestic_scope "Information on the rules to be followed to make a transfer at national level" ;
+    OntologiaLOPDP:General_detail "These are all national considerations for a national transfer." ;
+    OntologiaLOPDP:where_transfer_and_communication_is_divided_into OntologiaLOPDP:national_area001 .
+
+OntologiaLOPDP:national_companies001 a OntologiaLOPDP:Domestic_Companies,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "This aspect considers measures that can be applied to national companies in the event of non-compliance with the proper use of data." ;
+    OntologiaLOPDP:Minor_infractions_national_public_company "0.1 to 0.7 of the company's turnover." ;
+    OntologiaLOPDP:National_company_detail "General company information. For example, KFC." ;
+    OntologiaLOPDP:Serious_infractions_national_public_company "from 0.7 to 1% of the business volume, it may increase depending on the company's degree of non-compliance" ;
+    OntologiaLOPDP:where_in_the_national_scope_is_held OntologiaLOPDP:national_companies001 .
+
+OntologiaLOPDP:notification001 a OntologiaLOPDP:Notification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "It is used as a method of communication with the owner when their personal data has been affected in any way." ;
+    OntologiaLOPDP:Preservation_time "The data to be transferred must be stored for a certain period of time." ;
+    OntologiaLOPDP:Secrecy_of_communications "Data must be subject to secrecy in communications." ;
+    OntologiaLOPDP:Security_notification_of_infringement "5 days" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:notification001 ;
+    OntologiaLOPDP:time_of_a_vulnerability_notification "3 days" .
+
+OntologiaLOPDP:organizational001 a OntologiaLOPDP:Organizational,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Applied "When the verification process is applied" ;
+    OntologiaLOPDP:Cessation_of_treatment "When the corrective action stops" ;
+    OntologiaLOPDP:General_detail "Corrective actions applicable to an organizational aspect." ;
+    OntologiaLOPDP:Guidelines "Guidelines applied",
+        "Organizational guidelines" ;
+    OntologiaLOPDP:Not_applied "When the verification process does not apply" ;
+    OntologiaLOPDP:Organizational "Organizational verification" ;
+    OntologiaLOPDP:Regulations "Organizational regulations" ;
+    OntologiaLOPDP:that_can_be_of_the_type OntologiaLOPDP:organizational001 .
+
+OntologiaLOPDP:personal_data_security001 a OntologiaLOPDP:Personal_data_security,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accidental_or_illegal_destruction_or_communication "Destruction of information" ;
+    OntologiaLOPDP:Alterations "Data alterations" ;
+    OntologiaLOPDP:Anonymization "Untraceable data" ;
+    OntologiaLOPDP:Check "control the risk" ;
+    OntologiaLOPDP:Impact_assessment "Evaluation of an error or information leakage" ;
+    OntologiaLOPDP:Large_scale_treatment "Large-scale processing of data" ;
+    OntologiaLOPDP:Loss "Loss of data" ;
+    OntologiaLOPDP:Mitigate "Mitigating threats" ;
+    OntologiaLOPDP:Nature_of_the_data "What is the nature of the data" ;
+    OntologiaLOPDP:Organizational "It has data that can be organizational" ;
+    OntologiaLOPDP:Personal_data_encryption "Encryption of personal data to prevent security leaks" ;
+    OntologiaLOPDP:Personal_data_security_details "Those responsible for the security of personal data are the data processor and the data controller." ;
+    OntologiaLOPDP:Prevent "Prevent a threat or vulnerability" ;
+    OntologiaLOPDP:Reduce "Reducing risk" ;
+    OntologiaLOPDP:Risk "Risk in the event of a fault" ;
+    OntologiaLOPDP:Secrecy_of_communications "Communications must be secret" ;
+    OntologiaLOPDP:Security_notification_of_infringement "Notification is required in the event of a security breach" ;
+    OntologiaLOPDP:Seudonomización "Pseudonomizing data" ;
+    OntologiaLOPDP:Stop "Prevent access to data" ;
+    OntologiaLOPDP:Systematic_evaluation "Type of risk assessment" ;
+    OntologiaLOPDP:Systematic_observation "Keeping track of security" ;
+    OntologiaLOPDP:Technical_measurements "Measures for possible failures" ;
+    OntologiaLOPDP:Threat "Threat to data" ;
+    OntologiaLOPDP:Vulnerabilidad "Place that can exploit a threat" ;
+    OntologiaLOPDP:security_security_presents_itself_as OntologiaLOPDP:personal_data_security001 .
+
+OntologiaLOPDP:principio_de_transparencia001 a OntologiaLOPDP:Transparency_principles,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accurate "Deben ser precisos" ;
+    OntologiaLOPDP:Clear "Deben ser claros" ;
+    OntologiaLOPDP:Complete "Deben ser completos" ;
+    OntologiaLOPDP:Exact "Deben ser exactos" ;
+    OntologiaLOPDP:General_detail "Lo que se realice con los datos del titular debe ser claro y de fácil acceso." ;
+    OntologiaLOPDP:Integral "Deben ser íntegros" ;
+    OntologiaLOPDP:Risk "Cuentan con un riesgo" ;
+    OntologiaLOPDP:Threat "Estan propensos a amenazas" ;
+    OntologiaLOPDP:Verifiable "Deben ser comprobables" ;
+    OntologiaLOPDP:that_are_divided_into OntologiaLOPDP:principio_de_transparencia001 .
+
+OntologiaLOPDP:principios_de_confidencialidad001 a OntologiaLOPDP:Confidentiality_principles,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accurate "Deben ser precisos" ;
+    OntologiaLOPDP:Clear "Deben ser claros" ;
+    OntologiaLOPDP:Complete "Deben estar completos" ;
+    OntologiaLOPDP:Exact "Deben ser exactos" ;
+    OntologiaLOPDP:General_detail "Solo las personas autorizadas deben tener acceso a la información contenida en los datos del titular." ;
+    OntologiaLOPDP:Integral "Deben ser íntegros" ;
+    OntologiaLOPDP:Risk "Siempre pueden tener un riesgo" ;
+    OntologiaLOPDP:Threat "Estan propensos a amenazas" ;
+    OntologiaLOPDP:Verifiable "Deben ser comprobables" ;
+    OntologiaLOPDP:that_are_divided_into OntologiaLOPDP:principios_de_confidencialidad001 .
+
+OntologiaLOPDP:principios_de_conservación001 a OntologiaLOPDP:Conservation_principles,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accurate "Deben ser íntegros" ;
+    OntologiaLOPDP:Clear "Deben ser claros" ;
+    OntologiaLOPDP:Complete "Deben ser completos" ;
+    OntologiaLOPDP:Exact "Deben ser exactos" ;
+    OntologiaLOPDP:General_detail "Los datos de titular se deben conservar el tiempo necesario y no mantenerlos luego de su periodo de uso." ;
+    OntologiaLOPDP:Integral "Deben ser íntegros" ;
+    OntologiaLOPDP:Risk "Cuentan con un riesgo" ;
+    OntologiaLOPDP:Threat "Estan sujetos a una amenaza" ;
+    OntologiaLOPDP:Verifiable "Deben ser comprobables" ;
+    OntologiaLOPDP:that_are_divided_into OntologiaLOPDP:principios_de_conservación001 .
+
+OntologiaLOPDP:principios_de_seguridad001 a OntologiaLOPDP:Safety_principles,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accurate "Deben ser precisos" ;
+    OntologiaLOPDP:Clear "Deben ser claros" ;
+    OntologiaLOPDP:Complete "Deben ser completos" ;
+    OntologiaLOPDP:Exact "Deben ser exactos" ;
+    OntologiaLOPDP:General_detail "Los datos de titular de la información deben ser protegidos con las medidas de seguridad adecuadas." ;
+    OntologiaLOPDP:Integral "Deben ser íntegros" ;
+    OntologiaLOPDP:Risk "Cuentan con un riesgo" ;
+    OntologiaLOPDP:Threat "Estan sujetos a amenazas" ;
+    OntologiaLOPDP:Verifiable "Deben ser comprobables" ;
+    OntologiaLOPDP:that_are_divided_into OntologiaLOPDP:principios_de_seguridad001 .
+
+OntologiaLOPDP:principles001 a OntologiaLOPDP:Principles_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accurate "They are accurate" ;
+    OntologiaLOPDP:Clarity_and_accuracy "Fundamental properties of a principle" ;
+    OntologiaLOPDP:Clear "The principles must be clear" ;
+    OntologiaLOPDP:Complete "They are complete" ;
+    OntologiaLOPDP:Confidentiality "They play a role in confidentiality" ;
+    OntologiaLOPDP:Conservation "Help in data preservation" ;
+    OntologiaLOPDP:Exact "They are accurate" ;
+    OntologiaLOPDP:Explicit "Explicit purpose" ;
+    OntologiaLOPDP:General_detail "They are a mechanism by which the holder's information is safeguarded, they help to ensure the correct use of the information." ;
+    OntologiaLOPDP:Integral "They are integral" ;
+    OntologiaLOPDP:Legitimate "Legitimate purpose" ;
+    OntologiaLOPDP:Personal_data_security_details "They fulfill a security role" ;
+    OntologiaLOPDP:Purpose "They have a purpose" ;
+    OntologiaLOPDP:Risk "They may have a risk" ;
+    OntologiaLOPDP:Threat "Prevent a threat" ;
+    OntologiaLOPDP:Transparency "Verify data transparency" ;
+    OntologiaLOPDP:Verifiable "The principles are verifiable" ;
+    OntologiaLOPDP:Vulnerabilidad "Help to avoid vulnerabilities" ;
+    OntologiaLOPDP:has_the_following_principles_to_consider OntologiaLOPDP:principles001 .
+
+OntologiaLOPDP:public_administrations001 a OntologiaLOPDP:Public_governments,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Exceptions "It has exceptions at the national level that apply" ;
+    OntologiaLOPDP:Historical "If it is a historical issue, the information can be used for the following purposes" ;
+    OntologiaLOPDP:Scientist "If it is a scientific topic, it is possible to use the information" ;
+    OntologiaLOPDP:Statistician "If it is a statistical issue, it is possible to use the information" ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:public_administrations001 .
+
+OntologiaLOPDP:public_interest001 a OntologiaLOPDP:Public_interest,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "When the owner's data is necessary or required for public reasons." ;
+    OntologiaLOPDP:Public_interest_detail "If the data is in the public interest, it may be subject to international exceptions." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:public_interest001 .
+
+OntologiaLOPDP:public_sector001 a OntologiaLOPDP:Governmental_information_security_mechanism,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Accidental_or_illegal_destruction_or_communication "The public sector is subject to accidental destruction or disclosure of its data." ;
+    OntologiaLOPDP:Alterations "The public sector is subject to alterations in its data." ;
+    OntologiaLOPDP:General_detail "These are security actions to be considered in the public sector." ;
+    OntologiaLOPDP:Loss "The public sector is subject to a loss in its data" ;
+    OntologiaLOPDP:Risk "The public sector is subject to data risk." ;
+    OntologiaLOPDP:Secrecy_of_communications "The public sector is subject to secrecy of communications in its data." ;
+    OntologiaLOPDP:Threat "The public sector is subject to a threat to its data" ;
+    OntologiaLOPDP:Vulnerabilidad "Public sector is subject to data vulnerabilities" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:public_sector001 .
+
+OntologiaLOPDP:responsible001 a OntologiaLOPDP:Responsible_for_treatment_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Analysis_methodologies "Places analysis methodologies" ;
+    OntologiaLOPDP:Binding_cooperative_rules "The person in charge and the person responsible are responsible for the application of binding cooperative rules." ;
+    OntologiaLOPDP:Contract "It is present in the process of signing a contract, it can also be present in the process of signing a contract, these same functions have the data processor in the present law." ;
+    OntologiaLOPDP:Details_of_the_law_details "Information" ;
+    OntologiaLOPDP:General_detail "It performs the transfer, verification and security processes on the owner's data." ;
+    OntologiaLOPDP:Impact_assessment "The data controller is responsible for carrying out the impact assessment." ;
+    OntologiaLOPDP:Implementing_verification_processes "Implements verification processes" ;
+    OntologiaLOPDP:Maintaining_the_accuracy_of_the_information "The person in charge and the person in charge are responsible for maintaining the accuracy of the information in the transfer and verification processes." ;
+    OntologiaLOPDP:Members_of_the_protection_system_details "General information" ;
+    OntologiaLOPDP:Name "Carla" ;
+    OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager "Perform transfer and verification processes, apply processes, use methodologies and take technological measures." ;
+    OntologiaLOPDP:Perform_evaluations "Evaluates what the manager does" ;
+    OntologiaLOPDP:Personal_data_security_details "The person in charge and responsible for personal data is responsible for ensuring the security of the owner's data." ;
+    OntologiaLOPDP:Personal_detail "It is responsible for the processing of the holder's personal data and for the authorization to carry out international transfers." ;
+    OntologiaLOPDP:Personal_information "Information about the responsible party" ;
+    OntologiaLOPDP:Protection_policies "Establishes data protection policies" ;
+    OntologiaLOPDP:Safety_from_design_by_defect "You must implement security from the default design in the data." ;
+    OntologiaLOPDP:Security_notification_of_infringement "The person in charge is responsible for notifying in the event of a security leak." ;
+    OntologiaLOPDP:Self-regulation "Data controllers and processors must adhere to codes of conduct, seals, certifications and protection marks, without this constituting an exemption from the responsibility to comply with the provisions of this law, its regulations, guidelines and regulations issued by the Personal Data Protection Authority." ;
+    OntologiaLOPDP:Serious """These violations are commensurate with the data controller's infraction or misconduct.
+For example, failure to implement administrative measures.""" ;
+    OntologiaLOPDP:Slight """These infractions are in accordance with the infraction or fault of the data controller.
+For example, failure to process or implement a process in the transfer of information would be considered a minor infraction.""" ;
+    OntologiaLOPDP:Very_serious "Not specified, but if there is, the Authority decides what action to take." ;
+    OntologiaLOPDP:Violations_in_verification "Faults in their actions" ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:responsible001 .
+
+OntologiaLOPDP:right_of_deletion001 a OntologiaLOPDP:Right_of_deletion_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:General_detail "This right talks about the scenarios in which the owner of the information can delete his/her data and for this purpose he/she has a period of 15 days." ;
+    OntologiaLOPDP:Informed "It can be an informed consent" ;
+    OntologiaLOPDP:Not_informed "It can be an informed consent" ;
+    OntologiaLOPDP:Purpose "To delete data, it must have a purpose." ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Updated "Must be updated" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:right_of_deletion001 ;
+    OntologiaLOPDP:time_of_right_to_elimination "15 days" .
+
+OntologiaLOPDP:right_to_correct_and_update001 a OntologiaLOPDP:Right_to_correct_and_update_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:General_detail "This right states that the owner of the information has the possibility to update their data when it is inaccurate or incomplete, and this must be done within 15 days." ;
+    OntologiaLOPDP:Informed "It can be an informed consent" ;
+    OntologiaLOPDP:Not_informed "May be an uninformed consent" ;
+    OntologiaLOPDP:Preservation_time "The time is 15 days" ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Scope_of_credit_rights "In the credit rights it is stipulated that such rights, as well as all the rights present in the law, have the option of a rectification of information in case the holder needs it." ;
+    OntologiaLOPDP:Updated "Must be updated" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:right_to_correct_and_update001 .
+
+OntologiaLOPDP:right_to_portability001 a OntologiaLOPDP:Right_to_portability,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Compatible "Must be compatible" ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:General_detail "This right talks about how the holder can request the transfer of his data to another person or responsible when the situation warrants it and for this right there is no established time." ;
+    OntologiaLOPDP:Gratuity "Must be free of charge for the holder" ;
+    OntologiaLOPDP:Informed "It can be an informed consent" ;
+    OntologiaLOPDP:Not_informed "May be an uninformed consent" ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Structured "Must be structured" ;
+    OntologiaLOPDP:Updated "Must be updated" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:right_to_portability001 .
+
+OntologiaLOPDP:right_to_the_information001 a OntologiaLOPDP:Right_to_information_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Consent_in_verification "Must be consented to by the owner" ;
+    OntologiaLOPDP:Data_use "The owner's data must be free from use in information automation processes, in order to avoid automated decisions on any specific subject." ;
+    OntologiaLOPDP:General_detail "This right means that the owner of the data must know what is going to be done with them and how they are going to be treated either in the field of data processing or in the field of transfer of information, and to complete this task there is a period of 30 days." ;
+    OntologiaLOPDP:Informed "Puede ser un consentimiento informado" ;
+    OntologiaLOPDP:Not_informed "May be an uninformed consent" ;
+    OntologiaLOPDP:Preservation_time "It has 30 days to inform the holder that his data was obtained in a non-direct way, this is done by the responsible and in charge." ;
+    OntologiaLOPDP:Revoke_consent "It must be possible to revoke the consent at any time, this can be done by the owner of the data." ;
+    OntologiaLOPDP:Updated "The information must be up to date" ;
+    OntologiaLOPDP:can_be_rights_of OntologiaLOPDP:right_to_the_information001 .
+
+OntologiaLOPDP:rights001 a OntologiaLOPDP:Rights_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Rights_in_verification "Rights of the holder before the law" ;
+    OntologiaLOPDP:exceptions_to_rights "Exceptions to the rights, cases in which the holder's data can be used without his/her consent." ;
+    OntologiaLOPDP:the_law_has_the_following_rights OntologiaLOPDP:rights001 .
+
+OntologiaLOPDP:sanctioning_regime001 a OntologiaLOPDP:Sanctioning_regime,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "These are the consequences to which the entities involved in the law are prone to. Verify that everything is working correctly and if not, a penalty is applied." ;
+    OntologiaLOPDP:Precautionary_measures "Precautionary measures" ;
+    OntologiaLOPDP:Sanctioning_administrative_procedure "Actions in case of a bad practice in the use of data" ;
+    OntologiaLOPDP:the_verification_covers_aspects_such_as OntologiaLOPDP:sanctioning_regime001 .
+
+OntologiaLOPDP:security_from_design001 a OntologiaLOPDP:Follow-up_from_design,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "It is the initial protection to which the data is subject and it is the responsibility of the data controller to apply it." ;
+    OntologiaLOPDP:Safety_from_design_by_defect "Data must be subject to security by design by default" ;
+    OntologiaLOPDP:account_with_actions_as OntologiaLOPDP:security_from_design001 .
+
+OntologiaLOPDP:security_security_presents_itself_as a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:sensitive_data001 a OntologiaLOPDP:Sensitive_data_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "They must have optimal access" ;
+    OntologiaLOPDP:Anonymization "Data must be anonymized" ;
+    OntologiaLOPDP:Correction "It must be possible to rectify" ;
+    OntologiaLOPDP:Disposal "It should be possible to eliminate" ;
+    OntologiaLOPDP:Updated "The data must be up to date" ;
+    OntologiaLOPDP:that_can_be OntologiaLOPDP:sensitive_data001 .
+
+OntologiaLOPDP:solve_an_urgence001 a OntologiaLOPDP:Solve_an_emergency,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Anonymization "A nationwide transfer can be forced when an emergency is expected to be solved and must be anonymous." ;
+    OntologiaLOPDP:Exceptions "A transfer can be forced at the national level when an emergency is expected to be solved" ;
+    OntologiaLOPDP:General_detail "This exception indicates that in the event of a vital emergency, the owner's data may be used without the owner's consent." ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:solve_an_urgence001 .
+
+OntologiaLOPDP:sources_accessible_to_the_public001 a OntologiaLOPDP:Sources_accessible_to_the_public,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Exceptions "At the national level, the sources must be accessible to the public." ;
+    OntologiaLOPDP:General_detail "The holder's data may be used as long as the information is present in public sources. For example, public databases." ;
+    OntologiaLOPDP:segmented_into_the_following_national_cases OntologiaLOPDP:sources_accessible_to_the_public001 .
+
+OntologiaLOPDP:techniques001 a OntologiaLOPDP:Techniques,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Applied "When the verification process is applied" ;
+    OntologiaLOPDP:Cessation_of_treatment "When the corrective action stops" ;
+    OntologiaLOPDP:General_detail "Technical corrective actions, e.g., error corrections in information transfer events." ;
+    OntologiaLOPDP:Guidelines "Guidelines for a technical process",
+        "Technical guidelines" ;
+    OntologiaLOPDP:Not_applied "When the verification process does not apply" ;
+    OntologiaLOPDP:Regulations "Technical regulations" ;
+    OntologiaLOPDP:Technical_measurements "Measures for a technical verification process" ;
+    OntologiaLOPDP:that_can_be_of_the_type OntologiaLOPDP:techniques001 .
+
+OntologiaLOPDP:teenagers001 a OntologiaLOPDP:Teenagers,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Adolescent data must be accessible" ;
+    OntologiaLOPDP:Anonymization "It must be possible to anonymize adolescent data." ;
+    OntologiaLOPDP:Correction "Adolescent data must be able to be rectified" ;
+    OntologiaLOPDP:Disposal "It should be possible to delete teenage data" ;
+    OntologiaLOPDP:General_detail "In order to make use of their data, no detailed supervision is necessary, only the use to which the data will be put needs to be clearly stated. The age range to be considered as adolescent data is from 12 to 17 years old." ;
+    OntologiaLOPDP:Supervision "Teenagers can use their personal information without the need for adult consent, they do not need supervision, but the use that will be made of their data must be very clear." ;
+    OntologiaLOPDP:Updated "Adolescent data must be updatable" ;
+    OntologiaLOPDP:and_as_your_age_will_have_to_be_of_your_age OntologiaLOPDP:teenagers001 .
+
+OntologiaLOPDP:that_can_be a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Exceptions_for_international_transfers_or_communications OntologiaLOPDP:Exceptions_to_consent_for_national_transfers OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Sensitive_data_in_verification ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:and_emphasis_is_on_the_following_exceptions .
+
+OntologiaLOPDP:the_verification_covers_aspects_such_as a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Verification ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Corrective_measures OntologiaLOPDP:Legal_interest_in_verification OntologiaLOPDP:Sanctioning_regime OntologiaLOPDP:Violations_in_verification ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:a_process_of .
+
+OntologiaLOPDP:transfer_or_communication001 a OntologiaLOPDP:Transfer_or_communication,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Certifying_international_transfer_processes "Approve the transfer processes when these are clear" ;
+    OntologiaLOPDP:Contract "Contract with stakeholders" ;
+    OntologiaLOPDP:Data_admitted_countries_international_transfer "Admitted countries information" ;
+    OntologiaLOPDP:Detail_transfer_domestic_domestic_scope "Information" ;
+    OntologiaLOPDP:Exceptions "Exceptions that may occur in the transfer process" ;
+    OntologiaLOPDP:Informed "Rights informed" ;
+    OntologiaLOPDP:Legal_or_regulatory_obligation "Legal obligations" ;
+    OntologiaLOPDP:has_elements_of_transfer_and_communication OntologiaLOPDP:transfer_or_communication001 .
+
+OntologiaLOPDP:treatment001 a OntologiaLOPDP:Treatment_Manager_in_verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Analysis_methodologies "Analysis methodology to be used on the data" ;
+    OntologiaLOPDP:Binding_cooperative_rules "The person in charge and the person responsible are responsible for the application of binding cooperative rules." ;
+    OntologiaLOPDP:Details_of_the_law_details "Information" ;
+    OntologiaLOPDP:General_detail "It performs the same activities as the data controller in terms of transfer, verification and security." ;
+    OntologiaLOPDP:Implementing_verification_processes "Must implement data verification processes" ;
+    OntologiaLOPDP:Maintaining_the_accuracy_of_the_information "The person in charge and the person in charge are responsible for maintaining the accuracy of the information in the transfer and verification processes." ;
+    OntologiaLOPDP:Members_of_the_protection_system_details "Information indicating that it is part of the law" ;
+    OntologiaLOPDP:Name "Ana" ;
+    OntologiaLOPDP:National_registry_for_the_protection_of_personal_data "Records data information" ;
+    OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager "Apply processes, implement protection policies, use methodologies and take technological measures" ;
+    OntologiaLOPDP:Perform_evaluations "It is responsible for conducting evaluations" ;
+    OntologiaLOPDP:Personal_data_security_details "The person in charge and responsible for personal data is responsible for ensuring the security of the owner's data." ;
+    OntologiaLOPDP:Personal_detail "It is in charge of data processing and transfer processes when its assistance is required." ;
+    OntologiaLOPDP:Personal_information "Personal information of the person in charge" ;
+    OntologiaLOPDP:Protection_policies "Data protection policies to be applied to the data" ;
+    OntologiaLOPDP:Safety_from_design_by_defect "Security must be in place from the beginning of the data processing." ;
+    OntologiaLOPDP:Self-regulation "Data controllers and processors must adhere to codes of conduct, seals, certifications and protection marks, without this constituting an exemption from the responsibility to comply with the provisions of this law, its regulations, guidelines and regulations issued by the Personal Data Protection Authority." ;
+    OntologiaLOPDP:Serious """These infractions are in accordance with the infraction or fault of the person responsible for the data.
+For example, if an administrative procedure is not carried out.""" ;
+    OntologiaLOPDP:Slight """These infractions are in accordance with the infraction or fault of the data controller.
+For example, failure to process or implement a process in the transfer of information would be considered a minor infraction.""" ;
+    OntologiaLOPDP:Very_serious "Not specified, but if there is, the Authority decides what action to take." ;
+    OntologiaLOPDP:is_compliant_with_the_following_roles OntologiaLOPDP:treatment001 .
+
+OntologiaLOPDP:verification001 a OntologiaLOPDP:Verification,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Audit "Verification processes should be audited when necessary." ;
+    OntologiaLOPDP:Audit_detail "Information on the audit performed" ;
+    OntologiaLOPDP:General_detail "They are misuses of the information by the people who had contact with the data." ;
+    OntologiaLOPDP:a_process_of OntologiaLOPDP:verification001 .
+
+OntologiaLOPDP:violation_investigation001 a OntologiaLOPDP:Infringement_investigation,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Detail_of_investigation_of_infringements "If the data subject has breach information, he/she is subject to an international exception on his/her data." ;
+    OntologiaLOPDP:General_detail "When the owner of the information has committed an offense or committed a crime, this information may be investigated without the owner's consent." ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:violation_investigation001 .
+
+OntologiaLOPDP:vital_interest_in_another_person001 a OntologiaLOPDP:Vital_interest_of_another_person,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:General_detail "When the data subject is unable to consent to the use of the data." ;
+    OntologiaLOPDP:Vital_interest_detail_of_another_person "Research for a critical disease" ;
+    OntologiaLOPDP:segmented_into_the_following_international_cases OntologiaLOPDP:vital_interest_in_another_person001 .
+
+ley-organica-proteccion-datos-personales:minor_infractions_penalties a ley-organica-proteccion-datos-personales:Minor_infractions_penalties,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:by ley-organica-proteccion-datos-personales:minor_infractions ;
+    ley-organica-proteccion-datos-personales:destined_for "Servidores o funcionarios del sector público",
+        "The Controller or Processor of personal data or, if applicable, a third party, may be a private law entity or a public company." ;
+    ley-organica-proteccion-datos-personales:determination_of_the_fine_in_respect_to_penalties_for_infringement_of_the_responsible_person_or_person_in_charge_of_treatment "Intentionality, which will evaluate the offender's conduct to determine if there was intent to commit the infraction.",
+        "Nature of the damage, where the negative consequences for the right to the protection of personal data will be evaluated.",
+        "Recidivism, which is considered when the previous infraction is similar to the one to be sanctioned again.",
+        "Reiteration of the infraction, which considers when the controller or processor of personal data has been previously sanctioned for two or more infractions of lesser gravity, or for an infraction of equal or greater gravity." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:proportionality,
+        ley-organica-proteccion-datos-personales:turnover ;
+    ley-organica-proteccion-datos-personales:principle_of_attachment_with_sanction_to_the_responsible_party_or_the_treatment_manager "Proportionality" ;
+    ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_to_the_responsible_party_or_the_processor "A fine ranging from 0.1% to 0.7% of the turnover for the fiscal year immediately preceding the imposition of the fine shall be imposed." ;
+    ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_toward_public_servants_or_officials "Shall be sanctioned with a fine ranging from 1 to 10 basic unified salaries of the public servant or public official",
+        "This sanction does not rule out the possibility of the State assuming additional liability for damages caused, which will be governed in accordance with the corresponding regulations." ;
+    ley-organica-proteccion-datos-personales:will_be_imposed_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+ley-organica-proteccion-datos-personales:penalties_for_Serious_Infringements a ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements,
+        owl:NamedIndividual ;
+    ley-organica-proteccion-datos-personales:by ley-organica-proteccion-datos-personales:serious_infractions ;
+    ley-organica-proteccion-datos-personales:destined_for "Public sector employees or officials",
+        "The Controller or Processor of personal data or, if applicable, a third party, may be a private law entity or a public company." ;
+    ley-organica-proteccion-datos-personales:determination_of_the_fine_in_respect_to_penalties_for_infringement_of_the_responsible_person_or_person_in_charge_of_treatment "Intentionality, which will evaluate the offender's conduct to determine if there was intent to commit the infraction.",
+        "Nature of the damage, where the negative consequences for the right to the protection of personal data will be evaluated.",
+        "Recidivism, which is considered when the previous infraction is similar to the one to be sanctioned again.",
+        "Reiteration of the infraction, which considers when the controller or processor of personal data has been previously sanctioned for two or more infractions of lesser gravity, or for an infraction of equal or greater gravity." ;
+    ley-organica-proteccion-datos-personales:is_related_to ley-organica-proteccion-datos-personales:proportionality,
+        ley-organica-proteccion-datos-personales:turnover ;
+    ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_to_the_responsible_party_or_the_processor "A fine ranging from 0.7% to 1% of the turnover for the fiscal year immediately preceding the imposition of the fine shall be imposed." ;
+    ley-organica-proteccion-datos-personales:type_of_penalty_for_infractions_toward_public_servants_or_officials "It shall be punished with a fine ranging from 10 to 20 unified basic salaries of the public servant or official.",
+        "This sanction does not rule out the possibility of the State assuming additional liability for damages caused, which will be governed in accordance with the corresponding regulations." ;
+    ley-organica-proteccion-datos-personales:will_be_imposed_by ley-organica-proteccion-datos-personales:personal_data_protection_authority .
+
+OntologiaLOPDP:Access a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Banking OntologiaLOPDP:Boys_and_girls OntologiaLOPDP:Commercial OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Data_Seniors_data OntologiaLOPDP:Data_persons_minors OntologiaLOPDP:Deceased_persons_data OntologiaLOPDP:Economic OntologiaLOPDP:Financial OntologiaLOPDP:Health_data_in_verification OntologiaLOPDP:Sensitive_data_in_verification OntologiaLOPDP:Teenagers ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Application a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Corrective_measures ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:International_company_data a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:International_companies ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Personal_information a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Addressee_in_verification OntologiaLOPDP:Holder_in_verification OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Purpose a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Credit_data_in_verification OntologiaLOPDP:Personal_data_delegate_in_verification OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Right_of_deletion_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:and_emphasis_is_on_the_following_exceptions a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Transfer_or_communication ;
+    rdfs:range OntologiaLOPDP:Exceptions ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_elements_of_transfer_and_communication .
+
+OntologiaLOPDP:as_to_the_national_and_international_related_to_it_be_held a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Exceptions ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Exceptions_for_international_transfers_or_communications OntologiaLOPDP:Exceptions_to_consent_for_national_transfers ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:and_emphasis_is_on_the_following_exceptions .
+
+OntologiaLOPDP:data_people_over_age_001 a OntologiaLOPDP:Data_Seniors_data,
+        owl:NamedIndividual ;
+    OntologiaLOPDP:Access "Data must be accessible" ;
+    OntologiaLOPDP:Accidental_or_illegal_destruction_or_communication "Data must not be subject to intentional or accidental destruction." ;
+    OntologiaLOPDP:Advise "The data must be available for consultation" ;
+    OntologiaLOPDP:Advise_on_risk_analysis "The delegate provides risk analysis advice to the data authority." ;
+    OntologiaLOPDP:Alterations "Data are prone to alterations, this should be avoided." ;
+    OntologiaLOPDP:Anonymization "Data must be anonymized" ;
+    OntologiaLOPDP:Audit "Data must be auditable" ;
+    OntologiaLOPDP:Check "The risks present in the data must be controlled" ;
+    OntologiaLOPDP:Control_systemized_and_stabilized_control "Permanent control of the data must be carried out" ;
+    OntologiaLOPDP:Cooperate_with_the_Personal_Data_Protection_Authority "The data is subject to cooperation between members of the law enforcement community." ;
+    OntologiaLOPDP:Correct "The risks present in the data must be corrected" ;
+    OntologiaLOPDP:Correction "It must be possible to rectify the data" ;
+    OntologiaLOPDP:Delegate_functions "Some data are manipulated by the delegate" ;
+    OntologiaLOPDP:Details_of_the_law_details "The data are present in the members of the law." ;
+    OntologiaLOPDP:Disposal "It must be possible to delete data" ;
+    OntologiaLOPDP:General_detail "These are data subjects over 18 years of age who do not need the permission of another person in order to use their data." ;
+    OntologiaLOPDP:Impact_assessment "The impact of the data must be assessed" ;
+    OntologiaLOPDP:Large_scale_treatment "Large-scale data analysis is required" ;
+    OntologiaLOPDP:Loss "Prevent data loss" ;
+    OntologiaLOPDP:Mitigate "Data risks must be mitigated",
+        "Mitigating data risks" ;
+    OntologiaLOPDP:Name "Holder's name",
+        "The name of the owner of the data must be known." ;
+    OntologiaLOPDP:National_registry_for_the_protection_of_personal_data "Data must be in a national registry" ;
+    OntologiaLOPDP:Nature "The nature of the data must be known" ;
+    OntologiaLOPDP:Nature_of_the_data "The nature of the data must be known" ;
+    OntologiaLOPDP:Organizational "Organizational data exist; they are data from organizations" ;
+    OntologiaLOPDP:Personal_data_encryption "The owner of the data has the option to encrypt his data" ;
+    OntologiaLOPDP:Personal_data_security_details "Data must be secure" ;
+    OntologiaLOPDP:Personal_detail "The data stores in detail the holder's information." ;
+    OntologiaLOPDP:Personal_information "Personal information of the data subject" ;
+    OntologiaLOPDP:Prevent "Data risks must be prevented" ;
+    OntologiaLOPDP:Purpose "The purpose of the data must be defined" ;
+    OntologiaLOPDP:Reduce "Reduce data risks" ;
+    OntologiaLOPDP:Risk "Data should avoid being subject to risk" ;
+    OntologiaLOPDP:Sanctioning_administrative_procedure "The manipulated data are subject to an administrative sanctioning process." ;
+    OntologiaLOPDP:Scope "Data must have a defined scope of use" ;
+    OntologiaLOPDP:Secrecy_of_communications "Data must be subject to secrecy in communications" ;
+    OntologiaLOPDP:Security_notification_of_infringement "The data owner must be notified in the event of a breach of data security." ;
+    OntologiaLOPDP:Serious "Holder data may be subject to serious infringement" ;
+    OntologiaLOPDP:Seudonomización "The data must be treated in such a way that it is not known who the owner is in case of loss of data." ;
+    OntologiaLOPDP:Slight "Holder's data may be subject to minor violations." ;
+    OntologiaLOPDP:Stop "Preventing data from misuse" ;
+    OntologiaLOPDP:Supervise "Holder data must be monitored",
+        "The data are supervised by the data delegate." ;
+    OntologiaLOPDP:Systematic_evaluation "A semantic evaluation must be performed" ;
+    OntologiaLOPDP:Technical_measurements "Technical measures must be taken with the data" ;
+    OntologiaLOPDP:Threat "Data are subject to threats" ;
+    OntologiaLOPDP:Updated "The data must be up to date" ;
+    OntologiaLOPDP:Very_serious "The holder's data may be subject to very serious infringements" ;
+    OntologiaLOPDP:Volume "The volume of data must be known" ;
+    OntologiaLOPDP:Vulnerabilidad "The data is exposed to vulnerabilities" ;
+    OntologiaLOPDP:and_the_owner_divides_into OntologiaLOPDP:data_people_over_age_001 .
+
+OntologiaLOPDP:has_the_following_roles a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+OntologiaLOPDP:the_law_has_the_following_rights a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:where_transfer_and_communication_is_divided_into a owl:ObjectProperty ;
+    rdfs:domain OntologiaLOPDP:Transfer_or_communication ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:International OntologiaLOPDP:National_Scope ) ] ;
+    rdfs:subPropertyOf OntologiaLOPDP:has_elements_of_transfer_and_communication .
+
+OntologiaLOPDP:Authorization_for_international_transfer a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:International .
+
+OntologiaLOPDP:Continuous_control_for_countries_without_consent a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:International .
+
+OntologiaLOPDP:Control_systemized_and_stabilized_control a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Members_of_the_protection_system_details .
+
+OntologiaLOPDP:Impact_assessment a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Responsible_for_treatment_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Technical_measurements a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Follow-up_from_design OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:has_elements_of_transfer_and_communication a owl:ObjectProperty ;
+    rdfs:range OntologiaLOPDP:Transfer_or_communication .
+
+ley-organica-proteccion-datos-personales:Minor_infractions a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Violations .
+
+ley-organica-proteccion-datos-personales:Serious_infractions a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Violations .
+
+OntologiaLOPDP:Administrative_or_judicial_authorities a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Banking_stock_or_stock_market_data a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Claims_defense a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Delegate_functions a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Personal_data_delegate_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Members_of_the_protection_system_details .
+
+OntologiaLOPDP:Exceptions_to_the_rights_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification ;
+    owl:disjointWith OntologiaLOPDP:Right_of_access_in_verification,
+        OntologiaLOPDP:Right_of_deletion_in_verification,
+        OntologiaLOPDP:Right_to_consult_in_verification,
+        OntologiaLOPDP:Right_to_correct_and_update_in_verification,
+        OntologiaLOPDP:Right_to_information_in_verification,
+        OntologiaLOPDP:Right_to_portability .
+
+OntologiaLOPDP:Infringement_investigation a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:International_State_to-State_Cooperation a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Legal_institutions a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Legal_interest_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Verification .
+
+OntologiaLOPDP:Legal_relationship a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Members_of_the_protection_system_details a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Public_interest a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+OntologiaLOPDP:Sources_accessible_to_the_public a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Unauthorized_consent a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Consent_in_verification .
+
+OntologiaLOPDP:Vital_interest_of_another_person a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_for_international_transfers_or_communications .
+
+ley-organica-proteccion-datos-personales:Collection a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    owl:disjointWith ley-organica-proteccion-datos-personales:Processing .
+
+OntologiaLOPDP:Epidemiological_studies a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Obligations_of_the_responsible_person_and_manager a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Members_of_the_protection_system_details .
+
+OntologiaLOPDP:Sanctioning_regime a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Verification .
+
+OntologiaLOPDP:Solve_an_emergency a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Clarity_and_accuracy a owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Principles_in_verification ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Data_protection_mechanisms a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:Domestic_Companies a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:National_Scope .
+
+OntologiaLOPDP:Follow-up_from_design a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:International_companies a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:International .
+
+OntologiaLOPDP:National_Scope a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Transfer_or_communication .
+
+OntologiaLOPDP:Risk a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Confidentiality_principles OntologiaLOPDP:Conservation_principles OntologiaLOPDP:Governmental_information_security_mechanism OntologiaLOPDP:Personal_data_security OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities OntologiaLOPDP:Safety_principles OntologiaLOPDP:Transparency_principles ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+ley-organica-proteccion-datos-personales:Violations a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+OntologiaLOPDP:Addressee_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+OntologiaLOPDP:Banking a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Credit_data_in_verification .
+
+OntologiaLOPDP:Commercial a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Credit_data_in_verification .
+
+OntologiaLOPDP:Data_Seniors_data a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Holder_in_verification .
+
+OntologiaLOPDP:Deceased_persons_data a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Holder_in_verification .
+
+OntologiaLOPDP:Economic a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Credit_data_in_verification .
+
+OntologiaLOPDP:Financial a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Credit_data_in_verification .
+
+OntologiaLOPDP:Notification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:Public_governments a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions_to_consent_for_national_transfers .
+
+OntologiaLOPDP:Risk_analysis_of_threats_and_vulnerabilities a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:Administrative a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Corrective_measures .
+
+OntologiaLOPDP:Health_data_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Legal a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Corrective_measures .
+
+OntologiaLOPDP:Organizational a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Follow-up_from_design OntologiaLOPDP:Personal_data_security ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf OntologiaLOPDP:Corrective_measures ;
+    rdfs:subPropertyOf OntologiaLOPDP:Personal_data_security_details .
+
+OntologiaLOPDP:Sensitive_data_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Techniques a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Corrective_measures .
+
+OntologiaLOPDP:Violations_in_verification a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:subClassOf OntologiaLOPDP:Verification .
+
+OntologiaLOPDP:Boys_and_girls a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Data_persons_minors .
+
+OntologiaLOPDP:Consent_in_verification a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Right_of_access_in_verification OntologiaLOPDP:Right_of_deletion_in_verification OntologiaLOPDP:Right_to_consult_in_verification OntologiaLOPDP:Right_to_correct_and_update_in_verification OntologiaLOPDP:Right_to_information_in_verification OntologiaLOPDP:Right_to_portability ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Consent ;
+    rdfs:subPropertyOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:International a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Transfer_or_communication .
+
+OntologiaLOPDP:Right_to_consult_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Teenagers a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Data_persons_minors .
+
+OntologiaLOPDP:Verification a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+OntologiaLOPDP:Admitted_Countries a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:International .
+
+OntologiaLOPDP:Governmental_information_security_mechanism a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:Members_of_the_protection_system_in_verification a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Members_of_the_personal_data_protection_system .
+
+OntologiaLOPDP:Right_to_correct_and_update_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Transfer_or_communication a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+ley-organica-proteccion-datos-personales:Penalties_for_Serious_Infringements a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Sanctions .
+
+OntologiaLOPDP:Applicable_safety_measures a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Personal_data_security .
+
+OntologiaLOPDP:Authorized_consent a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Consent_in_verification .
+
+OntologiaLOPDP:Confidentiality_principles a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Principles_in_verification .
+
+OntologiaLOPDP:Conservation_principles a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Principles_in_verification .
+
+OntologiaLOPDP:Data_persons_minors a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Holder_in_verification .
+
+OntologiaLOPDP:Right_of_access_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Right_of_deletion_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Right_to_information_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+OntologiaLOPDP:Safety_principles a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Principles_in_verification .
+
+OntologiaLOPDP:Transparency_principles a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Principles_in_verification .
+
+OntologiaLOPDP:Certifying_entity_in_verification a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Certifying_entity_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf OntologiaLOPDP:Transfer_or_communication .
+
+OntologiaLOPDP:Exceptions_to_consent_for_national_transfers a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Right_to_portability a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Rights_in_verification .
+
+ley-organica-proteccion-datos-personales:Minor_infractions_penalties a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Sanctions .
+
+OntologiaLOPDP:Credit_data_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Exceptions a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Administrative_or_judicial_authorities OntologiaLOPDP:Epidemiological_studies OntologiaLOPDP:Exceptions OntologiaLOPDP:Exceptions_to_consent_for_national_transfers OntologiaLOPDP:Legal_relationship OntologiaLOPDP:Public_governments OntologiaLOPDP:Solve_an_emergency OntologiaLOPDP:Sources_accessible_to_the_public ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf OntologiaLOPDP:Transfer_or_communication .
+
+OntologiaLOPDP:Holder_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+ley-organica-proteccion-datos-personales:Sanctions a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+OntologiaLOPDP:Exceptions_for_international_transfers_or_communications a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Exceptions .
+
+OntologiaLOPDP:Corrective_measures a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Verification .
+
+OntologiaLOPDP:Personal_data_security_details a owl:DatatypeProperty ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( OntologiaLOPDP:Principles_in_verification OntologiaLOPDP:Responsible_for_treatment_in_verification OntologiaLOPDP:Treatment_Manager_in_verification ) ] ;
+    rdfs:range xsd:string .
+
+OntologiaLOPDP:Rights_in_verification a owl:Class,
+        owl:DatatypeProperty ;
+    rdfs:domain OntologiaLOPDP:Rights_in_verification ;
+    rdfs:range xsd:string ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Rights .
+
+OntologiaLOPDP:Personal_data_delegate_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+ley-organica-proteccion-datos-personales:Corrective_measures a owl:Class,
+        owl:ObjectProperty ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection ;
+    rdfs:subPropertyOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
+OntologiaLOPDP:Personal_Data_Protection_Authority_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+OntologiaLOPDP:Treatment_Manager_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+OntologiaLOPDP:Principles_in_verification a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Principles .
+
+OntologiaLOPDP:Responsible_for_treatment_in_verification a owl:Class ;
+    rdfs:subClassOf OntologiaLOPDP:Members_of_the_protection_system_in_verification .
+
+OntologiaLOPDP:Personal_data_security a owl:Class ;
+    rdfs:subClassOf ley-organica-proteccion-datos-personales:Organic_Law_on_Personal_Data_Protection .
+
