@@ -201,6 +201,17 @@ actual (también con `EDITABLE_BASE=1`):
 
     py -m src.alignment.gdpr_bridge --espacio ESPACIO
 
+## Documentación de la base (WIDOCO)
+La página de la base se genera con WIDOCO a partir de un solo archivo que junta los cuatro
+módulos (núcleo, perfil, alineación con el DPV y puente con el GDPR). El archivo lleva la
+cabecera de autoría, el crédito a OntoPriv, una frase por concepto con sus correspondencias y
+la tabla de todas las correspondencias:
+
+    py -m src.publish.base_doc             # escribe data/output/widoco/ontopriv-base.ttl
+
+Ese archivo es solo para la documentación (git lo ignora): los módulos de `data/output` no
+cambian.
+
 ## Pruebas
     py -m pytest -q                  # suite completa
     py -m pytest -m "not slow" -q    # rápida: sin el LLM, los embeddings ni Jena reales
