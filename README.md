@@ -10,19 +10,21 @@ la procedencia de cada correspondencia. También convierte una ontología de un 
 otro sin tocar su contenido. El historial de cada sprint está en `docs/CHANGELOG.md`.
 
 ## Requisitos
-- Python 3.13 (en Windows se invoca con `py`)
+- Git y Python 3.13 (en Windows se invoca con `py`; los comandos de abajo son para Git Bash)
 - Java 21 o superior (probado con Java 24) y Apache Jena 6.2.0 para el razonador y las
   consultas SPARQL de la validación; sin ellos se usan owlrl (OWL 2 RL) y rdflib
 - Una clave de un LLM compatible con la API de OpenAI (probado con `gemini-3.1-flash-lite`)
+- Internet la primera vez: `pip` baja las librerías (torch es la más pesada) y la primera
+  subida baja el modelo de embeddings de Hugging Face (`EMBEDDING_MODEL`)
 
 ## Instalación
     py -m venv .venv
     source .venv/Scripts/activate    # Git Bash en Windows
     py -m pip install -r requirements.txt
-    cp .env.example .env             # y colocar la clave del LLM (LLM_API_KEY, LLM_MODEL, LLM_BASE_URL)
+    cp .env.example .env             # y colocar la clave del LLM
 
-El `.env` no se sube a git. `EDITABLE_BASE=0` deja la base del sistema en solo lectura
-(ver "La base del sistema").
+En `.env` van `LLM_API_KEY`, `LLM_BASE_URL` y `LLM_MODEL`. El `.env` no se sube a git.
+`EDITABLE_BASE=0` deja la base del sistema en solo lectura (ver "La base del sistema").
 
 ## Razonador (Apache Jena)
 Jena no se instala con pip: se descarga una vez dentro de `tools/` (git lo ignora).
@@ -114,7 +116,8 @@ cada corrección con la que reemplazó.
 ## Consola
 Alinear una ontología (igual que la web: cada subida se valida con la forma, la lógica, las
 preguntas de competencia y la IA revisora; el detalle va en el paquete, en
-`validation-log.txt`):
+`validation-log.txt`). En Git Bash, antes, `export PYTHONIOENCODING=utf-8` para que se vean
+las tildes:
 
     py -m src.alignment.user_alignment ONTOLOGIA [--formato turtle] [--sin-ia]   # Mi ontología
     py -m src.core.law_profile LEY [--formato turtle]                            # Una ley
@@ -131,9 +134,10 @@ o cambio deja una versión nueva:
 
 Sin `--aplicar`, `--cambio` solo muestra si la regla acepta el cambio. Otras formas:
 `"Concepto relación Término en vez de OtroTérmino"`. `ESPACIO` es el id o la carpeta de la
-subida en `data/workspaces/`. Ahí está cada subida, con sus carpetas `input/`, `work/`,
-`output/` y `history/`. Las respuestas de la IA se guardan en `data/workspaces/_cache/`, que
-comparten todas las subidas.
+subida en `data/workspaces/`: la consola lo imprime al final (p. ej.
+`gdprtext-ontology-d35361ae`) y el mismo archivo cae siempre en el mismo espacio. Ahí está
+cada subida, con sus carpetas `input/`, `work/`, `output/` y `history/`. Las respuestas de la
+IA se guardan en `data/workspaces/_cache/`, que comparten todas las subidas.
 
 Procedencia de un concepto:
 
@@ -168,7 +172,9 @@ una vez (552 conceptos, 190 correspondencias). Viene en el repositorio, en `data
 
 Cada módulo está en `.rdf`, `.owl`, `.ttl` y `.jsonld`. `catalog-v001.xml` le dice a Protégé
 dónde están los módulos que se importan, y `alignment-candidates.json` guarda los candidatos
-de los que el programa hereda lo revisado. Lo demás de `data/output` (mediciones, reportes,
+de los que el programa hereda lo revisado. También van los archivos que muestran las
+"Herramientas de construcción" (las propuestas de la IA, la tabla de lo aprobado, el puente y
+las respuestas de las preguntas de la base). Lo demás de `data/output` (mediciones, reportes,
 paquetes) no se sube a git.
 
 Se rehace desde OntoPriv:

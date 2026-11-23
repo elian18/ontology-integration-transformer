@@ -1,8 +1,3 @@
-# PROV-O building blocks shared by the base (S10-T06) and each upload (S10-T07): stable IRIs,
-# agents, activities and the records of what entered an ontology. PROV-O is referenced by IRI,
-# never imported. A record about one triple is a named owl:Axiom (owl:annotatedSource, Property
-# and Target), as SSSOM writes a mapping: Protégé shows it as the annotations of that triple,
-# and the module it describes stays untouched.
 from __future__ import annotations
 
 import hashlib

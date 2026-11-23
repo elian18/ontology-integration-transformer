@@ -1,9 +1,3 @@
-"""S7-T03: the automatic reference (your decisions) and its leak control.
-
-Small hand-made base concepts: the leak control must exclude, as precedent, every base concept
-the inheritance rules consider the same (same IRI, same name/label/alias, very similar), with
-compatible kinds, and nothing else. ``score`` is checked with exact counts.
-"""
 import numpy as np
 import pytest
 

@@ -1,10 +1,3 @@
-"""S7-T06: the decider and its fixed rule for the concepts of an upload that inherited nothing
-(and the Sprint 6 proposer, kept for the S6-T09 check).
-
-Fast tests: a fake embedder, a fake LLM that answers like the decider's (``DeciderLLM``, which
-also answers the labels prompt of S7-T08, so the whole web flow runs with it), a small
-DPV and a small validated base written to temporary files, and a temporary ChromaDB where the
-knowledge collections are built from them."""
 from __future__ import annotations
 
 import json

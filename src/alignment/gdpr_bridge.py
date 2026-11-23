@@ -1,10 +1,3 @@
-# The bridge of the base with the GDPR (S9-T09): the pairs OntoPriv <-> GDPRtEXT that reach the
-# same DPV term with exactMatch or closeMatch on both sides, written as skos:closeMatch in a
-# module of their own, each one marked "encadenado por el DPV" with the term it goes through.
-# The alignment of GDPRtEXT it uses is fixed in data/reference, so the bridge is rebuilt without
-# the AI and always gives the same pairs. The reviewing AI explains each pair in a CSV apart:
-# nothing it says enters the ontology. With --espacio, the current version of an upload of
-# GDPRtEXT (with what the person decided in it) becomes that fixed alignment (S10-T16).
 from __future__ import annotations
 
 import argparse

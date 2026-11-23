@@ -1,6 +1,3 @@
-"""S10-T15: the last screen gives one file per format (the modules put together, no imports, no
-provenance) and, from version 2 on, the previous version; the technical details only when the
-person asks for them. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
 import io

@@ -1,12 +1,3 @@
-"""Tests for the RAG indexing and semantic search (Sprint 2, S2-T05).
-
-Runs against an isolated, throwaway ChromaDB (see conftest). Covers three
-things without touching the LLM: the collection gets populated, re-indexing the
-same law is idempotent, and a search returns results shaped with number/title.
-Article count is checked by the ``<law>-`` id prefix, not the global count, so
-the tests stay correct if several laws ever share the ``normativa`` collection.
-"""
-
 from pathlib import Path
 
 import pytest

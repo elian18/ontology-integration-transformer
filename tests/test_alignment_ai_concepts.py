@@ -1,4 +1,3 @@
-"""S5-T02: human decisions on the AI-proposed concepts (approve, reject, duplicate, undo)."""
 import json
 from pathlib import Path
 

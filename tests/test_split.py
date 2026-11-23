@@ -1,9 +1,3 @@
-"""Tests for the core/profile split (S3-T03).
-
-Synthetic ontologies (using OntoPriv's real family names) exercise every rule: family-based
-assignment, the verification-branch refinement, property-follows-domain, the standalone-core
-cross-reference detector, and the advisory DPV flags. One guarded test checks the split
-reconciles on the real OntoPriv."""
 from __future__ import annotations
 import json
 from pathlib import Path

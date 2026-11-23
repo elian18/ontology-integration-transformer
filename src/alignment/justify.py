@@ -1,35 +1,3 @@
-"""The AI proposes the SKOS mapping type of every DPV candidate and justifies it (S4-T08).
-
-Order agreed in the Scrumban row: the candidates are computed first, WITHOUT the AI (S4-T04/05);
-the AI only acts afterwards, on the candidates already in ``alignment-candidates.json``
-(S4-T07). For each concept it receives:
-- the concept: identifier, label, kinds, definition;
-- one law article as evidence: the concept's own source article for the AI proposals, or the
-  article retrieved with the RAG (ChromaDB, Sprint 2) for the OntoPriv entities;
-- its top-k DPV candidates with label, definition and direct DPV parents (the parents help to
-  tell a broader match from an exact one).
-It answers, per candidate, one SKOS mapping property (the Sprint 5 graph uses them) or
-``none``, plus a one-sentence justification in Spanish. Nothing is approved here: every row
-stays ``pending``; the human decides in Sprint 5.
-
-Direction of the relation: always FROM the concept TO the DPV candidate. ``skos:broadMatch``
-means the DPV candidate is MORE GENERAL than the concept (e.g. a specific right ->
-``dpv:DataSubjectRight``); ``skos:narrowMatch`` means the DPV candidate is MORE SPECIFIC.
-
-Design forced by the free-tier LLM (same approach as the Sprint 3 extraction):
-- BATCHING: ``justify_batch_size`` concepts per call (~10K input tokens per call).
-- CALL LIMIT: at most ``justify_max_calls`` calls per run (daily quota); re-run to continue.
-- PAUSE: ``justify_pause_seconds`` between calls, to stay under the per-minute limits
-  (gemini-3.1-flash-lite free tier: 15 requests and 250K tokens per minute, 500 per day).
-- RESUME: the candidates file is rewritten after every batch; rows already typed are never sent
-  again. A quota error (429) waits once and retries; if it persists, the run stops cleanly.
-  A temporary server error (503 "high demand", 500, overloaded) also waits once and retries;
-  if it persists, only that batch is skipped (it stays pending for the next run).
-- JSONL answers parsed leniently; a relation outside the list becomes ``untyped`` (never a
-  crash); a candidate the AI did not answer stays pending for the next run.
-The LLM, the article lookup and the retriever are injected, so the fast tests use fakes and
-never touch the network; ``_run`` uses the real Sprint 2 ``LLMClient`` and ``retrieve_articles``.
-"""
 from __future__ import annotations
 
 import re

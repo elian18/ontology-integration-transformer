@@ -1,6 +1,3 @@
-"""S10-T11: while it runs, the assistant shows a progress bar with each step in plain words; the
-uploaded files are kept, so "Atrás" goes back to them without uploading again or computing
-again. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
 import importlib

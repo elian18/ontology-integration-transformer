@@ -1,30 +1,3 @@
-"""Automatic acceptance of the concepts the AI extracts from a law (S7-T09, decision D1).
-
-In Sprint 5 a person decided the 93 concepts the AI extracted from the LOPDP: 25 approved as
-new, 66 confirmed as the same as an OntoPriv entity, 2 rejected. For a law a person uploads
-nobody reviews them one by one any more (the architecture of Sprint 7): a FIXED rule decides,
-and the person comments afterwards (Sprint 10). The rule, as decision D1 states it, accepts a
-concept when it
-
-1. CITES AN ARTICLE OF THE LAW: at least one article number, and every number is an article of
-   the uploaded law (provenance for PROV-O, Sprint 10);
-2. IS WELL FORMED: a technical name of 3 to 60 ASCII letters or digits starting with a letter
-   (the kind comes from it, as in S4-T09: UpperCamelCase = class, lowerCamelCase = property),
-   a label of one line up to 150 characters and a definition of 20 to 600 characters;
-3. IS NOT REPEATED: two concepts of the same kind with the same label (ignoring case, accents
-   and punctuation) are one concept. The first one extracted stays; the later one is
-   "repeated": it is not written, and its articles are added to the first one. A class and a
-   property are never the same concept (on the GDPR the LLM labelled the property
-   ``hasController`` "controller", like the class ``Controller``).
-
-The rule has no free threshold to tune, so its calibration is a measurement: it is applied to
-the 93 concepts of the LOPDP and compared with the decisions of Sprint 5
-(``py -m src.core.acceptance``). A repeated concept agrees with the person when the person
-rejected it or confirmed it as the same OntoPriv entity as the one it joins.
-
-Being "the same as an OntoPriv entity" is not a reason to reject: S7-T10 reuses the IRI of
-OntoPriv-Core for those (decision D6).
-"""
 from __future__ import annotations
 
 import argparse

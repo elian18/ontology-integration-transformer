@@ -1,30 +1,3 @@
-"""Knowledge collections the alignment decider retrieves from (S7-T01).
-
-Until Sprint 6 the DPV candidates were computed in memory on every upload (the 1116 DPV terms
-were embedded again each time) and the 552 decisions of the base were only used to inherit
-when a concept was the same. The decider of Sprint 7 RETRIEVES from two ChromaDB collections
-that are built once from the base and then only read:
-
-- ``dpv``: the 1116 alignable DPV terms (972 classes, 144 properties). Document = the same
-  text the Sprint 4 ranking embeds (``DpvTarget.semantic_text``: label + trimmed definition),
-  so a stored vector is exactly the one the hybrid ranking would compute. Metadata: IRI, name,
-  label, kind (class | property), definition and direct DPV parents.
-- ``decisions``: the 552 decided base concepts (527 OntoPriv entities + 25 new LOPDP concepts)
-  with what a person decided in Sprint 5: the DPV term(s) and SKOS relation, or "sin
-  correspondencia". Document = the text the inheritance step compares
-  (``BaseConcept.semantic_text``). These are the precedents the decider sees (S7-T04).
-
-Both use cosine distance (1 - cosine similarity). Each collection carries its own manifest in
-its ChromaDB metadata: a fingerprint of what it was built from (embedding model, the input
-files and the version of the text builders), how many items it must hold and when it was
-built. ``collection_status`` compares that manifest with the current inputs, so a stale or
-half-built collection is rebuilt and an up-to-date one is left alone (no embeddings computed).
-
-Uploads only READ these collections: they live in the base database (``chroma_db``), never in
-a workspace.
-
-CLI: ``py -m src.alignment.knowledge [--estado] [--reconstruir]``.
-"""
 from __future__ import annotations
 
 import argparse

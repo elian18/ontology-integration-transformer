@@ -1,0 +1,78 @@
+{
+  "alignment_iri": "http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment",
+  "alignment_file": "ontopriv-dpv-alignment.rdf",
+  "imports": "http://www.semanticweb.org/profiles/ecuador-lopdp",
+  "imports_dpv": false,
+  "dpv_namespace": "https://w3id.org/dpv#",
+  "profile_name": "Ecuador (LOPDP)",
+  "law_name": "LOPDP",
+  "source_id": "ontopriv+lopdp",
+  "created": "2026-11-14T15:38:35+00:00",
+  "triples": 385,
+  "concepts": {
+    "reviewed": 552,
+    "total": 552,
+    "aligned": 173,
+    "no_match": 379,
+    "pending": 0
+  },
+  "mappings": {
+    "total": 190,
+    "by_relation": {
+      "skos:exactMatch": 25,
+      "skos:closeMatch": 36,
+      "skos:broadMatch": 57,
+      "skos:narrowMatch": 4,
+      "skos:relatedMatch": 68
+    },
+    "from_ontopriv": 156,
+    "from_ai_concepts": 34,
+    "found_by_search": 41,
+    "decided_by_person": 31,
+    "assistant_confirmed": 159
+  },
+  "ai_concepts": {
+    "proposed": 93,
+    "new_declared": 25,
+    "new_by_kind": {
+      "class": 25
+    },
+    "duplicates": 66,
+    "ontopriv_entities_with_law_articles": 58,
+    "rejected": 2
+  },
+  "review_provenance": {
+    "reviewed_by_person": 20,
+    "confirmed_from_assistant": 532,
+    "accepted_as_proposed": 532,
+    "changed_by_person": 0
+  },
+  "agreement_with_ai_type": {
+    "approved_with_ai_type": 144,
+    "same_type_as_ai": 64,
+    "type_agreement": 0.4444,
+    "no_match": 379,
+    "no_match_ai_also_none": 45
+  },
+  "candidates": {
+    "embedding_model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "llm_model": "gemini-3.1-flash-lite",
+    "prompt_version": 2,
+    "settings": {
+      "top_k": 3,
+      "weight_lexical": 0.4,
+      "weight_semantic": 0.6,
+      "duplicate_threshold": 0.75,
+      "duplicate_name_match": 0.95
+    }
+  },
+  "decisions_log": {
+    "path": "data/review/alignment-decisions.jsonl",
+    "sha256": "db58e28db0cadde5fffc652c00b47a0d327f3419964ef50f21001354ed37c815"
+  },
+  "notes": [
+    "Las correspondencias 'sin correspondencia' no generan tripletas.",
+    "Los conceptos nuevos de la IA no se ubican en la jerarquia de OntoPriv.",
+    "Con razonamiento RDFS/OWL-RL las propiedades de mapeo SKOS tipan sujeto y objeto como skos:Concept."
+  ]
+}

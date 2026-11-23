@@ -1,13 +1,3 @@
-"""S7-T11: the "ley + ontología" mode. The uploaded law gives each concept of the uploaded
-ontology the articles that back it (semantic search in the index of the law, S7-T07), in the
-column law_evidence of alignment.csv, for a person to review them; they are not written to the
-ontology and the alignment of S7-T06/T08 does not change. The rule (top_k and a maximum
-distance) is calibrated on GDPRtEXT, whose concepts say in which GDPR article they are
-defined.
-
-Fast tests: a fake embedder that gives one direction per keyword, a small law in .txt and a
-small ontology; the end-to-end test uses the small validated base of the decider tests. The slow
-test runs the real calibration (real embeddings, no LLM) and checks config.yaml against it."""
 from __future__ import annotations
 
 import csv

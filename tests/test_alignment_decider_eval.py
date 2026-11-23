@@ -1,10 +1,3 @@
-"""S7-T05: before/after evaluation of the decider and calibration of its fixed rule.
-
-Fast tests with the fakes of test_alignment_decider (embedder, LLM, temporary ChromaDB): the
-three configurations run in leave-one-out, the call budget is shared and resumed from the
-cache, the rule is chosen with the grid fixed beforehand (or, when it has none, with the second
-grid, whose optimism is measured with cross-validation), and only confirmed elsewhere.
-"""
 import json
 
 import pytest

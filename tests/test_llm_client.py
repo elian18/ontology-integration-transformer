@@ -1,9 +1,3 @@
-"""S7-T02: the LLM client sends the temperature of config.yaml and can ask for JSON.
-
-Fast tests use a fake OpenAI client (no network): they check WHAT is sent. One slow test asks
-the real provider (Gemini) for a JSON object, to know before S7-T04 whether it accepts the
-JSON mode; run it with ``py -m pytest tests/test_llm_client.py -m slow -s -q``.
-"""
 import json
 import types
 

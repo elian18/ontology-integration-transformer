@@ -1,32 +1,3 @@
-"""The "solo ley" mode: the concepts of an uploaded law become a profile that imports
-OntoPriv-Core, and that profile is aligned with the DPV and packaged (S7-T10, decision D6).
-
-The Sprint 3 split built OntoPriv-Core (jurisdiction-neutral) and one profile per law; the
-LOPDP gave the Ecuador profile. A person who uploads another law gets its own profile, built
-from the concepts the AI extracted and the rule accepted (S7-T09), without reviewing anything.
-For each accepted concept, decision D6 asks whether it is already in OntoPriv-Core. The test is
-the inheritance of S6-T05 against the validated base (same rules, thresholds and kinds):
-
-- REUSED (same IRI or same name, label or alias as an entity of OntoPriv-Core): the profile
-  does not declare a new entity; it reuses the IRI of the core and adds to it the label and
-  the definition of the law (in its language) and its articles (``dct:source``). The core
-  file itself is never changed: these triples live in the profile.
-- LINKED ("muy parecido": combined score >= 0.75 or name >= 0.95): a new entity of the
-  profile, ``skos:exactMatch`` the core entity (D6 b; a SKOS mapping, not an OWL axiom).
-- NEW: anything else, including concepts that only match the Ecuador profile (a sibling
-  profile, not imported): a new entity of the profile.
-
-The profile (``<id>-profile``, IRI ``http://www.semanticweb.org/profiles/<workspace id>``) is
-saved as the ontology of the workspace, marked as generated from the law, so the rest is the
-flow of "Alinear mi ontología" (S7-T06, S7-T08): inherit what the base decided (a reused entity
-inherits it by its IRI), the decider and its rule for the rest, labels es/en, the alignment
-module and the zip, which also carries OntoPriv-Core so that the import resolves in Protégé.
-
-The decider does not get the article of the law as evidence: measured in S7-T05 with the
-chosen rule, it lowered the precision on the base from 75,0 % to 64,1 %.
-
-CLI: ``py -m src.core.law_profile ARCHIVO [--formato turtle] [--sin-ia]`` runs the whole mode.
-"""
 from __future__ import annotations
 
 import argparse
@@ -92,7 +63,8 @@ def law_concepts_as_sources(entries: list[dict]) -> list:
 
 def match_core(entries: list[dict], base, core_iris: set[str], *, embed_fn=None,
                cfg: dict | None = None) -> list[dict]:
-    """D6 for every accepted concept: reused, linked or new (see the module docstring)."""
+    """D6 for every accepted concept: reused (the same as a core entity), linked (very close,
+    skos:exactMatch) or new."""
     from src.alignment.inherit import METHOD_SIMILAR, inherit
     sources = law_concepts_as_sources(entries)
     report = inherit(sources, base, embed_fn=embed_fn, cfg=cfg)

@@ -1,10 +1,3 @@
-"""One file instead of a package (S10-T15): the modules of an ontology put together.
-
-A package keeps each module apart (the person's file is never touched) and joins them with
-owl:imports, which Protégé resolves with the catalog. The web gives one file instead: the union
-of the modules, where the person's ontology is the only owl:Ontology and the imports between the
-modules are gone (their content is already inside). Every other triple is kept as it is.
-"""
 from __future__ import annotations
 
 import io

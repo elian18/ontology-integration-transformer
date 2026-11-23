@@ -1,33 +1,3 @@
-"""Concepts of an uploaded law: the AI extracts them and a fixed rule accepts them (S7-T09).
-
-The first half of the "solo ley" mode (the second half, S7-T10, turns the accepted concepts into
-a profile that imports OntoPriv-Core and aligns it with the DPV). For a law segmented in its
-workspace (S7-T07, ``work/law-articles.json``):
-
-1. EXTRACT (step "extract"): the LLM reads the articles in batches with the prompt
-   ``extract.v2`` (any law, in Spanish or English) and proposes concepts, each with the article
-   it comes from. The prompt carries the language the segmentation detected (``{idioma}``),
-   because without it a quarter of the GDPR definitions came back in Spanish; labels and
-   definitions follow the law, names are in English (UpperCamelCase for classes,
-   lowerCamelCase starting with a verb for properties, whose label names the relation). It is
-   the extraction of Sprint 3 (``src.core.extract``: JSONL that survives a truncated answer,
-   resume after every batch, article numbers such as "3°" read as 3) with a pause between
-   calls and a limit of calls per run (block ``extraction`` of config.yaml), saved in
-   ``work/law-extraction.json``. A run that stops (quota, limit of
-   calls, failed batch) leaves the rest pending; the next run continues where it stopped, with
-   the same prompt, model and segmentation (another one starts again). Without AI nothing is
-   extracted and the step says so.
-2. ACCEPT (step "accept"): the rule of ``src.core.acceptance`` (decision D1) decides each
-   concept: accepted, repeated (joined to the first one of its kind with the same label) or
-   rejected, with its reasons. Measured on the 93 concepts of the LOPDP it agrees with the
-   decisions of Sprint 5 in 91 (``py -m src.core.acceptance``). Result:
-   ``work/law-concepts.json``.
-
-Nothing is reviewed by the person here; S7-T10 writes the accepted concepts, and the person's
-comments come in Sprint 10.
-
-CLI: ``py -m src.core.law_concepts ARCHIVO [--sin-ia]``.
-"""
 from __future__ import annotations
 
 import argparse

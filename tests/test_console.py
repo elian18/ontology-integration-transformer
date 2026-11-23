@@ -1,8 +1,3 @@
-"""The console says '1 llamada' and '2 llamadas': every AI line agrees with its number.
-
-S10-T01: the last plurals written by hand also use counted, and the embedding model loads without
-the warning of the HF Hub and the "Loading weights" bar."""
-
 from __future__ import annotations
 
 import importlib.util

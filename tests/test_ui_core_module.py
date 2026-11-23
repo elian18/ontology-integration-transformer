@@ -1,5 +1,3 @@
-"""Tests for the modular-core UI service (Sprint 3, S3-T06/T07/T08)."""
-
 import pytest
 
 from app.services import core_module

@@ -1,22 +1,3 @@
-"""Human decisions on the AI-proposed concepts (S5-T02): which ones enter the ontology.
-
-Agreed in Sprint 4: before any DPV correspondence is approved, a person decides on every concept
-the AI extracted from the law (93 for the LOPDP):
-- a concept marked ``new`` is APPROVED (it enters the profile as a new entity, with the type the
-  person confirms) or REJECTED (it is discarded);
-- a concept marked ``possible_duplicate`` is confirmed as DUPLICATE (it already exists in
-  OntoPriv: it is not created, and its law article is later attached to the OntoPriv entity),
-  or, if the person sees it is NOT the same thing, it is approved or rejected like a new one.
-- a concept marked ``new`` can ALSO be a duplicate the automatic check missed (e.g. the AI named
-  it in English and OntoPriv in another wording: PrincipleOfLawfulness vs Juridicity). The person
-  then marks it as duplicate and names the OntoPriv entity (``same_as``).
-
-The decision is written to the S5-T01 log; nothing here touches the ontology (that is S5-T06).
-A new concept gets the IRI ``<profile IRI>#<Name>``; the profile IRI is a parameter (the Ecuador
-profile by default), so a law uploaded in Sprints 6-7 gets its own profile. A concept whose name
-is already used by an OntoPriv entity cannot be approved as new (two entities with the same name
-would be confusing): it must be confirmed as duplicate or rejected.
-"""
 from __future__ import annotations
 
 import re

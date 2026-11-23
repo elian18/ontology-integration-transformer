@@ -1,26 +1,3 @@
-"""Measure how well the alignment works against a small hand-labelled sample (S4-T09).
-
-The state of the art reports the lack of a gold standard as a limitation, and that results
-depend on the chosen thresholds/weights. This module builds a small reference ourselves and
-measures, so the thesis can report numbers instead of impressions ("measured, then corrected").
-
-Three steps:
-1. ``sample``: draw a stratified random sample of the concepts the AI justified (default 30:
-   20 OntoPriv + 10 AI proposals; fixed seed) into ``alignment-reference-sample.csv``. The file
-   is BLIND: it shows each concept and its top-k DPV candidates (name, label, definition) but
-   NOT the scores nor the AI's relation, so the human label is not anchored to the AI.
-2. The human fills two columns per concept: ``gold_dpv_name`` (the best DPV term for the
-   concept: one of the candidates, another DPV term found with ``find``, or ``none``) and
-   ``gold_relation`` (exactMatch / closeMatch / broadMatch / narrowMatch / relatedMatch / none,
-   always FROM the concept TO the DPV term).
-3. ``evaluate``: compares the labels with ``alignment-candidates.json`` and reports
-   - ranking: Hit@1 and Hit@k (is the gold DPV term the first candidate / among the top-k?);
-   - AI type: accuracy of the proposed relation on the gold term, the broad/narrow direction
-     swaps (suspected in S4-T08), and whether the AI avoided exact/close matches when the gold
-     says there is no DPV counterpart;
-   - optionally (``--sweep``) Hit@1/Hit@k for several lexical/semantic weights, recomputing the
-     ranking for the sampled concepts only (the embeddings are computed once).
-"""
 from __future__ import annotations
 
 import csv

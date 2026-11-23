@@ -1,9 +1,3 @@
-"""Tests for the PROV-O of the base (S10-T06).
-
-A toy base (the decisions of tests/test_alignment_write.py, a repair of each rule and one pair of
-the bridge) checks the records one by one; the real base checks that each of its 190
-correspondences says who and when, that "Elian" and "Elian Gavilanes" are one person, that Forma
-and Lógica find nothing new and that the four formats hold the same triples. No AI is called."""
 from __future__ import annotations
 
 import json

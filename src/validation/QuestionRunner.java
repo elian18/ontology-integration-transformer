@@ -18,10 +18,6 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sys.JenaSystem;
 
-// Usage: java -cp "<jena>/lib/*" QuestionRunner.java QUERY.rq... ++ NAME FILE... [-- NAME FILE...]
-// Loads each set of files into one model (no inference) and runs every query on it.
-// Prints one JSON object: the rows of each query in each set.
-// -Dquestions.timeout.ms=N stops a query after N ms (the drafts of the AI, S9-T08).
 public class QuestionRunner {
 
     static final long TIMEOUT_MS = Long.getLong("questions.timeout.ms", 0L);

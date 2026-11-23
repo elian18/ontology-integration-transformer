@@ -1,18 +1,3 @@
-"""Package ontology modules in one output format with a Protégé catalog (S6-T03).
-
-A module imports another by IRI (``owl:imports <http://.../ecuador-lopdp>``), not by file name,
-so the imports do not change between RDF/XML, Turtle and JSON-LD. What changes is the file
-that holds each IRI: ``profile-ecuador-lopdp.rdf`` in RDF/XML, ``profile-ecuador-lopdp.ttl`` in
-Turtle. Protégé finds those files through an XML catalog (``catalog-v001.xml``) placed next to
-them, so each package carries a catalog written for its own format.
-
-This module is generic: the base package (alignment -> profile -> core, ``src.alignment.bundle``)
-and the user packages of S6-T07 use the same code with different modules.
-
-When a module is already stored in the requested format, its bytes are copied as they are (the
-file on disk is the reference); otherwise it is converted with ``src.transform.convert``, which
-keeps the same graph (S6-T01, checked on the real files in S6-T02).
-"""
 from __future__ import annotations
 
 import io

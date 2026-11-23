@@ -1,6 +1,3 @@
-"""S5-T06: the aligned graph is written from the human decisions only, imports the profile (not
-the DPV), declares the approved new concepts, attaches law articles to OntoPriv duplicates and
-records who decided each correspondence."""
 import csv
 import json
 from pathlib import Path

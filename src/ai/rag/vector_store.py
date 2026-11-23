@@ -1,29 +1,3 @@
-"""ChromaDB access by collection name (S2-T03, generalized in S7-T01).
-
-Until Sprint 6 the project had ONE collection, fixed when this module was imported:
-"normativa", with the articles of the LOPDP. Sprint 7 needs several:
-- "normativa": the indexed base law (Sprints 2-5). It is still the DEFAULT collection, so every
-  call that does not give a name (indexer, retriever, ingest CLI, tests) behaves as before, and
-  the module attribute ``collection`` still points to it.
-- "dpv" and "decisions": the knowledge the alignment decider retrieves from (S7-T01, built by
-  ``src.alignment.knowledge``).
-- one collection per uploaded law, stored inside its own workspace folder (S7-T07): that is
-  what the ``path`` argument is for. Each path gets its own ChromaDB client, so an upload never
-  writes into the base database.
-
-``CHROMA_PATH`` (environment) still wins over config.yaml, so the test suite keeps isolating
-ChromaDB in a temporary directory (tests/conftest.py).
-
-Reads (``get``, ``query``) are retried, waiting a little longer each time, when ChromaDB has
-not finished writing the index of a collection that was just built: "Error creating hnsw
-segment reader: Nothing found on disk". ChromaDB persists the HNSW index in the background and
-a read of the vectors that arrives while a young segment is still being written fails; it was
-seen on Windows in the test suite in S7-T05 and again in S7-T08, where three attempts in
-1.5 s were not enough, so the wait now doubles: 0.5 + 1 + 2 + 4 s (7.5 s at most, only when
-it fails). After the last attempt the error is raised as is; any other error is raised at once.
-The decider does not even depend on this: if the stored DPV vectors cannot be read, it embeds
-the same texts again (``src.alignment.benchmark.stored_dpv_vectors``).
-"""
 from __future__ import annotations
 
 import os

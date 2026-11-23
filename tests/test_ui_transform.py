@@ -1,5 +1,3 @@
-"""S10-T10: "Solo transformar" reads the uploaded ontology and gives it back in RDF/XML, OWL,
-Turtle or JSON-LD with the same content: no alignment, no AI, no workspace."""
 from __future__ import annotations
 
 from pathlib import Path

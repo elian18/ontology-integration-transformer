@@ -1,8 +1,3 @@
-"""Tests for the AI that drafts the SPARQL of each competency question (S9-T08).
-
-A fake LLM answers with the reference queries, broken ones or other ones, so the measurement, the
-batches and the cache are checked without Gemini; a toy graph checks the summary the AI sees. A
-guarded test asks the real AI for the 23 drafts of the base (slow)."""
 from __future__ import annotations
 
 import json

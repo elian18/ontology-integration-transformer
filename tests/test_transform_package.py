@@ -1,4 +1,3 @@
-"""S6-T03: generic packaging of modules in one format with a Protégé catalog."""
 from __future__ import annotations
 
 import io

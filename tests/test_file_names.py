@@ -1,4 +1,3 @@
-"""S4-T01: every project output file is named in English (no Spanish file names left)."""
 from pathlib import Path
 
 from src.core.extract import PROPOSALS_FILE

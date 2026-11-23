@@ -1,4 +1,3 @@
-"""S4-T09: blind reference sample, metrics against hand labels, and weight sweep."""
 import zlib
 
 import numpy as np

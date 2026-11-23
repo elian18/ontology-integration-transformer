@@ -1,12 +1,3 @@
-"""Bridge for the review card of the "Alineación DPV" view (Sprint 5, S5-T05) and for the
-batch confirmation of the assistant proposals (S5-T08).
-
-Reads the candidates file (Sprint 4), the human decisions log (S5-T01), the assistant
-proposals (S5-T08) and, for the search outside the top-3, the DPV; records the person's
-decisions through ``src.alignment.mapping_review`` (S5-T04) and
-``src.alignment.assistant_review`` (S5-T08). All the logic the page needs lives here so it can
-be tested without Streamlit; the view only draws widgets.
-"""
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,28 +1,3 @@
-"""Flow B, first step: is each AI-proposed concept already in OntoPriv under another name?
-
-The AI read the LOPDP and proposed concepts (Sprint 3). Some of them already exist in OntoPriv
-('DigitalEducationRight' vs OntoPriv's 'Right_to_digital_education'), others are new. This
-module compares every AI concept with every OntoPriv entity of a compatible kind, with the same
-two signals used against the DPV (S4-T04 lexical on identifiers + S4-T05 meaning on
-name/label/definition), and marks it:
-- ``possible_duplicate`` when either rule holds:
-  * ``score``: its best OntoPriv match reaches ``alignment.duplicate_threshold`` (0.75), or
-  * ``same_name``: a compatible OntoPriv entity has (almost) the same identifier, lexical >=
-    ``alignment.duplicate_name_match`` (0.95). Measured on the LOPDP run: identical names
-    ('Consent' = 'Consent', 'RightsExercise' = 'Exercise_of_rights') stayed below 0.75 only
-    because the AI side carries a long Spanish definition and the OntoPriv side a bare English
-    name, which lowers the cosine. Inside one domain ontology the same name is strong evidence.
-- ``new``: neither rule holds.
-It is only a MARK for the human: the three closest OntoPriv entities are kept for every AI
-concept, and the approval happens in Sprint 5. The thresholds are provisional (config.yaml) and
-the console shows how many concepts sit near the cut. The cut favours precision: a concept
-wrongly marked "new" only costs AI quota (it gets justified against the DPV), while one wrongly
-marked "duplicate" would skip that justification.
-
-Agreed use downstream (S4-T07/T08): DPV candidates are kept for all AI concepts (they are
-cheap), but the AI only spends quota justifying the ``new`` ones; a possible duplicate
-inherits the alignment of its OntoPriv entity (flow A).
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

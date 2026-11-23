@@ -1,9 +1,3 @@
-"""S6-T05: an uploaded ontology inherits the validated decisions of the base (Sprint 5).
-
-The small base comes from the S5-T06 fixture: Consent aligned (exactMatch Consent, plus a
-relatedMatch confirmed from the assistant), Turnover "sin correspondencia" (with the AI
-duplicate 'BusinessVolume' / 'volumen de negocio' as alias) and the new concept
-ImpactAssessment aligned with DPIA."""
 from __future__ import annotations
 
 import json

@@ -1,8 +1,3 @@
-"""S4-T11: the whole Sprint 4 alignment pipeline end to end, with fakes (no model, no LLM).
-
-OntoPriv-like ontology + AI proposals + DPV -> sources -> DPV targets -> candidates (lexical +
-embeddings, duplicates) -> JSON/CSV -> AI type + justification -> measurement -> web service.
-"""
 import csv
 import json
 import re

@@ -1,32 +1,3 @@
-"""The automatic reference to measure the alignment decider, with no hand labelling (S7-T03).
-
-The reference is what a person already decided, so nothing has to be labelled again:
-
-- ``base``: the 552 decided base concepts of Sprint 5 (173 with a DPV term, 190
-  correspondences; 379 "sin correspondencia"). It is used as "leave one out": each concept is
-  solved as if it were new and compared with the decision.
-- ``gdprtext``: the GDPRtEXT concepts that inherit a decision of the base (22 with the real
-  embeddings; S6-T09). Their known answer is the decision of the base concept they inherit.
-- ``blind``: the 30-concept blind sample of Sprint 4 (labelled BEFORE the assistant proposals),
-  the only reference that does not inherit the bias of the Sprint 5 review.
-
-Leak control (what cannot be shown to the decider as a precedent): when a concept is solved as
-new, the decisions of the base concepts that are "the same" would give the answer away (e.g.
-OntoPriv has ``Corrective_measures`` in its two namespaces, plus ``ai:CorrectiveMeasures``).
-"The same" is decided with the inheritance rules of S6-T05, so the evaluation reproduces
-production exactly: a user concept reaches the decider only when no base concept is the same.
-Every base concept that satisfies ANY rule is excluded (not only the best one), which is
-slightly stricter than production:
-
-1. same IRI;
-2. same normalized name or label, or an alias of the 66 confirmed duplicates;
-3. very similar: combined score (0.4 lexical + 0.6 embeddings) >= ``duplicate_threshold``
-   (0.75) or lexical >= ``duplicate_name_match`` (0.95), kinds compatible.
-
-``score`` measures any system with the same rules: precision, coverage over the aligned
-concepts of the reference (173 in the base, not only the 92 whose term was rank 1), F1,
-"sin correspondencia" claimed right or wrong, and the SKOS type compared with the person's.
-"""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

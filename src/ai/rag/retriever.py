@@ -1,14 +1,3 @@
-"""Semantic search over an indexed law (ChromaDB).
-
-Given a query, returns the articles whose meaning is closest, each with its
-number and title so the web view and the traceability layer can show where a
-match comes from. ``top_k`` defaults to ``rag.top_k`` in config/config.yaml.
-
-By default it searches the base law ('normativa', Sprint 2), exactly as before. With
-``name`` and ``path`` it searches another collection, such as the law of an upload,
-indexed in its own workspace (S7-T07).
-"""
-
 from __future__ import annotations
 
 from typing import TypedDict

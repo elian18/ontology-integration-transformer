@@ -1,25 +1,3 @@
-"""Lexical similarity between the concepts to align and the DPV terms (how names are WRITTEN).
-
-This is the first of the two automatic signals of the Scrumban row (similitud léxica +
-embeddings). It only compares spelling; meaning is S4-T05's job. It makes no decision and
-applies no threshold: it returns a score in [0, 1] for every (source, DPV target) pair.
-
-What is compared (agreed design):
-- Source side: the IDENTIFIER only (``SourceConcept.name_text()``: 'DataSubject' ->
-  'Data Subject'). For the AI concepts that identifier is English CamelCase; their Spanish
-  label never enters here, because comparing letters across languages is meaningless
-  ('titular' vs 'Data Subject'). Spanish labels go to the embeddings (S4-T05).
-- Target side: the DPV ``skos:prefLabel`` (English), or its humanized local name.
-
-How the score is computed (kept simple so it can be explained in the thesis):
-1. Normalize both texts: split CamelCase/underscores, lowercase, strip accents and
-   punctuation, drop stop words ('of', 'in', 'the'...), naive singular ('categories' ->
-   'category', 'rights' -> 'right').
-2. RapidFuzz ``token_sort_ratio`` on the normalized tokens, divided by 100. Word order does not
-   matter, extra words lower the score: 'Consent in verification' vs 'Consent' is partial,
-   not a perfect match.
-The whole source x target matrix is computed at once with ``rapidfuzz.process.cdist``.
-"""
 from __future__ import annotations
 
 import re

@@ -1,28 +1,3 @@
-"""Automatic check of the "solo ontología" mode on an ontology from outside the base (S6-T09).
-
-The threshold was calibrated on the base (S6-T06) and the inheritance rules were measured there
-(S6-T05). This module measures the automatic proposer on an ontology nobody in the project
-wrote, GDPRtEXT (ADAPT Centre, CC-BY-4.0; id12 of the scoping review), and nobody labels
-anything:
-
-- The reference already exists. The concepts of the upload that inherited a validated decision
-  (S6-T05) are concepts whose answer a person gave while building the base (Sprint 5). In
-  GDPRtEXT: 22 concepts (18 by the same name, 4 very similar), 21 with a DPV term and 1 without.
-- They are solved again AS IF THEY WERE NEW, with the same steps the web applies to the rest
-  (S6-T06): ranking, best candidate only, threshold ``auto.threshold``, and the AI types it or
-  says "none". Each answer is then compared with the person's.
-- It also records where the correct DPV term sits among the first ``DEPTH`` (10) candidates:
-  how many answers a step that chooses AMONG candidates could reach. That is the baseline the
-  Sprint 7 redesign (RAG + LLM that decides) will be measured against.
-
-Nothing of the user's alignment changes: the check keeps its own candidates and AI types in
-``work/external-check/`` (a second run reuses them and makes no LLM call) and writes
-``work/external-check.json``; the CLI also saves a copy next to the base outputs
-(``data/output/<file>-external-check.json``) for the CHANGELOG and the thesis.
-
-CLI:
-    py -m src.alignment.external_check data/input/gdprtext-ontology.ttl [--sin-ia]
-"""
 from __future__ import annotations
 
 import argparse

@@ -1,8 +1,3 @@
-"""Tests for the per-entity ontology inventory (S3-T01).
-
-Two things are checked: that the inventory reconciles exactly with Sprint 1's totals on
-OntoPriv, and that the family/hierarchy logic generalizes to arbitrary ontologies (one root
-and several roots), so the modular split downstream never depends on OntoPriv's shape."""
 from __future__ import annotations
 from pathlib import Path
 

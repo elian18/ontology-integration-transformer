@@ -1,38 +1,3 @@
-"""Inherit the validated alignment of the base for an uploaded ontology (S6-T05).
-
-In Sprint 5 a person decided, once, the DPV alignment of the 552 base concepts (527 OntoPriv
-entities + 25 new concepts from the LOPDP): 173 aligned (190 SKOS correspondences) and 379
-"sin correspondencia". When a person uploads their own ontology, every concept that is the SAME
-as a base concept receives that decision as it is, so the user does not review anything for
-it. Only the rest goes to the automatic proposals (S6-T06).
-
-How "the same" is decided, in order (the first rule that holds wins):
-1. ``same_iri``: the concept has the IRI of a base concept (e.g. an ontology that reuses
-   OntoPriv terms, or OntoPriv itself: data/input/sample.ttl inherits all 527 entities).
-2. ``same_name``: its normalized name or label equals the name, label or an ALIAS of a base
-   concept ('Data_Controller' = 'DataController' = 'data controller'). The aliases are the
-   names of the 66 AI concepts a person confirmed as duplicates of an OntoPriv entity in
-   Sprint 5 (e.g. 'BusinessVolume' for 'Turnover'), so they also catch other wordings.
-3. ``similar``: the same rule as the Sprint 4 duplicate detector (S4-T06), with its measured
-   thresholds from config.yaml: combined score (0.4 lexical + 0.6 embeddings) >=
-   ``alignment.duplicate_threshold`` (0.75) or lexical >= ``alignment.duplicate_name_match``
-   (0.95). On the LOPDP run, 33 of the 34 concepts it marked were confirmed by a person.
-Kinds must be compatible (a class only matches a class, a property a property). When the best
-match is a tie between base concepts with DIFFERENT decisions, nothing is inherited: the
-concept goes to the automatic proposals instead (``ambiguous``).
-
-What is inherited and how it is labelled: the DPV decision itself was validated by a person
-(who and when travel with it); the equivalence between the user concept and the base concept
-is automatic and is recorded with its rule and score, so the output can say "heredada de
-OntoPriv:Consent (mismo nombre)".
-
-Embeddings are only computed for the concepts that rules 1 and 2 did not match (sample.ttl
-needs none). The result is saved in the workspace (``work/inherited.json``) with a fingerprint
-of the base it read: after a correction of the base, running the upload again inherits it
-(S10-T16).
-
-CLI: ``py -m src.alignment.inherit ARCHIVO [--sin-embeddings]``.
-"""
 from __future__ import annotations
 
 import argparse
@@ -240,7 +205,8 @@ def _embed(texts: list[str], embed_fn) -> np.ndarray:
 
 def inherit(user_concepts: list[SourceConcept], base: BaseIndex, *, embed_fn=None,
             use_embeddings: bool = True, cfg: dict | None = None) -> InheritReport:
-    """Apply the three rules (see the module docstring) to every user concept."""
+    """Give each user concept the base decision when it is the same concept: same IRI, then the
+    same name, label or alias, then a close score (0.4 lexical + 0.6 embeddings)."""
     settings = alignment_settings(cfg)
     threshold, name_match = duplicate_threshold(cfg), name_match_threshold(cfg)
     report = InheritReport(total=len(user_concepts), base_concepts=len(base.concepts),

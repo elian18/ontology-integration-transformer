@@ -1,8 +1,3 @@
-"""Tests for the AI that says why a competency question is yellow (S9-T06).
-
-A fake LLM checks the single call, the cache and what it is shown; without AI (switched off,
-no key, an error, an invalid answer) each yellow question gets the fixed sentence. A guarded
-test asks the real AI about the five yellow questions of the base (slow)."""
 from __future__ import annotations
 
 import json

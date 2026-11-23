@@ -1,13 +1,3 @@
-"""Bridge for the alignment view (Sprint 4, S4-T10): DPV candidates and their measurement.
-
-Reads the files written by the Sprint 4 pipeline (it never recomputes anything):
-- ``alignment-candidates.json`` (S4-T07/T08): one row per (concept, DPV candidate), with the
-  similarity scores, the SKOS type proposed by the AI and its justification.
-- ``alignment-evaluation.json`` (S4-T09): Hit@1 / Hit@k and the AI type accuracy measured
-  against the hand-labelled sample.
-Everything is still "por validar": approving candidates is Sprint 5. The view only reads the
-dicts returned here, and the filtering lives here so it can be tested without Streamlit.
-"""
 from __future__ import annotations
 
 import json

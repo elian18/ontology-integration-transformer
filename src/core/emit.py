@@ -1,21 +1,3 @@
-"""Materialize the split into two standalone RDF/XML files: the core and the profile.
-
-Takes the assignment from S3-T03 and writes:
-- ``ontopriv-core.rdf``      : the reusable, jurisdiction-neutral core (must be self-contained).
-- ``profile-ecuador-lopdp.rdf``: the Ecuador (LOPDP) profile, which ``owl:imports`` the core.
-- ``core-manifest.json``     : a small manifest with IRIs, counts and what was moved.
-
-Before writing, the core is made STANDALONE: any core entity that still points into the
-profile (a core -> profile hard reference from S3-T03) is moved to the profile. Moving down is
-always safe because the profile imports the core, so its references to core entities resolve.
-The move is applied to a fixpoint (moving one entity can expose another) and every moved entity
-is reported, so the human can review what left the core.
-
-Each named class, property and individual ends up in exactly one file; the profile file is the
-only one that references the core. Files are RDF/XML (the Sprint 3 output format); Turtle and
-JSON-LD come later, in the transformation sprints. Since S9-T02 both modules get the two
-repairs of ``src.core.repair`` (core-repairs.json says what changed and why).
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

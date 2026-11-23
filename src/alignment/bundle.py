@@ -1,28 +1,3 @@
-"""Package the aligned graph so it opens in Protégé with its imports resolved (S5-T07, S6-T03).
-
-The alignment module imports the profile, and the profile imports the core, by IRI. Those IRIs
-are not published on the web, so Protégé needs an XML catalog (``catalog-v001.xml``) that maps
-each IRI to a local file. The zip holds the three modules, that catalog, the manifest, the CSV
-and a short LEEME.txt; unzipped in any folder, opening the alignment module loads the whole
-chain (alignment -> profile -> core). The DPV is not imported, so it is not included.
-
-S6-T03: the package can be built in any output format (RDF/XML, OWL, Turtle, JSON-LD). The
-modules are converted with ``src.transform.convert`` (same graph, checked in S6-T02) and the
-catalog points to the files of that format. The RDF/XML package keeps its Sprint 5 name and
-contents. The generic packaging lives in ``src.transform.package``.
-
-Measured in S6-T03 with Protégé 5.6.9 (OWL API 4.5.29): the RDF/XML, OWL and Turtle packages
-open with their imports resolved; JSON-LD does not open ("Not a valid (absolute) IRI: @context":
-Protégé reads the file as RDF/JSON, another JSON format). The JSON-LD itself is valid (an
-independent processor, pyld, reads the same triples), so the JSON-LD package carries a note
-in its LEEME.txt and the web shows it too (``PROTEGE_JSONLD_NOTE``).
-
-``write_base_catalog`` replaces the ``catalog-v001.xml`` that Protégé left in data/output (it
-mapped the core IRI to the profile file) with a correct one for the RDF/XML modules there.
-
-CLI: ``py -m src.alignment.bundle [--formato rdfxml|owl|turtle|jsonld|all]`` writes the zips
-into the outputs folder and fixes the catalog there.
-"""
 from __future__ import annotations
 
 import argparse

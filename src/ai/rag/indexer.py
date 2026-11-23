@@ -1,11 +1,3 @@
-"""Index segmented legal articles into the ChromaDB 'normativa' collection.
-
-Connects the Sprint 0 RAG skeleton: turns each article into one vector with the
-project embedder (all-MiniLM-L6-v2) and stores it with its number and title as
-metadata. Ids are deterministic (``<law>-art-<number>``) and writing uses
-``upsert``, so re-indexing the same law overwrites instead of duplicating.
-"""
-
 from __future__ import annotations
 
 import re

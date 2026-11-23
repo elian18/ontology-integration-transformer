@@ -1,9 +1,3 @@
-"""Tests for the catalog of competency questions (S9-T03).
-
-The real catalog must be complete and its expected answers must be in the LOPDP: every
-article exists, every element is written in its article and every value is in the quoted
-wording. Synthetic catalogs check that each missing piece is reported in Spanish, and small
-cases fix how an answer will be recognized before any SPARQL query exists."""
 from __future__ import annotations
 
 import copy

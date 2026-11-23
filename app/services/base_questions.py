@@ -1,7 +1,3 @@
-"""Bridge for the page "Preguntas de la base" (S9-T10): what the base answers, read only.
-
-It reads what the commands already saved in data/output (the questions of the base and the bridge
-with the GDPR) and never runs them: when a result is missing, it says which command makes it."""
 from __future__ import annotations
 
 import json

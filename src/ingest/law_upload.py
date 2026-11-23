@@ -1,26 +1,3 @@
-"""The law of an upload: clean it, split it into articles and index it in its workspace (S7-T07).
-
-Modes "solo ley" (S7-T10) and "ley + ontología" (S7-T11) start here. A person uploads a
-data-protection law (.pdf or .txt, Spanish or English: the LOPDP, the GDPR, the Colombian law
-1581 ...) and, without doing anything else:
-
-1. ``segment``: the text is cleaned (``law_text``: page headers and footers, EUR-Lex markers,
-   ligatures) and split into numbered articles (``legal_segmenter``: every heading style, the
-   numbers must follow each other). The result, with the language, the skipped numbers and
-   what the cleaning removed, goes to ``work/law-articles.json``. A text without numbered
-   articles is refused with a message in Spanish.
-2. ``index``: one vector per article in the collection "law" of the ChromaDB of the WORKSPACE
-   (``<workspace>/chroma``). The base database (``chroma_db``: normativa, dpv, decisions) is
-   never written. The collection carries its manifest and is rebuilt only when the law, the
-   segmenter or the embedding model change (the fingerprint of S7-T01), so uploading the same
-   law again costs nothing.
-
-``retrieve_law_articles`` searches that collection: the evidence of the "ley + ontología" mode
-(S7-T11) will use it (the concepts the AI extracts from the law in S7-T09 already carry their
-article).
-
-CLI: ``py -m src.ingest.law_upload ARCHIVO [--consulta "texto"]``.
-"""
 from __future__ import annotations
 
 import argparse

@@ -1,8 +1,3 @@
-"""S7-T09: the concepts of an uploaded law, extracted by the AI (prompt extract.v2) and accepted
-by the fixed rule, in the workspace of the law.
-
-Fast tests: a fake LLM that answers per article of the batch (like tests/test_extract.py) and a
-small law in .txt written to a temporary workspace. The slow test makes one real call."""
 from __future__ import annotations
 
 import json

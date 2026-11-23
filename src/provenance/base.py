@@ -1,9 +1,3 @@
-# PROV-O of the base (S10-T06): who decided each correspondence of the base with the DPV and
-# when, how each concept the AI took from the LOPDP was produced and who decided it (with its
-# article), the repairs R1 and R2 of the core and the profile, and the bridge with the GDPR. A
-# correspondence a person corrected later is a revision of the one it replaced (S10-T16).
-# It reads what the pipeline already wrote, in a module of its own (ontopriv-provenance) in four
-# formats; it calls no AI and never changes the base.
 from __future__ import annotations
 
 import argparse

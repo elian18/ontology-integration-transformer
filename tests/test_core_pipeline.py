@@ -1,9 +1,3 @@
-"""End-to-end test of the modular-core pipeline (Sprint 3, S3-T09).
-
-The per-task tests check each stage in isolation; this one runs the whole chain on the real
-OntoPriv -- load -> inventory -> split -> emit -- and asserts the invariants that must hold
-for the modular core to be usable: totals reconcile, every named entity lands in exactly one
-module file, the core is self-contained, and the profile imports the core."""
 from __future__ import annotations
 
 from pathlib import Path

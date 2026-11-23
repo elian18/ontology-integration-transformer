@@ -1,19 +1,3 @@
-"""S7-T13: end-to-end test of Sprint 7: the modes with a law of the page "Alinear con el DPV",
-on real files.
-
-Runs what the page runs (``app.services.align_ontology.run``, S7-T12) on the real laws of
-``data/input/laws`` and on GDPRtEXT, with the real validated base, the real OntoPriv-Core and
-the real DPV, but a deterministic embedding and a fake AI, so it is fast and needs no network.
-The real embeddings and the real AI were used in the runs whose figures are in the CHANGELOG;
-this test locks what does not depend on them:
-- "Una ley" on the Colombian law (PDF, Spanish): its 30 articles (S7-T07); the rule accepts the
-  well formed concepts the AI gives and rejects the rest (S7-T09); the concepts of the core
-  reuse its IRI and the profile imports OntoPriv-Core (S7-T10); the alignment is written, every
-  concept gets its labels (S7-T08) and the zip resolves the imports with the core inside;
-- "Mi ontología y una ley" on GDPRtEXT + GDPR (PDF, English): 99 articles; the alignment is the
-  same as uploading GDPRtEXT alone (the law changes no decision, S7-T11), every concept gets the
-  articles to review in alignment.csv and the zip carries no module of the law;
-- nothing is written outside the workspaces (S6-T04)."""
 from __future__ import annotations
 
 import csv

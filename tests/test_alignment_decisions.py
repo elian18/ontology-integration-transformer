@@ -1,4 +1,3 @@
-"""S5-T01: the human decisions log (append-only, latest wins, survives regenerating candidates)."""
 import json
 from pathlib import Path
 

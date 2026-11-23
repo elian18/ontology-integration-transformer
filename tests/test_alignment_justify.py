@@ -1,4 +1,3 @@
-"""S4-T08: the AI proposes the SKOS type of each DPV candidate and justifies it (fake LLM)."""
 import json
 import os
 import re

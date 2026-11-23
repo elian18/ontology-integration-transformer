@@ -1,5 +1,3 @@
-# Two general repairs of the base modules, applied after the core/profile split (S9-T02).
-# OntoPriv's input file is never touched; every change is recorded with its reason.
 from __future__ import annotations
 
 from rdflib import BNode, Graph, Literal, URIRef

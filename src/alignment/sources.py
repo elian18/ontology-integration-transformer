@@ -1,31 +1,3 @@
-"""Build the single list of SOURCE concepts that the alignment compares against the DPV.
-
-Sprint 4 aligns two sources (agreed design, flows A and B):
-- Flow A: every named class and property of OntoPriv (from the Sprint 3 inventory).
-- Flow B: the concepts the AI proposed from the law text (``PROPOSALS_FILE``, Sprint 3).
-This module only GATHERS them into one uniform shape; it computes no similarity and makes no
-decision. Later tasks consume it: lexical similarity (S4-T04), embeddings (S4-T05) and the
-"already in OntoPriv?" check for the AI concepts (S4-T06).
-
-Decisions encoded here:
-- Kinds are normalized to the alignment vocabulary: ``class`` / ``property`` (object and data
-  properties both become ``property``; the DPV only has one property kind). An OntoPriv entity
-  punned as class AND property (OWL Full) keeps both kinds, so it is later compared with DPV
-  concepts and DPV properties alike.
-- Terms that live in a known standard vocabulary namespace (DPV, SKOS, FOAF, Dublin Core,
-  PROV, ODRL, schema.org, OWL/RDF/RDFS/XSD) are "borrowed": they are already standard, so they
-  are reported apart and not aligned.
-- Named individuals: measured in S4-T02, OntoPriv's 181 individuals are example instances
-  (``consentimiento001``, ``banking001``...: one per class, no label, no comment). An example
-  record is not a concept, so by default they are NOT aligned (their class is); they are
-  counted and reported. ``include_individuals=True`` turns them on for another ontology.
-- Kind of the AI concepts (measured in S4-T09): the Sprint 3 extraction declared 46 of the 93
-  concepts as ``property``, but all 46 are named like classes ('RightToErasure',
-  'PrincipleOfLoyalty'), so they could only meet DPV properties. The declared type is not
-  trusted: the kind is derived from the OWL naming convention (classes in UpperCamelCase,
-  properties in lowerCamelCase, e.g. 'hasPurpose'). The declared type is kept in
-  ``declared_kind`` and the corrections are counted.
-"""
 from __future__ import annotations
 
 import json

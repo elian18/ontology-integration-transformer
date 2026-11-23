@@ -1,9 +1,3 @@
-"""Tests for the PROV-O of each upload (S10-T07).
-
-A hand-built upload (version 3: two changes of the person on top of the base and the rule, a
-law with its concepts, labels, a definition and the AI reviewer) checks the records one by one;
-the small pipeline of the tests checks that every upload writes the module, that it goes in
-the .zip and that a change makes version 2 a revision of version 1. No AI is called."""
 from __future__ import annotations
 
 import io

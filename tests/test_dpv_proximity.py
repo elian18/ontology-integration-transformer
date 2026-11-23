@@ -1,8 +1,3 @@
-"""Tests for the DPV-proximity scoring (S3-T02).
-
-The fast tests inject a deterministic fake encoder (keyword axes), so they assert the
-scoring/argmax/report logic exactly and never touch the network. One slow test exercises the
-real Sprint 2 encoder end-to-end and is excluded by ``-m "not slow"``."""
 from __future__ import annotations
 import json
 import math

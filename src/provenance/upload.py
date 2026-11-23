@@ -1,9 +1,3 @@
-# PROV-O of each upload (S10-T07): the module <name>-provenance says, for every correspondence
-# that entered the ontology, who decided it (base, regla, regla sin IA or usuario), how it was
-# produced and in which version; it keeps the ones a later version replaced (as revisions), the
-# concepts without correspondence and why, what the AI took from a law and the rule accepted,
-# the labels and definitions the AI added and what the AI reviewer said. It reads the
-# workspace; it calls no AI and goes in every .zip, in the format of the .zip.
 from __future__ import annotations
 
 import argparse

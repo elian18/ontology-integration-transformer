@@ -1,22 +1,3 @@
-"""Assisted batch review of the DPV correspondences (S5-T08).
-
-Why it exists: reviewing 552 concepts one by one, the reviewer noticed he was following the AI
-suggestion (automation bias: 86 % agreement with an AI type measured right 25 % of the time,
-S4-T09). He chose an ASSISTED review: the project assistant proposed a decision for every
-concept still "por validar", with a short reason, in ``data/review/assistant-proposals.json``;
-the person reviews them as tables, family by family, and confirms or changes them.
-
-What this module guarantees (the honest provenance of the review):
-- A proposal is NOT a decision. Nothing reaches the decisions log (S5-T01) until a person
-  confirms it; the decision is written with that person's name, through the same
-  ``approve`` / ``mark_no_match`` of S5-T04 (so the same checks apply: SKOS type, compatible
-  kind, a searched term must exist in the DPV).
-- Every confirmed decision keeps, in its snapshot, ``proposed_by: "assistant"``, the original
-  proposal and whether the person accepted it as is or changed it; the note says
-  "propuesta del asistente confirmada" (or "cambiada"). The graph manifest and the thesis can
-  therefore separate what the person decided alone from what they confirmed.
-- Only concepts still "por validar" are offered: a person's own decision always wins.
-"""
 from __future__ import annotations
 
 import json

@@ -1,9 +1,3 @@
-"""Tests for the competency questions answered with SPARQL (S9-T04).
-
-Synthetic answers check how each kind of question is judged; toy graphs check the rdflib
-engine and the generic queries on an ontology that is not OntoPriv. Guarded tests run the
-real base: its colors, the original OntoPriv against the base, the four formats and the same
-rows from Jena and from rdflib."""
 from __future__ import annotations
 
 import json

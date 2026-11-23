@@ -1,38 +1,3 @@
-"""Convert an ontology between RDF/XML, Turtle and JSON-LD without losing triples (S6-T01).
-
-Stage 3 of the architecture (Transformation). The same rdflib graph is written in any of the
-output formats and can be read back from any of the input formats:
-
-    output formats: RDF/XML (.rdf), OWL (.owl, which is RDF/XML with the extension Protégé
-                    expects), Turtle (.ttl) and JSON-LD (.jsonld)
-    input formats:  the same plus .xml and .json; OWL/XML (.owx) and PDF stay input-only for
-                    other stages (OWL/XML is converted once with Protégé, Sprint 1)
-
-Measured on the real files before writing this module: plain rdflib loses or rewrites data in
-two cases, so this module fixes both (each one has a regression test):
-
-1. Turtle rewrites the lexical form of some numbers. OntoPriv has two values typed
-   ``"15"^^xsd:decimal``; rdflib writes them with the Turtle shorthand ``15.0``, which reads
-   back as ``"15.0"^^xsd:decimal`` (same value, different text, so not the same graph).
-   Fix: a numeric or boolean literal uses the shorthand only when the shorthand keeps its exact
-   text; otherwise it is written explicitly (``"15"^^xsd:decimal``).
-2. JSON-LD drops the explicit ``rdf:type rdf:List`` of a list node. OntoPriv's SWRL rules have
-   12 lists typed that way; rdflib turns them into ``@list`` and the 12 triples disappear.
-   Fix: a list whose nodes carry ``rdf:type rdf:List`` is written node by node (``rdf:first`` /
-   ``rdf:rest``), so the type survives. Lists without that type still use ``@list``.
-   Also, JSON-LD is written with typed values (``{"@type": "xsd:integer", "@value": "15"}``),
-   never native JSON numbers, so integers, doubles and ``xsd:string`` keep their exact form.
-
-The JSON-LD ``@context`` only lists the prefixes the graph actually uses (rdflib binds about 30
-common prefixes to every graph, most of them unused), so the file stays readable. DPV, SKOS and
-Dublin Core terms that only appear as objects get their usual prefix (``dpv:Consent`` instead of
-the full IRI); this adds prefixes only and never changes a triple.
-
-``owl:imports`` points to ontology IRIs, not to files, so it does not change between formats;
-mapping those IRIs to local files is the job of the Protégé catalog (S6-T03).
-
-CLI: ``py -m src.transform.convert ARCHIVO [ARCHIVO ...] --to turtle|jsonld|rdfxml|owl|all``.
-"""
 from __future__ import annotations
 
 import argparse

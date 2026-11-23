@@ -1,9 +1,3 @@
-# The AI drafts the SPARQL query of each competency question and every draft is measured on the
-# base (S9-T08). The prompts only get the question in Spanish and a summary of the ontology made
-# from its triples (v2 also says how the base is built): never the reference query nor the
-# expected answer. Each draft runs with the reference, on the same engine and files, and the same
-# rule judges both: as the AI wrote it ("a la primera") and with the standard prefixes it used
-# without declaring them, added by the system. Nothing of this enters the ontology or the uploads.
 from __future__ import annotations
 
 import argparse

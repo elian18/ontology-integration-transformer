@@ -1,28 +1,3 @@
-"""Calibrate the threshold of the automatic proposals with the validated base (S6-T06).
-
-In the "solo ontología" mode nobody reviews the concepts that did not inherit a decision
-(S6-T05): the system proposes the best DPV candidate on its own, but ONLY when its score is
-high enough. This module measures, on the 552 base concepts that a person decided in Sprint 5,
-what would have happened with each threshold if the system had proposed alone:
-
-- proposals: concepts whose best candidate (rank 1) reaches the threshold;
-- correct: proposals whose term is one the person approved for that concept;
-- precision = correct / proposals (how many automatic proposals are right);
-- coverage = correct / reachable, where reachable = concepts whose rank-1 candidate is one the
-  person approved (what a perfect threshold could recover);
-- the same with the AI filter: a proposal is dropped when the AI said "none" for it.
-
-The chosen threshold is the LOWEST one whose precision reaches ``auto.min_precision`` with at
-least ``MIN_PROPOSALS`` proposals (a threshold that keeps 2 proposals proves nothing).
-
-Honest limits, written in the report: 532 of the 552 decisions confirmed an assistant
-proposal without changes (not an independent gold standard), so the 30-concept blind sample of
-Sprint 4 (``data/reference/alignment-reference-sample.csv``) is checked too at the chosen
-threshold. Both use the Sprint 4 candidates (3 candidates and a law article per concept).
-
-CLI: ``py -m src.alignment.calibrate`` prints the table and writes
-``<outputs>/threshold-calibration.json``.
-"""
 from __future__ import annotations
 
 import argparse

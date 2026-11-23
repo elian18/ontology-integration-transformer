@@ -1,5 +1,3 @@
-"""Shared fixtures for the test suite."""
-
 import atexit
 import os
 import shutil

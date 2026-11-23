@@ -1,4 +1,3 @@
-"""Bridge for the modular-core view (Sprint 3): structure, downloads and AI proposals."""
 from __future__ import annotations
 
 import json

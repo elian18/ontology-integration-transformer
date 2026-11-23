@@ -1,26 +1,3 @@
-"""Human decisions on the DPV correspondences (S5-T04): which SKOS mappings enter the graph.
-
-Who is reviewed:
-- every OntoPriv entity of the candidates file (flow A), and
-- the AI concepts a person APPROVED as new in S5-T03 (flow B). AI concepts that were rejected or
-  confirmed as duplicates get no correspondence of their own (a duplicate inherits the alignment
-  of its OntoPriv entity); AI concepts still pending must be decided first (S5-T03).
-
-What a person can do, per concept:
-- APPROVE a DPV candidate with the SKOS type THEY choose (the AI type is only a suggestion: the
-  S4-T09 measurement showed it is right 25 % of the time). More than one candidate can be
-  approved (e.g. a closeMatch and a relatedMatch).
-- REJECT a candidate.
-- Approve a DPV term found with the SEARCH (outside the top-3; Hit@3 was 84 %), as long as its
-  kind is compatible (class/individual <-> DPV concept, property <-> DPV property).
-- Mark the concept as NO MATCH (no DPV counterpart). Only possible while no mapping of the
-  concept is approved; approving a mapping later withdraws the "no match".
-- UNDO any of the above (back to "por validar").
-
-A concept counts as reviewed when it has at least one approved mapping or a "no match". Every
-decision goes to the S5-T01 log with a snapshot of how the candidate was produced; the aligned
-graph itself is written in S5-T06 from ``approved_mappings``.
-"""
 from __future__ import annotations
 
 from collections import Counter

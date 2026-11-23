@@ -1,12 +1,3 @@
-"""Tests for ChromaDB collections by name (S7-T01).
-
-Sprint 2 had ONE fixed collection ("normativa"). These tests check the generalization without
-breaking it: the default collection is still "normativa", a named collection never touches it,
-each folder (workspace) has its own database, and the new collections can use cosine distance
-and carry their manifest. The isolated, throwaway ChromaDB of conftest is used throughout; the
-"normativa" collection is only read here, never written, so test_rag/test_smoke keep their own
-state. S7-T06: reads are retried when the index of a new collection is not on disk yet.
-"""
 import pytest
 from chromadb.errors import InternalError
 

@@ -1,9 +1,3 @@
-"""Tests for the AI concept extraction that proposes profile concepts (S3-T05).
-
-The fast tests inject a fake LLM that returns JSONL keyed by which articles are in the batch,
-so they assert the batching / JSONL parsing / provenance / quota / resume logic exactly and
-never hit the network. One slow test uses the real LLMClient and is excluded by
-``-m "not slow"``."""
 from __future__ import annotations
 import json
 

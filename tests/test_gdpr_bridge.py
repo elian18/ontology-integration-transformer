@@ -1,10 +1,3 @@
-"""Tests for the bridge of the base with the GDPR (S9-T09).
-
-Toy graphs check how the pairs are chained and written; the real base and the alignment of
-GDPRtEXT fixed in data/reference (version 3 of the upload, S10-T16) check the 31 pairs, that
-rebuilding gives the same ones, that
-Forma and Lógica find nothing new and that a fake AI explains each pair once (cache). A toy upload
-checks that its current version becomes the fixed alignment only with EDITABLE_BASE (S10-T16)."""
 from __future__ import annotations
 
 import csv

@@ -1,10 +1,3 @@
-"""Tests for the two repairs of the base modules (S9-T02).
-
-Synthetic graphs check each rule: several domains or ranges become one union, a property
-typed both ways keeps the type its use shows, ranges that no longer fit go, and a property
-that lives in the other module is left alone. An owlrl toy shows the union removes the
-contradiction that several domains cause. Guarded tests run the real OntoPriv: the counts,
-the input file untouched and the same entities with and without the repairs."""
 from __future__ import annotations
 
 import hashlib

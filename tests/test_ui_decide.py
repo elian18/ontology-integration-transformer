@@ -1,7 +1,3 @@
-"""S10-T14: "Tú decides" asks the questions of the upload one at a time (with why, and the whole
-record only if it is opened), lets the person adjust another concept, and turns the answers into
-one new version: "Recalculando tu ontología…" and "¡Lista con los cambios que aprobaste!".
-"Mantener todo" makes no version. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
 import pytest

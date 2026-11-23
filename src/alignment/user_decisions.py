@@ -1,9 +1,3 @@
-"""What the person chooses after testing an upload (S10-T03): a fixed rule checks each change,
-the accepted ones go to an append-only log (work/user-decisions.jsonl) and the alignment is
-written again as a new version; the previous one stays in history/v<N>/ with its four zips.
-
-The person's choices never edit the uploaded ontology, the rule of the decider or the base:
-they are laid over what the base and the rule decided, correspondence by correspondence."""
 from __future__ import annotations
 
 import re

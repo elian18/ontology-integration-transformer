@@ -1,6 +1,3 @@
-"""S10-T12: after the run, "¡Tu ontología está lista!" shows a small interactive graph of the
-ontology (streamlit-agraph) and one button to review it; what step 3 showed (downloads,
-validation, tabs) waits behind that button. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
 import json
