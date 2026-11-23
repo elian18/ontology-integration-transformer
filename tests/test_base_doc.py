@@ -113,9 +113,9 @@ def test_the_table_lists_every_linked_concept_even_a_class_that_is_also_a_proper
     lines = _texts(g, bd.DOC_IRI, DCTERMS.description)["es"].split("\n")
     rows = [line for line in lines if line.startswith("| [")]
     assert rows == [
-        "| [Controller](#Controller) | se parece a dpv:DataController |  |  |",
-        "| [Data Owner](#Data_Owner) | es igual a dpv:DataSubject; es un tipo de dpv:Person | "
-        "se parece a gdprtext:DataSubject | art. 4, art. 31 |",
+        f"| [Controller](#{LOPDP}Controller) | se parece a dpv:DataController |  |  |",
+        f"| [Data Owner](#{LOPDP}Data_Owner) | es igual a dpv:DataSubject; es un tipo de "
+        "dpv:Person | se parece a gdprtext:DataSubject | art. 4, art. 31 |",
         f"| [niñas y niños](#{ONTO}Boys_and_girls) | es igual a dpv:Child |  |  |"]
     assert "| Concept | DPV | GDPR | Articles of the LOPDP |" in _texts(
         g, bd.DOC_IRI, DCTERMS.description)["en"]
