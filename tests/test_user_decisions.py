@@ -20,7 +20,7 @@ from src.transform.package import README_FILE
 from src.validation import ai_auditor as au
 from src.validation import upload_validation as uv
 from src.validation.shape_inspector import GREEN, RED
-from src.workspace.store import load_workspace
+from src.workspace.store import RECALC_LABELS, RECALC_STEPS, STEP_LABELS, load_workspace
 from tests.test_alignment_propose import (TTL_PROPERTY, DeciderLLM, Embed, env,  # noqa: F401
                                           targets)
 from tests.test_validation_upload import _align, _real_dpv
@@ -288,6 +288,17 @@ def test_more_changes_give_more_versions_and_a_rerun_keeps_them(aligned, env,  #
     assert llm.calls == 0 and manifest["alignment_version"] == 4
     assert path.name == "mi-gdpr-alineada-v4-turtle.zip"
     assert (EX.PersonalData, SKOS.broadMatch, DPV.PersonalData) in _module(w)
+
+
+def test_a_new_version_says_each_step_that_runs_again(aligned, env, targets):  # noqa: F811
+    said = []
+    result = ud.apply(aligned, _changes("PersonalData broadMatch PersonalData"), cfg=env.cfg,
+                      targets=targets, llm=DeciderLLM(), use_llm=False, sleep_fn=lambda s: None,
+                      progress=said.append)
+    assert result["applied"]
+    labels = {**STEP_LABELS, **RECALC_LABELS}
+    assert said == [labels[step] for step in RECALC_STEPS]
+    assert not {"inherit", "candidates", "propose", "labels", "audit"} & set(RECALC_STEPS)
 
 
 def test_without_a_valid_change_nothing_is_written(aligned, env, targets):  # noqa: F811

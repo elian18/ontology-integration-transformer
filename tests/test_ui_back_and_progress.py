@@ -5,7 +5,8 @@ import importlib
 import pytest
 
 from app.services import align_ontology as svc
-from src.workspace.store import ALL_STEPS, STEP_LABELS, WorkspaceError, steps_for
+from src.workspace.store import (ALL_STEPS, RECALC_LABELS, RECALC_STEPS, STEP_LABELS,
+                                 WorkspaceError, steps_for)
 from tests.test_alignment_propose import TTL, env, targets  # noqa: F401
 from tests.test_law_evidence import LAW_E2E
 from tests.test_ui_align_ontology import (TITLE, _pick, _titles, _to_review, _zips,  # noqa: F401
@@ -25,6 +26,17 @@ def test_every_step_in_plain_words():
     assert svc.progress_of("law", "Otra cosa") == ("Otra cosa…", 0.0)
     assert not any(w in " ".join(svc.STEP_TEXT.values())
                    for w in ("SHACL", "DPV", "razonador", "Indexar", "OntoPriv"))
+
+
+def test_the_bar_of_a_new_version_only_has_the_steps_that_run_again():
+    labels = {**STEP_LABELS, **RECALC_LABELS}
+    said = [svc.progress_of(svc.RECALC, labels[step]) for step in RECALC_STEPS]
+    assert [text for text, _ in said] == [
+        "Guardando tus cambios…", "Escribiendo tu ontología…", "Revisando que esté bien formada…",
+        "Revisando que no tenga contradicciones…", "Comprobando que responda preguntas básicas…",
+        "Preparando tus nuevas preguntas…", "Preparando la descarga…"]
+    assert [done for _, done in said] == [i / 7 for i in range(7)]
+    assert svc.progress_of(svc.RECALC, STEP_LABELS["propose"])[1] == 0.0  # the AI does not run
 
 
 def test_sizes():

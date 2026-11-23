@@ -16,8 +16,8 @@ from src.validation import upload_validation as uv
 from src.validation.shapes import VIOLATION
 from src.validation.shape_inspector import (BASE, GREEN, NEW, ONTOLOGY, RED, YELLOW,
                                             current_color)
-from src.workspace.store import (KIND_LAW, KIND_ONTOLOGY, STEP_LABELS, WorkspaceError,
-                                 load_workspace, steps_for)
+from src.workspace.store import (KIND_LAW, KIND_ONTOLOGY, RECALC_LABELS, RECALC_STEPS,
+                                 STEP_LABELS, WorkspaceError, load_workspace, steps_for)
 
 ACCEPTED_TYPES = ["rdf", "owl", "xml", "ttl", "jsonld", "json"]
 LAW_TYPES = ["txt", "pdf"]
@@ -235,16 +235,20 @@ def run(mode: str, files: dict[str, tuple[str, bytes]], **kwargs) -> str:
     return ws.id
 
 
-_STEP_KEYS = {label: key for key, label in STEP_LABELS.items()}
+# Applying the answers (S11-T04): the same bar, with only the steps that run again.
+RECALC = "recalc"
+RECALC_TEXT = {"save": "Guardando tus cambios", "doubts": "Preparando tus nuevas preguntas"}
+_STEP_KEYS = {label: key for key, label in {**STEP_LABELS, **RECALC_LABELS}.items()}
 
 
 def progress_of(mode: str, label: str) -> tuple[str, float]:
     """What the progress bar says when the run starts the step called ``label`` (the name the
-    pipeline gives it) and how much of the run is already done (0 to 1)."""
+    pipeline gives it) and how much of the run is already done (0 to 1); ``mode`` RECALC is a
+    new version made by the person's answers."""
     key = _STEP_KEYS.get(label)
-    steps = steps_for(mode)
+    steps = RECALC_STEPS if mode == RECALC else steps_for(mode)
     done = steps.index(key) / len(steps) if key in steps else 0.0
-    return f"{STEP_TEXT.get(key, label)}…", done
+    return f"{STEP_TEXT.get(key) or RECALC_TEXT.get(key, label)}…", done
 
 
 def file_size(n: int) -> str:
@@ -1343,9 +1347,11 @@ def adjust_options(ws_id: str, iri: str, *, targets=None) -> list[dict]:
 
 
 def apply_answers(ws_id: str, answers: dict[int, str], extra: list[dict] = (), *,
-                  targets=None, llm=None, use_llm: bool | None = None, sleep_fn=None) -> dict:
+                  targets=None, llm=None, use_llm: bool | None = None, sleep_fn=None,
+                  progress=None) -> dict:
     """The answers ({question: letter}) and the other concepts the person adjusted become one
-    new version (S10-T03); "Dejar como está" is remembered and not asked again."""
+    new version (S10-T03); "Dejar como está" is remembered and not asked again.
+    ``progress(step_label)`` is called before each step that runs again (S11-T04)."""
     from src.alignment import user_decisions as ud
     from src.alignment import user_questions as uq
     ws = load_workspace(ws_id, cfg=workspace_cfg())
@@ -1375,13 +1381,14 @@ def apply_answers(ws_id: str, answers: dict[int, str], extra: list[dict] = (), *
            "refused": []}
     if changes:
         result = ud.apply(ws, changes, cfg=cfg, targets=targets, llm=llm, use_llm=use_llm,
-                          sleep_fn=sleep_fn)
+                          sleep_fn=sleep_fn, progress=progress)
         out.update(applied=result["applied"], version=result["version"],
                    changes=[_after_text(c) for c in result["checked"] if c.ok],
                    refused=[f"{c.concept_name or up.local(c.change.concept)}: {c.reason}"
                             for c in result["checked"]
                             if not c.ok])
     if not out["applied"] and left:
+        (progress or (lambda label: None))(RECALC_LABELS["doubts"])
         uq.refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm)
     return out
 
