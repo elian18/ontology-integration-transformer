@@ -229,6 +229,15 @@ comparación va en la descripción de la página. `--oops` necesita internet
     py -m pytest -q                  # suite completa
     py -m pytest -m "not slow" -q    # rápida: sin el LLM, los embeddings ni Jena reales
 
+Pruebas de punta a punta (S11-T09): cada caso de `data/reference/e2e-s11.yaml` pasa por lo
+mismo que la web y sus resultados quedan solos en `data/output/e2e/s11`: `runs.jsonl` (una
+línea por corrida) y `resumen.md` (la última corrida de cada caso). Los casos usan sus
+propios espacios (`data/workspaces/_e2e`) y las respuestas de la IA que ya tienen las subidas:
+
+    py -m src.e2e.runner data/reference/e2e-s11.yaml [--solo gdprtext pizza] [--limpio]
+
+`--limpio` borra antes el espacio de cada caso, para medir una corrida completa.
+
 ## Insumos base del proyecto
 - OntoPriv (RDF/XML, exportada de Protégé): ontología base, perfil OWL Full.
 - LOPDP (PDF): texto normativo, 77 artículos.

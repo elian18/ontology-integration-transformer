@@ -1,0 +1,33 @@
+# Casos de prueba del Sprint 11 (py -m src.e2e.runner data/reference/e2e-s11.yaml).
+# mode: ontology (Mi ontología), law (Una ley), ontology+law (Mi ontología y una ley) o
+# transform (Solo transformar). control: true = nada debería alinearse (lo que se alinee es un
+# posible falso positivo). Un caso cuyo archivo falta se avisa y no se corre.
+cases:
+  # Material de los sprints anteriores: la línea base con v1.1.0
+  - {id: gdprtext, mode: ontology, ontology: data/input/gdprtext-ontology.ttl}
+  - {id: colombia, mode: law, law: data/input/laws/ley-1581-2012-colombia.pdf}
+  - id: gdprtext-gdpr
+    mode: ontology+law
+    ontology: data/input/gdprtext-ontology.ttl
+    law: data/input/laws/gdpr-en.pdf
+  - {id: tf-gdprtext, mode: transform, ontology: data/input/gdprtext-ontology.ttl}
+  # Material nuevo (S11-T11): se descarga en data/input/s11
+  - {id: gconsent, mode: ontology, ontology: data/input/s11/gconsent.ttl}
+  - {id: gdprov, mode: ontology, ontology: data/input/s11/gdprov.ttl}
+  - {id: duo, mode: ontology, ontology: data/input/s11/duo.owl}
+  - {id: pizza, mode: ontology, ontology: data/input/s11/pizza.owl, control: true,
+     note: "Ontología de control: no es de privacidad"}
+  - {id: mexico, mode: law, law: data/input/s11/mexico-lfpdppp-2025.pdf}
+  - {id: argentina, mode: law, law: data/input/s11/argentina-ley-25326.txt}
+  - {id: kenya, mode: law, law: data/input/s11/kenya-dpa-2019.pdf}
+  - id: gdprov-kenya
+    mode: ontology+law
+    ontology: data/input/s11/gdprov.ttl
+    law: data/input/s11/kenya-dpa-2019.pdf
+  - id: duo-mexico
+    mode: ontology+law
+    ontology: data/input/s11/duo.owl
+    law: data/input/s11/mexico-lfpdppp-2025.pdf
+  - {id: tf-gconsent, mode: transform, ontology: data/input/s11/gconsent.ttl}
+  - {id: tf-duo, mode: transform, ontology: data/input/s11/duo.owl}
+  - {id: tf-pizza, mode: transform, ontology: data/input/s11/pizza.owl}
