@@ -8,6 +8,7 @@ from pathlib import Path
 from src.alignment import user_alignment as ua
 from src.console import counted
 from src.provenance import upload as up
+from src.publish.base_doc import DOC_IRI
 from src.transform.convert import OUTPUT_FORMATS, ConversionError, input_format, serialize
 from src.validation import ai_auditor as au
 from src.validation import question_explainer as qe
@@ -38,6 +39,13 @@ START_CAPTION = "¿Qué quieres hacer?"
 MODES_CAPTION = ("¿Qué tienes? El resto es automático: alineación con el Data Privacy "
                  "Vocabulary (DPV) y etiquetas en español e inglés.")
 TRANSFORM_NOTE = "Tu archivo no pasa por la IA: solo se convierte al formato que elijas."
+# The page of the base, published with GitHub Pages from docs/ (S11-T08).
+BASE_PAGE_URL = DOC_IRI
+BASE_PAGE_LABEL = "Conoce la base con la que se alineó tu ontología"
+BASE_PAGE_HELP = ("OntoPriv y la LOPDP alineadas con el DPV y el GDPR: sus conceptos, sus "
+                  "correspondencias y su evaluación con OOPS!")
+START_BASE = (f"¿Con qué se alinea tu ontología? [Conoce la base del sistema]({BASE_PAGE_URL}): "
+              "OntoPriv y la LOPDP alineadas con el DPV.")
 TRANSFORM_READY = "Tu ontología está lista para descargar"
 TRANSFORM_JSONLD = ("JSON-LD: para aplicaciones web y de datos enlazados. Protégé 5.6 no lo "
                     "abre.")

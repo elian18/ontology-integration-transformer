@@ -427,7 +427,8 @@ def test_the_start_offers_two_paths(page):
     at = page()
     at.run()
     assert not at.exception
-    assert _titles(at) == [TITLE] and [c.value for c in at.caption] == ["¿Qué quieres hacer?"]
+    assert _titles(at) == [TITLE]
+    assert [c.value for c in at.caption] == ["¿Qué quieres hacer?", svc.START_BASE]   # S11-T08
     paths = [b for b in at.button if b.key.startswith("align_path_")]
     assert [b.key for b in paths] == ["align_path_align", "align_path_transform"]
     assert {b.label for b in paths} == {"Empezar"}
@@ -517,6 +518,9 @@ def test_step_3_shows_the_result_and_the_four_downloads(page, aligned):
     assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in at.download_button)
     assert not [d for d in at.download_button if d.key == "align_dl_previous"]   # version 1
     assert svc.FINAL_NOTE in [c.value for c in at.caption]
+    [base] = [e.proto for e in at.get("link_button")]                   # S11-T08
+    assert (base.label, base.url) == ("Conoce la base con la que se alineó tu ontología",
+                                      "https://elian18.github.io/ontology-integration-transformer/")
     assert at.toggle(key="align_details").label == svc.DETAILS_TOGGLE
     assert [t.label for t in at.tabs] == ["Resumen", "Conceptos", "Para revisar",
                                           svc.QUESTIONS_TAB]
@@ -604,6 +608,10 @@ def test_the_assistant_opens_by_default():
     assert not at.exception
     assert _titles(at) == [TITLE]
     assert len([b for b in at.button if b.key.startswith("align_path_")]) == 2
+    assert at.caption[-1].value == (                                    # S11-T08
+        "¿Con qué se alinea tu ontología? [Conoce la base del sistema]"
+        "(https://elian18.github.io/ontology-integration-transformer/): OntoPriv y la LOPDP "
+        "alineadas con el DPV.")
 
 
 class _Upload:

@@ -84,6 +84,7 @@ def step_start() -> None:
     st.title(svc.START_TITLE)
     st.caption(svc.START_CAPTION)
     _cards(svc.PATHS, svc.PATH_HELP, svc.PATH_ICONS, "align_path_", _home)
+    st.caption(svc.START_BASE)                                     # S11-T08
 
 
 def step_transform() -> None:
@@ -620,6 +621,8 @@ def step_result(ws_id: str) -> None:
         st.download_button(p["label"], data=p["data"], file_name=p["file_name"],
                            mime="text/turtle", key="align_dl_previous", on_click="ignore",
                            type="tertiary", icon=":material/history:")
+    st.link_button(svc.BASE_PAGE_LABEL, svc.BASE_PAGE_URL, help=svc.BASE_PAGE_HELP,
+                   icon=":material/menu_book:")                    # S11-T08
     if st.toggle(svc.DETAILS_TOGGLE, key="align_details"):
         _validation(v)
         pages = {"Resumen": _summary_tab, "Conceptos": _concepts_tab,

@@ -108,6 +108,7 @@ def test_the_page_gives_the_four_downloads(uploaded, cfg):  # noqa: F811
     assert all(d.proto.deferred_file_id and d.proto.ignore_rerun for d in buttons)
     assert svc.TRANSFORM_CAPTION in [c.value for c in at.caption]
     assert not list(Path(cfg["workspaces"]["dir"]).glob("*"))       # no workspace
+    assert not at.get("link_button")                       # nothing was aligned with the base
     at.button(key="align_home").click().run()
     assert _titles(at) == [svc.START_TITLE] and not at.download_button
 
