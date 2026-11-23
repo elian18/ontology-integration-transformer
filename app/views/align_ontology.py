@@ -533,22 +533,42 @@ def _applied(ws_id: str, applied: dict) -> None:
               icon=":material/arrow_forward:", on_click=_walk_to, args=(DECIDE + 1,))
 
 
+def _recalculate(ws_id: str, slot) -> None:
+    """The same bar as the first run, with the steps that run again (S11-T04)."""
+    # The status box takes the whole slot: a block of another kind drops the greyed questions.
+    with slot.status(svc.RECALCULATING, expanded=True) as status:
+        bar = st.progress(0.0, text=svc.PROGRESS_START)
+
+        def say(label: str) -> None:
+            text, fraction = svc.progress_of(svc.RECALC, label)
+            bar.progress(fraction, text=text)
+            status.write(text)
+        try:
+            applied = svc.apply_answers(ws_id, ss.get("align_answers", {}),
+                                        ss.get("align_extra", []), targets=_targets(),
+                                        progress=say)
+        except Exception as exc:                          # noqa: BLE001 - shown to the person
+            status.update(label="No se pudo recalcular", state="error", expanded=True)
+            st.error(svc.error_message(exc))
+            return
+        status.update(label="Listo", state="complete", expanded=False)
+    for key in ("align_answers", "align_extra", "align_q"):
+        ss.pop(key, None)
+    ss["align_applied"] = applied
+    st.rerun()                                            # the result, without the status box
+
+
 def step_decide(ws_id: str) -> None:
     """Tú decides: the questions one at a time, other concepts, and the new version (S10-T14)."""
+    slot = st.empty()
     if ss.pop("align_applying", False):
-        with st.status(svc.RECALCULATING, expanded=False) as status:
-            try:
-                applied = svc.apply_answers(ws_id, ss.get("align_answers", {}),
-                                            ss.get("align_extra", []), targets=_targets())
-            except Exception as exc:                      # noqa: BLE001 - shown to the person
-                status.update(label="No se pudo recalcular", state="error")
-                st.error(svc.error_message(exc))
-                return
-            status.update(label="Listo", state="complete")
-        for key in ("align_answers", "align_extra", "align_q"):
-            ss.pop(key, None)
-        ss["align_applied"] = applied
-        st.rerun()                                        # the result, without the status box
+        _recalculate(ws_id, slot)
+    else:
+        with slot.container():
+            _decide(ws_id)
+
+
+def _decide(ws_id: str) -> None:
     applied = ss.get("align_applied")
     if applied is not None:
         _applied(ws_id, applied)

@@ -8,7 +8,8 @@ from src.alignment import user_alignment as ua
 from src.alignment import user_decisions as ud
 from src.alignment import user_questions as uq
 from src.provenance import upload as up
-from src.workspace.store import WorkspaceError, load_workspace
+from src.workspace.store import (RECALC_LABELS, RECALC_STEPS, STEP_LABELS, WorkspaceError,
+                                 load_workspace)
 from tests.test_alignment_propose import env, targets  # noqa: F401
 from tests.test_ui_align_ontology import _titles, _zips, cfg, page  # noqa: F401
 from tests.test_upload_questions import aligned, doubtful  # noqa: F401
@@ -175,6 +176,28 @@ def test_the_page_applies_and_shows_the_new_version(deciding, env):  # noqa: F81
     assert _zips(at) == ["RDF/XML", "OWL", "Turtle", "JSON-LD"]
     ws = load_workspace(at.session_state["align_ws"], cfg=env.cfg)
     assert ud.current_version(ws) == 2
+
+
+def test_while_it_recalculates_only_the_bar_is_on_the_page(deciding, monkeypatch):
+    import importlib
+    view_svc = importlib.import_module("services.align_ontology")       # what the page imports
+    labels = {**STEP_LABELS, **RECALC_LABELS}
+
+    def stops(ws_id, answers, extra=(), *, progress=None, **kw):
+        for step in RECALC_STEPS[:4]:
+            progress(labels[step])
+        raise WorkspaceError("Se detuvo al revisar la lógica")
+    monkeypatch.setattr(view_svc, "apply_answers", stops)
+    at = deciding
+    at.radio(key="align_answer_1_1").set_value("a").run()
+    at.button(key="align_apply").click().run()
+    bar = at.get("progress")[0].proto
+    assert (bar.text, bar.value) == ("Revisando que no tenga contradicciones…", 42)   # 3 of 7
+    assert [m.value for m in at.markdown][-4:] == [
+        "Guardando tus cambios…", "Escribiendo tu ontología…", "Revisando que esté bien formada…",
+        "Revisando que no tenga contradicciones…"]
+    assert "Se detuvo al revisar la lógica" in at.error[0].value
+    assert not at.radio and not at.button and not _titles(at)          # the questions are gone
 
 
 def test_keep_everything_makes_no_version(deciding, env):  # noqa: F811

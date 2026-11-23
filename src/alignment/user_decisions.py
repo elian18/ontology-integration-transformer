@@ -381,15 +381,19 @@ def archive(ws, version: int) -> Path:
 
 def apply(ws, changes: list[Change], *, cfg: dict | None = None, targets=None,
           fmt: str = "turtle", llm=None, use_llm: bool | None = None, sleep_fn=None,
-          core=None, when: str | None = None) -> dict:
+          core=None, when: str | None = None, progress=None) -> dict:
     """Check the changes; if any is valid, keep the current version in history/, log the valid
     ones and write, validate and package the next version (the steps that call the AI are not
-    redone: what the person decided is laid over them)."""
+    redone: what the person decided is laid over them). ``progress(step_label)`` is called
+    before each step of RECALC_STEPS."""
     import time
     from src.alignment.propose import load_dpv_targets
     from src.alignment.user_alignment import write_package, write_user_alignment
     from src.alignment.user_questions import refresh_questions
     from src.validation.upload_validation import validate_workspace
+    from src.workspace.store import RECALC_LABELS, STEP_LABELS
+    say = progress or (lambda label: None)
+    say(RECALC_LABELS["save"])
     targets = targets if targets is not None else load_dpv_targets(cfg)
     checked = check(ws, changes, targets=targets, cfg=cfg)
     valid = [c for c in checked if c.ok]
@@ -406,12 +410,16 @@ def apply(ws, changes: list[Change], *, cfg: dict | None = None, targets=None,
         {"version": version, "folder": folder.relative_to(ws.path).as_posix(), "until": when})
     ws.save()
     started = time.perf_counter()
+    say(STEP_LABELS["write"])
     manifest = write_user_alignment(ws, cfg=cfg, core=core,
                                     recomputed={k: False for k in ("inherit", "definitions",
                                                                    "decider", "labels",
                                                                    "evidence", "audit")})
-    validate_workspace(ws, cfg, llm=llm, use_llm=use_llm, sleep_fn=sleep_fn or time.sleep)
+    validate_workspace(ws, cfg, progress=say, llm=llm, use_llm=use_llm,
+                       sleep_fn=sleep_fn or time.sleep)
+    say(RECALC_LABELS["doubts"])
     questions = refresh_questions(ws, cfg, targets=targets, llm=llm, use_llm=use_llm)
+    say(STEP_LABELS["package"])
     path = write_package(ws, fmt)
     return {"checked": checked, "applied": True, "version": version + 1, "previous": folder,
             "manifest": manifest, "zip": path, "questions": questions,

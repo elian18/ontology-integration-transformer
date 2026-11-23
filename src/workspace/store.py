@@ -33,6 +33,11 @@ DEFINITION_STEPS = ("definitions",)             # "ley + ontología": right afte
 EVIDENCE_STEPS = ("evidence",)                  # "ley + ontología": before writing
 ALL_STEPS = (STEPS + LAW_STEPS + EXTRACT_STEPS + PROFILE_STEPS + DEFINITION_STEPS
              + EVIDENCE_STEPS)
+# What runs again when the person's answers make a new version (S11-T04): the steps that call
+# the AI are not redone. "save" and "doubts" are not steps of the workspace.
+RECALC_STEPS = ("save", "write", "shapes", "logic", "questions", "doubts", "package")
+RECALC_LABELS = {"save": "Guardar las decisiones del usuario",
+                 "doubts": "Preparar las preguntas de la versión nueva"}
 STEP_LABELS = {"inherit": "Heredar lo validado", "candidates": "Buscar candidatos del DPV",
                "propose": "Proponer correspondencias",
                "labels": "Completar las etiquetas en español e inglés",
