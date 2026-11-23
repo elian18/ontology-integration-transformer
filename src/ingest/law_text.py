@@ -1,22 +1,3 @@
-"""Clean the text of an UPLOADED law before segmenting it (S7-T07).
-
-A PDF of a law carries things that are not the law: the page header and footer repeated on
-every page ("Ley 1581 de 2012 9 EVA - Gestor Normativo", "LEY ORGÁNICA ... - Página 12"), the
-markers of a consolidated EUR-Lex text (``▼B``, ``►C1 ... ◄``), typographic ligatures (``ﬁ``)
-and the section headings that EUR-Lex prints with spaced letters (``S e c t i o n 1``,
-``T r a n s p a r e n c y a n d m o d a l i t i e s``: the spaces between words are lost, so
-they are removed, not rejoined). Left in, they end up inside the text of the articles that the
-AI reads and the embeddings index.
-
-Only the law a person uploads is cleaned (``clean_law_file``). The base LOPDP keeps the text of
-Sprint 2 (``text_loader`` + ``legal_segmenter``), so its index "normativa" and every cache
-built on it stay valid.
-
-Page furniture is found without knowing the law: a line (with its digits replaced by ``#``)
-that is among the first or last ``EDGE_LINES`` non-empty lines of at least half of the pages
-(and of 3 pages or more) is a header or footer, and is removed from every page where it sits at
-that edge. A line that looks like an article heading is never removed.
-"""
 from __future__ import annotations
 
 import re

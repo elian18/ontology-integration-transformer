@@ -1,11 +1,3 @@
-"""S7-T02: the prompts live in versioned text files (src/ai/prompts/).
-
-The prompts of justify (v2) and extract were moved out of the code WITHOUT changing a letter:
-the sha256 below were computed from the Python constants of v0.6.0, before the move, so these
-tests prove the AI receives exactly the same text as in Sprints 3-6. Every run now records
-which prompt produced it (name, version and sha256): in the candidates file (justify), in the
-extraction summary and in the manifest of an upload.
-"""
 import json
 
 import pytest

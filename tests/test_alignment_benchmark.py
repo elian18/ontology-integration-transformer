@@ -1,10 +1,3 @@
-"""S7-T03: baseline of the Sprint 6 design and where the decider's candidates come from.
-
-Fast tests with a fake embedder and a temporary ChromaDB. Two tests read the REAL base files
-(no LLM, fake embeddings): the baseline must repeat the calibration of S6-T06 (34 proposals,
-28 correct) and the blind sample must agree with the Sprint 5 decisions in 10 of 23 concepts.
-They are skipped if the base files are not on this machine.
-"""
 import hashlib
 
 import numpy as np

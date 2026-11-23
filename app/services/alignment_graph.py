@@ -1,13 +1,3 @@
-"""Bridge for the "Grafo alineado" tab of the "Alineación DPV" view (Sprint 5, S5-T07).
-
-Writes the aligned graph with ``src.alignment.write`` (S5-T06) and offers the files and a zip
-ready for Protégé (``src.alignment.bundle``). The paths come from the view
-(``services.mapping_review.default_paths()``), so both tabs always read and write the same
-files; the outputs go next to the candidates file (data/output).
-
-S6-T03: the zip can be requested in any output format (RDF/XML, OWL, Turtle, JSON-LD); the
-modules inside are converted and its catalog points to the files of that format.
-"""
 from __future__ import annotations
 
 import json

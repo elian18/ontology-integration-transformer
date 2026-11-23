@@ -1,32 +1,3 @@
-"""Labels in Spanish and English for the classes and properties of an uploaded ontology (S7-T08).
-
-The ontology a person downloads must carry labels in both languages (Sprint 7 deliverable).
-Most uploads do not: GDPRtEXT has English labels without a language tag, OntoPriv has no label
-at all. Following decision D2 (option B), the LLM writes the label that is MISSING, in a module
-apart (``<name>-labels``) that imports the user's ontology and never changes an original label:
-
-1. Inventory: the ``rdfs:label`` and ``skos:prefLabel`` of each class and property, by language
-   (``en-GB`` counts as ``en``; a label without a language tag counts as neither). A concept
-   that already has a label in ``es`` and one in ``en`` is not sent. Named individuals are left
-   out, as in the alignment: they are example instances (S4-T02, ``src.alignment.sources``).
-2. Glossary of the base: the concepts the AI found in the LOPDP (Sprint 3) that a person kept
-   in Sprint 5 (approved, or confirmed as the same as an OntoPriv entity) give their Spanish
-   label (the words of the law, such as "titular" or "responsable del tratamiento") next to
-   their English name and, for the duplicates, the name of the OntoPriv entity. The whole
-   glossary goes with every call, so a term is translated the same way everywhere.
-3. LLM (``src/ai/prompts/labels.v1.txt``, temperature 0, JSON mode), ``labels.batch_size``
-   concepts per call; for each concept it returns one label per language and only the missing
-   ones are written. When the concept had a label without a tag and the LLM returns that same
-   text for a language, the original text is kept letter by letter (only the tag is added).
-   Answers are cached by content in the workspace (prompt, model, glossary and what the LLM saw),
-   so uploading the file again makes no call; the free tier is handled as in the decider (pause
-   between calls, a limit of calls, one retry after a 429 or 503, stop on an exhausted quota).
-   Without AI nothing is invented: those concepts stay "pendientes" and the next upload with the
-   AI available completes them.
-
-CLI: ``py -m src.transform.labels ARCHIVO [--sin-ia]`` (only this step, on the workspace of the
-file).
-"""
 from __future__ import annotations
 
 import argparse

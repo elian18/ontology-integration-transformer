@@ -1,19 +1,3 @@
-"""Client of the LLM (Sprint 0, extended in S7-T02).
-
-OpenAI-compatible API (today Gemini, model read from .env: LLM_MODEL, LLM_API_KEY,
-LLM_BASE_URL). Two changes in S7-T02:
-- TEMPERATURE: it now sends ``llm.temperature`` from config.yaml (0.0), so the same prompt with
-  the same input gives (as far as the provider allows) the same answer. Until Sprint 6 the
-  value was in config.yaml but never sent, so the provider's default was used.
-- JSON ANSWERS: ``ask(..., json_mode=True)`` asks the provider for one JSON object
-  (``response_format={"type": "json_object"}``). If the provider rejects that option, the
-  client remembers it and asks again without it, so the caller's tolerant parser still works.
-  The prompts of Sprints 3-6 (extract, justify) ask for JSONL and keep ``json_mode=False``;
-  the decider of S7-T04 uses JSON mode.
-
-The OpenAI client can be injected (``client=``), so the tests use a fake and never touch the
-network.
-"""
 import os
 
 from dotenv import load_dotenv

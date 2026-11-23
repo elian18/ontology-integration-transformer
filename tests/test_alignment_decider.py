@@ -1,9 +1,3 @@
-"""S7-T04: the alignment decider (retrieve -> decide with precedents -> fixed rule).
-
-Fast tests: a fake embedder, a fake LLM that reads the prompt like Gemini would, and a
-temporary ChromaDB with the two collections of S7-T01 built from small hand-made data. One slow
-test asks the real Gemini to decide a small batch.
-"""
 import hashlib
 import json
 import re

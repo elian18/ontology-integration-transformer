@@ -12,7 +12,8 @@ data/workspaces/
 *.owl.bak
 
 # data/output: solo la base va en git (los cinco módulos en cuatro formatos, el catálogo para
-# Protégé y los candidatos de los que se hereda); mediciones, reportes y paquetes no
+# Protégé y los candidatos de los que se hereda) y lo que muestran las Herramientas de
+# construcción; las demás mediciones, los reportes y los paquetes no
 data/output/*
 !data/output/ontopriv-core.rdf
 !data/output/ontopriv-core.owl
@@ -36,6 +37,13 @@ data/output/*
 !data/output/ontopriv-provenance.jsonld
 !data/output/catalog-v001.xml
 !data/output/alignment-candidates.json
+!data/output/profile-proposed-concepts.json
+!data/output/alignment-approved.csv
+!data/output/alignment-evaluation.json
+!data/output/alignment-manifest.json
+!data/output/ontopriv-gdpr-bridge.json
+!data/output/ontopriv-gdpr-bridge.csv
+!data/output/questions-report.json
 
 # base vectorial local
 chroma_db/

@@ -1,15 +1,3 @@
-"""Assign every OntoPriv entity to the reusable core or the jurisdiction profile.
-
-This realizes the split agreed with the design. The primary axis is the conceptual role of
-each top-level family (structural and stable); the DPV proximity from S3-T02 is advisory only
-(it flags entities whose score contradicts their assignment, for human review). The split
-keeps the core STANDALONE: the profile may reference the core (it will owl:import it in
-S3-T04), but the core must not reference the profile, or it stops being reusable for a law
-that has no ontology of its own. Core -> profile references are detected and reported.
-
-No files are written here (that is S3-T04). This module only decides and explains, and every
-assignment is a proposal the human can override later in the web (T06/T08).
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

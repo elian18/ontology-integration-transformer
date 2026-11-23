@@ -1,4 +1,3 @@
-"""S7-T07: cleaning the text of an uploaded law (page furniture, EUR-Lex marks, ligatures)."""
 from pathlib import Path
 
 import pytest

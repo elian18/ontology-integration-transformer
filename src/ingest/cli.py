@@ -1,15 +1,3 @@
-"""Inputs demo (Sprint 1) + law segmentation and indexing (Sprint 2).
-
-Reads paths from config/config.yaml via src.config. Console output is in
-Spanish; identifiers in English.
-
-Usage:
-    py -m src.ingest.cli                       (Sprint 1 report: ontology + law + DPV)
-    py -m src.ingest.cli --normalize           (also write the canonical RDF/XML)
-    py -m src.ingest.cli --index               (Sprint 2: segment the law and index it)
-    py -m src.ingest.cli --index --reset       (rebuild the 'normativa' collection first)
-    py -m src.ingest.cli --index --law data/input/lopdp.pdf
-"""
 from __future__ import annotations
 import argparse
 import sys

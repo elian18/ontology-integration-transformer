@@ -1,7 +1,3 @@
-# Competency questions answered with SPARQL (S9-T04): Apache Jena runs the .rq queries without
-# inference (rdflib when there is no Java) and each answer is judged by the rule of the catalog.
-# Every upload answers the generic questions of its mode (S9-T05); the AI says why the yellow
-# ones are yellow (S9-T06).
 from __future__ import annotations
 
 import argparse

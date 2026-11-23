@@ -1,6 +1,3 @@
-"""S10-T08: in step 3, choosing a concept under "Conceptos" shows its card: the article it comes
-from, how it was produced, who decided its correspondence and its versions, read with the fixed
-query of its provenance module. A concept without correspondence says why. The LLM is a fake."""
 from __future__ import annotations
 
 import json

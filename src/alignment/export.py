@@ -1,23 +1,3 @@
-"""Build and write the alignment candidates file (JSON + CSV): the Sprint 4 deliverable.
-
-Joins both flows agreed for Sprint 4 into ONE table:
-- Flow A: every OntoPriv entity (S4-T02) with its top-k DPV candidates (S4-T05).
-- Flow B: every AI-proposed concept with its top-k DPV candidates AND its mark against OntoPriv
-  (``possible_duplicate`` / ``new``, S4-T06).
-One row per (concept, DPV candidate). Every row starts as ``review_status = "pending"``
-(shown as "por validar"): nothing here is approved; that is Sprint 5.
-
-Three columns are left EMPTY on purpose and filled by S4-T08 (the AI): ``proposed_relation``
-(SKOS mapping type), ``justification`` and ``evidence_article`` (the law article shown to the
-AI as evidence). ``needs_justification`` says which rows S4-T08 must
-send to the AI: all OntoPriv rows and the AI concepts marked ``new``; a possible duplicate
-inherits the alignment of its OntoPriv entity, so its rows are kept but not sent.
-
-The embeddings are computed ONCE for sources + DPV targets and reused both for the DPV ranking
-and for the duplicate check, so the model runs a single time. The JSON is self-contained
-(concept and DPV definitions, DPV parents, law articles), so S4-T08 and the web view can work
-from it without reloading the ontology or the DPV.
-"""
 from __future__ import annotations
 
 import json

@@ -151,7 +151,8 @@ def cross_validate(rows: list[dict], min_precision: float, *, repeats: int = CV_
 
 
 def calibrate(ontology_path=None, law_path=None, *, embed_fn=None, cfg: dict | None = None) -> dict:
-    """The grid on GDPRtEXT + GDPR (see the module docstring); no LLM call."""
+    """The grid of retrieval settings, measured on GDPRtEXT and the GDPR articles it already
+    cites; no LLM call."""
     from src.alignment.calibrate import auto_settings
     from src.alignment.inherit import user_concepts
     from src.config import ROOT

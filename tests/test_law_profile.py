@@ -1,12 +1,3 @@
-"""S7-T10: the "solo ley" mode. The accepted concepts of a law become a profile that imports
-OntoPriv-Core (decision D6: reuse the IRI of the core, link the very similar ones, create the
-rest), and the profile goes through the alignment flow of S7-T06/T08 into a zip that also
-carries the core.
-
-Fast tests: the small validated base of the decider tests (OntoPriv Consent and Turnover, the
-AI concept ImpactAssessment), a small core graph (Consent is in the core, Turnover is not, as if
-it lived in the Ecuador profile), a small law in .txt and a fake LLM that answers the three
-prompts of the flow (extraction, decider, labels)."""
 from __future__ import annotations
 
 import json

@@ -1,4 +1,3 @@
-"""S6-T06: the threshold of the automatic proposals is calibrated on the validated base."""
 from __future__ import annotations
 
 import json

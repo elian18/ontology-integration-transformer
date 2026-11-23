@@ -1,10 +1,3 @@
-"""Bridge for the "Aprobar conceptos IA" view (Sprint 5, S5-T03).
-
-Reads the candidates file (Sprint 4) and the human decisions log (S5-T01), and records the
-person's decision on each AI-proposed concept through ``src.alignment.ai_concepts`` (S5-T02).
-All the logic the page needs (state, filters, next pending, applying a decision) lives here so
-it can be tested without Streamlit; the view only draws widgets.
-"""
 from __future__ import annotations
 
 from pathlib import Path

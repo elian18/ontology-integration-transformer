@@ -1,7 +1,3 @@
-"""S10-T03: what the person chooses after testing an upload. A fixed rule checks each change,
-the valid ones go to an append-only log and the alignment is written again as a new version;
-the previous one stays in history/ with its four zips. The uploaded ontology, the rule's
-decisions and the base never change. The LLM is a fake (DeciderLLM): no test calls Gemini."""
 from __future__ import annotations
 
 import csv

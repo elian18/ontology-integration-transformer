@@ -1,6 +1,3 @@
-"""S10-T13: "Revisa tu ontología" first tells, in three short screens and plain words, what was
-done: what was found, how it was linked with the DPV and how it was checked. No SHACL, SPARQL,
-Jena or IRIs. The LLM and the embedder are fakes."""
 from __future__ import annotations
 
 import csv

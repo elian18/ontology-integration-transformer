@@ -1,6 +1,3 @@
-"""S10-T04: the measurement of the questions with simulated people (families of the base as
-uploads, "siempre la recomendada" and "la persona", the baseline without AI and the three
-conditions fixed before measuring). The LLM is a fake, except in the slow test."""
 from __future__ import annotations
 
 import json

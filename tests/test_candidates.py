@@ -1,4 +1,3 @@
-"""S4-T05: combined ranking (lexical + embeddings), top-k and kind compatibility."""
 import zlib
 
 import numpy as np

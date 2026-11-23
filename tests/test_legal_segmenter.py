@@ -1,9 +1,3 @@
-"""S2-T01 + S7-T07: the article segmenter.
-
-Sprint 2 knew one heading (``Art. 1.-``, the LOPDP); since S7-T07 it also reads the Spanish
-headings of other laws (``Artículo 1°.``, ``ARTÍCULO 1o.``, ``Artículo 10.``) and the English
-ones (``Article 1`` + title on the next line), and the numbers must follow each other. The base
-LOPDP must come out EXACTLY as in Sprint 2 (its index and caches depend on it)."""
 import json
 import re
 from pathlib import Path

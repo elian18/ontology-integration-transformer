@@ -1,41 +1,3 @@
-"""Measure the questions of the AI with simulated people, without labelling (S10-T04).
-
-Result (S10-T18, with the base corrected in S10-T16): ask.v1 is not adopted. It asked 25
-questions and 7 served; following its recommendation lowered the precision from 76.5 % to
-66.7 %; with the person it reached 80.5 % and 35.8 % against 85.7 % and 45.1 % of the fixed
-questions (S10-T04, before the correction: 24 and 8; 75.0 % to 66.3 %). The uploads ask the
-fixed questions (``user_questions.fixed_questions``). A new run reads the cache (0 calls).
-
-Simulated uploads. The 552 decisions of the base decided as if they were new (leave one out:
-the decisions that calibrated the rule, 76.5 % precision and 30.1 % coverage) and the review of
-the AI reviewer of what the rule accepted, both from their caches (0 calls). Each family of
-OntoPriv-Core is one upload, and the concepts the AI took from the LOPDP another one: from 3 to
-104 concepts, like the real uploads. In each one the AI asks (prompt ask.v1, at most 10
-questions) and so do the fixed questions without AI: one question per doubt, in the same order,
-with the same maximum (take the suggestion; for a reviewed one, the relation the AI reviewer
-proposes or remove it; added after measuring ask.v1, it can only help the person).
-
-Two simulated people answer every question:
-- "siempre la recomendada" takes the recommended option;
-- "la persona" takes the option that leaves its concepts closest to your decisions of Sprint 5,
-  scored per concept: your term with your relation 3, your term with another relation 2,
-  without correspondence 1 and another term 0; for a concept you left without correspondence,
-  without correspondence 3 and any term 0. Ties go to "Dejar como está". A question "sirve"
-  when "la persona" takes another option.
-
-The rule to adopt ask.v1, fixed before measuring (accepted with the backlog of Sprint 10):
-1. "siempre la recomendada" lowers neither the precision nor the coverage of the rule alone;
-2. at least half of the questions serve;
-3. it asks fewer questions than the fixed ones, and with "la persona" neither its precision
-   nor its coverage is lower than theirs.
-Precision and coverage are those of the decider (``reference.score``): the term against your
-decisions, over the 552 concepts.
-
-Quota: one call per upload with doubts (about 13). Every answer is cached
-(``data/output/decider/ask-cache.jsonl``): ``--max-llamadas`` limits a run, a 429 stops it, and
-the next run goes on from there.
-
-CLI: ``py -m src.alignment.question_eval [--max-llamadas 20]``."""
 from __future__ import annotations
 
 import argparse
@@ -160,7 +122,8 @@ def load_inputs(cfg: dict | None = None, *, embed_fn=None, chroma_path=None,
 # --------------------------------------------------------------------------- the people
 
 def concept_value(item, maps: dict) -> int:
-    """How close a concept is to your decision (see the module docstring)."""
+    """How close the state of a concept is to your decision: right relation, right term,
+    nothing or wrong."""
     if item is None:
         return NOTHING if not maps else WRONG
     if item.status != STATUS_ALIGNED:

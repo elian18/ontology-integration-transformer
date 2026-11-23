@@ -1,8 +1,3 @@
-"""Tests for the page "Preguntas de la base" (S9-T10).
-
-A small report and bridge written in a folder of the test check each part of the page, the
-commands it shows when a result is missing, and that it looks the same with and without
-EDITABLE_BASE; a guarded test opens it with the real results of data/output."""
 from __future__ import annotations
 
 import importlib

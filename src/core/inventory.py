@@ -1,27 +1,3 @@
-"""Per-entity inventory of a loaded ontology: the input the modular split needs.
-
-Sprint 1's ``load_ontology`` reports TOTALS (how many classes/properties, the OWL flavor).
-The modular core (Sprint 3) needs a finer breakdown: for every named class and property,
-which top-level family it belongs to, where it sits in the class hierarchy, and which
-namespace it comes from. Those three signals are what the core/profile split (S3-T03) and
-the DPV-proximity scoring (S3-T02) consume.
-
-This module builds that breakdown on top of the graph already parsed by ``load_ontology``;
-it never re-reads the file. It is generic: it works for any ontology that ``load_ontology``
-accepts, not only OntoPriv. Anonymous (blank-node) classes and restrictions are counted for
-parity with Sprint 1 but are not partitionable, so no per-entity row is emitted for them.
-
-Family rule (works for one-root and many-root ontologies alike):
-- If the ontology has a single named root class, its direct subclasses are the families, and
-  every class maps to whichever of them is its ancestor (a direct child maps to itself; the
-  root itself maps to "(raiz)").
-- If there are several roots, the roots themselves are the families.
-A property's family is taken from its ``rdfs:domain`` class when it has one.
-
-S10-T17: a property declared only with ``rdf:Property`` (valid RDF; the DPV declares its own
-so) is a property too, and so is one declared with ``rdfs:Property``, a frequent typo of it
-(DPCat has it): data property when its range is a literal, object property otherwise.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

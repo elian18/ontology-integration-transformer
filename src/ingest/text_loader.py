@@ -1,7 +1,3 @@
-"""Load the raw legal text (LOPDP or another law) from .txt or .pdf.
-
-For PDF we only extract the raw text (pypdf); PDF is an input-only source document,
-never an ontology format. No article segmentation here: that is Sprint 2."""
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path

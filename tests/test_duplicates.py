@@ -1,4 +1,3 @@
-"""S4-T06: are the AI-proposed concepts already in OntoPriv? (flow B, first step)"""
 import json
 import zlib
 

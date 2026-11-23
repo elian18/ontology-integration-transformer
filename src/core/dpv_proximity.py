@@ -1,27 +1,3 @@
-"""Score every OntoPriv concept by how close it is to the DPV.
-
-This is the second signal the core/profile split (S3-T03) consumes. The intuition, agreed
-with the design: a concept close to the DPV is general / GDPR-level and belongs in the
-reusable core; a concept far from the DPV is particular to the jurisdiction (LOPDP) and
-belongs in the Ecuador profile. This module only produces the score. It fixes NO threshold
-and makes NO core/profile decision — that is S3-T03's job.
-
-How the score is computed:
-- Each OntoPriv entity is turned into a short text (humanized local name + its label/comment
-  when present).
-- Each DPV concept (skos:Concept) is turned into a short text (skos:prefLabel + a trimmed
-  skos:definition when present).
-- Both sets are embedded with the project encoder (the model named by EMBEDDING_MODEL in
-  .env; today paraphrase-multilingual-MiniLM-L12-v2, L2-normalized, 384 dims), so cosine
-  similarity is just the dot product.
-- For each OntoPriv entity we keep its best-matching DPV concept and that similarity (0-1).
-
-Measured in Sprint 3: this score does NOT separate core from profile (it stays in a narrow
-band), so it is kept only as an auxiliary signal and as a seed for alignment candidates.
-
-The embedder is injected (``embed_fn``) so the fast tests can pass a deterministic fake and
-never touch the network; ``_run`` uses the real Sprint 2 ``embed``.
-"""
 from __future__ import annotations
 
 import re

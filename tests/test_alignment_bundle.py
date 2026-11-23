@@ -1,6 +1,3 @@
-"""S5-T07: the zip for Protégé carries the three modules and a catalog that resolves the imports
-alignment -> profile -> core by IRI. S6-T03: the same in every output format (RDF/XML, OWL,
-Turtle, JSON-LD), plus the fix of the catalog left in data/output."""
 import io
 import xml.etree.ElementTree as ET
 import zipfile

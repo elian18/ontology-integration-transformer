@@ -1,7 +1,3 @@
-"""Load the DPV (Data Privacy Vocabulary) into memory as the alignment reference.
-
-The DPV is an RDF vocabulary (SKOS/RDFS), so rdflib reads it directly. In Sprint 5 its
-concepts are matched against OntoPriv; here we only load it and report its size."""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path

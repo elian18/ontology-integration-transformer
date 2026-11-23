@@ -1,5 +1,3 @@
-"""Central access to config/config.yaml and the .env file."""
-
 from __future__ import annotations
 
 import os

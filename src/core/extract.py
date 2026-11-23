@@ -1,29 +1,3 @@
-"""Extract candidate concepts from the law text and propose them for the profile (AI step).
-
-This is the first place the AI enters the pipeline. It reads the law article by article and
-proposes data-protection concepts for the jurisdiction profile, each carrying the article it
-came from (provenance). It only PROPOSES: nothing is written into an ontology here. Deciding
-which proposals are genuinely new vs. already in OntoPriv-Core is the alignment work
-(Sprint 4 builds the candidates; Sprint 5 is where a human approves them and wires them in);
-this module stops at a reviewed-by-human "por validar" list.
-
-Design forced by the free-tier LLM (Gemini free tier allows ~20 requests/day):
-- BATCHING: several articles per call (~8 calls for the whole LOPDP, not 77), to fit the quota.
-- JSONL OUTPUT: one compact JSON object per line, so a truncated answer only loses its last
-  line instead of failing the whole batch; each line is parsed leniently.
-- RESUME: proposals are saved to disk after every batch. If the daily quota runs out (429),
-  the run stops cleanly keeping what it had; re-running skips the articles already processed,
-  so quota is never spent redoing work.
-The LLM is injected (``llm``) so the fast tests use a deterministic fake and never hit the
-network; ``_run`` uses the real Sprint 2 ``LLMClient``.
-
-Since S7-T09 the same machinery extracts the concepts of a law a person uploads
-(``src.core.law_concepts``): it can take another prompt (``extract.v2``, any law in Spanish or
-English), pause between calls (free tier: 15 requests per minute) and stop after a number of
-calls; the report says which prompt and model produced it and how many calls it made. Called
-as before, it behaves as in Sprint 3 (prompt v1, no pause, no limit), except that an article
-number written "3°" or "Artículo 3" now counts as 3 (``article_number``).
-"""
 from __future__ import annotations
 
 import json

@@ -1,0 +1,953 @@
+{
+  "source": "lopdp",
+  "counts": {
+    "articles_processed": 77,
+    "concepts_proposed": 93,
+    "classes": 47,
+    "properties": 46,
+    "batches_with_errors": 0,
+    "quota_exhausted": false
+  },
+  "processed_articles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77
+  ],
+  "quota_exhausted": false,
+  "errors": [],
+  "concepts": [
+    {
+      "name": "PortabilityRight",
+      "label": "Derecho a la portabilidad",
+      "type": "class",
+      "definition": "Derecho del titular a recibir del responsable sus datos personales en un formato compatible, actualizado, estructurado, común, inter-operable y de lectura mecánica, o a transmitirlos a otros responsables.",
+      "articles": [
+        17
+      ]
+    },
+    {
+      "name": "DataSubject",
+      "label": "titular",
+      "type": "class",
+      "definition": "Persona que tiene el derecho a recibir o transmitir sus datos personales en el ejercicio de la portabilidad, suspensión o impugnación de tratamientos.",
+      "articles": [
+        17,
+        4,
+        10
+      ]
+    },
+    {
+      "name": "DataController",
+      "label": "responsable del tratamiento",
+      "type": "class",
+      "definition": "Persona o entidad obligada a facilitar la portabilidad, suspender el tratamiento de datos bajo ciertas condiciones o dar explicaciones sobre valoraciones automatizadas.",
+      "articles": [
+        17,
+        4,
+        9,
+        33,
+        57,
+        67
+      ]
+    },
+    {
+      "name": "RightsExceptions",
+      "label": "Excepciones a los derechos",
+      "type": "class",
+      "definition": "Casos taxativos en los que no proceden los derechos de rectificación, actualización, eliminación, oposición, anulación y portabilidad de los datos.",
+      "articles": [
+        18
+      ]
+    },
+    {
+      "name": "TreatmentSuspensionRight",
+      "label": "Derecho a la suspensión del tratamiento",
+      "type": "class",
+      "definition": "Derecho del titular a obtener del responsable la suspensión del tratamiento de sus datos cuando se cumplan condiciones como impugnación de exactitud o ilicitud.",
+      "articles": [
+        19
+      ]
+    },
+    {
+      "name": "AutomatedDecisionRight",
+      "label": "Derecho a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas",
+      "type": "class",
+      "definition": "Derecho del titular a no ser sometido a decisiones basadas en valoraciones producto de procesos automatizados, incluida la elaboración de perfiles, que produzcan efectos jurídicos o atenten contra sus derechos.",
+      "articles": [
+        20
+      ]
+    },
+    {
+      "name": "MinorAutomatedDecisionRight",
+      "label": "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas",
+      "type": "class",
+      "definition": "Prohibición de tratar datos sensibles o de menores de edad mediante valoraciones automatizadas, salvo autorización expresa o interés público esencial.",
+      "articles": [
+        21
+      ]
+    },
+    {
+      "name": "ConsultationRight",
+      "label": "Derecho de consulta",
+      "type": "class",
+      "definition": "Derecho de las personas a la consulta pública y gratuita ante el Registro Nacional de Protección de Datos Personales.",
+      "articles": [
+        22
+      ]
+    },
+    {
+      "name": "DigitalEducationRight",
+      "label": "Derecho a la educación digital",
+      "type": "class",
+      "definition": "Derecho de las personas al acceso y disponibilidad del conocimiento, aprendizaje, preparación, estudio, formación, capacitación, enseñanza e instrucción relacionados con el uso adecuado de las tecnologías.",
+      "articles": [
+        23
+      ]
+    },
+    {
+      "name": "RightsExercise",
+      "label": "Ejercicio de derechos",
+      "type": "class",
+      "definition": "Obligación del Estado, entidades educativas y otros entes de proveer capacitación sobre el uso seguro de datos de menores, y el derecho de adolescentes de ejercer sus acciones directamente o por representantes.",
+      "articles": [
+        24
+      ]
+    },
+    {
+      "name": "SpecialCategoriesOfPersonalData",
+      "label": "Categorías especiales de datos personales",
+      "type": "class",
+      "definition": "Tipos de datos que abarcan datos sensibles, de niñas, niños y adolescentes, de salud, y de personas con discapacidad y de sus sustitutos.",
+      "articles": [
+        25
+      ]
+    },
+    {
+      "name": "SensitiveData",
+      "label": "Datos sensibles",
+      "type": "class",
+      "definition": "Categoría especial de datos personales cuyo tratamiento está prohibido salvo excepciones explícitas de consentimiento, obligaciones laborales, intereses vitales, entre otras.",
+      "articles": [
+        26,
+        4
+      ]
+    },
+    {
+      "name": "SuccessoryRightHolders",
+      "label": "Titulares de derechos sucesorios",
+      "type": "class",
+      "definition": "Personas que pueden solicitar acceso, rectificación, actualización o eliminación de datos de personas fallecidas, siempre que el titular no haya indicado otra utilización.",
+      "articles": [
+        27
+      ]
+    },
+    {
+      "name": "CreditData",
+      "label": "Datos crediticios",
+      "type": "class",
+      "definition": "Información legítima destinada a informar sobre solvencia patrimonial o crediticia para evaluar la concertación de negocios, conducta comercial o capacidad de pago.",
+      "articles": [
+        28
+      ]
+    },
+    {
+      "name": "CreditDataSubjectRights",
+      "label": "Derechos de los Titulares de Datos Crediticios",
+      "type": "class",
+      "definition": "Derechos de acceso personal y gratuito, reporte claro del historial crediticio, y actualización, rectificación o eliminación de información ilícita o falsa.",
+      "articles": [
+        29
+      ]
+    },
+    {
+      "name": "HealthData",
+      "label": "Datos relativos a la salud",
+      "type": "class",
+      "definition": "Datos de pacientes bajo tratamiento que las instituciones del Sistema Nacional de Salud y profesionales del área médica pueden recolectar y tratar.",
+      "articles": [
+        30
+      ]
+    },
+    {
+      "name": "DutyOfConfidentiality",
+      "label": "Deber de confidencialidad",
+      "type": "property",
+      "definition": "Obligación de responsables, encargados y terceras personas en el tratamiento de datos de salud para garantizar su seguridad y complementar el secreto profesional.",
+      "articles": [
+        30
+      ]
+    },
+    {
+      "name": "Anonymization",
+      "label": "Anonimización o seudonimización",
+      "type": "property",
+      "definition": "Parámetro de protección por el cual los datos relativos a la salud deben ser tratados para evitar la identificación de los titulares.",
+      "articles": [
+        31,
+        4
+      ]
+    },
+    {
+      "name": "PersonalDataProtection",
+      "label": "protección de datos personales",
+      "type": "class",
+      "definition": "Derecho que incluye el acceso y decisión sobre información y datos de carácter personal.",
+      "articles": [
+        1
+      ]
+    },
+    {
+      "name": "DataProtectionAuthority",
+      "label": "Autoridad de Protección de Datos Personales",
+      "type": "class",
+      "definition": "Autoridad pública independiente encargada de supervisar la aplicación de la ley para proteger derechos y libertades fundamentales.",
+      "articles": [
+        4,
+        9,
+        41,
+        49,
+        57,
+        76
+      ]
+    },
+    {
+      "name": "Database",
+      "label": "Base de datos o fichero",
+      "type": "class",
+      "definition": "Conjunto estructurado de datos cualquiera que fuera su forma, modalidad de creación o almacenamiento.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "Consent",
+      "label": "Consentimiento",
+      "type": "property",
+      "definition": "Manifestación de la voluntad libre, específica, informada e inequívoca del titular para autorizar el tratamiento de sus datos.",
+      "articles": [
+        4,
+        33
+      ]
+    },
+    {
+      "name": "BiometricData",
+      "label": "Dato biométrico",
+      "type": "class",
+      "definition": "Dato personal único, relativo a características físicas, fisiológicas o conductas que permiten la identificación única de una persona.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "GeneticData",
+      "label": "Dato genético",
+      "type": "class",
+      "definition": "Dato personal único relacionado a características genéticas heredadas o adquiridas que informan sobre la fisiología o salud.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "PersonalData",
+      "label": "Dato personal",
+      "type": "class",
+      "definition": "Dato que identifica o hace identificable a una persona natural, directa o indirectamente.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "DataProtectionOfficer",
+      "label": "Delegado de protección de datos",
+      "type": "class",
+      "definition": "Persona encargada de informar sobre obligaciones legales y supervisar el cumplimiento normativo en protección de datos.",
+      "articles": [
+        4,
+        48
+      ]
+    },
+    {
+      "name": "DataProcessor",
+      "label": "Encargado del tratamiento de datos personales",
+      "type": "class",
+      "definition": "Persona natural o jurídica que trata datos personales a nombre y por cuenta de un responsable.",
+      "articles": [
+        4,
+        10,
+        34,
+        41,
+        49,
+        57,
+        69
+      ]
+    },
+    {
+      "name": "Processing",
+      "label": "Tratamiento",
+      "type": "property",
+      "definition": "Cualquier operación o conjunto de operaciones realizadas sobre datos personales, automatizadas o no.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "DataSecurityBreach",
+      "label": "Vulneración de la seguridad de los datos personales",
+      "type": "property",
+      "definition": "Incidente de seguridad que afecta la confidencialidad, disponibilidad o integridad de los datos personales.",
+      "articles": [
+        4
+      ]
+    },
+    {
+      "name": "LegitimateInterest",
+      "label": "Interés legítimo",
+      "type": "class",
+      "definition": "Fundamento para el tratamiento de datos personales que requiere estrictos límites y transparencia.",
+      "articles": [
+        9
+      ]
+    },
+    {
+      "name": "PrincipleOfLawfulness",
+      "label": "Juridicidad",
+      "type": "property",
+      "definition": "Tratamiento de datos conforme a la Constitución, leyes y normativa aplicable.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfLoyalty",
+      "label": "Lealtad",
+      "type": "property",
+      "definition": "Tratamiento claro y leal donde el titular conoce cómo se utilizan sus datos, prohibiendo medios ilícitos.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfTransparency",
+      "label": "Transparencia",
+      "type": "property",
+      "definition": "Uso de lenguaje sencillo, claro y accesible en toda comunicación sobre el tratamiento de datos.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfPurpose",
+      "label": "Finalidad",
+      "type": "property",
+      "definition": "Obligación de que el tratamiento tenga fines determinados, explícitos y comunicados al titular.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfDataMinimization",
+      "label": "Pertinencia y minimización de datos personales",
+      "type": "property",
+      "definition": "Datos limitados a lo estrictamente necesario para cumplir la finalidad del tratamiento.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfProportionality",
+      "label": "Proporcionalidad del tratamiento",
+      "type": "property",
+      "definition": "Tratamiento adecuado, necesario y no excesivo respecto a la finalidad.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfConfidentiality",
+      "label": "Confidencialidad",
+      "type": "property",
+      "definition": "Tratamiento basado en el sigilo y secreto, evitando fines distintos a los originales.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfAccuracy",
+      "label": "Calidad y exactitud",
+      "type": "property",
+      "definition": "Obligación de mantener datos íntegros, precisos y actualizados.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfConservation",
+      "label": "Conservación",
+      "type": "property",
+      "definition": "Limitación de los datos personales a un tiempo no mayor al necesario para su finalidad.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfSecurity",
+      "label": "Seguridad de datos personales",
+      "type": "property",
+      "definition": "Implementación de medidas organizativas y técnicas aceptadas por el estado de la técnica.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfAccountability",
+      "label": "Responsabilidad proactiva y demostrada",
+      "type": "property",
+      "definition": "Obligación de acreditar el cumplimiento de la ley mediante mecanismos de protección y rendición de cuentas.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "PrincipleOfFavorability",
+      "label": "Aplicación favorable al titular",
+      "type": "property",
+      "definition": "Interpretación de normas en el sentido más beneficioso para el titular en caso de duda.",
+      "articles": [
+        10
+      ]
+    },
+    {
+      "name": "RightToInformation",
+      "label": "Derecho a la información",
+      "type": "property",
+      "definition": "Derecho del titular a conocer los fines, bases legales y detalles del tratamiento de sus datos.",
+      "articles": [
+        12
+      ]
+    },
+    {
+      "name": "RightOfAccess",
+      "label": "Derecho de acceso",
+      "type": "property",
+      "definition": "Derecho gratuito del titular a obtener acceso a sus datos personales.",
+      "articles": [
+        13
+      ]
+    },
+    {
+      "name": "RightToRectification",
+      "label": "Derecho de rectificación y actualización",
+      "type": "property",
+      "definition": "Derecho a corregir o completar datos inexactos o incompletos.",
+      "articles": [
+        14
+      ]
+    },
+    {
+      "name": "RightToErasure",
+      "label": "Derecho de eliminación",
+      "type": "property",
+      "definition": "Derecho a que se supriman datos cuando el tratamiento es ilegal, innecesario o se revoca el consentimiento.",
+      "articles": [
+        15
+      ]
+    },
+    {
+      "name": "RightToOpposition",
+      "label": "Derecho de oposición",
+      "type": "property",
+      "definition": "Derecho a negarse al tratamiento de datos, especialmente en mercadotecnia directa.",
+      "articles": [
+        16
+      ]
+    },
+    {
+      "name": "RiskReport",
+      "label": "Informe de riesgo",
+      "type": "class",
+      "definition": "Documento requerido por la Autoridad para verificar amenazas a los derechos de los titulares.",
+      "articles": [
+        9
+      ]
+    },
+    {
+      "name": "DataDeletionMethods",
+      "label": "Métodos de eliminación",
+      "type": "class",
+      "definition": "Técnicas para hacer ilegibles o irreconocibles los datos de forma definitiva y segura.",
+      "articles": [
+        15
+      ]
+    },
+    {
+      "name": "DataOwner",
+      "label": "titular",
+      "type": "class",
+      "definition": "Persona natural a quien se refieren los datos personales objeto de tratamiento.",
+      "articles": [
+        33
+      ]
+    },
+    {
+      "name": "DataTransfer",
+      "label": "transferencia o comunicación de datos personales",
+      "type": "property",
+      "definition": "Acción de transmitir datos personales a terceros con fines legítimos bajo causales de legitimidad y consentimiento.",
+      "articles": [
+        33
+      ]
+    },
+    {
+      "name": "SecurityPrinciple",
+      "label": "principio de seguridad",
+      "type": "property",
+      "definition": "Obligación del responsable o encargado de adoptar medidas técnicas y organizativas para proteger los datos personales.",
+      "articles": [
+        37
+      ]
+    },
+    {
+      "name": "PrivacyByDesign",
+      "label": "protección de datos desde el diseño",
+      "type": "property",
+      "definition": "Deber de considerar los riesgos para los derechos de los titulares desde las primeras fases de concepción de un proyecto.",
+      "articles": [
+        39,
+        47
+      ]
+    },
+    {
+      "name": "PrivacyByDefault",
+      "label": "protección de datos por defecto",
+      "type": "property",
+      "definition": "Obligación de tratar únicamente los datos personales estrictamente necesarios para cada fin específico.",
+      "articles": [
+        39
+      ]
+    },
+    {
+      "name": "RiskAnalysis",
+      "label": "análisis de riesgo, amenazas y vulnerabilidades",
+      "type": "property",
+      "definition": "Metodología obligatoria para evaluar las particularidades del tratamiento, las partes involucradas y los datos procesados.",
+      "articles": [
+        40
+      ]
+    },
+    {
+      "name": "PublicSafetyMechanism",
+      "label": "mecanismo gubernamental de seguridad de la información",
+      "type": "class",
+      "definition": "Conjunto de medidas de seguridad aplicables a instituciones del sector público y concesionarios de servicios públicos.",
+      "articles": [
+        38
+      ]
+    },
+    {
+      "name": "ResponsibleDataTreatment",
+      "label": "responsable del tratamiento",
+      "type": "class",
+      "definition": "Entidad u organismo obligado a cumplir con la normativa de protección de datos personales y a determinar las medidas de seguridad.",
+      "articles": [
+        41
+      ]
+    },
+    {
+      "name": "SecurityMeasures",
+      "label": "medidas de seguridad",
+      "type": "property",
+      "definition": "Acciones y herramientas técnicas, físicas y organizativas para proteger los datos personales contra riesgos y vulnerabilidades.",
+      "articles": [
+        41
+      ]
+    },
+    {
+      "name": "ImpactAssessment",
+      "label": "evaluación de impacto del tratamiento de datos personales",
+      "type": "property",
+      "definition": "Proceso obligatorio realizado por el responsable para identificar riesgos altos en el tratamiento de datos personales.",
+      "articles": [
+        42
+      ]
+    },
+    {
+      "name": "SecurityBreachNotification",
+      "label": "Notificación de vulneración de seguridad",
+      "type": "property",
+      "definition": "Obligación de informar a la autoridad y al titular sobre cualquier incidente de seguridad que afecte datos personales.",
+      "articles": [
+        43
+      ]
+    },
+    {
+      "name": "ConfidentialityAgreement",
+      "label": "contratos de confidencialidad",
+      "type": "property",
+      "definition": "Instrumento legal para garantizar el manejo adecuado de datos personales por parte del personal y encargados.",
+      "articles": [
+        47
+      ]
+    },
+    {
+      "name": "DataBreachException",
+      "label": "excepciones a la notificación de vulneración",
+      "type": "property",
+      "definition": "Casos específicos donde no es necesario notificar al titular sobre una vulneración de seguridad bajo condiciones demostrables.",
+      "articles": [
+        46
+      ]
+    },
+    {
+      "name": "DataProtectionDelegate",
+      "label": "delegado de protección de datos personales",
+      "type": "class",
+      "definition": "Persona encargada de asesorar, supervisar y cooperar en el tratamiento y protección de datos personales.",
+      "articles": [
+        49
+      ]
+    },
+    {
+      "name": "Responsible",
+      "label": "responsable",
+      "type": "class",
+      "definition": "Entidad o persona que decide sobre el tratamiento de datos personales.",
+      "articles": [
+        49
+      ]
+    },
+    {
+      "name": "Confidentiality",
+      "label": "confidencialidad",
+      "type": "property",
+      "definition": "Obligación del delegado de mantener estricta reserva respecto a la ejecución de sus funciones.",
+      "articles": [
+        50
+      ]
+    },
+    {
+      "name": "NationalDataProtectionRegistry",
+      "label": "Registro Nacional de protección de datos personales",
+      "type": "class",
+      "definition": "Sistema donde el responsable debe reportar y mantener actualizada la información sobre el tratamiento de datos.",
+      "articles": [
+        51
+      ]
+    },
+    {
+      "name": "SelfRegulation",
+      "label": "Autorregulación",
+      "type": "property",
+      "definition": "Facultad voluntaria de adherirse a códigos de conducta y certificaciones sin eximir la responsabilidad legal.",
+      "articles": [
+        52
+      ]
+    },
+    {
+      "name": "CodesOfConduct",
+      "label": "códigos de conducta",
+      "type": "class",
+      "definition": "Instrumentos sectoriales promovidos para el cumplimiento de la normativa de protección de datos.",
+      "articles": [
+        53
+      ]
+    },
+    {
+      "name": "CertificationEntities",
+      "label": "Entidades de Certificación",
+      "type": "class",
+      "definition": "Entidades facultadas para emitir certificaciones, sellos y realizar auditorías de protección de datos.",
+      "articles": [
+        54
+      ]
+    },
+    {
+      "name": "InternationalTransfer",
+      "label": "Transferencia o comunicación internacional de datos personales",
+      "type": "property",
+      "definition": "Acto de transferir datos a otros países siempre que se garantice un nivel adecuado de protección.",
+      "articles": [
+        55,
+        57
+      ]
+    },
+    {
+      "name": "AdequateProtectionLevel",
+      "label": "nivel adecuado de protección",
+      "type": "property",
+      "definition": "Estándar requerido para que países u organizaciones puedan recibir datos personales de forma segura.",
+      "articles": [
+        56
+      ]
+    },
+    {
+      "name": "BindingCorporateRules",
+      "label": "normas corporativas vinculantes",
+      "type": "class",
+      "definition": "Reglas de obligatorio cumplimiento para el grupo empresarial que regulan la transferencia internacional de datos.",
+      "articles": [
+        58
+      ]
+    },
+    {
+      "name": "DataSubjectRights",
+      "label": "derechos del titular",
+      "type": "class",
+      "definition": "Facultades de los titulares sobre sus datos personales, incluyendo acceso, protección y reparación integral.",
+      "articles": [
+        57
+      ]
+    },
+    {
+      "name": "DataProtectionPrinciples",
+      "label": "principios de tratamiento",
+      "type": "property",
+      "definition": "Directrices fundamentales que deben guiar el uso y manejo de los datos personales.",
+      "articles": [
+        57
+      ]
+    },
+    {
+      "name": "DataProtectionRegistry",
+      "label": "Registro Nacional de Protección de Datos Personales",
+      "type": "class",
+      "definition": "Sistema donde se registran las transferencias internacionales de datos personales.",
+      "articles": [
+        59
+      ]
+    },
+    {
+      "name": "ExplicitConsent",
+      "label": "consentimiento explícito",
+      "type": "property",
+      "definition": "Autorización clara otorgada por el titular para la transferencia de sus datos tras ser informado de los riesgos.",
+      "articles": [
+        60
+      ]
+    },
+    {
+      "name": "DataProtectionAudit",
+      "label": "auditorías de protección de datos",
+      "type": "property",
+      "definition": "Mecanismo de verificación sobre el cumplimiento de las normas corporativas vinculantes.",
+      "articles": [
+        58
+      ]
+    },
+    {
+      "name": "AdministrativeProcedure",
+      "label": "procedimiento administrativo",
+      "type": "class",
+      "definition": "Proceso formal ante la Autoridad de Protección de Datos cuando un requerimiento previo es negado o no contestado.",
+      "articles": [
+        64
+      ]
+    },
+    {
+      "name": "DirectRequirement",
+      "label": "requerimiento directo",
+      "type": "property",
+      "definition": "Acción gratuita que puede ejercer el titular ante el responsable del tratamiento sobre sus derechos.",
+      "articles": [
+        62
+      ]
+    },
+    {
+      "name": "PersonalDataProtectionAuthority",
+      "label": "Autoridad de Protección de Datos Personales",
+      "type": "class",
+      "definition": "Organismo encargado de dictar medidas correctivas y sanciones administrativas ante el incumplimiento de la Ley.",
+      "articles": [
+        65
+      ]
+    },
+    {
+      "name": "CorrectiveMeasures",
+      "label": "medidas correctivas",
+      "type": "class",
+      "definition": "Acciones dictadas para evitar que se siga cometiendo una infracción o que la conducta se repita.",
+      "articles": [
+        65
+      ]
+    },
+    {
+      "name": "CessationOfTreatment",
+      "label": "cese del tratamiento",
+      "type": "property",
+      "definition": "Medida correctiva que consiste en detener el tratamiento de datos bajo condiciones o plazos determinados.",
+      "articles": [
+        65
+      ]
+    },
+    {
+      "name": "DataDeletion",
+      "label": "eliminación de los datos",
+      "type": "property",
+      "definition": "Medida correctiva que consiste en suprimir los datos personales objeto de la infracción.",
+      "articles": [
+        65
+      ]
+    },
+    {
+      "name": "TechnicalAndLegalMeasures",
+      "label": "medidas técnicas, jurídicas, organizativas o administrativas",
+      "type": "property",
+      "definition": "Imposición de medidas para garantizar un tratamiento adecuado de los datos personales.",
+      "articles": [
+        65
+      ]
+    },
+    {
+      "name": "MinorInfraction",
+      "label": "infracción leve",
+      "type": "class",
+      "definition": "Incumplimiento de obligaciones normativas que conlleva sanciones administrativas específicas según el infractor.",
+      "articles": [
+        67
+      ]
+    },
+    {
+      "name": "SeriousInfraction",
+      "label": "infracción grave",
+      "type": "class",
+      "definition": "Incumplimiento normativo de mayor severidad que puede dar lugar a sanciones tras el incumplimiento de medidas correctivas.",
+      "articles": [
+        68
+      ]
+    },
+    {
+      "name": "AdministrativeSanction",
+      "label": "sanciones administrativas",
+      "type": "class",
+      "definition": "Multas impuestas por la Autoridad ante la verificación del cometimiento de infracciones.",
+      "articles": [
+        71
+      ]
+    },
+    {
+      "name": "ProportionalityPrinciple",
+      "label": "principio de proporcionalidad",
+      "type": "property",
+      "definition": "Criterio utilizado para establecer la cuantía de la multa basado en la intencionalidad, reiteración, perjuicio y reincidencia.",
+      "articles": [
+        71
+      ]
+    },
+    {
+      "name": "Recidivism",
+      "label": "reincidencia",
+      "type": "property",
+      "definition": "Circunstancia donde la infracción precedente es de la misma naturaleza que la que se pretende sancionar.",
+      "articles": [
+        71
+      ]
+    },
+    {
+      "name": "BusinessVolume",
+      "label": "Volumen de negocio",
+      "type": "class",
+      "definition": "Cuantía resultante de la venta de productos y prestación de servicios realizada por operadores económicos durante el último ejercicio, previa deducción de impuestos relacionados.",
+      "articles": [
+        73
+      ]
+    },
+    {
+      "name": "ProvisionalMeasures",
+      "label": "Medidas provisionales o cautelares",
+      "type": "property",
+      "definition": "Medidas de protección o cautelares aplicables por la Autoridad de Protección de Datos Personales según la norma procedimental administrativa.",
+      "articles": [
+        74
+      ]
+    },
+    {
+      "name": "DataSuperintendent",
+      "label": "Superintendente de Protección de Datos",
+      "type": "class",
+      "definition": "Titular de la Autoridad de Protección de Datos, designado por méritos y especialidad, encargado de dirigir la institución por un período de 5 años.",
+      "articles": [
+        77
+      ]
+    },
+    {
+      "name": "UnfulfilledRegistry",
+      "label": "Registro Único de Responsables y Encargados Incumplidos",
+      "type": "class",
+      "definition": "Registro de responsables y encargados del tratamiento de datos personales que han incurrido en infracciones, con fines sociales, estadísticos, preventivos y de capacitación.",
+      "articles": []
+    }
+  ]
+}

@@ -1,21 +1,3 @@
-"""Build the TARGET side of the alignment: the DPV concepts and properties to compare against.
-
-The source side (OntoPriv entities + AI proposals) is S4-T02. This module prepares the DPV
-side in the same uniform shape, reusing Sprint 3's ``collect_dpv_concepts`` unchanged (its
-signature and behaviour are kept; the extra filtering happens here).
-
-Decisions encoded here (measured on the public DPV 2.3 ``dpv.ttl``):
-- ``collect_dpv_concepts`` returns every subject with a ``skos:prefLabel`` (1123). Seven of them
-  are NOT DPV terms but terms of other vocabularies that the file embeds (``dct:accessRights``,
-  ``dcat:Resource``, ``foaf:page``...). Only the DPV namespace is kept (1116); the rest are
-  reported as external.
-- The DPV has two kinds of terms: properties (``rdf:Property``, e.g. ``dpv:hasRecipient``; 144)
-  and concepts (every other term, all ``rdfs:Class`` + ``skos:Concept``; 972). OntoPriv classes
-  and individuals are compared with DPV concepts; OntoPriv properties with DPV properties.
-- Each target keeps its direct DPV parents (``skos:broader`` / ``rdfs:subClassOf`` /
-  ``rdfs:subPropertyOf``): the AI uses them later (S4-T08) to tell a broader match from an
-  exact one.
-"""
 from __future__ import annotations
 
 from collections import Counter

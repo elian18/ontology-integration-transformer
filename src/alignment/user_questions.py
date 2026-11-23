@@ -1,28 +1,3 @@
-"""Questions with options about what stays in doubt in an upload (S10-T04).
-
-The doubts: the suggestions (the AI chose a term with high confidence and the rule left it
-out; not the "solo relacionadas", the relation the rule already found unreliable) and the
-correspondences the rule accepted that the AI reviewer marked incoherent or doubtful.
-
-What the uploads ask (``fixed_questions``): one question per doubt, at most ``max_questions``,
-in a fixed order (what is already in the ontology first, then the suggestions with the highest
-score), without a recommended option. A suggestion: take it or leave it. A reviewed one: the
-relation the AI reviewer proposes, remove it, or leave it. Each question shows what the AIs
-said; the person decides. Every upload writes them in ``work/user-questions.json`` (S10-T05);
-the console answers them with ``--responder "1=a,3=b"``: the options become changes of S10-T03
-(one new version) and "Dejar como está" is remembered (``work/user-kept.jsonl``), so nothing
-answered is asked again.
-
-The AI questions (prompt ask.v1, ``propose_questions``: the AI chooses what to ask, joins the
-doubts with the same pattern and recommends an option) were measured on the base and not
-adopted (py -m src.alignment.question_eval, November 2026): with names only it could not tell
-the right suggestions from the wrong ones (it asked about 16 of the 33 right ones and 13 of the
-37 you left without correspondence) and following its recommendation lowered the precision
-from 75.0 % to 66.3 % (76.5 % to 66.7 % with the base corrected in S10-T16). ``user_questions.ai``
-keeps it off.
-
-Every option goes through the fixed rule of S10-T03 (``user_decisions.check_state``); the AI
-options also have to change only the concepts of their question, with terms shown for them."""
 from __future__ import annotations
 
 import hashlib

@@ -1,31 +1,3 @@
-"""Write the aligned graph from the human decisions (S5-T06).
-
-Input: the candidates file (Sprint 4) and the decisions log (S5-T01..T05, T08). Output, in the
-outputs folder:
-- ``ontopriv-dpv-alignment.rdf``: an OWL module that ``owl:imports`` the profile (which imports
-  the core) and does NOT import the DPV (agreed in Sprint 5: core and profile stay untouched and
-  the DPV is referenced by IRI only). It holds:
-    1. the AI concepts a person approved as NEW (S5-T03), declared with the type the person
-       chose, their Spanish label and definition and the law article they come from
-       (``dct:source``); they are not placed under any OntoPriv class (agreed limitation);
-    2. the law article of every AI concept confirmed as DUPLICATE, attached to the OntoPriv
-       entity the person named (``same_as``), so that entity gains the law as evidence;
-    3. one SKOS mapping triple per approved correspondence (S5-T04/T08):
-       ``<concept> skos:exactMatch|closeMatch|broadMatch|narrowMatch|relatedMatch <dpv term>``.
-       "No match" decisions write nothing. No OWL axiom points to the DPV (Sprint 4 decision).
-- ``alignment-manifest.json``: IRIs, counts, who decided (person alone vs assistant proposal
-  confirmed by a person), agreement with the AI type, the models behind the candidates and a
-  SHA-256 of the decisions log, so the graph can be traced back to the exact decisions.
-- ``alignment-approved.csv``: one row per approved correspondence, readable in Excel.
-
-The graph is written only when every concept is decided (nothing "por validar"), so the module
-never mixes decided and undecided content. The profile IRI, its name and the law name are
-parameters: another law (Sprints 6-7) gets its own module with the same code.
-
-Known consequence for the validation sprints: in SKOS the mapping properties have domain and
-range ``skos:Concept``, so an RDFS/OWL-RL reasoner will also type the mapped entities as
-``skos:Concept`` (punning, acceptable because OntoPriv is already OWL Full).
-"""
 from __future__ import annotations
 
 import csv
@@ -155,7 +127,8 @@ def collect(data: dict, records: list, source_id: str,
 def build_graph(content: AlignmentContent, profile_iri: str = PROFILE_IRI,
                 profile_name: str = DEFAULT_PROFILE_NAME, law_name: str = DEFAULT_LAW_NAME,
                 created: str | None = None) -> Graph:
-    """The alignment module as an rdflib graph (see the module docstring)."""
+    """The alignment module as an rdflib graph: the approved new concepts, the articles of the
+    duplicates and one SKOS triple per approved correspondence."""
     g = Graph()
     for prefix, ns in _PREFIXES.items():
         g.bind(prefix, Namespace(ns))

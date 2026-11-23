@@ -1,7 +1,3 @@
-"""S6-T09: automatic check on an ontology from outside the base, with no manual labelling.
-
-The concepts that inherited a validated decision are solved again as if they were new, with the
-same steps the web uses (S6-T06), and compared with what the person decided."""
 from __future__ import annotations
 
 import hashlib

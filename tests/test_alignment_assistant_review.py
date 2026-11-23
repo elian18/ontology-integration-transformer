@@ -1,5 +1,3 @@
-"""S5-T08: assisted batch review. The assistant's proposals are NOT decisions: they reach the
-log only when a person confirms them, in that person's name, with the proposal as provenance."""
 import json
 from pathlib import Path
 

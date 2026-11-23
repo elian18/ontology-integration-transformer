@@ -1,21 +1,3 @@
-"""S6-T09: end-to-end test of Sprint 6 on GDPRtEXT, an ontology from outside the base.
-
-Runs what a user does in the web (``align_upload``, the same call the page makes) on the real
-GDPRtEXT file and the real validated base, with a deterministic embedding and a fake AI, so it
-is fast and needs no network. Real embeddings and the real AI were used in the web run whose
-figures are in the CHANGELOG; this test locks what does not depend on them:
-- the file is read and characterized (223 classes, 13 object properties, no OWL Full signal);
-- it converts to every format and back without losing a triple (S6-T01/T02);
-- 18 concepts inherit the validated decision by the "same name" rule (S6-T05), the same 18
-  of the web run (no embeddings needed for that rule);
-- the alignment module holds the inherited correspondences plus what the rule accepted (S7-T06:
-  the decider runs with the real base as knowledge, a deterministic embedding and a fake AI),
-  and the zip resolves the import of GDPRtEXT in the four formats (S6-T07);
-- every class and property gets its labels in Spanish and English (S7-T08): the English one is
-  GDPRtEXT's own label, only tagged, and both live in the labels module;
-- the automatic check solves every inherited concept again and leaves the user's alignment as
-  it was (S6-T09);
-- nothing is written outside the workspace (S6-T04)."""
 from __future__ import annotations
 
 import hashlib

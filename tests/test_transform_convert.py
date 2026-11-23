@@ -1,9 +1,3 @@
-"""S6-T01: conversion between RDF/XML, Turtle and JSON-LD keeps the exact same graph.
-
-The fixture reproduces, in a few triples, every case that broke plain rdflib on the real files:
-a ``"15"^^xsd:decimal`` (Turtle rewrote it as 15.0), a list typed ``rdf:List`` like OntoPriv's
-SWRL rules (JSON-LD dropped the type), blank nodes (owl:Restriction, owl:Axiom), es/en labels,
-typed xsd:string and integers (JSON-LD turned them into native JSON values)."""
 from __future__ import annotations
 
 import json

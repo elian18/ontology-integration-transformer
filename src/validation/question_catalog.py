@@ -1,4 +1,3 @@
-# The catalog of competency questions (S9-T03): load it, check it and say how each one is judged.
 from __future__ import annotations
 
 import argparse

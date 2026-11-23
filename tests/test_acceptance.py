@@ -1,5 +1,3 @@
-"""S7-T09: the fixed rule that accepts the concepts the AI extracts from a law (decision D1),
-and its calibration against the decisions of Sprint 5 on the 93 concepts of the LOPDP."""
 from __future__ import annotations
 
 import json

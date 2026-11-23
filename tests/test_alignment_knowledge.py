@@ -1,10 +1,3 @@
-"""Tests for the knowledge collections of the alignment decider (S7-T01).
-
-Fast tests: a fake, deterministic embedder (no model), small hand-made DPV terms and base
-concepts, and a temporary ChromaDB folder per test. One test builds the REAL collections from
-the base files (DPV 2.3 + the Sprint 5 decisions) with the fake embedder, to lock the counts
-1116 and 552; it is skipped if the base files are not on this machine.
-"""
 import hashlib
 
 import numpy as np

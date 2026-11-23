@@ -1,6 +1,3 @@
-"""S10-T05: the questions as one more step of each upload and in the console. They never block
-the download; an answer becomes the changes of S10-T03 and a new version; what was answered is
-not asked again. The LLM is a fake: no test calls Gemini."""
 from __future__ import annotations
 
 import json

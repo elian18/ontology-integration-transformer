@@ -1,30 +1,3 @@
-"""Measure the current design and choose where the decider's DPV candidates come from (S7-T03).
-
-No LLM call is made here. Three measurements, all against the automatic reference of
-``src/alignment/reference.py`` (your decisions, no hand labelling):
-
-1. BASELINE: the design of Sprint 6 (best candidate only, threshold ``auto.threshold`` = 0.75,
-   the SKOS type the AI already gave in Sprint 4) on the 552 base concepts and on the blind
-   sample. It must repeat the calibration of S6-T06 (34 proposals, 28 correct) and adds what the
-   calibration did not report: coverage over the 173 aligned concepts (not only over the 92
-   whose term was rank 1), F1 and SKOS type accuracy. These are the numbers the decider of
-   S7-T04 has to beat in S7-T05, measured with the same ``score``.
-2. WHERE THE 10 CANDIDATES COME FROM: the decider will choose among N DPV candidates, so the
-   right term must be among them. Three sources are compared on the base (173), GDPRtEXT (21)
-   and the blind sample (19), counting how often the right term is in the top 1 / 3 / 10:
-   - ``hybrid``: the Sprint 4 ranking (0.4 lexical + 0.6 embeddings) with 10 candidates;
-   - ``dpv``: a search by meaning in the ChromaDB collection "dpv" (S7-T01);
-   - ``dpv_rerank``: the 50 nearest terms of "dpv", re-ranked with the hybrid formula.
-   The three use the same stored DPV vectors. The criterion is fixed BEFORE measuring: the most
-   hits in the top 10 of the base wins; on a tie, the hybrid ranking (already validated).
-3. CONSISTENCY OF THE REFERENCE: how often the blind sample (Sprint 4) and the Sprint 5
-   decisions agree on the concepts they share. It says how noisy the reference itself is.
-
-Results: ``<outputs>/alignment-benchmark.json`` and the reference with its leak control in
-``<outputs>/decision-reference.json`` (both used again by S7-T05).
-
-CLI: ``py -m src.alignment.benchmark`` (needs the "dpv" collection: py -m src.alignment.knowledge).
-"""
 from __future__ import annotations
 
 import argparse

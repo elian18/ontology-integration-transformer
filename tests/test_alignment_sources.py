@@ -1,4 +1,3 @@
-"""S4-T02: the single list of concepts to align (OntoPriv entities + AI proposals)."""
 import json
 from pathlib import Path
 from types import SimpleNamespace

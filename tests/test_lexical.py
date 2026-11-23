@@ -1,4 +1,3 @@
-"""S4-T04: lexical similarity (identifiers only, never the Spanish labels)."""
 import numpy as np
 
 from src.ingest.dpv_loader import load_dpv

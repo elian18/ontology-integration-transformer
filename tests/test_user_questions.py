@@ -1,5 +1,3 @@
-"""S10-T04: the doubts of an upload, the questions of the AI and the fixed rule over every
-option. The LLM is a fake: no test calls Gemini."""
 from __future__ import annotations
 
 import json

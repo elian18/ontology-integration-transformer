@@ -1,6 +1,3 @@
-# The AI says in one sentence why a competency question stays yellow (S9-T06). One call for all
-# the yellow questions of a run, a cache per question and a fixed sentence when there is no AI.
-# Prompt v2 also names the row that holds each missing element; the row must exist (--medir).
 from __future__ import annotations
 
 import argparse

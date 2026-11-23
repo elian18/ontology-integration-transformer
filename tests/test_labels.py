@@ -1,9 +1,3 @@
-"""S7-T08: labels in Spanish and English for an uploaded ontology (the LLM writes the missing
-ones with the glossary of the LOPDP, in a module apart; no original label changes).
-
-Fast tests: a fake LLM that answers the labels prompt, the small validated base of the decider
-tests (its glossary: "evaluación de impacto" and "volumen de negocio"), temporary workspaces.
-The slow test makes one real call."""
 from __future__ import annotations
 
 import json

@@ -1,0 +1,766 @@
+{
+  "date": "2026-11-14T15:40:12+00:00",
+  "engine": {
+    "name": "jena",
+    "version": "6.2.0",
+    "java": "24.0.2",
+    "reasoner": "owl-micro"
+  },
+  "seconds": 6.8,
+  "catalog": {
+    "file": "src/validation/questions.yaml",
+    "version": 1,
+    "sha256": "7882c5cd7e7bb616233d1537dbe01b77fac7a81415a70b0487031ffe9943995f"
+  },
+  "files": [
+    "data/output/ontopriv-core.rdf",
+    "data/output/profile-ecuador-lopdp.rdf",
+    "data/output/ontopriv-dpv-alignment.rdf",
+    "vocab/dpv.ttl"
+  ],
+  "triples": 20142,
+  "results": [
+    {
+      "id": "P01",
+      "group": "base",
+      "question": "¿Cuánto debe esperar el titular para que le notifiquen un riesgo durante una transferencia de datos?",
+      "kind": "value",
+      "criterion": "Verde si la respuesta trae el valor 3 días; amarillo si no lo trae.",
+      "rows": 1,
+      "answer": [
+        "notification001 3 days"
+      ],
+      "error": null,
+      "color": "verde",
+      "values": [
+        "3"
+      ]
+    },
+    {
+      "id": "P02",
+      "group": "base",
+      "question": "¿Qué condiciones específicas hacen válido el consentimiento?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 4 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 4,
+      "answer": [
+        "consent Free from defects of consent",
+        "consent Informed to ensure transparency and the right to information",
+        "consent Specific with respect to the means and purposes of processing"
+      ],
+      "error": null,
+      "color": "amarillo",
+      "found": [
+        {
+          "name": "Libre",
+          "how": "nombre"
+        },
+        {
+          "name": "Específica",
+          "how": "nombre"
+        },
+        {
+          "name": "Informada",
+          "how": "nombre"
+        }
+      ],
+      "missing": [
+        "Inequívoca"
+      ],
+      "explanation": "La pregunta quedó en amarillo porque, aunque una fila contiene el concepto 'consent Unequivocal', la regla automática no logró reconocerlo como equivalente al elemento faltante de consentimiento inequívoco.",
+      "explained_by": "ia",
+      "matches": [
+        {
+          "element": "Inequívoca",
+          "row": "consent Unequivocal, no doubt about the authorization granted by the holder"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "group": "base",
+      "question": "¿Quiénes son los integrantes del sistema de protección de datos personales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 6 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 6,
+      "answer": [
+        "data_owner Data_Owner",
+        "data_processor Data_Processor",
+        "delegate Delegate"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Titular",
+          "how": "nombre"
+        },
+        {
+          "name": "Responsable del tratamiento",
+          "how": "nombre"
+        },
+        {
+          "name": "Encargado del tratamiento",
+          "how": "nombre"
+        },
+        {
+          "name": "Destinatario",
+          "how": "nombre"
+        },
+        {
+          "name": "Autoridad de Protección de Datos Personales",
+          "how": "nombre"
+        },
+        {
+          "name": "Delegado de protección de datos personales",
+          "how": "nombre"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "P04",
+      "group": "base",
+      "question": "¿Quién, dentro del sistema de protección de datos personales, debe asegurar que se ejerzan los derechos, en particular el derecho de acceso?",
+      "kind": "any",
+      "criterion": "Verde si la respuesta trae al menos uno de los 2 elementos que da la ley; amarillo si no trae ninguno.",
+      "rows": 2,
+      "answer": [
+        "personal_data_protection_authority Personal_data_protection_authority",
+        "responsible_for_treatment Data_Controller"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Autoridad de Protección de Datos Personales",
+          "how": "nombre"
+        },
+        {
+          "name": "Responsable del tratamiento",
+          "how": "nombre"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "P05",
+      "group": "base",
+      "question": "¿A partir de qué edad una persona puede dar su consentimiento explícito para el tratamiento de sus datos personales?",
+      "kind": "value",
+      "criterion": "Verde si la respuesta trae el valor 15 años; amarillo si no lo trae.",
+      "rows": 2,
+      "answer": [
+        "holder_between_15_to_17_years_old Persons whose age is between 15 and 17 years old",
+        "holder_over_17_years_old Persons over or equal to 18 years of age"
+      ],
+      "error": null,
+      "color": "verde",
+      "values": [
+        "15",
+        "17",
+        "18"
+      ]
+    },
+    {
+      "id": "L01",
+      "group": "base",
+      "question": "¿Qué derechos tiene el titular de los datos personales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 11 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 44,
+      "answer": [
+        "DataDeletionMethods Métodos de eliminación DataSanitisationTechnique LOPDP, art. 15",
+        "Data_Controller DataController LOPDP, art. 17",
+        "Data_Controller DataController LOPDP, art. 33"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Derecho a la información",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho de acceso",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho de rectificación y actualización",
+          "how": "artículo"
+        },
+        {
+          "name": "Derecho de eliminación",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho de oposición",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho a la portabilidad",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho a la suspensión del tratamiento",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas",
+          "how": "nombre"
+        },
+        {
+          "name": "Derecho de consulta",
+          "how": "artículo"
+        },
+        {
+          "name": "Derecho a la educación digital",
+          "how": "nombre"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "L02",
+      "group": "base",
+      "question": "¿En qué casos es legítimo el tratamiento de datos personales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 8 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 15,
+      "answer": [
+        "Authorized_consent Consent",
+        "Consent Consent LOPDP, art. 33",
+        "Consent Consent LOPDP, art. 4"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Consentimiento del titular",
+          "how": "nombre"
+        },
+        {
+          "name": "Obligación legal",
+          "how": "nombre"
+        },
+        {
+          "name": "Orden judicial",
+          "how": "nombre"
+        },
+        {
+          "name": "Interés público",
+          "how": "nombre"
+        },
+        {
+          "name": "Medidas precontractuales",
+          "how": "nombre"
+        },
+        {
+          "name": "Intereses vitales",
+          "how": "nombre"
+        },
+        {
+          "name": "Bases de datos de acceso público",
+          "how": "nombre"
+        },
+        {
+          "name": "Interés legítimo",
+          "how": "nombre"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "L03",
+      "group": "base",
+      "question": "¿Qué principios rigen el tratamiento de datos personales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 13 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 50,
+      "answer": [
+        "Application_favorable_to_the_owner LOPDP, art. 10",
+        "Confidentiality LOPDP, art. 10",
+        "Confidentiality LOPDP, art. 50"
+      ],
+      "error": null,
+      "color": "amarillo",
+      "found": [
+        {
+          "name": "Juridicidad",
+          "how": "nombre"
+        },
+        {
+          "name": "Lealtad",
+          "how": "nombre"
+        },
+        {
+          "name": "Transparencia",
+          "how": "nombre"
+        },
+        {
+          "name": "Finalidad",
+          "how": "nombre"
+        },
+        {
+          "name": "Pertinencia y minimización de datos personales",
+          "how": "nombre"
+        },
+        {
+          "name": "Proporcionalidad del tratamiento",
+          "how": "nombre"
+        },
+        {
+          "name": "Confidencialidad",
+          "how": "nombre"
+        },
+        {
+          "name": "Calidad y exactitud",
+          "how": "nombre"
+        },
+        {
+          "name": "Conservación",
+          "how": "nombre"
+        },
+        {
+          "name": "Seguridad de datos personales",
+          "how": "nombre"
+        },
+        {
+          "name": "Responsabilidad proactiva y demostrada",
+          "how": "nombre"
+        },
+        {
+          "name": "Independencia del control",
+          "how": "nombre"
+        }
+      ],
+      "missing": [
+        "Aplicación favorable al titular"
+      ],
+      "explanation": "La pregunta quedó en amarillo porque, aunque una fila contiene 'Application_favorable_to_the_owner', la regla automática no logró reconocerlo como equivalente al principio de aplicación favorable al titular.",
+      "explained_by": "ia",
+      "matches": [
+        {
+          "element": "Aplicación favorable al titular",
+          "row": "Application_favorable_to_the_owner LOPDP, art. 10"
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "group": "base",
+      "question": "¿Qué datos personales son categorías especiales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 4 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 7,
+      "answer": [
+        "Data_under_17_years_old PersonalData",
+        "Disabled_owner_data PersonalData",
+        "Special_personal_data_categories SpecialCategoryPersonalData LOPDP, art. 25"
+      ],
+      "error": null,
+      "color": "amarillo",
+      "found": [
+        {
+          "name": "Datos sensibles",
+          "how": "nombre"
+        },
+        {
+          "name": "Datos de salud",
+          "how": "nombre"
+        }
+      ],
+      "missing": [
+        "Datos de niñas, niños y adolescentes",
+        "Datos de personas con discapacidad"
+      ],
+      "explanation": "La pregunta quedó en amarillo porque la regla no reconoció que las filas 'Data_under_17_years_old' y 'Disabled_owner_data' representan los datos de niñas, niños, adolescentes y personas con discapacidad.",
+      "explained_by": "ia",
+      "matches": [
+        {
+          "element": "Datos de niñas, niños y adolescentes",
+          "row": "Data_under_17_years_old PersonalData"
+        },
+        {
+          "element": "Datos de personas con discapacidad",
+          "row": "Disabled_owner_data PersonalData"
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "group": "base",
+      "question": "¿En qué plazo debe el responsable atender el derecho de acceso?",
+      "kind": "value",
+      "criterion": "Verde si la respuesta trae el valor 15 días; amarillo si no lo trae.",
+      "rows": 2,
+      "answer": [
+        "access_right001 15 days",
+        "responsible_for_treatment 15"
+      ],
+      "error": null,
+      "color": "verde",
+      "values": [
+        "15"
+      ]
+    },
+    {
+      "id": "L06",
+      "group": "base",
+      "question": "¿En qué plazo debe el responsable notificar una vulneración de seguridad a la Autoridad de Protección de Datos Personales?",
+      "kind": "value",
+      "criterion": "Verde si la respuesta trae el valor 5 días; amarillo si no lo trae.",
+      "rows": 1,
+      "answer": [
+        "notification001 5 days"
+      ],
+      "error": null,
+      "color": "verde",
+      "values": [
+        "5"
+      ]
+    },
+    {
+      "id": "L07",
+      "group": "base",
+      "question": "¿Qué medidas correctivas puede dictar la Autoridad de Protección de Datos Personales?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 3 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 19,
+      "answer": [
+        "Administrative",
+        "CessationOfTreatment cese del tratamiento LOPDP, art. 65",
+        "Corrective_measures LOPDP, art. 65"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Cese del tratamiento",
+          "how": "nombre"
+        },
+        {
+          "name": "Eliminación de los datos",
+          "how": "nombre"
+        },
+        {
+          "name": "Imposición de medidas técnicas, jurídicas, organizativas o administrativas",
+          "how": "nombre"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "L08",
+      "group": "base",
+      "question": "¿Qué tipos de infracciones establece la ley?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 2 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 31,
+      "answer": [
+        "Data_Controller LOPDP, art. 17 Class",
+        "Data_Controller LOPDP, art. 17 ObjectProperty",
+        "Data_Controller LOPDP, art. 33 Class"
+      ],
+      "error": null,
+      "color": "verde",
+      "found": [
+        {
+          "name": "Infracciones leves",
+          "how": "artículo"
+        },
+        {
+          "name": "Infracciones graves",
+          "how": "artículo"
+        }
+      ],
+      "missing": []
+    },
+    {
+      "id": "L09",
+      "group": "base",
+      "question": "¿Por qué vías se pueden transferir datos personales a otro país?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 5 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 60,
+      "answer": [
+        "AdequateProtectionLevel nivel adecuado de protección LOPDP, art. 56",
+        "Administrative_or_judicial_authorities Authority",
+        "Admitted_Countries Country"
+      ],
+      "error": null,
+      "color": "amarillo",
+      "found": [
+        {
+          "name": "Nivel adecuado de protección",
+          "how": "nombre"
+        },
+        {
+          "name": "Garantías adecuadas",
+          "how": "artículo"
+        },
+        {
+          "name": "Normas corporativas vinculantes",
+          "how": "nombre"
+        },
+        {
+          "name": "Autorización para transferencia internacional",
+          "how": "nombre"
+        }
+      ],
+      "missing": [
+        "Casos excepcionales"
+      ],
+      "explanation": "La pregunta quedó en amarillo porque, aunque una fila contiene el término 'Exceptions', la regla automática no logró identificarlo como el elemento de casos excepcionales para la transferencia de datos.",
+      "explained_by": "ia",
+      "matches": [
+        {
+          "element": "Casos excepcionales",
+          "row": "Exceptions"
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "group": "base",
+      "question": "¿Qué datos se consideran sensibles?",
+      "kind": "all",
+      "criterion": "Verde si la respuesta trae los 12 elementos que da la ley; amarillo si falta alguno.",
+      "rows": 57,
+      "answer": [
+        "Anonymization Anonymisation LOPDP, art. 31",
+        "Anonymization Anonymisation LOPDP, art. 4",
+        "Biometric_data LOPDP, art. 4"
+      ],
+      "error": null,
+      "color": "amarillo",
+      "found": [
+        {
+          "name": "Etnia",
+          "how": "nombre"
+        },
+        {
+          "name": "Identidad de género",
+          "how": "nombre"
+        },
+        {
+          "name": "Identidad cultural",
+          "how": "nombre"
+        },
+        {
+          "name": "Religión",
+          "how": "nombre"
+        },
+        {
+          "name": "Ideología",
+          "how": "nombre"
+        },
+        {
+          "name": "Filiación política",
+          "how": "nombre"
+        },
+        {
+          "name": "Condición migratoria",
+          "how": "nombre"
+        },
+        {
+          "name": "Orientación sexual",
+          "how": "nombre"
+        },
+        {
+          "name": "Salud",
+          "how": "nombre"
+        },
+        {
+          "name": "Datos biométricos",
+          "how": "nombre"
+        },
+        {
+          "name": "Datos genéticos",
+          "how": "nombre"
+        }
+      ],
+      "missing": [
+        "Pasado judicial"
+      ],
+      "explanation": "La pregunta quedó en amarillo porque, aunque una fila contiene 'Judicial past', la regla automática no logró reconocerlo como equivalente al elemento faltante de pasado judicial.",
+      "explained_by": "ia",
+      "matches": [
+        {
+          "element": "Pasado judicial",
+          "row": "sensitive_data Judicial past"
+        }
+      ]
+    },
+    {
+      "id": "G01",
+      "group": "generic",
+      "question": "¿Qué conceptos de la ontología están alineados con el DPV?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 118,
+      "answer": [
+        "AdministrativeProcedure AuthorisationProcedure",
+        "AdministrativeProcedure GovernanceProcedures",
+        "Administrative_or_judicial_authorities Authority"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 114
+    },
+    {
+      "id": "G02",
+      "group": "generic",
+      "question": "¿Qué derechos del titular representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 13,
+      "answer": [
+        "MinorAutomatedDecisionRight DataSubjectRight",
+        "Right_not_to_be_object_to_automated_evaluations DataSubjectRight",
+        "Right_of_access DataSubjectRight"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 13
+    },
+    {
+      "id": "G03",
+      "group": "generic",
+      "question": "¿Qué bases legales del tratamiento representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 6,
+      "answer": [
+        "Authorized_consent Consent",
+        "Consent Consent",
+        "Exceptions_for_international_transfers_or_communications DataTransferLegalBasis"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 6
+    },
+    {
+      "id": "G04",
+      "group": "generic",
+      "question": "¿Qué finalidades del tratamiento representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 3,
+      "answer": [
+        "BindingCorporateRules LegalCompliance",
+        "Epidemiological_studies ScientificResearch",
+        "Personal_data_security DataSecurityManagement"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 3
+    },
+    {
+      "id": "G05",
+      "group": "generic",
+      "question": "¿Qué categorías de datos personales representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 11,
+      "answer": [
+        "Credit_data PersonalData",
+        "Data_persons_minors PersonalData",
+        "Data_under_17_years_old PersonalData"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 11
+    },
+    {
+      "id": "G06",
+      "group": "generic",
+      "question": "¿Qué actores del tratamiento (responsable, encargado, titular, autoridad) representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 16,
+      "answer": [
+        "Administrative_or_judicial_authorities Authority",
+        "Boys_and_girls Child",
+        "Data_Controller DataController"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 16
+    },
+    {
+      "id": "G07",
+      "group": "generic",
+      "question": "¿Qué operaciones de tratamiento representa la ontología?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 7,
+      "answer": [
+        "Collection Collect",
+        "DataDeletion Delete",
+        "Data_processing Processing"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 7
+    },
+    {
+      "id": "G08",
+      "group": "generic",
+      "question": "¿De qué artículo de la ley sale cada concepto?",
+      "kind": "at_least",
+      "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
+      "rows": 116,
+      "answer": [
+        "AdequateProtectionLevel LOPDP, art. 56",
+        "AdministrativeProcedure LOPDP, art. 64",
+        "Anonymization LOPDP, art. 31"
+      ],
+      "error": null,
+      "color": "verde",
+      "count": 84
+    }
+  ],
+  "summary": {
+    "verde": 18,
+    "amarillo": 5,
+    "gris": 0,
+    "no aplica": 0
+  },
+  "explanations": {
+    "prompt": {
+      "name": "explain",
+      "version": 2,
+      "sha256": "e78a71ad5d9667e94941ffb6782cc1ad5ab18793a2aabdd2062c60b8399147b8"
+    },
+    "questions": 5,
+    "available": true,
+    "calls": 0,
+    "cached": 5,
+    "invalid": 0,
+    "errors": []
+  },
+  "original": {
+    "files": [
+      "data/input/ontopriv.rdf",
+      "vocab/dpv.ttl"
+    ],
+    "differences": [],
+    "colors": {
+      "P01": "verde",
+      "P02": "amarillo",
+      "P03": "verde",
+      "P04": "verde",
+      "P05": "verde"
+    }
+  },
+  "formats": {
+    "owl": [],
+    "turtle": [],
+    "jsonld": []
+  }
+}

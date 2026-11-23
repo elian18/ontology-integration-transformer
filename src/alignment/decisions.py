@@ -1,26 +1,3 @@
-"""Human review decisions log (S5-T01): who decided what, when, and from which evidence.
-
-Every human decision of Sprint 5 (approve or reject an AI-proposed concept, approve or reject a
-DPV correspondence, mark a concept as having no DPV counterpart) is APPENDED as one JSON line
-to ``data/review/alignment-decisions.jsonl``. The file is tracked in git: it is human work that
-cannot be regenerated, unlike ``alignment-candidates.json`` (which ``export --force`` rebuilds).
-
-Rules:
-- Append-only. A change of mind is a NEW line; the latest line for the same key wins, so the
-  history stays in the file for auditing (and for PROV-O in Sprint 10).
-- Key = (source_id, target, concept_key, dpv_iri). ``source_id`` names the input that produced
-  the candidates (``ontopriv+lopdp`` for the base case), so decisions about another law or
-  ontology (Sprints 6-7) never mix with these.
-- Each line carries a SNAPSHOT of how the proposal was produced (rank, scores, the AI's type and
-  justification, the evidence article, LLM model, prompt version, embedding model), so the
-  decision keeps its provenance even if the candidates file is regenerated.
-- ``pending`` withdraws a previous decision (the key goes back to "por validar").
-- ``same_as`` (concept decisions only): the OntoPriv entity a person says an AI concept already
-  is. The automatic duplicate check (S4-T06) misses some (e.g. names in another language), so
-  the person names the entity; its law article is later attached to it (S5-T06).
-
-Codes are stored in English; console and web show them in Spanish (``DECISION_LABELS``).
-"""
 from __future__ import annotations
 
 import json

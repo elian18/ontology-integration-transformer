@@ -1,21 +1,3 @@
-"""Rank the DPV candidates of every concept: meaning (embeddings) + spelling (lexical).
-
-This closes the automatic part of the Scrumban row "similitud léxica + embeddings":
-- Semantic similarity: every source concept and every DPV term are embedded with the project
-  encoder (EMBEDDING_MODEL; today the multilingual paraphrase-multilingual-MiniLM-L12-v2,
-  L2-normalized), so a Spanish label ('titular') can still meet an English DPV term
-  ('Data Subject'). Cosine = dot product, clipped to [0, 1].
-- Lexical similarity: S4-T04 (identifiers only).
-- Combined score = w_lex * lexical + w_sem * semantic (weights in config.yaml, block
-  ``alignment``). No threshold is applied: the state of the art reports that results depend on
-  the chosen threshold, so every concept keeps its top-k candidates and the human decides
-  (Sprint 5). The weights are measured in S4-T09 with a hand-labelled sample.
-- Kind filter: a candidate must be compatible with the concept (class/individual -> DPV concept,
-  property -> DPV property, punned -> both), see ``COMPATIBLE_TARGETS`` in S4-T03.
-
-The embedder is injected (``embed_fn``) so the fast tests use a deterministic fake and never
-load the model; the real run lazily imports the Sprint 2 ``embed``.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

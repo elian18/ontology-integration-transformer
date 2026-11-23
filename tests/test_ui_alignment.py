@@ -1,4 +1,3 @@
-"""Tests for the alignment UI service (Sprint 4, S4-T10)."""
 import json
 
 from app.services import alignment

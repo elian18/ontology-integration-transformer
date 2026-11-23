@@ -1,11 +1,3 @@
-"""S5-T09: the whole Sprint 5 flow end to end, through the same services the web uses.
-
-candidates (Sprint 4) -> approve the AI concepts (S5-T03) -> the person aligns some concepts on
-the card (S5-T05) -> the assistant proposals for the rest are confirmed in a batch, one of them
-changed (S5-T08) -> the graph is written (S5-T06) from the web tab (S5-T07) -> the Protégé zip
-resolves alignment -> profile -> core. Every number of the manifest is checked against the graph,
-the CSV and the log.
-"""
 import csv
 import hashlib
 import io

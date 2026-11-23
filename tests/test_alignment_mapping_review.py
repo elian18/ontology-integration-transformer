@@ -1,5 +1,3 @@
-"""S5-T04: human decisions on the DPV correspondences (approve with a type, reject, no match,
-search outside the top-3, undo) and the counts the next tasks read."""
 import json
 from pathlib import Path
 

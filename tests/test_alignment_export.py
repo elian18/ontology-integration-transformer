@@ -1,4 +1,3 @@
-"""S4-T07: the alignment candidates file (JSON + CSV) joining flows A and B."""
 import zlib
 from pathlib import Path
 

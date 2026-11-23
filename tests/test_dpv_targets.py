@@ -1,4 +1,3 @@
-"""S4-T03: the DPV side of the alignment (DPV terms only, concept/property marked)."""
 import rdflib
 from rdflib.namespace import RDF, OWL, SKOS
 

@@ -1,0 +1,121 @@
+{
+  "reference": "data\\reference\\alignment-reference-sample.csv",
+  "metrics": {
+    "k": 3,
+    "sample_size": 30,
+    "labelled": 30,
+    "unlabelled": 0,
+    "invalid_labels": [],
+    "with_gold_term": 19,
+    "hit_at_1": 9,
+    "hit_at_k": 16,
+    "gold_none": 11,
+    "none_respected": 7,
+    "type_evaluated": 16,
+    "type_correct": 4,
+    "direction_swaps": 1,
+    "confusion": {
+      "skos:closeMatch -> skos:closeMatch": 2,
+      "skos:exactMatch -> skos:exactMatch": 2,
+      "skos:closeMatch -> skos:narrowMatch": 2,
+      "skos:broadMatch -> skos:closeMatch": 2,
+      "skos:closeMatch -> skos:broadMatch": 1,
+      "skos:broadMatch -> skos:relatedMatch": 1,
+      "skos:broadMatch -> skos:exactMatch": 1,
+      "skos:relatedMatch -> skos:broadMatch": 1,
+      "skos:relatedMatch -> skos:narrowMatch": 1,
+      "skos:exactMatch -> skos:broadMatch": 1,
+      "skos:narrowMatch -> skos:broadMatch": 1,
+      "skos:relatedMatch -> skos:exactMatch": 1
+    },
+    "misses": [
+      {
+        "concept": "AdequateProtectionLevel",
+        "gold": "hasDataProtectionOfficer",
+        "candidates": [
+          "DataProtectionOfficer",
+          "DataProtectionAuthority",
+          "DataProtectionTraining"
+        ]
+      },
+      {
+        "concept": "ProportionalityPrinciple",
+        "gold": "isMitigatedByMeasure",
+        "candidates": [
+          "SecondaryImportance",
+          "Principle",
+          "SensitivityLevel"
+        ]
+      },
+      {
+        "concept": "SecurityPrinciple",
+        "gold": "supportsComplianceWith",
+        "candidates": [
+          "EnforceSecurity",
+          "ProtectionOfPublicSecurity",
+          "SecurityProcedure"
+        ]
+      }
+    ],
+    "by_origin": {
+      "ai": {
+        "with_gold_term": 8,
+        "hit_at_1": 4,
+        "hit_at_k": 5
+      },
+      "ontology": {
+        "with_gold_term": 11,
+        "hit_at_1": 5,
+        "hit_at_k": 11
+      }
+    },
+    "hit_at_1_rate": 0.474,
+    "hit_at_k_rate": 0.842,
+    "type_accuracy": 0.25,
+    "none_respected_rate": 0.636
+  },
+  "weight_sweep": [
+    {
+      "weight_lexical": 0.0,
+      "weight_semantic": 1.0,
+      "concepts": 19,
+      "hit_at_1": 0.263,
+      "hit_at_k": 0.474
+    },
+    {
+      "weight_lexical": 0.2,
+      "weight_semantic": 0.8,
+      "concepts": 19,
+      "hit_at_1": 0.368,
+      "hit_at_k": 0.632
+    },
+    {
+      "weight_lexical": 0.4,
+      "weight_semantic": 0.6,
+      "concepts": 19,
+      "hit_at_1": 0.474,
+      "hit_at_k": 0.842
+    },
+    {
+      "weight_lexical": 0.6,
+      "weight_semantic": 0.4,
+      "concepts": 19,
+      "hit_at_1": 0.263,
+      "hit_at_k": 0.579
+    },
+    {
+      "weight_lexical": 0.8,
+      "weight_semantic": 0.2,
+      "concepts": 19,
+      "hit_at_1": 0.211,
+      "hit_at_k": 0.474
+    },
+    {
+      "weight_lexical": 1.0,
+      "weight_semantic": 0.0,
+      "concepts": 19,
+      "hit_at_1": 0.211,
+      "hit_at_k": 0.368
+    }
+  ]
+}

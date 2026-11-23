@@ -1,27 +1,3 @@
-"""Round-trip check on the real files: convert, read back, compare (S6-T02).
-
-For every file and every output format the check writes the graph with ``convert.serialize``,
-reads it back and compares it with the original using graph isomorphism
-(``rdflib.compare.isomorphic``), which also matches blank nodes (OWL restrictions, SWRL lists,
-``owl:Axiom`` annotations), whose internal ids change on every parse. "Same graph" therefore
-means: the same triples, with the same literal text, language tags and datatypes.
-
-Two extra measurements make the result usable in the thesis:
-- the chain RDF/XML -> Turtle -> JSON-LD -> RDF/XML, each step reading the previous output;
-- the same round trip with plain rdflib (no S6-T01 fixes), so the report shows what was lost
-  before (two rewritten decimals in Turtle, 12 dropped ``rdf:type rdf:List`` in JSON-LD on
-  OntoPriv) and that the fixes remove it.
-
-The ``owl`` output is not checked separately: it uses the RDF/XML serializer and produces the
-same bytes as ``rdfxml`` (a test locks this).
-
-Default files: OntoPriv (``inputs.ontology``), the three base modules in the outputs folder
-(core, Ecuador profile, DPV alignment), ``data/input/sample.ttl`` if present (a Turtle source)
-and the DPV (``inputs.dpv``) as a large external vocabulary. Missing files are reported, not
-fatal. The report is written to ``<outputs>/roundtrip-report.json`` for the CHANGELOG.
-
-CLI: ``py -m src.transform.roundtrip [ARCHIVO ...] [--sin-dpv]``.
-"""
 from __future__ import annotations
 
 import argparse

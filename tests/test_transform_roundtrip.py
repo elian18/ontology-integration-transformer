@@ -1,8 +1,3 @@
-"""S6-T02: round trip (convert, read back, compare) on the fixture and on the real files.
-
-The fixture is the one from S6-T01 (decimal "15", typed SWRL-like list, blank nodes, es/en).
-The real-file tests use the base modules in data/output when they exist (skipped otherwise);
-the full OntoPriv check takes a while (1472 blank-node triples), so it is marked slow."""
 from __future__ import annotations
 
 import json

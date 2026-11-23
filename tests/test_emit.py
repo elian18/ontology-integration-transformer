@@ -1,9 +1,3 @@
-"""Tests for materializing the modular core (S3-T04).
-
-A synthetic ontology checks the whole contract: the core is made standalone (offenders move
-to the profile), the profile owl:imports the core, individuals follow their type, and both
-files are valid RDF/XML. One guarded test checks the real OntoPriv produces a self-contained
-core with no dangling references."""
 from __future__ import annotations
 from pathlib import Path
 

@@ -1,17 +1,3 @@
-"""Load a base ontology, report its structure, and characterize its OWL flavor.
-
-Structure is read with rdflib, which parses every accepted format and does not choke on
-OWL Full constructs (unlike owlready2, whose Python-class model raises a metaclass conflict
-when an entity is declared as several incompatible types at once).
-
-Accepted interchange formats: RDF/XML, Turtle, JSON-LD.
-OWL/XML (.owx) is OntoPriv's native format; convert it once to RDF/XML with Protégé, since
-rdflib does not parse OWL/XML.
-
-A property declared only with ``rdf:Property`` (valid RDF; the DPV declares its own so) counts as
-a property too, and so does one declared with ``rdfs:Property``, a frequent typo of it (DPCat
-has it): a data property when its range is a literal, an object property otherwise (S10-T17).
-The OWL flavor is still told only from what is typed in OWL."""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
