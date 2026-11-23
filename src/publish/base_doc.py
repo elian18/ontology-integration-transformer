@@ -15,14 +15,14 @@ from src.console import counted
 from src.core.dpv_proximity import _humanize as humanize
 from src.transform.merge import merge
 
-DOC_IRI = "http://www.semanticweb.org/ontopriv-base"
+DOC_IRI = "https://elian18.github.io/ontology-integration-transformer/"   # its GitHub Pages
 DOC_FILE = "widoco/ontopriv-base.ttl"                 # inside data/output, ignored by git
 MODULES = ("ontopriv-core", "profile-ecuador-lopdp", "ontopriv-dpv-alignment",
            "ontopriv-gdpr-alignment")
 VERSION = "1.1.0"
 
 SCHEMA = Namespace("https://schema.org/")
-VANN = Namespace("http://purl.org/vocab/vann/")
+BIBO = Namespace("http://purl.org/ontology/bibo/")
 DPV = "https://w3id.org/dpv#"
 GDPRTEXT = "http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#"
 CHAINED_BY = URIRef("http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment#chainedBy")
@@ -137,11 +137,6 @@ def sentence(lang: str, description: str | None, dpv: list, gdpr: list) -> str |
     return " ".join(parts) or None
 
 
-def anchor(term: URIRef) -> str:
-    """Where WIDOCO puts the entry of a term: its local name in the main namespace."""
-    return str(term)[len(LOPDP):] if str(term).startswith(LOPDP) else str(term)
-
-
 def table(g: Graph, rows: list[URIRef], dpv: dict, gdpr: dict, lang: str) -> str:
     """The correspondences of every concept in Markdown, which WIDOCO shows in the description:
     also those of the terms whose entry does not show their sentence."""
@@ -152,7 +147,7 @@ def table(g: Graph, rows: list[URIRef], dpv: dict, gdpr: dict, lang: str) -> str
         laws = sorted({str(o).removeprefix("LOPDP, ") for o in g.objects(term, DCTERMS.source)},
                       key=lambda a: int("0" + "".join(c for c in a if c.isdigit())))
         lines.append("| " + " | ".join([
-            f"[{name}](#{anchor(term)})",
+            f"[{name}](#{term})",                       # WIDOCO's id: the IRI
             "; ".join(f"{VERBS[lang][r]} {curie(t)}" for r, t in dpv.get(term, [])),
             "; ".join(f"{VERBS[lang]['closeMatch']} {curie(t)}" for t, _ in gdpr.get(term, [])),
             ", ".join(laws)]) + " |")
@@ -177,22 +172,24 @@ def add_header(g: Graph) -> None:
                  (DCTERMS.source, URIRef(ONTOPRIV)), (RDFS.seeAlso, URIRef(ONTOPRIV_DOI)),
                  (DCTERMS.bibliographicCitation, Literal(CITATION)),
                  (SCHEMA.codeRepository, URIRef(REPOSITORY)),
-                 (VANN.preferredNamespacePrefix, Literal("lopdp")),
-                 (VANN.preferredNamespaceUri, Literal(LOPDP)),
+                 (BIBO.status, Literal(f"v{VERSION}")),
                  (DCTERMS.references, URIRef(DPV.rstrip("#"))),
                  (DCTERMS.references, URIRef(GDPRTEXT.rstrip("#")))):
         g.add((doc, p, o))
 
 
-def build(graphs: list[Graph]) -> tuple[Graph, Summary]:
+def build(graphs: list[Graph], extra: dict[str, str] | None = None,
+          document: bool = True) -> tuple[Graph, Summary]:
+    """``extra``: more Markdown for the description, per language (the OOPS! table);
+    ``document=False``: only the modules and the header, what OOPS! evaluates (S11-T06)."""
     g = merge(graphs, keep=DOC_IRI)
     for prefix, ns in (("lopdp", LOPDP), ("dpv", DPV), ("gdprtext", GDPRTEXT),
-                       ("schema", str(SCHEMA)), ("vann", str(VANN))):
+                       ("schema", str(SCHEMA)), ("bibo", str(BIBO))):
         g.bind(prefix, ns, override=True, replace=True)
     add_header(g)
     dpv, gdpr = dpv_links(g), gdpr_links(g)
     terms, labelled, described = base_terms(g), 0, 0
-    for term in terms:
+    for term in terms if document else ():
         if g.value(term, RDFS.label) is None:
             g.add((term, RDFS.label, Literal(humanize(str(term).rsplit("#", 1)[-1]))))
             labelled += 1
@@ -205,8 +202,11 @@ def build(graphs: list[Graph]) -> tuple[Graph, Summary]:
         described += bool(description or dpv.get(term) or gdpr.get(term))
     linked = [t for t in terms if t in dpv or t in gdpr]
     for lang in ("es", "en"):
-        text = DESCRIPTION_TEXT[lang] + "\n\n" + table(g, linked, dpv, gdpr, lang)
-        g.add((URIRef(DOC_IRI), DCTERMS.description, Literal(text, lang=lang)))
+        parts = [ABSTRACT[lang]]
+        if document:
+            parts = [DESCRIPTION_TEXT[lang], table(g, linked, dpv, gdpr, lang),
+                     *([extra[lang]] if extra else [])]
+        g.add((URIRef(DOC_IRI), DCTERMS.description, Literal("\n\n".join(parts), lang=lang)))
     return g, Summary(terms=len(terms), labelled=labelled, described=described,
                       with_dpv=sum(t in dpv for t in terms),
                       with_gdpr=sum(t in gdpr for t in terms))

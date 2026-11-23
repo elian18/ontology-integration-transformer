@@ -126,3 +126,8 @@ questions:                    # S9-T04/T05/T06: the competency questions (src/va
     batch_size: 8             # questions per call (23 questions: 3 calls)
     max_tokens: 16384         # max answer length of each call
     query_timeout_seconds: 20 # a draft that takes longer counts as "no corrió"
+publish:                      # S11-T06: the page of the base (py -m src.publish.widoco): WIDOCO + OOPS! on OntoPriv (inputs.ontology) and on the base
+  widoco_jar: "tools/widoco/widoco-1.4.26-jar-with-dependencies_JDK-17.jar"   # downloaded once (README); ignored by git
+  docs_dir: "docs"            # GitHub Pages serves this folder of master
+  oops_timeout_seconds: 300   # each OOPS! request (OntoPriv is 0.9 MB of RDF/XML)
+  widoco_timeout_seconds: 600

@@ -202,15 +202,27 @@ actual (también con `EDITABLE_BASE=1`):
     py -m src.alignment.gdpr_bridge --espacio ESPACIO
 
 ## Documentación de la base (WIDOCO)
-La página de la base se genera con WIDOCO a partir de un solo archivo que junta los cuatro
-módulos (núcleo, perfil, alineación con el DPV y puente con el GDPR). El archivo lleva la
+La página de la base está en `docs/` (GitHub Pages la publica) y la genera WIDOCO 1.4.26, que
+necesita Java 17 o mayor. WIDOCO no se instala con pip: se descarga una vez dentro de `tools/`
+(git lo ignora):
+
+    mkdir -p tools/widoco
+    F=widoco-1.4.26-jar-with-dependencies_JDK-17.jar
+    curl -L -o tools/widoco/$F https://github.com/dgarijo/Widoco/releases/download/v1.4.26/$F
+
+    py -m src.publish.widoco --oops        # OOPS! revisa OntoPriv y la base; WIDOCO escribe docs/
+    py -m src.publish.widoco               # rehace la página con la evaluación guardada
+
+La página junta los cuatro módulos (núcleo, perfil, alineación con el DPV y puente con el
+GDPR) en un solo archivo, `data/output/widoco/ontopriv-base.ttl` (git lo ignora), con la
 cabecera de autoría, el crédito a OntoPriv, una frase por concepto con sus correspondencias y
-la tabla de todas las correspondencias:
+la tabla de todas las correspondencias. Los módulos de `data/output` no cambian.
 
-    py -m src.publish.base_doc             # escribe data/output/widoco/ontopriv-base.ttl
-
-Ese archivo es solo para la documentación (git lo ignora): los módulos de `data/output` no
-cambian.
+OOPS! revisa OntoPriv como la publicaron sus autores (`data/input/ontopriv.rdf`) y la base con
+su cabecera, sin las frases escritas para la página. Sus respuestas quedan en `docs/oops` y la
+comparación va en la descripción de la página. `--oops` necesita internet
+(https://oops.linkeddata.es). Solo el archivo de la base, sin WIDOCO:
+`py -m src.publish.base_doc`.
 
 ## Pruebas
     py -m pytest -q                  # suite completa
