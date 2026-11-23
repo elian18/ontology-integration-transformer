@@ -202,9 +202,10 @@ actual (también con `EDITABLE_BASE=1`):
     py -m src.alignment.gdpr_bridge --espacio ESPACIO
 
 ## Documentación de la base (WIDOCO)
-La página de la base está en `docs/` (GitHub Pages la publica) y la genera WIDOCO 1.4.26, que
-necesita Java 17 o mayor. WIDOCO no se instala con pip: se descarga una vez dentro de `tools/`
-(git lo ignora):
+La página de la base está publicada en https://elian18.github.io/ontology-integration-transformer/
+(GitHub Pages: rama `master`, carpeta `/docs`). La web la enlaza en el inicio y en la pantalla
+final del asistente. La genera WIDOCO 1.4.26, que necesita Java 17 o mayor. WIDOCO no se
+instala con pip: se descarga una vez dentro de `tools/` (git lo ignora):
 
     mkdir -p tools/widoco
     F=widoco-1.4.26-jar-with-dependencies_JDK-17.jar
