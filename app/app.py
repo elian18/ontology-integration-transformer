@@ -9,6 +9,8 @@ for p in (str(ROOT), str(HERE)):
 
 import streamlit as st
 
+from services.base_access import tools_shown
+
 st.set_page_config(page_title="Ontology Integration Transformer", layout="wide",
                    initial_sidebar_state="collapsed")
 
@@ -17,12 +19,14 @@ pages = {
         st.Page("views/align_ontology.py", title="Asistente de alineación",
                 icon=":material/auto_awesome:", default=True),
     ],
-    "Herramientas de construcción": [
+}
+if tools_shown():                           # BUILD_TOOLS=1 in .env (S11-T03)
+    pages["Herramientas de construcción"] = [
         st.Page("views/core_module.py", title="Núcleo", icon=":material/account_tree:"),
         st.Page("views/ai_proposals.py", title="Propuestas IA", icon=":material/fact_check:"),
-        st.Page("views/concept_review.py", title="Aprobar conceptos IA", icon=":material/how_to_reg:"),
+        st.Page("views/concept_review.py", title="Aprobar conceptos IA",
+                icon=":material/how_to_reg:"),
         st.Page("views/alignment.py", title="Alineación DPV", icon=":material/compare_arrows:"),
         st.Page("views/base_questions.py", title="Preguntas de la base", icon=":material/quiz:"),
-    ],
-}
+    ]
 st.navigation(pages).run()

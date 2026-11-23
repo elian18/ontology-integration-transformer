@@ -25,6 +25,8 @@ otro sin tocar su contenido. El historial de cada sprint está en `docs/CHANGELO
 
 En `.env` van `LLM_API_KEY`, `LLM_BASE_URL` y `LLM_MODEL`. El `.env` no se sube a git.
 `EDITABLE_BASE=0` deja la base del sistema en solo lectura (ver "La base del sistema").
+`BUILD_TOOLS=0` muestra solo el asistente, como en la versión desplegada; con `BUILD_TOOLS=1`
+aparece el menú "Herramientas de construcción", donde se arma y revisa la base.
 
 ## Razonador (Apache Jena)
 Jena no se instala con pip: se descarga una vez dentro de `tools/` (git lo ignora).
@@ -82,7 +84,8 @@ no abre JSON-LD. Si hay una versión anterior, también se puede descargar.
 - las preguntas de competencia y los artículos de la ley.
 
 "Herramientas de construcción" reúne las páginas con las que se construyó la base: Núcleo,
-Propuestas IA, Aprobar conceptos IA, Alineación DPV y Preguntas de la base.
+Propuestas IA, Aprobar conceptos IA, Alineación DPV y Preguntas de la base. Solo aparecen con
+`BUILD_TOOLS=1`; la versión desplegada no las muestra, pero el código sigue en `app/views`.
 
 ## Las preguntas y las versiones
 **Qué se pregunta.** Lo que queda en duda en una subida:
@@ -187,9 +190,9 @@ Se rehace desde OntoPriv:
     py -m src.alignment.gdpr_bridge        # puente con el GDPR (OntoPriv ↔ GDPRtEXT por el DPV)
     py -m src.provenance.base              # procedencia (PROV-O) en los cuatro formatos
 
-Con `EDITABLE_BASE=1` en `.env`, la página "Alineación DPV" de "Herramientas de construcción"
-corrige una decisión de la base. La corrección se agrega al registro
-(`data/review/alignment-decisions.jsonl`) y la anterior queda como versión previa en la
+Con `BUILD_TOOLS=1` y `EDITABLE_BASE=1` en `.env`, la página "Alineación DPV" de
+"Herramientas de construcción" corrige una decisión de la base. La corrección se agrega al
+registro (`data/review/alignment-decisions.jsonl`) y la anterior queda como versión previa en la
 procedencia. Después se rehacen la alineación y lo que sigue con los comandos de arriba. Las
 subidas que heredaron de la base se actualizan solas la próxima vez que corren.
 
