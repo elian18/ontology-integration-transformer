@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import shutil
 import unicodedata
@@ -144,9 +145,9 @@ def _check_upload(kind: str, name: str, data: bytes, max_mb: float) -> str:
     if not data:
         raise WorkspaceError(f"El archivo {name} está vacío.")
     size_mb = len(data) / (1024 * 1024)
-    if size_mb > max_mb:
-        raise WorkspaceError(f"El archivo {name} pesa {size_mb:.1f} MB; el máximo es "
-                             f"{max_mb:g} MB.")
+    if size_mb > max_mb:                       # rounded up: never "pesa 25.0 MB; el máximo es 25"
+        raise WorkspaceError(f"El archivo {name} pesa {math.ceil(size_mb * 10) / 10:.1f} MB; el "
+                             f"máximo es {max_mb:g} MB.")
     suffix = Path(name).suffix.lower()
     if kind == KIND_LAW:
         if suffix not in LAW_SUFFIXES:

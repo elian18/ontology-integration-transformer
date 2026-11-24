@@ -131,6 +131,18 @@ def test_retrieval_finds_the_closest_article(ws):
     assert len(hits) == 2 and hits[0]["distance"] <= hits[1]["distance"]
 
 
+def test_a_scanned_law_says_it_has_no_text(cfg, tmp_path):
+    from src.e2e.edge import scanned_pdf
+    scanned_pdf(tmp_path / "escaneada.pdf")
+    w = open_law("escaneada.pdf", (tmp_path / "escaneada.pdf").read_bytes(), cfg=cfg)
+    with pytest.raises(WorkspaceError) as caught:
+        segment_workspace_law(w)
+    assert str(caught.value) == (
+        "escaneada.pdf no tiene texto que se pueda leer: parece una imagen escaneada. Sube la "
+        "ley en un PDF con texto (que deje seleccionar las palabras) o en .txt.")
+    assert w.step("segment")["status"] == ERROR
+
+
 def test_a_text_without_articles_is_refused(cfg):
     w = open_law("notas.txt", "Unas notas sin artículos numerados.".encode("utf-8"), cfg=cfg)
     with pytest.raises(WorkspaceError, match="No se encontraron artículos numerados en notas.txt"):

@@ -238,6 +238,11 @@ propios espacios (`data/workspaces/_e2e`) y las respuestas de la IA que ya tiene
 
 `--limpio` borra antes el espacio de cada caso, para medir una corrida completa.
 
+Casos límite (S11-T10): su material lo genera `py -m src.e2e.edge` en
+`data/workspaces/_e2e/_material` (git lo ignora: un archivo pasa el límite de 25 MB). Los casos
+sin clave, sin Java y con la cuota agotada corren aislados, sin la caché de la IA, para que la
+condición se pruebe de verdad.
+
 ## Insumos base del proyecto
 - OntoPriv (RDF/XML, exportada de Protégé): ontología base, perfil OWL Full.
 - LOPDP (PDF): texto normativo, 77 artículos.
