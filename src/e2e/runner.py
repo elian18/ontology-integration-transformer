@@ -34,6 +34,11 @@ STATES = {key: svc.METRICS[label] for key, label in (       # the numbers of the
     ("user", svc.USER_METRIC), ("suggested", "Sugeridas"), ("no_match", "Sin correspondencia"),
     ("no_proposal", "Sin propuesta"))}
 PARTS = {"shapes": "forma", "logic": "lógica", "questions": "preguntas", "audit": "IA revisora"}
+NO_KEY, NO_QUOTA, NO_JAVA = "sin-clave", "cuota-agotada", "sin-java"
+CONDITIONS = (NO_KEY, NO_QUOTA, NO_JAVA)
+QUOTA_ERROR = "Error code: 429 - RESOURCE_EXHAUSTED: quota exceeded (simulada por la prueba)"
+MISSING_JAVA = "java-no-instalado"
+ISOLATED = "_aislados"                 # one empty root per case: no cached answer helps it
 COLUMNS = ("Caso", "Modo", "Resultado", "Conceptos", "Base", "Regla", "Sugeridas", "Sin corr.",
            "Sin prop.", "Validación", "Llamadas a la IA", "Artículos", "Descarga", "Segundos")
 
@@ -45,6 +50,9 @@ class Case:
     files: dict[str, Path] = field(default_factory=dict)       # {kind: path}
     control: bool = False            # nothing should align: what aligns is a false positive
     note: str = ""
+    condition: str = ""              # sin-clave, cuota-agotada or sin-java (S11-T10)
+    fresh: bool = False              # its workspace is made again before it runs
+    isolated: bool = False           # in its own empty root, without the cache of the AI
 
 
 def load_cases(path: Path, root: Path) -> list[Case]:
@@ -52,9 +60,12 @@ def load_cases(path: Path, root: Path) -> list[Case]:
     for raw in yaml.safe_load(path.read_text(encoding="utf-8"))["cases"]:
         if raw["mode"] not in MODES:
             raise ValueError(f"caso {raw['id']}: modo desconocido {raw['mode']}")
+        if raw.get("condition", "") not in ("", *CONDITIONS):
+            raise ValueError(f"caso {raw['id']}: condición desconocida {raw['condition']}")
         files = {kind: root / raw[kind] for kind in ("ontology", "law") if raw.get(kind)}
         cases.append(Case(raw["id"], raw["mode"], files, bool(raw.get("control")),
-                          raw.get("note", "")))
+                          raw.get("note", ""), raw.get("condition", ""),
+                          bool(raw.get("fresh")), bool(raw.get("isolated"))))
     return cases
 
 
@@ -88,6 +99,39 @@ def pointing(cfg: dict):
         yield
     finally:
         svc.workspace_cfg = original
+
+
+@contextmanager
+def under(condition: str):
+    """What the case lacks, the way it would really fail: no key in .env, or a provider that
+    answers 429 to every request (Java is taken away in the configuration)."""
+    from src.ai import llm_client
+    cls = llm_client.LLMClient
+    init, ask = cls.__init__, cls.ask
+
+    def no_key(self, *args, **kwargs):
+        raise KeyError("LLM_API_KEY")
+
+    def no_quota(self, *args, **kwargs):
+        raise RuntimeError(QUOTA_ERROR)
+    if condition == NO_KEY:
+        cls.__init__ = no_key
+    elif condition == NO_QUOTA:
+        cls.ask = no_quota
+    try:
+        yield
+    finally:
+        cls.__init__, cls.ask = init, ask
+
+
+def case_cfg(case: Case, cfg: dict) -> dict:
+    if case.isolated:
+        root = Path(workspace_settings(cfg)["root"]) / ISOLATED / case.id
+        shutil.rmtree(root, ignore_errors=True)
+        cfg = {**cfg, "workspaces": {**(cfg.get("workspaces") or {}), "dir": str(root)}}
+    if case.condition == NO_JAVA:
+        cfg = {**cfg, "validation": {**(cfg.get("validation") or {}), "java": MISSING_JAVA}}
+    return cfg
 
 
 @contextmanager
@@ -126,6 +170,11 @@ def same_downloads(blobs: dict[str, bytes], reference: Graph | None = None) -> d
             "same": all(isomorphic(g, first) for g in graphs.values())}
 
 
+def _ai_blocks(manifest: dict) -> dict[str, dict]:
+    return {step: block["ai"] for step, block in manifest.items()
+            if isinstance(block, dict) and isinstance(block.get("ai"), dict)}
+
+
 def _aligned(ws_id: str, cfg) -> dict:
     ws = load_workspace(ws_id, cfg=cfg)
     manifest = ua.load_manifest(ws)
@@ -140,6 +189,12 @@ def _aligned(ws_id: str, cfg) -> dict:
         **{key: sum(by.get(code, 0) for code in codes) for key, codes in STATES.items()},
         "validation": validation and {"status": validation["status"], **{
             part: block.get("status") for part, block in validation["inspectors"].items()}},
+        "engines": validation and {part: block["engine"] for part, block in
+                                   validation["inspectors"].items() if block.get("engine")},
+        "without_ai": sorted(step for step, ai in _ai_blocks(manifest).items()
+                             if not ai.get("available", True) or ai.get("quota_exhausted")),
+        "ai_errors": {step: str(ai["errors"][0])[:160] for step, ai in
+                      sorted(_ai_blocks(manifest).items()) if ai.get("errors")},
         "articles": (json.loads(articles.read_text(encoding="utf-8"))["n_articles"]
                      if articles.exists() else None),
         "recomputed": sorted(k for k, ran in (manifest.get("recomputed") or {}).items() if ran),
@@ -155,15 +210,16 @@ def _transformed(case: Case) -> dict:
 
 def run_case(case: Case, *, fresh: bool = False, cfg=None, **run_kwargs) -> dict:
     """Runs ``case`` and returns its record (an error is a result too: it is written down)."""
-    cfg = cfg if cfg is not None else svc.workspace_cfg()
+    cfg = case_cfg(case, cfg if cfg is not None else svc.workspace_cfg())
     record = {"case": case.id, "mode": case.mode, "control": case.control,
+              "condition": case.condition,
               "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "files": _files(case)}
-    if fresh and case.mode != TRANSFORM:
+    if (fresh or case.fresh) and case.mode != TRANSFORM:
         root = Path(workspace_settings(cfg)["root"])
         shutil.rmtree(root / workspace_id(_uploads(case)), ignore_errors=True)
     start = time.perf_counter()
-    with pointing(cfg), counting_ai() as calls:
+    with under(case.condition), pointing(cfg), counting_ai() as calls:
         try:
             if case.mode == TRANSFORM:
                 record.update(_transformed(case))
@@ -182,17 +238,22 @@ def _cell(record: dict, key: str) -> str:
 
 
 def row(r: dict) -> list[str]:
+    tag = f" ({r['condition']})" if r.get("condition") else ""
     if r["result"] != "ok":
-        return [r["case"], MODE_NAMES[r["mode"]], f"error: {r['error']}", *["—"] * 7,
+        return [r["case"], MODE_NAMES[r["mode"]], f"error{tag}: {r['error']}", *["—"] * 7,
                 str(r["ai_calls"]), "—", "—", str(r["seconds"])]
     v, d = r.get("validation"), r["download"]
     download = ("iguales" if d["same"] else "distintas") + f" ({d['triples']['turtle']} tripletas)"
     validation = "—" if not v else v["status"] + " (" + ", ".join(
         f"{PARTS.get(p, p)}: {s}" for p, s in v.items() if p != "status") + ")"
-    return [r["case"], MODE_NAMES[r["mode"]], "ok" + (" (control)" if r["control"] else ""),
+    tag += " (control)" if r["control"] else ""
+    calls = str(r["ai_calls"])
+    if r.get("ai_errors"):
+        calls += f" (errores en {', '.join(r['ai_errors'])})"
+    return [r["case"], MODE_NAMES[r["mode"]], "ok" + tag,
             *(_cell(r, k) for k in ("concepts", "base", "rule", "suggested", "no_match",
                                     "no_proposal")),
-            validation, str(r["ai_calls"]), _cell(r, "articles"), download, str(r["seconds"])]
+            validation, calls, _cell(r, "articles"), download, str(r["seconds"])]
 
 
 def summary(records: list[dict]) -> str:
@@ -227,6 +288,13 @@ def render(r: dict) -> str:
             f"{counted(r['ai_calls'], 'llamada', 'llamadas')} a la IA; {r['seconds']} s")
     if r["control"]:
         text += f"; posibles falsos positivos: {r['base'] + r['rule']}"
+    if r.get("without_ai"):
+        text += f"; sin IA en: {', '.join(r['without_ai'])}"
+    if r.get("ai_errors"):
+        first = next(iter(r["ai_errors"].values()))
+        text += f"; la IA falló en {', '.join(r['ai_errors'])} ({first[:60]})"
+    if r.get("condition") == NO_JAVA:
+        text += f"; lógica con {(r.get('engines') or {}).get('logic', '—')}"
     return text
 
 

@@ -31,3 +31,22 @@ cases:
   - {id: tf-gconsent, mode: transform, ontology: data/input/s11/gconsent.ttl}
   - {id: tf-duo, mode: transform, ontology: data/input/s11/duo.owl}
   - {id: tf-pizza, mode: transform, ontology: data/input/s11/pizza.owl}
+  # Casos límite (S11-T10): el material lo genera py -m src.e2e.edge
+  - {id: vacia, mode: ontology, ontology: data/workspaces/_e2e/_material/vacia.ttl}
+  - {id: danada, mode: ontology, ontology: data/workspaces/_e2e/_material/danada.ttl}
+  - {id: escaneada, mode: law, law: data/workspaces/_e2e/_material/escaneada.pdf}
+  - {id: grande, mode: ontology, ontology: data/workspaces/_e2e/_material/grande.ttl}
+  - {id: extension, mode: ontology, ontology: data/workspaces/_e2e/_material/mi-ontologia.docx}
+  - {id: dos-veces-1, mode: ontology, ontology: data/workspaces/_e2e/_material/mini-privacidad.ttl,
+     fresh: true}
+  - {id: dos-veces-2, mode: ontology, ontology: data/workspaces/_e2e/_material/mini-privacidad.ttl,
+     note: "La misma subida otra vez: reutiliza su espacio"}
+  - {id: sin-clave, mode: ontology, ontology: data/workspaces/_e2e/_material/mini-privacidad.ttl,
+     condition: sin-clave, isolated: true}
+  - {id: sin-clave-ley, mode: law, law: data/input/laws/ley-1581-2012-colombia.pdf,
+     condition: sin-clave, isolated: true}
+  - {id: sin-java, mode: ontology, ontology: data/workspaces/_e2e/_material/mini-privacidad.ttl,
+     condition: sin-java, isolated: true}
+  - {id: cuota-agotada, mode: ontology,
+     ontology: data/workspaces/_e2e/_material/mini-privacidad.ttl,
+     condition: cuota-agotada, isolated: true}

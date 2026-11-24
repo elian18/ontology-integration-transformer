@@ -55,6 +55,7 @@ def test_an_ontology_gives_the_numbers_the_web_shows(files, fakes, env, tmp_path
     assert set(r["validation"]) == {"status", "shapes", "logic", "questions", "audit"}
     assert r["download"]["same"] and len(set(r["download"]["triples"].values())) == 1
     assert r["articles"] is None and r["ai_calls"] == 0 and "inherit" in r["recomputed"]
+    assert r["ai_errors"] == {} and r["without_ai"] == []
     assert r["files"] == [{"kind": "ontology", "name": "mi-gdpr.ttl",
                            "bytes": len(TTL.encode("utf-8")), "sha256": r["files"][0]["sha256"]}]
 
@@ -182,7 +183,7 @@ def test_the_answers_the_ai_already_gave_are_shared(tmp_path, monkeypatch):
 def test_the_cases_of_the_sprint_are_well_written():
     root = Path(__file__).resolve().parents[1]
     cases = rn.load_cases(root / "data/reference/e2e-s11.yaml", root)
-    assert len({c.id for c in cases}) == len(cases) == 16
+    assert len({c.id for c in cases}) == len(cases) == 27
     assert [c.id for c in cases if c.control] == ["pizza"]
     assert {c.mode for c in cases} == set(rn.MODES)
     assert all(set(c.files) == {"ontology", "law"} for c in cases if c.mode == svc.MODE_BOTH)
@@ -204,3 +205,13 @@ def test_a_download_that_lost_something_is_seen(files):
 
 def test_each_number_counts_the_states_the_web_counts():
     assert sorted(rn.STATES.values()) == sorted(svc.METRICS.values())   # every state, once
+
+
+def test_a_busy_ai_is_written_down(files, fakes):
+    class Busy:
+        def ask(self, *args, **kwargs):
+            raise RuntimeError("Error code: 503 - This model is currently experiencing high "
+                               "demand.")
+    r = rn.run_case(rn.Case("gdpr", svc.MODE_ONTOLOGY, {"ontology": files / "mi-gdpr.ttl"}),
+                    **{**fakes, "llm": Busy()})
+    assert r["result"] == "ok" and r["ai_errors"]["decider"].startswith("Error code: 503")

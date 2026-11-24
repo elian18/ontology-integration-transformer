@@ -44,6 +44,12 @@ def segment_workspace_law(ws) -> dict:
     except Exception as exc:
         ws.mark_step("segment", ERROR, str(exc)[:300])
         raise
+    if not text.strip():                       # S11-T10a: a scanned PDF has no text to read
+        message = (f"{entry['original_name']} no tiene texto que se pueda leer: parece una "
+                   "imagen escaneada. Sube la ley en un PDF con texto (que deje seleccionar "
+                   "las palabras) o en .txt.")
+        ws.mark_step("segment", ERROR, message)
+        raise WorkspaceError(message)
     if not summary["n_articles"]:
         message = (f"No se encontraron artículos numerados en {entry['original_name']}. El "
                    "sistema reconoce encabezados como 'Art. 1.-', 'Artículo 1.', 'Artículo 1°.' "

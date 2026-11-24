@@ -128,6 +128,11 @@ def test_bad_uploads_are_refused_without_leaving_folders(cfg, name, data, messag
     assert not root.exists() or not any(root.iterdir())
 
 
+def test_one_byte_over_the_limit_never_reads_as_the_limit(cfg):           # S11-T10a
+    with pytest.raises(WorkspaceError, match=r"grande\.ttl pesa 1\.1 MB; el máximo es 1 MB\."):
+        open_ontology("grande.ttl", b"#" * (1024 * 1024 + 1), cfg=cfg)
+
+
 def test_too_large_and_wrong_law_format(cfg):
     with pytest.raises(WorkspaceError, match="el máximo es 1 MB"):
         open_ontology("grande.ttl", b"#" * (2 * 1024 * 1024), cfg=cfg)
