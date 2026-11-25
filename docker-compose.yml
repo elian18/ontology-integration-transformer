@@ -1,0 +1,22 @@
+# The deployed program (S11-T12): docker compose up --build, then http://localhost:8501.
+# The key of the LLM comes from .env (copy .env.example). The workspaces live in the volume
+# "workspaces": they stay when the container stops or is rebuilt, and go only with
+# docker compose down -v.
+services:
+  app:
+    build: .
+    image: ontology-integration-transformer:1.1.0
+    ports:
+      - "8501:8501"
+    env_file: .env
+    environment:              # these win over .env: the deployed version as it was tested
+      BUILD_TOOLS: "0"        # only the assistant, without the tools that build the base
+      EDITABLE_BASE: "0"      # the base of the system, read only
+      CHROMA_PATH: /app/chroma_db                 # the collections built with the image
+      EMBEDDING_MODEL: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2   # in it
+    volumes:
+      - workspaces:/app/data/workspaces
+    restart: unless-stopped
+
+volumes:
+  workspaces:

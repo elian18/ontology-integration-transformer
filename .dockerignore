@@ -1,0 +1,18 @@
+# What the image does not take (S11-T12): secrets, local environments and data, and what the
+# image downloads or builds by itself (Jena, the model, the ChromaDB collections).
+.env
+.git
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+chroma_db
+models
+tools
+data/workspaces
+data/interim
+data/input/s11
+data/output/e2e
+data/output/widoco
+docs
+tests
