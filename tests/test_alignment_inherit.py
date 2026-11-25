@@ -59,9 +59,10 @@ def test_load_base_reads_the_validated_decisions(base):
     by = {c.name: c for c in base.concepts}
     assert set(by) == {"Consent", "Turnover", "ImpactAssessment"} and base.pending == 0
     assert by["Consent"].status == "aligned"
-    rels = {(m["dpv_iri"], m["relation"], m["decided_by"]) for m in by["Consent"].mappings}
-    assert rels == {(DPV + "Consent", "skos:exactMatch", "person"),
-                    (DPV + "ConsentRecord", "skos:relatedMatch", "assistant_confirmed")}
+    rels = {(m["dpv_iri"], m["dpv_kind"], m["relation"], m["decided_by"])
+            for m in by["Consent"].mappings}
+    assert rels == {(DPV + "Consent", "class", "skos:exactMatch", "person"),
+                    (DPV + "ConsentRecord", "class", "skos:relatedMatch", "assistant_confirmed")}
     assert by["Turnover"].status == "no_match" and by["Turnover"].mappings == []
     assert by["Turnover"].aliases == ["BusinessVolume", "volumen de negocio"]
     assert by["ImpactAssessment"].iri == PROFILE_IRI + "#ImpactAssessment"
@@ -128,8 +129,8 @@ def test_tie_with_different_decisions_is_ambiguous():
     def bc(key, status, maps=()):
         return BaseConcept(key=key, iri=key, origin="ontology", name="Confidentiality",
                            label=None, definition=None, kinds=("class",), status=status,
-                           mappings=[{"dpv_iri": d, "relation": "skos:closeMatch"}
-                                     for d in maps])
+                           mappings=[{"dpv_iri": d, "dpv_kind": "class",
+                                      "relation": "skos:closeMatch"} for d in maps])
     split = BaseIndex([bc("a#C", "no_match"), bc("b#C", "aligned", [DPV + "Confidentiality"])],
                       "x")
     report = inherit([_user("Confidentiality")], split, use_embeddings=False)
@@ -137,6 +138,76 @@ def test_tie_with_different_decisions_is_ambiguous():
     agree = BaseIndex([bc("a#C", "no_match"), bc("b#C", "no_match")], "x")
     assert inherit([_user("Confidentiality")], agree,
                    use_embeddings=False).inherited[0].method == METHOD_SAME_NAME
+
+
+# ------------------------------------------------------------------ the kind (S11-T14)
+
+def _both(key, name, maps, kinds=("class", "property")):
+    """A base concept declared as class and property, as many of OntoPriv."""
+    return BaseConcept(key=key, iri=key, origin="ontology", name=name, label=None,
+                       definition=None, kinds=kinds, status="aligned",
+                       mappings=[{"dpv_iri": DPV + t, "dpv_name": t, "dpv_kind": k,
+                                  "relation": "skos:exactMatch"} for t, k in maps])
+
+
+def test_a_relation_does_not_take_the_class_of_its_concept():
+    """GConsent: forPersonalData (a property) has the name of Personal_data without "for", but
+    the base aligned Personal_data with a class: the AI decides it."""
+    base = BaseIndex([_both(ONTO + "Personal_data", "Personal_data",
+                            [("PersonalData", "class")])], "x")
+    report = inherit([_user("forPersonalData", kinds=("property",)), _user("PersonalData"),
+                      _user("Personal_data", iri=ONTO + "Personal_data", kinds=("property",))],
+                     base, use_embeddings=False)
+    assert [(i.name, i.method) for i in report.inherited] == [("PersonalData", METHOD_SAME_NAME)]
+    assert [(n["name"], n["reason"], n["candidates"]) for n in report.not_inherited] == [
+        ("forPersonalData", "other_kind", [ONTO + "Personal_data"]),
+        ("Personal_data", "other_kind", [ONTO + "Personal_data"])]
+
+
+def test_each_kind_takes_its_correspondences():
+    both = _both(ONTO + "Purpose", "Purpose", [("Purpose", "class"), ("hasPurpose", "property")])
+    users = [_user("Purpose", iri=ONTO + "Purpose", kinds=("property",)), _user("Purpose"),
+             _user("Purpose", iri="http://other.org#Purpose", kinds=("class", "property"))]
+    report = inherit(users, BaseIndex([both], "x"), use_embeddings=False)
+    got = [(i.method, i.kinds, [m["dpv_name"] for m in i.mappings]) for i in report.inherited]
+    assert got == [(METHOD_SAME_IRI, ["property"], ["hasPurpose"]),
+                   (METHOD_SAME_NAME, ["class"], ["Purpose"]),
+                   (METHOD_SAME_NAME, ["class", "property"], ["Purpose", "hasPurpose"])]
+    assert len(both.mappings) == 2                                   # the base is not touched
+
+
+def test_the_concept_of_its_kind_breaks_the_tie():
+    """OntoPriv has two Purpose: one aligned with a class, the other with a property."""
+    base = BaseIndex([_both("a#Purpose", "Purpose", [("Purpose", "class")]),
+                      _both("b#Purpose", "Purpose", [("hasPurpose", "property")],
+                            kinds=("property",))], "x")
+    (i,) = inherit([_user("forPurpose", kinds=("property",))], base,
+                   use_embeddings=False).inherited
+    assert (i.base_key, [m["dpv_name"] for m in i.mappings]) == ("b#Purpose", ["hasPurpose"])
+
+
+def test_a_very_similar_concept_of_the_other_kind_is_not_inherited():
+    base = BaseIndex([_both(ONTO + "Consent", "Consent", [("Consent", "class")])], "x")
+    user = _user("GivenConsentStatement", kinds=("property",),
+                 definition="Consent given by the data subject")
+    report = inherit([user], base, embed_fn=_fake_embed)
+    assert report.inherited == [] and report.not_inherited[0]["reason"] == "other_kind"
+
+
+def test_real_base_a_relation_is_not_its_concept():
+    """The properties of GConsent against the real base (S11-T14)."""
+    try:
+        real = load_base()
+    except FileNotFoundError:
+        pytest.skip("Falta data/output/alignment-candidates.json (base del Sprint 4-5)")
+    assert all(m["dpv_kind"] for c in real.concepts for m in c.mappings)
+    users = [_user("forPersonalData", kinds=("property",)), _user("PersonalData"),
+             _user("forProcessing", kinds=("property",)), _user("forPurpose", kinds=("property",))]
+    report = inherit(users, real, use_embeddings=False)
+    assert {i.name: [m["dpv_name"] for m in i.mappings] for i in report.inherited} == {
+        "PersonalData": ["PersonalData"], "forPurpose": ["hasPurpose"]}
+    assert {n["name"]: n["reason"] for n in report.not_inherited} == {
+        "forPersonalData": "other_kind", "forProcessing": "other_kind"}
 
 
 def test_summary_counts(base):
@@ -181,6 +252,16 @@ def test_workspace_run_saves_and_marks_the_step(tmp_path, base):
     step = ws.step("inherit")
     assert step["status"] == DONE and step["inherited"] == 2 and step["not_inherited"] == 2
     assert "2 de 4 conceptos heredados" in step["detail"]
+
+
+def test_an_inheritance_with_the_old_rules_is_done_again(tmp_path, base):
+    cfg = {"workspaces": {"dir": str(tmp_path / "ws")}}
+    ws = open_ontology("gdpr.ttl", TTL.encode("utf-8"), cfg=cfg)
+    inherit_for_workspace(ws, base=base, use_embeddings=False)
+    saved = load_result(ws)
+    assert saved["rules_version"] == inh.RULES_VERSION == 2 and inh.is_current(saved, base)
+    saved.pop("rules_version")                                       # as before S11-T14
+    assert not inh.is_current(saved, base)
 
 
 def test_workspace_run_records_errors(tmp_path):
