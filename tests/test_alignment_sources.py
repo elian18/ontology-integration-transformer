@@ -83,6 +83,38 @@ def test_labels_definitions_and_texts():
     assert _by_name(src, "hasRight").family is not None
 
 
+_OBO = """
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+obo:DUO_0000042 a owl:Class ; rdfs:label "general research use"@en ;
+    obo:IAO_0000115 "Use is allowed for any research purpose." ;
+    rdfs:comment "This includes but is not limited to: health purposes." .
+obo:DUO_0000099 a owl:Class .
+obo:GDPR_Consent a owl:Class ; rdfs:label "Consentimiento" .
+obo:OBI_0000066 a owl:NamedIndividual , obo:DUO_0000042 ; rdfs:label "an investigation" ;
+    obo:IAO_0000115 "A planned process." .
+"""
+
+
+def test_obo_codes_take_their_label_and_their_iao_definition():
+    # DUO and the OBO ontologies name their concepts with codes (S11-T11).
+    src = build_alignment_sources(_report(_OBO), proposals={})
+    gru = next(c for c in src.concepts if c.key.endswith("DUO_0000042"))
+    assert (gru.name, gru.label) == ("general research use", "general research use")
+    assert gru.definition == "Use is allowed for any research purpose."     # not the comment
+    assert gru.semantic_text() == "general research use. Use is allowed for any research purpose."
+    assert gru.iri == "http://purl.obolibrary.org/obo/DUO_0000042"
+    names = {c.key.rsplit("/", 1)[1]: c.name for c in src.concepts}
+    assert names["DUO_0000099"] == "DUO_0000099"                 # no label: the code stays
+    assert names["GDPR_Consent"] == "GDPR_Consent"               # a name, not a code
+    with_individuals = build_alignment_sources(_report(_OBO), proposals={},
+                                               include_individuals=True)
+    example = next(c for c in with_individuals.concepts if ALIGN_INDIVIDUAL in c.kinds)
+    assert (example.name, example.definition) == ("an investigation", "A planned process.")
+
+
 def test_example_individuals_are_skipped_by_default():
     src = build_alignment_sources(_report(), proposals={})
     assert sorted(src.skipped_individuals) == ["banking001", "consent001"]

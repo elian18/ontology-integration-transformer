@@ -32,6 +32,14 @@ def test_an_article_heading_is_never_furniture():
     assert clean_pages(pages)[0].count("Article") == 8
 
 
+def test_a_numbered_line_without_keyword_can_be_furniture():
+    # S11-T11: "1. Text" can be a section for the segmenter, but here it is a page footer.
+    pages = [f"Artículo {n}. {word}.\n{n}. Registro Oficial Suplemento"
+             for n, word in enumerate(("Objeto", "Ámbito", "Fines", "Datos"), 1)]
+    assert furniture(pages) == {"#. Registro Oficial Suplemento"}
+    assert "Registro" not in clean_pages(pages)[0]
+
+
 def test_few_pages_or_lines_in_the_middle_are_kept():
     assert furniture(["a\nb\nc", "a\nb\nc"]) == set()                 # fewer than 3 pages
     pages = [f"Encabezado\nlínea {n}\nEncabezado\nmás {n}\notra {n}\nfin {n}" for n in range(4)]

@@ -6,6 +6,7 @@
 @prefix dct:  <http://purl.org/dc/terms/> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix shp:  <http://www.semanticweb.org/ontology-integration-transformer/shapes#> .
+@prefix obo:  <http://purl.obolibrary.org/obo/> .
 
 # Shape rules of what the system writes. They run on the downloaded package (the ontology and
 # its modules) without inference and with SHACL-AF (pyshacl advanced=True: LangStringShape uses
@@ -14,13 +15,14 @@
 
 shp: a owl:Ontology ;
     rdfs:label "Reglas de forma (SHACL) de la ontología alineada"@es ;
-    owl:versionInfo "2" ;                     # v2 (S10-T03): the user may decide a correspondence
+    owl:versionInfo "3" ;                     # v3 (S11-T11): the definition of OBO, IAO_0000115
     sh:declare
         [ sh:prefix "rdf" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ],
         [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ],
         [ sh:prefix "owl" ; sh:namespace "http://www.w3.org/2002/07/owl#"^^xsd:anyURI ],
         [ sh:prefix "skos" ; sh:namespace "http://www.w3.org/2004/02/skos/core#"^^xsd:anyURI ],
-        [ sh:prefix "dct" ; sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ] .
+        [ sh:prefix "dct" ; sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI ],
+        [ sh:prefix "obo" ; sh:namespace "http://purl.obolibrary.org/obo/"^^xsd:anyURI ] .
 
 shp:Mappings a sh:PropertyGroup ;
     rdfs:label "Correspondencias con el DPV"@es ;
@@ -195,7 +197,7 @@ shp:LawDefinitionShape a sh:NodeShape ;
                       owl:annotatedTarget ?value .
                 BIND (EXISTS { ?source skos:definition ?value } AS ?asserted)
                 BIND (EXISTS {
-                          ?source skos:definition|rdfs:comment ?other .
+                          ?source skos:definition|rdfs:comment|obo:IAO_0000115 ?other .
                           FILTER (?other != ?value && isLiteral(?other)
                                   && REGEX(STR(?other), "[^ ]")) } AS ?repeated)
                 FILTER (!?asserted || ?repeated)
@@ -287,14 +289,14 @@ shp:EnglishLabelShape a sh:NodeShape ;
 
 shp:DefinitionCompletenessShape a sh:NodeShape ;
     rdfs:label "Cada concepto tiene definición"@es ;
-    rdfs:comment "Cada clase y propiedad tiene una skos:definition o un rdfs:comment (en el modo ontología + ley, el módulo de definiciones agrega las que la ley permite)."@es ;
+    rdfs:comment "Cada clase y propiedad tiene una skos:definition, un rdfs:comment o, en las ontologías OBO como DUO, un obo:IAO_0000115 (en el modo ontología + ley, el módulo de definiciones agrega las que la ley permite)."@es ;
     sh:group shp:Completeness ;
     sh:order 3 ;
     sh:severity sh:Warning ;
     sh:targetClass owl:Class, rdfs:Class, owl:ObjectProperty, owl:DatatypeProperty, rdf:Property ;
     sh:or ( shp:NotAConcept [
         sh:property [
-            sh:path [ sh:alternativePath ( skos:definition rdfs:comment ) ] ;
+            sh:path [ sh:alternativePath ( skos:definition rdfs:comment obo:IAO_0000115 ) ] ;
             sh:qualifiedValueShape [ sh:nodeKind sh:Literal ; sh:pattern "[^ ]" ] ;
             sh:qualifiedMinCount 1 ] ] ) ;
     sh:message "No tiene definición."@es .

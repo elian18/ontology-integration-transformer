@@ -113,7 +113,7 @@ def test_extract_and_accept(ws, cfg):
                                  "classes": 3, "properties": 0,
                                  "reasons": {"no_article": 1, "short_definition": 1}}
     assert result["law"] == {"file": "Ley de prueba.txt", "language": "es", "articles": 4,
-                             "segmenter_version": 2}
+                             "segmenter_version": 3}
     x = result["extraction"]
     assert (x["articles_total"], x["articles_processed"], x["complete"], x["concepts"]) == (
         4, 4, True, 6)
@@ -192,7 +192,7 @@ def test_another_prompt_or_model_starts_again(ws, cfg):
     extract_for_workspace(ws, llm=third, cfg=cfg, sleep_fn=lambda s: None)
     assert third.batches == [[1, 2], [3, 4]]                          # another prompt
     saved = json.loads(path.read_text(encoding="utf-8"))
-    assert saved["source"] == "Ley de prueba.txt (segmentador v2)"
+    assert saved["source"] == "Ley de prueba.txt (segmentador v3)"
     saved["source"], saved["processed_articles"] = "Ley de prueba.txt (segmentador v1)", [1, 2]
     path.write_text(json.dumps(saved), encoding="utf-8")
     fourth = ExtractLLM(model="otro-modelo")

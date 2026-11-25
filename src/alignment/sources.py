@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -38,6 +39,10 @@ KNOWN_VOCAB_NAMESPACES = (
     "http://www.w3.org/2001/XMLSchema#",
 )
 
+# OBO ontologies (DUO, IAO...): the name is a code and the definition is obo:IAO_0000115.
+OBO_DEFINITION = rdflib.URIRef("http://purl.obolibrary.org/obo/IAO_0000115")
+_OPAQUE_NAME = re.compile(r"[A-Za-z][A-Za-z0-9]*_\d+")           # DUO_0000042
+
 _KIND_MAP = {
     KIND_CLASS: ALIGN_CLASS,
     KIND_OBJECT_PROP: ALIGN_PROPERTY,
@@ -50,10 +55,10 @@ class SourceConcept:
     """One concept to align, from OntoPriv (flow A) or from the AI proposals (flow B)."""
     key: str                         # unique id: the IRI (ontology) or "ai:<name>" (AI)
     origin: str                      # ontology | ai
-    name: str                        # local name / AI identifier (English CamelCase for AI)
+    name: str                        # local name (the label of an OBO code) / AI identifier
     kinds: tuple[str, ...]           # any of class / property / individual
     label: str | None = None         # rdfs:label/skos:prefLabel (ontology) or Spanish label (AI)
-    definition: str | None = None    # rdfs:comment/skos:definition (ontology) or AI definition
+    definition: str | None = None    # IAO_0000115/rdfs:comment/skos:definition or AI definition
     iri: str | None = None
     namespace: str | None = None
     family: str | None = None        # ontology family, or the class of an individual
@@ -131,6 +136,11 @@ def _local(uri) -> str:
     return s.rsplit("#", 1)[1] if "#" in s else s.rsplit("/", 1)[-1]
 
 
+def _shown_name(local: str, label: str | None) -> str:
+    """The local name; an OBO code says nothing ('DUO_0000042'): its label instead (S11-T11)."""
+    return label if label and _OPAQUE_NAME.fullmatch(local) else local
+
+
 def _namespace(uri) -> str:
     s = str(uri)
     return s.rsplit("#", 1)[0] + "#" if "#" in s else s.rsplit("/", 1)[0] + "/"
@@ -158,13 +168,14 @@ def _ontology_concepts(report: OntologyReport, inventory: OntologyInventory):
             continue
         kinds = tuple(sorted({_KIND_MAP[k] for k in e.kinds if k in _KIND_MAP}))
         node = rdflib.URIRef(e.iri)
+        label = _literal(g, node, RDFS.label, SKOS.prefLabel)
         concepts.append(SourceConcept(
             key=e.iri,
             origin=ORIGIN_ONTOLOGY,
-            name=e.local_name,
+            name=_shown_name(e.local_name, label),
             kinds=kinds,
-            label=_literal(g, node, RDFS.label, SKOS.prefLabel),
-            definition=_literal(g, node, RDFS.comment, SKOS.definition),
+            label=label,
+            definition=_literal(g, node, OBO_DEFINITION, RDFS.comment, SKOS.definition),
             iri=e.iri,
             namespace=e.namespace,
             family=e.family,
@@ -186,13 +197,14 @@ def _individuals(report: OntologyReport, inventory: OntologyInventory,
     for ind in extra:
         types = sorted(_local(t) for t in g.objects(ind, RDF.type)
                        if isinstance(t, rdflib.URIRef) and t != OWL.NamedIndividual)
+        label = _literal(g, ind, RDFS.label, SKOS.prefLabel)
         concepts.append(SourceConcept(
             key=str(ind),
             origin=ORIGIN_ONTOLOGY,
-            name=_local(ind),
+            name=_shown_name(_local(ind), label),
             kinds=(ALIGN_INDIVIDUAL,),
-            label=_literal(g, ind, RDFS.label, SKOS.prefLabel),
-            definition=_literal(g, ind, RDFS.comment, SKOS.definition),
+            label=label,
+            definition=_literal(g, ind, OBO_DEFINITION, RDFS.comment, SKOS.definition),
             iri=str(ind),
             namespace=_namespace(ind),
             family=types[0] if types else None,

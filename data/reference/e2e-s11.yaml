@@ -17,7 +17,7 @@ cases:
   - {id: duo, mode: ontology, ontology: data/input/s11/duo.owl}
   - {id: pizza, mode: ontology, ontology: data/input/s11/pizza.owl, control: true,
      note: "Ontología de control: no es de privacidad"}
-  - {id: mexico, mode: law, law: data/input/s11/mexico-lfpdppp-2025.pdf}
+  - {id: mexico, mode: law, law: data/input/s11/mexico-lfpdppp-2025.txt}
   - {id: argentina, mode: law, law: data/input/s11/argentina-ley-25326.txt}
   - {id: kenya, mode: law, law: data/input/s11/kenya-dpa-2019.pdf}
   - id: gdprov-kenya
@@ -27,7 +27,7 @@ cases:
   - id: duo-mexico
     mode: ontology+law
     ontology: data/input/s11/duo.owl
-    law: data/input/s11/mexico-lfpdppp-2025.pdf
+    law: data/input/s11/mexico-lfpdppp-2025.txt
   - {id: tf-gconsent, mode: transform, ontology: data/input/s11/gconsent.ttl}
   - {id: tf-duo, mode: transform, ontology: data/input/s11/duo.owl}
   - {id: tf-pizza, mode: transform, ontology: data/input/s11/pizza.owl}
