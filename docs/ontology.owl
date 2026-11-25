@@ -37,7 +37,7 @@
 | [Authorization for international transfer](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer) | is related to dpv:AuthorisationProcedure |  |  |
 | [Authorized consent](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent) | is a kind of dpv:Consent |  |  |
 | [Autorregulación](#http://www.semanticweb.org/profiles/ecuador-lopdp#SelfRegulation) | is a kind of dpv:CertificationSeal |  | art. 52 |
-| [Biometric data](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data) | is related to dpv:BiometricAuthentication |  | art. 4 |
+| [Biometric data](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data) | is a kind of dpv:SensitivePersonalData |  | art. 4 |
 | [Boys and girls](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls) | is the same as dpv:Child |  |  |
 | [can be rights of](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of) | is related to dpv:hasRight |  |  |
 | [Certifying entity](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity) | is related to dpv:Certification |  | art. 54 |
@@ -233,7 +233,7 @@ OOPS! checked the original OntoPriv and the base on 2026-11-22. The base has mor
 | [Authorization for international transfer](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer) | está relacionado con dpv:AuthorisationProcedure |  |  |
 | [Authorized consent](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent) | es un tipo de dpv:Consent |  |  |
 | [Autorregulación](#http://www.semanticweb.org/profiles/ecuador-lopdp#SelfRegulation) | es un tipo de dpv:CertificationSeal |  | art. 52 |
-| [Biometric data](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data) | está relacionado con dpv:BiometricAuthentication |  | art. 4 |
+| [Biometric data](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data) | es un tipo de dpv:SensitivePersonalData |  | art. 4 |
 | [Boys and girls](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls) | es igual a dpv:Child |  |  |
 | [can be rights of](#http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of) | está relacionado con dpv:hasRight |  |  |
 | [Certifying entity](#http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity) | está relacionado con dpv:Certification |  | art. 54 |
@@ -7827,10 +7827,10 @@ OOPS! revisó OntoPriv original y la base el 2026-11-22. La base tiene más elem
     <owl:Class rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data">
         <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data"/>
         <terms:source xml:lang="es">LOPDP, art. 4</terms:source>
-        <rdfs:comment xml:lang="en">Correspondences with the DPV: is related to dpv:BiometricAuthentication.</rdfs:comment>
-        <rdfs:comment xml:lang="es">Correspondencias con el DPV: está relacionado con dpv:BiometricAuthentication.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Correspondences with the DPV: is a kind of dpv:SensitivePersonalData.</rdfs:comment>
+        <rdfs:comment xml:lang="es">Correspondencias con el DPV: es un tipo de dpv:SensitivePersonalData.</rdfs:comment>
         <rdfs:label>Biometric data</rdfs:label>
-        <skos:relatedMatch rdf:resource="https://w3id.org/dpv#BiometricAuthentication"/>
+        <skos:broadMatch rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
     </owl:Class>
     
 

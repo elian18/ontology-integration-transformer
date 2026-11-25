@@ -1,5 +1,5 @@
 {
-  "created": "2026-11-14T15:40:31+00:00",
+  "created": "2026-11-25T02:47:29+00:00",
   "gdprtext": {
     "file": "data/input/gdprtext-ontology.ttl",
     "sha256": "e197df8892d7367f7fddaa0cad917795855201c0b64e89e5d3009e217db42cbd"
@@ -17,7 +17,7 @@
   },
   "pairs": 31,
   "terms": 22,
-  "loose_pairs": 253,
+  "loose_pairs": 255,
   "triples": 258,
   "files": [
     "data/output/ontopriv-gdpr-alignment.rdf",

@@ -161,6 +161,12 @@ su caché):
     py -m src.validation.ai_auditor --medir   # la IA revisora
     py -m src.alignment.question_eval         # las preguntas de la IA frente a las fijas
 
+La base frente a la Tabla 10 del artículo extendido de OntoPriv: las 14 correspondencias con
+el DPV 2.0 que propusieron sus autoras, copiadas en `data/reference/ontopriv-paper-dpv.yaml`
+(sin la IA; la tabla queda en `data/output/ontopriv-paper-comparison.md`):
+
+    py -m src.alignment.ontopriv_paper
+
 ## La base del sistema
 OntoPriv-Core, el perfil de Ecuador (LOPDP) y su alineación con el DPV, revisada a mano
 una vez (552 conceptos, 190 correspondencias). Viene en el repositorio, en `data/output`:

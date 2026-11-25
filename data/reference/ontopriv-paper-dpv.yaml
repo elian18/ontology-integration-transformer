@@ -1,0 +1,57 @@
+# Tabla 10 del artículo extendido de OntoPriv, copiada tal cual (la compara con la base
+# py -m src.alignment.ontopriv_paper). Las autoras revisaron a mano el DPV 2.0, emparejaron
+# conceptos de OntoPriv con sus términos y validaron las correspondencias con expertos. Las
+# escribieron como axiomas de lógica descriptiva (≡ equivalencia, ⊑ subclase); no están en
+# los archivos publicados de OntoPriv.
+source:
+  title: >-
+    OntoPriv: Towards Designing a DPV-based Legal Ontology for Knowledge Retrieval and
+    Compliance in Privacy Legislation
+  authors: "G. Suntaxi, K. Ojeda, F. Rodríguez, P. del Hierro, J. Miño y D. A. Flores"
+  year: 2025
+  where: "sección 6.3, Tabla 10"
+  dpv_version: "2.0"
+# ontopriv: columna «OntoPriv Term»; dpv: «DPV Term»; axiom: «Formal Mapping (DL Axiom)».
+rows:
+  - ontopriv: Personal data
+    dpv: dpv:PersonalData
+    axiom: Personal data ≡ dpv:PersonalData
+  - ontopriv: Sensitive data
+    dpv: dpv:SensitivePersonalData
+    axiom: Sensitive data ⊑ dpv:PersonalData
+  - ontopriv: Biometric data
+    dpv: dpv:BiometricData
+    axiom: Biometric data ⊑ dpv:SensitivePersonalData
+  - ontopriv: Consent
+    dpv: dpv:Consent
+    axiom: Consent ≡ dpv:Consent
+  - ontopriv: Revocation of consent
+    dpv: dpv:WithdrawConsent
+    axiom: Revocation of consent ⊑ dpv:WithdrawConsent
+  - ontopriv: Right of deletion
+    dpv: dpv:RightToBeForgotten
+    axiom: Right of deletion ≡ dpv:RightToBeForgotten
+  - ontopriv: Confidentiality
+    dpv: dpv:ConfidentialityAgreement
+    axiom: Confidentiality ≡ dpv:ConfidentialityAgreement
+  - ontopriv: Security
+    dpv: dpv:DataSecurityManagement
+    axiom: Security ⊑ dpv:DataSecurityManagement
+  - ontopriv: Legal basis
+    dpv: dpv:LegalBasis
+    axiom: Legal basis ≡ dpv:LegalBasis
+  - ontopriv: Purpose
+    dpv: dpv:Purpose
+    axiom: Purpose ≡ dpv:Purpose
+  - ontopriv: Risk analysis
+    dpv: dpv:Risk
+    axiom: Risk analysis ⊑ dpv:Risk
+  - ontopriv: Duration
+    dpv: dpv:Duration
+    axiom: NotificationTime ⊑ dpv:Duration
+  - ontopriv: Anonymization
+    dpv: dpv:Anonymization
+    axiom: Anonymization ≡ dpv:Anonymization
+  - ontopriv: Automated decision
+    dpv: dpv:AlgorithmicLogic
+    axiom: Automated decision ⊑ dpv:AlgorithmicLogic

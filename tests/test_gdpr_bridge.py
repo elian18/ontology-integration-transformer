@@ -184,7 +184,7 @@ def test_the_reviewing_ai_takes_another_prompt_and_text(tmp_path):
 def test_the_bridge_of_the_base(tmp_path):
     llm = ReviewLLM({"ConfidentialityAgreement": "dudosa"})
     out = gb.build(llm=llm, use_llm=True, engine=ENGINE, out_dir=tmp_path)
-    assert (out["pairs"], out["terms"], out["loose_pairs"]) == (31, 22, 253)
+    assert (out["pairs"], out["terms"], out["loose_pairs"]) == (31, 22, 255)   # S11-T07
     assert llm.calls == 4                                               # 10 per call
     assert set(llm.prompts) == {gb.PROMPT.text}
     assert out["validation"]["shapes"]["new_violations"] == 0
