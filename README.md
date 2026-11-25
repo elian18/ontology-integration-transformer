@@ -17,6 +17,9 @@ otro sin tocar su contenido. El historial de cada sprint está en `docs/CHANGELO
 - Internet la primera vez: `pip` baja las librerías (torch es la más pesada) y la primera
   subida baja el modelo de embeddings de Hugging Face (`EMBEDDING_MODEL`)
 
+Con Docker solo hacen falta Docker y la clave del LLM: la imagen trae lo demás (ver
+"Despliegue con Docker").
+
 ## Instalación
     py -m venv .venv
     source .venv/Scripts/activate    # Git Bash en Windows
@@ -230,6 +233,34 @@ su cabecera, sin las frases escritas para la página. Sus respuestas quedan en `
 comparación va en la descripción de la página. `--oops` necesita internet
 (https://oops.linkeddata.es). Solo el archivo de la base, sin WIDOCO:
 `py -m src.publish.base_doc`.
+
+## Despliegue con Docker
+La imagen trae todo lo que el programa necesita: Python 3.13, Java 21 con Apache Jena 6.2.0,
+las librerías (torch en su versión sin GPU) y el modelo de embeddings. Así se levanta igual en
+cualquier máquina, sin instalar nada más. Hace falta Docker (en Windows y macOS, Docker
+Desktop; en Linux, Docker Engine con Compose) e internet la primera vez.
+
+    git clone https://github.com/elian18/ontology-integration-transformer.git
+    cd ontology-integration-transformer
+    cp .env.example .env              # y colocar la clave del LLM
+    docker compose up --build -d      # la primera vez tarda: baja las librerías, Jena y el modelo
+
+La web queda en http://localhost:8501 (para otro puerto, cambia el primer número de `ports` en
+`docker-compose.yml`, por ejemplo `"8080:8501"`).
+
+- La clave no entra en la imagen: Compose le pasa el `.env` al contenedor cuando arranca.
+- Es la versión desplegada: solo el asistente y la base en solo lectura. `docker-compose.yml`
+  fija `BUILD_TOOLS=0` y `EDITABLE_BASE=0` aunque el `.env` diga otra cosa.
+- Al construirse, la imagen arma las colecciones de la base en ChromaDB y comprueba que el
+  razonador sea Jena; si algo falta, la construcción se detiene con el error.
+- Los espacios de trabajo (las subidas, sus versiones y la caché de la IA) viven en el volumen
+  `workspaces`: siguen ahí al apagar, reiniciar o reconstruir el contenedor. Solo
+  `docker compose down -v` los borra.
+
+    docker compose logs -f                      # ver lo que hace el programa
+    docker compose down                         # apagar (los espacios se quedan)
+    docker compose up -d                        # volver a prender
+    git pull && docker compose up --build -d    # pasar a una versión nueva
 
 ## Pruebas
     py -m pytest -q                  # suite completa
