@@ -123,7 +123,8 @@ STATE_LABELS = {ua.INHERITED_ALIGNED: "Validada en la base",
                 ua.NOT_ALIGNABLE: "No se alinea"}
 STATE_HELP = {
     "Validada en la base": "Tu concepto es el mismo que uno de la base (OntoPriv + LOPDP) y "
-                           "recibe la correspondencia que una persona ya validó.",
+                           "recibe la correspondencia que una persona ya validó, si es de su "
+                           "mismo tipo (clase con clase, propiedad con propiedad).",
     "Aceptada automáticamente": "La IA eligió un término del DPV entre los más parecidos, "
                                 "guiada por decisiones parecidas de la base, y la regla "
                                 "calibrada la aceptó (confianza alta, puntaje suficiente y una "

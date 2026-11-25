@@ -370,7 +370,7 @@ def test_after_a_correction_of_the_base_the_upload_inherits_it(env, targets):
               chroma_path=env.chroma, sleep_fn=lambda s: None)
     w, _, _ = align_upload("Mi GDPR.ttl", TTL.encode("utf-8"), base=env.base, **kw)
     assert inh.is_current(inh.load_result(w), env.base)
-    fixed = [{"dpv_iri": D + "ConsentRecord", "dpv_name": "ConsentRecord",
+    fixed = [{"dpv_iri": D + "ConsentRecord", "dpv_name": "ConsentRecord", "dpv_kind": "class",
               "relation": "skos:closeMatch", "reviewer": "Elian Gavilanes",
               "decided_at": "2026-11-14T10:00:00+00:00", "decided_by": "person"}]
     corrected = replace(env.base, concepts=[replace(c, mappings=fixed) if c.name == "Consent"

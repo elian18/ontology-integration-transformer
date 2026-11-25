@@ -202,12 +202,12 @@ def _inputs():
     base = BaseIndex(concepts=[
         BaseConcept("o#Consent", "o#Consent", "ontology", "Consent", "consentimiento", None,
                     ("class",), "aligned",
-                    [{"dpv_iri": D + "Consent", "dpv_name": "Consent",
+                    [{"dpv_iri": D + "Consent", "dpv_name": "Consent", "dpv_kind": "class",
                       "relation": "skos:exactMatch"}]),
         BaseConcept("o#Right_of_access", "o#Right_of_access", "ontology", "Right_of_access",
                     None, None, ("class",), "aligned",
                     [{"dpv_iri": D + "DataSubjectRight", "dpv_name": "DataSubjectRight",
-                      "relation": "skos:broadMatch"}]),
+                      "dpv_kind": "class", "relation": "skos:broadMatch"}]),
         BaseConcept("o#Sanction", "o#Sanction", "ontology", "Sanction", None, None, ("class",),
                     "no_match")], source_id="ontopriv+lopdp")
     s4 = [_src("o#Consent", "Consent", label="consentimiento"),

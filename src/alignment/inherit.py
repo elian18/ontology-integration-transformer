@@ -4,7 +4,7 @@ import argparse
 import hashlib
 import json
 from collections import Counter
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
@@ -18,7 +18,8 @@ from src.alignment.duplicates import duplicate_threshold, name_match_threshold
 from src.alignment.export import CANDIDATES_JSON, load_candidate_file
 from src.alignment.lexical import lexical_matrix, normalize_for_lexical
 from src.alignment.mapping_review import (STATUS_ALIGNED, STATUS_NO_MATCH, approved_mappings,
-                                          concept_status, mapping_concepts, mapping_decisions)
+                                          compatible_kinds, concept_status, mapping_concepts,
+                                          mapping_decisions)
 from src.alignment.sources import SourceConcept, build_alignment_sources
 
 METHOD_SAME_IRI = "same_iri"
@@ -104,7 +105,8 @@ def load_base(candidates_path: str | Path | None = None, log_path: str | Path | 
     for m in approved_mappings(concepts, current):
         d = current[m["concept_key"]][m["dpv_iri"]]
         mappings.setdefault(m["concept_key"], []).append({
-            "dpv_iri": m["dpv_iri"], "dpv_name": m["dpv_name"], "relation": m["relation"],
+            "dpv_iri": m["dpv_iri"], "dpv_name": m["dpv_name"],
+            "dpv_kind": d.snapshot.get("dpv_kind"), "relation": m["relation"],
             "reviewer": m["reviewer"], "decided_at": m["decided_at"],
             "decided_by": ("assistant_confirmed" if d.snapshot.get("proposed_by") == PROPOSED_BY
                            else "person")})
@@ -182,6 +184,21 @@ def _compatible(user_kinds, base_kinds) -> bool:
     return bool(set(user_kinds) & set(base_kinds) & _ALIGNABLE)
 
 
+def _for_user(base: BaseConcept, user_kinds) -> BaseConcept | None:
+    """The base decision as a user concept of ``user_kinds`` can take it: only the
+    correspondences with a DPV term of its kind, as in the review of the base (a property is
+    not exactMatch of a class). None when every correspondence is of the other kind: OntoPriv
+    declares many concepts as class and property, and the base decided them as one of the two
+    (S11-T14)."""
+    if base.status != STATUS_ALIGNED:
+        return base
+    allowed = compatible_kinds(user_kinds)
+    kept = [m for m in base.mappings if m.get("dpv_kind") in allowed]
+    if not kept:
+        return None
+    return base if len(kept) == len(base.mappings) else replace(base, mappings=kept)
+
+
 def _pick(candidates: list[BaseConcept]) -> BaseConcept | None:
     """One base concept, or None when the tied candidates disagree on the decision."""
     if not candidates:
@@ -197,6 +214,20 @@ def _inherited(user: SourceConcept, base: BaseConcept, method: str, score: float
                      mappings=[dict(m) for m in base.mappings])
 
 
+def _take(report: InheritReport, user: SourceConcept, candidates: list[BaseConcept],
+          method: str, score: float) -> None:
+    """Inherit from the tied ``candidates`` those that fit the kind of the user concept, when
+    they agree on the decision."""
+    fitting = [f for f in (_for_user(c, user.kinds) for c in candidates) if f is not None]
+    chosen = _pick(fitting)
+    if chosen is not None:
+        report.inherited.append(_inherited(user, chosen, method, score))
+    else:
+        report.not_inherited.append({"key": user.key, "name": user.name,
+                                     "reason": "ambiguous" if fitting else "other_kind",
+                                     "candidates": [c.key for c in candidates]})
+
+
 def _embed(texts: list[str], embed_fn) -> np.ndarray:
     if embed_fn is None:                      # lazy: tests and rules 1-2 never load the model
         from src.ai.rag.embeddings import embed as embed_fn
@@ -206,7 +237,8 @@ def _embed(texts: list[str], embed_fn) -> np.ndarray:
 def inherit(user_concepts: list[SourceConcept], base: BaseIndex, *, embed_fn=None,
             use_embeddings: bool = True, cfg: dict | None = None) -> InheritReport:
     """Give each user concept the base decision when it is the same concept: same IRI, then the
-    same name, label or alias, then a close score (0.4 lexical + 0.6 embeddings)."""
+    same name, label or alias, then a close score (0.4 lexical + 0.6 embeddings). It takes only
+    the correspondences of its kind; with none, the AI decides it ("other_kind", S11-T14)."""
     settings = alignment_settings(cfg)
     threshold, name_match = duplicate_threshold(cfg), name_match_threshold(cfg)
     report = InheritReport(total=len(user_concepts), base_concepts=len(base.concepts),
@@ -225,19 +257,13 @@ def inherit(user_concepts: list[SourceConcept], base: BaseIndex, *, embed_fn=Non
             continue
         b = by_iri.get(user.iri or user.key)
         if b is not None and _compatible(user.kinds, b.kinds):
-            report.inherited.append(_inherited(user, b, METHOD_SAME_IRI, 1.0))
+            _take(report, user, [b], METHOD_SAME_IRI, 1.0)
             continue
         texts = {normalize_for_lexical(t) for t in (user.name, user.label) if t} - {""}
         found = [c for t in texts for c in names.get(t, []) if _compatible(user.kinds, c.kinds)]
         unique = list({c.key: c for c in found}.values())
         if unique:
-            chosen = _pick(unique)
-            if chosen is not None:
-                report.inherited.append(_inherited(user, chosen, METHOD_SAME_NAME, 1.0))
-            else:
-                report.not_inherited.append({"key": user.key, "name": user.name,
-                                             "reason": "ambiguous",
-                                             "candidates": [c.key for c in unique]})
+            _take(report, user, unique, METHOD_SAME_NAME, 1.0)
             continue
         rest.append(user)
 
@@ -271,13 +297,7 @@ def inherit(user_concepts: list[SourceConcept], base: BaseIndex, *, embed_fn=Non
                                          "reason": "no_match",
                                          "best_score": round(float(best), 4)})
             continue
-        chosen = _pick(tied)
-        if chosen is None:
-            report.not_inherited.append({"key": user.key, "name": user.name,
-                                         "reason": "ambiguous",
-                                         "candidates": [c.key for c in tied]})
-            continue
-        report.inherited.append(_inherited(user, chosen, METHOD_SIMILAR, score))
+        _take(report, user, tied, METHOD_SIMILAR, score)
     return report
 
 
@@ -309,7 +329,8 @@ def inherit_for_workspace(ws, *, base: BaseIndex | None = None, embed_fn=None,
     ws.work_dir.mkdir(parents=True, exist_ok=True)
     (ws.work_dir / RESULT_FILE).write_text(
         json.dumps({**report.to_dict(), "base_fingerprint": base_fingerprint(base),
-                    "concepts_version": CONCEPTS_VERSION}, indent=2, ensure_ascii=False),
+                    "concepts_version": CONCEPTS_VERSION, "rules_version": RULES_VERSION},
+                   indent=2, ensure_ascii=False),
         encoding="utf-8")
     s = report.summary()
     ws.mark_step("inherit", DONE, f"{s['inherited']} de {s['concepts']} conceptos heredados",
@@ -325,6 +346,7 @@ def load_result(ws) -> dict | None:
 
 
 CONCEPTS_VERSION = 2             # S10-T17: a property declared with rdf:Property is a concept
+RULES_VERSION = 2                # S11-T14: a concept inherits only correspondences of its kind
 
 
 def base_fingerprint(base: BaseIndex) -> str:
@@ -336,9 +358,10 @@ def base_fingerprint(base: BaseIndex) -> str:
 
 
 def is_current(result: dict | None, base: BaseIndex) -> bool:
-    """The saved inheritance read this same base and took the concepts the same way (an older
-    one, without fingerprint or version, did not say: it is done again)."""
+    """The saved inheritance read this same base, took the concepts and applied the rules the
+    same way (an older one, without fingerprint or versions, did not say: it is done again)."""
     return (bool(result) and result.get("concepts_version") == CONCEPTS_VERSION
+            and result.get("rules_version") == RULES_VERSION
             and result.get("base_fingerprint") == base_fingerprint(base))
 
 
