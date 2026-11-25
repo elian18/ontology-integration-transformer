@@ -31,6 +31,7 @@ PREFIXES = f"""
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix al: <http://example.org/gdpr-dpv-alignment#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
 dpv:Consent rdfs:isDefinedBy dpv: .
 dpv:DataController rdfs:isDefinedBy dpv: .
 dpv:PersonalData rdfs:isDefinedBy dpv: .
@@ -209,8 +210,9 @@ def test_a_definition_taken_from_the_law():
     orphan = ["Anota una definición que no está en la ontología."]
     assert _law(target="Otra definición.") == orphan
     assert _law(definition="") == orphan
-    assert _law(own='; rdfs:comment "Consent of the data subject."@en') == [
-        "El concepto ya tenía una definición: la de la ley solo va donde falta."]
+    repeated = ["El concepto ya tenía una definición: la de la ley solo va donde falta."]
+    assert _law(own='; rdfs:comment "Consent of the data subject."@en') == repeated
+    assert _law(own='; obo:IAO_0000115 "Consent of the data subject."') == repeated  # OBO
 
 
 # ------------------------------------------------------------------ the package
@@ -246,6 +248,19 @@ def test_completeness_of_classes_and_properties():
         ("Untagged", "No tiene etiqueta en inglés."), ("hasValue", "No tiene definición.")]
     assert {f.rule for f in result} == {"SpanishLabelShape", "EnglishLabelShape",
                                         "DefinitionCompletenessShape"}
+
+
+def test_the_definition_of_an_obo_ontology_counts():                       # S11-T11
+    # DUO and the OBO ontologies write their definitions in obo:IAO_0000115.
+    ttl = """
+        obo:DUO_0000042 a owl:Class ; rdfs:label "uso general"@es, "general research use"@en ;
+            obo:IAO_0000115 "Use is allowed for any research purpose." .
+        obo:DUO_0000099 a owl:Class ; rdfs:label "sin definir"@es, "undefined"@en ;
+            obo:IAO_0000115 "  " .
+        """
+    result = [(f.focus.rsplit("/", 1)[1], f.message) for f in found(ttl)
+              if f.severity == WARNING]
+    assert result == [("DUO_0000099", "No tiene definición.")]
 
 
 def test_completeness_of_a_property_declared_with_rdf_property():          # S10-T17

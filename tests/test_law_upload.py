@@ -81,7 +81,7 @@ def test_segment_and_index_a_law(ws):
     assert [a["title"] for a in r["articles"]] == ["Objeto", "Consentimiento", "Sanciones"]
     assert (r["language"], r["style"], r["file"]) == ("es", "es", "Ley de prueba.txt")
     assert r["law_sha256"] == ws.manifest["inputs"]["law"]["sha256"]
-    assert r["cleaning"]["pages"] == 1 and r["segmenter_version"] == 2
+    assert r["cleaning"]["pages"] == 1 and r["segmenter_version"] == 3
     saved = json.loads((ws.work_dir / ARTICLES_FILE).read_text(encoding="utf-8"))
     assert saved == r
     index = prepared["index"]

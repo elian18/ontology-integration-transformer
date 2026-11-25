@@ -60,4 +60,6 @@ tools/
 
 # Sprint 1: artefactos generados y de prueba
 data/input/sample.*
+# Sprint 11: material nuevo de las pruebas (py -m src.e2e.material)
+data/input/s11/
 .pytest_cache/

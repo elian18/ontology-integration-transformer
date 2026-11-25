@@ -15,6 +15,7 @@ LOPDP_PATH = ROOT / "data" / "input" / "lopdp.pdf"
 LOPDP_EXPECTED_ARTICLES = 77
 GDPR_PATH = ROOT / "data" / "input" / "laws" / "gdpr-en.pdf"
 COLOMBIA_PATH = ROOT / "data" / "input" / "laws" / "ley-1581-2012-colombia.pdf"
+S11 = ROOT / "data" / "input" / "s11"            # py -m src.e2e.material (S11-T11)
 
 
 # --------------------------------------------------------------------------- #
@@ -193,6 +194,115 @@ def test_language_is_detected():
     assert detect_language("El responsable del tratamiento de los datos personales.") == "es"
 
 
+# --------------------------------------------------------------------------- dynamic (S11-T11)
+
+ARGENTINA = (
+    "Capítulo I\nDisposiciones Generales\n"
+    "ARTICULO 1° — (Objeto).\nLa presente ley tiene por objeto la protección.\n"
+    "ARTICULO 2° — (Definiciones).\nA los fines de la presente ley se entiende por:\n"
+    "— Datos personales: Información de cualquier tipo.\n"
+    "ARTÍCULO 3°.- (Registro de archivos de datos. Inscripción).\nTodo archivo.\n"
+    "Artículo 4: Calidad. Los datos deben ser ciertos.\n"
+    "1. Los datos personales que se recojan deben ser ciertos.\n"
+    "ARTICULO 5. — El Poder Ejecutivo deberá reglamentar la presente ley.\n"
+)
+
+
+def test_spanish_headings_with_a_dash_or_a_colon():
+    summary = segment_articles(ARGENTINA)
+    arts = summary["articles"]
+    assert [a["number"] for a in arts] == [1, 2, 3, 4, 5] and summary["style"] == "es"
+    assert [a["title"] for a in arts] == [
+        "Objeto", "Definiciones", "Registro de archivos de datos. Inscripción", "Calidad",
+        "El Poder Ejecutivo deberá reglamentar la presente ley"]
+    assert summary["rejected"] == 0                # "1. Los datos..." is a list, not counted
+    assert "1. Los datos personales" in arts[3]["text"]
+
+
+def test_a_heading_cut_in_two_lines():
+    # "Artículo" at the end of a line and "1." on the next one (Mexican law of 2025).
+    text = ("Artículo Tercero.- Se expide la Ley Federal.\nCapítulo I\nArtículo\n"
+            "1. La presente Ley es de orden público y de\nobservancia general.\n"
+            "Artículo\n2. Objeto. Para los efectos de esta Ley.\n"
+            "Artículo 3. Principios. Los datos.\n")
+    summary = segment_articles(text)
+    arts = summary["articles"]
+    assert [a["number"] for a in arts] == [1, 2, 3] and summary["rejected"] == 0
+    assert [a["title"] for a in arts] == ["", "Objeto", "Principios"]
+    assert arts[0]["text"].startswith("Artículo\n1. La presente Ley")
+
+
+KENYA = (
+    "ARRANGEMENT OF SECTIONS\nPART I—PRELIMINARY\n"
+    "1. —Short title.\n2. —Interpretation.\n3. —Object and purpose of this Act.\n"
+    "4. —Application.\n"
+    "THE DATA PROTECTION ACT, 2019\nENACTED by Parliament of Kenya, as follows —\n"
+    "1. This Act may be cited as the Data Protection Act,\n2019.\n"
+    "2. In this Act, unless the context otherwise requires —\n"
+    "\"consent\" means any manifestation of express, unequivocal, free, specific and\n"
+    "informed indication of the data subject's wishes;\n"
+    "Object and purpose. 3. The object and purpose of this Act is—\n"
+    "(a) to regulate the processing of personal data;\n(b) to ensure that the processing\n"
+    "4. (1) This Act applies to the processing of personal data.\n"
+    "(a) entered in a record, by or for a data controller or processor, by making use\n"
+    "of automated or non-automated means;\n"
+)
+
+
+def test_numbers_without_keyword_and_an_index_before_the_body():
+    summary = segment_articles(KENYA)
+    arts = summary["articles"]
+    assert [a["number"] for a in arts] == [1, 2, 4] and summary["missing"] == [3]
+    assert summary["style"] == seg.BARE and summary["rejected"] == 4      # the index
+    assert arts[0]["text"].startswith("1. This Act may be cited")
+    assert [a["title"] for a in arts] == ["", "", ""]        # body text is no title
+    assert count_articles(KENYA) == 3
+
+
+def test_a_short_law_is_not_taken_for_an_index():
+    # A one-line-per-article law and, after it, a reform that starts again at "Art. 1.-".
+    law = "".join(f"Art. {n}.- Regla {n}.\n" for n in range(1, 5))
+    text = law + "DISPOSICIÓN REFORMATORIA\nArt. 1.- Refórmese la ley anterior.\n"
+    summary = segment_articles(text)
+    assert [a["number"] for a in summary["articles"]] == [1, 2, 3, 4]
+    assert summary["rejected"] == 1
+
+
+def test_numbers_without_keyword_wait_for_the_keywords():
+    lopdp = ("Art. 1.- Objeto.\n1. Será de obligatorio cumplimiento.\n2. Otra regla.\n"
+             "Art. 2.- Ámbito.\n1. Se aplica a todos.\n3. Tercera regla.\n")
+    summary = segment_articles(lopdp)
+    assert [a["number"] for a in summary["articles"]] == [1, 2]
+    assert summary["style"] == "sprint2" and summary["rejected"] == 0
+    alone = "Article 1\nPreamble.\n1. One rule.\n2. Two rules.\n3. Three rules.\n"
+    summary = segment_articles(alone)              # a single keyword heading is no chain
+    assert [a["number"] for a in summary["articles"]] == [1, 2, 3]
+    assert summary["style"] == seg.BARE and summary["rejected"] == 1
+
+
+def test_sections_in_english_and_in_spanish():
+    text = ("Section 1. Short title. This Act may be cited as the Privacy Act.\n"
+            "SECTION 2\nInterpretation\nIn this Act, unless the context requires.\n"
+            "Sección 3 — (Ámbito).\nSe aplica a todos.\n§ 4. Penalties. A fine.\n")
+    summary = segment_articles(text)
+    assert [a["number"] for a in summary["articles"]] == [1, 2, 3, 4]
+    assert summary["style"] == "section"
+    assert [a["title"] for a in summary["articles"]] == ["Short title", "Interpretation",
+                                                         "Ámbito", "Penalties"]
+
+
+def test_what_is_not_a_heading():
+    for text in ("901\n", "1.5 millones de registros.\n", "2019. Año de la ley.\n",
+                 "12 - Registro Oficial\n", "1) primera opción\n", "a. Letra.\n"):
+        assert seg.candidates(text) == [], text
+
+
+def test_a_long_first_sentence_is_body_text_not_a_title():
+    long = "La presente Ley es de orden público y de observancia general en todo el " * 2
+    text = f"Artículo 1. {long.strip()}.\nArtículo 2. Para los efectos de esta Ley:\n"
+    assert [a["title"] for a in segment_articles(text)["articles"]] == ["", ""]
+
+
 # --------------------------------------------------------------------------- #
 # Integration tests: the real LOPDP                                           #
 # --------------------------------------------------------------------------- #
@@ -283,3 +393,28 @@ def test_colombian_law_1581_has_its_30_articles():
     assert arts[3]["title"] == "Definiciones"                     # ligature "ﬁ" cleaned
     assert arts[9]["title"] == "Autorización del Titular"
     assert arts[30]["title"] == "Vigencia"
+
+
+# --------------------------------------------------------------------------- #
+# Integration tests: the new material of Sprint 11 (data/input/s11)           #
+# --------------------------------------------------------------------------- #
+
+def test_argentine_law_25326_has_its_48_articles():
+    summary = _uploaded(S11 / "argentina-ley-25326.txt")
+    arts = {a["number"]: a for a in summary["articles"]}
+    assert list(arts) == list(range(1, 49)) and summary["style"] == "es"
+    assert arts[1]["title"] == "Objeto" and arts[10]["title"] == "Deber de confidencialidad"
+
+
+def test_mexican_law_of_2025_has_its_64_articles():
+    summary = _uploaded(S11 / "mexico-lfpdppp-2025.txt")
+    assert [a["number"] for a in summary["articles"]] == list(range(1, 65))
+    first = summary["articles"][0]["text"].replace("\n", " ")       # the heading may be cut
+    assert first.startswith("Artículo 1. La presente Ley")
+
+
+def test_kenyan_act_of_2019_has_its_sections_without_the_index():
+    summary = _uploaded(S11 / "kenya-dpa-2019.pdf")
+    assert summary["style"] == seg.BARE and summary["language"] == "en"
+    assert summary["n_articles"] == 71 and summary["missing"] == [17, 25, 26, 70]  # scanned
+    assert summary["articles"][0]["text"].startswith("1. This Act may be cited")

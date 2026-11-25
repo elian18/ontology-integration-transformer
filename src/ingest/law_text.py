@@ -4,7 +4,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from src.ingest.legal_segmenter import candidates
+from src.ingest.legal_segmenter import BARE, candidates
 
 EDGE_LINES = 2
 MIN_PAGES = 3
@@ -36,7 +36,8 @@ def _edges(page: str) -> list[str]:
 
 
 def _is_heading(line: str) -> bool:
-    return bool(candidates(line.strip() + "\n"))
+    """An article heading with keyword ("1. Text" may be a page footer, S11-T11)."""
+    return any(c["family"] != BARE for c in candidates(line.strip() + "\n"))
 
 
 def furniture(pages: list[str]) -> set[str]:

@@ -238,6 +238,11 @@ propios espacios (`data/workspaces/_e2e`) y las respuestas de la IA que ya tiene
 
 `--limpio` borra antes el espacio de cada caso, para medir una corrida completa.
 
+Material nuevo (S11-T11): `py -m src.e2e.material` descarga de sus fuentes las ontologías
+GConsent, GDPRov, DUO y Pizza (de control) y las leyes de México, Argentina (texto de la página
+oficial, como .txt) y Kenia en `data/input/s11` (git lo ignora: no todas las fuentes permiten
+compartirlas de nuevo).
+
 Casos límite (S11-T10): su material lo genera `py -m src.e2e.edge` en
 `data/workspaces/_e2e/_material` (git lo ignora: un archivo pasa el límite de 25 MB). Los casos
 sin clave, sin Java y con la cuota agotada corren aislados, sin la caché de la IA, para que la

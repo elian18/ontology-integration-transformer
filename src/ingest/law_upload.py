@@ -52,8 +52,9 @@ def segment_workspace_law(ws) -> dict:
         raise WorkspaceError(message)
     if not summary["n_articles"]:
         message = (f"No se encontraron artículos numerados en {entry['original_name']}. El "
-                   "sistema reconoce encabezados como 'Art. 1.-', 'Artículo 1.', 'Artículo 1°.' "
-                   "o 'Article 1' al inicio de una línea.")
+                   "sistema busca, al inicio de una línea, números en orden (1, 2, 3…) con o "
+                   "sin palabra antes: 'Art. 1.-', 'Artículo 1°.', 'ARTICULO 1° —', "
+                   "'Article 1', 'Section 1' o solo '1.' seguido del texto.")
         ws.mark_step("segment", ERROR, message)
         raise WorkspaceError(message)
     result = {"segmenter_version": SEGMENTER_VERSION, "file": entry["original_name"],
