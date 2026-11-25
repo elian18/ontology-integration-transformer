@@ -676,7 +676,7 @@ def test_settings_from_the_config():
 def test_the_provenance_of_the_base(tmp_path):
     out = pb.build(engine=ENGINE, out_dir=tmp_path)
     c = out["counts"]
-    assert c["mappings"] == {"total": 190, "assistant": 159, "person": 31, "replaced": 1}
+    assert c["mappings"] == {"total": 190, "assistant": 158, "person": 32, "replaced": 2}
     assert c["no_match"] == 379
     assert c["law_concepts"] == {"total": 93, "approved": 25, "duplicate": 66, "rejected": 2}
     assert c["repairs"] == {"R1": 119, "R2": 34}
@@ -698,8 +698,8 @@ def test_the_provenance_of_the_base(tmp_path):
     assert {"Elian", "Elian Gavilanes"} <= signed
     assert list(g.subjects(RDF.type, PROV.Person)) == [_node("person-elian-gavilanes")]
     text = pb.render(out)
-    assert "  Correspondencias con el DPV: 190 de 190 con quién y cuándo (159 confirmando una " \
-           "propuesta del asistente, 31 decididas por la persona sola)" in text
+    assert "  Correspondencias con el DPV: 190 de 190 con quién y cuándo (158 confirmando una " \
+           "propuesta del asistente, 32 decididas por la persona sola)" in text
     assert "  Sin hallazgos nuevos: la procedencia no rompe ninguna regla ni agrega " \
            "contradicciones." in text
     portability = pb.render_records(g, "http://www.semanticweb.org/franc/ontologies/2023/9/"
@@ -716,6 +716,10 @@ def test_the_provenance_of_the_base(tmp_path):
     assert ("    Reemplaza a: NationalDataProtectionRegistry skos:broadMatch "
             "dpv:ProtectionOfNationalSecurity (versión 1, ya no está en la base)") \
         in registry.splitlines()
+    biometric = pb.render_records(g, "http://www.semanticweb.org/ley-organica-proteccion-"
+                                     "datos-personales#Biometric_data").splitlines()  # S11-T07
+    assert ("    Reemplaza a: Biometric_data skos:relatedMatch dpv:BiometricAuthentication "
+            "(versión 1, ya no está en la base)") in biometric
     fixed = g.value(_node("file-gdprtext-alignment"), PROV.wasDerivedFrom)
     assert str(g.value(fixed, RDFS.label)) == "Versión 3 de la subida gdprtext-ontology-b863b1da"
 

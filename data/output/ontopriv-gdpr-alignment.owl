@@ -7,144 +7,6 @@
    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 >
-  <rdf:Description rdf:nodeID="pair8ae22cfa412fedc1c085682b">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT GivenConsent exactMatch dpv:Consent.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="paird3cacb59773148e4e2ac2f2f">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT Consent exactMatch dpv:Consent.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair9973cef944392b729f6e0094">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PersonalData"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data exactMatch dpv:PersonalData y GDPRtEXT PersonalData exactMatch dpv:PersonalData.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PrivacyByDesign"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair8fcd577701c92472c076993f">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataController"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_Controller exactMatch dpv:DataController y GDPRtEXT Controller exactMatch dpv:DataController.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair8b087ebaf160a00ac1f8056e">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Rights closeMatch dpv:DataSubjectRight y GDPRtEXT Rights closeMatch dpv:DataSubjectRight.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair911a14e1dd12a3ccc0db6e4f">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#ImpactAssessment"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT FactorsForImpactAssessment exactMatch dpv:ImpactAssessment.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair726fa88813b9ee79cfe4a50a">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#RightExerciseActivity"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Exercise_of_rights closeMatch dpv:RightExerciseActivity y GDPRtEXT ExerciseRights closeMatch dpv:RightExerciseActivity.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairc4253ab90973eae56e815913">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataProtectionAuthority"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data_protection_authority exactMatch dpv:DataProtectionAuthority y GDPRtEXT RegulatoryAuthority exactMatch dpv:DataProtectionAuthority.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair260679548b3b9f779b85cd52">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Sources_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairfd792ed6836ff6b675e48208">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#ConfidentialityAgreement"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv ConfidentialityAgreement exactMatch dpv:ConfidentialityAgreement y GDPRtEXT ImposeConfidentialityObligationOnPersonnel exactMatch dpv:ConfidentialityAgreement.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairf3721aefd277c941e1951fc2">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT AutomatedProcessing exactMatch dpv:Processing.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairde0c45b542f6d51f4c4322ed">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#WithdrawConsent"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT WithdrawingConsent closeMatch dpv:WithdrawConsent.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairdab30d3405e06be3139fb4b6">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#LegitimateInterest"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Legal_interest exactMatch dpv:LegitimateInterest y GDPRtEXT LegitimateInterest exactMatch dpv:LegitimateInterest.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="paire06e80e24b1d1d97f1f15121">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PrivacyByDesign"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT DataProtectionByDesignAndByDefault exactMatch dpv:PrivacyByDesign.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
   <rdf:Description rdf:nodeID="pair6ffb1d75c40bff40003f409b">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
     <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals"/>
@@ -152,97 +14,6 @@
     <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SealsAndCertification"/>
     <bridge:chainedBy rdf:resource="https://w3id.org/dpv#CertificationSeal"/>
     <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data_protection_seals closeMatch dpv:CertificationSeal y GDPRtEXT SealsAndCertification exactMatch dpv:CertificationSeal.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment#chainedBy">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
-    <rdfs:label xml:lang="es">encadenado por el DPV</rdfs:label>
-    <rdfs:comment xml:lang="es">Término del DPV con el que se corresponden los dos conceptos del par.</rdfs:comment>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="paira0d1d9e9020e53cd13cebc77">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Source_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="paire836bc76a5d391703a3b0875">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pairef484da99824d04fbb475089">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSecurityManagement"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data_security closeMatch dpv:DataSecurityManagement y GDPRtEXT SecurityOfPersonalData closeMatch dpv:DataSecurityManagement.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair281e1eade190044f39f92672">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT AutomatedProcessing exactMatch dpv:Processing.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair72c633ccc4bc8a8a123bc927">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#CodeOfConduct"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv CodesOfConduct exactMatch dpv:CodeOfConduct y GDPRtEXT CodeOfConduct exactMatch dpv:CodeOfConduct.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImpactAssessment"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair2abb855f67ab15f6912eb229">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicInterest"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Public_interest closeMatch dpv:PublicInterest y GDPRtEXT PublicInterest closeMatch dpv:PublicInterest.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair41f0eb76a93d53171679fa6e">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#WithdrawConsent"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT CanBeWithdrawnEasilyConsentObligation closeMatch dpv:WithdrawConsent.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair2d0a653e53c077423238b6d2">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT ConsentActivity exactMatch dpv:Consent.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
   <rdf:Description rdf:nodeID="pair559f9f4d4abee7c9365cf932">
@@ -254,43 +25,31 @@
     <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT ImpactAssessment exactMatch dpv:ImpactAssessment.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject"/>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair24c2b8dbeab9fce0c71bb8b6">
+  <rdf:Description rdf:nodeID="pair2abb855f67ab15f6912eb229">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest"/>
     <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#AnonymisedData"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Anonymized_data closeMatch dpv:AnonymisedData y GDPRtEXT AnonymousData exactMatch dpv:AnonymisedData.</rdfs:comment>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicInterest"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Public_interest closeMatch dpv:PublicInterest y GDPRtEXT PublicInterest closeMatch dpv:PublicInterest.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:nodeID="pairec9acef5a76df9d44b3c4b40">
+  <rdf:Description rdf:nodeID="pair260679548b3b9f779b85cd52">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public"/>
     <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Data"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_types closeMatch dpv:Data y GDPRtEXT Data exactMatch dpv:Data.</rdfs:comment>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Sources_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:nodeID="pair35e1fb5869c3713a22cf414c">
+  <rdf:Description rdf:nodeID="pair8ae22cfa412fedc1c085682b">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
     <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSubject"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_Owner exactMatch dpv:DataSubject y GDPRtEXT DataSubject exactMatch dpv:DataSubject.</rdfs:comment>
-    <owl:versionInfo>1</owl:versionInfo>
-  </rdf:Description>
-  <rdf:Description rdf:nodeID="pair372f9aee7a7214243b3e96b5">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"/>
-    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing.</rdfs:comment>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT GivenConsent exactMatch dpv:Consent.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment">
@@ -302,20 +61,173 @@
     <dct:references rdf:resource="https://w3id.org/dpv"/>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:nodeID="pair13c07fbaf1029b332b4a5270">
+  <rdf:Description rdf:nodeID="pairec9acef5a76df9d44b3c4b40">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
-    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types"/>
     <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
-    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData"/>
-    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
-    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Sensitive_data closeMatch dpv:SensitivePersonalData y GDPRtEXT SensitivePersonalData exactMatch dpv:SensitivePersonalData.</rdfs:comment>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Data"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_types closeMatch dpv:Data y GDPRtEXT Data exactMatch dpv:Data.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor"/>
+  <rdf:Description rdf:nodeID="pair726fa88813b9ee79cfe4a50a">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#RightExerciseActivity"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Exercise_of_rights closeMatch dpv:RightExerciseActivity y GDPRtEXT ExerciseRights closeMatch dpv:RightExerciseActivity.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
+  <rdf:Description rdf:nodeID="pair281e1eade190044f39f92672">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT AutomatedProcessing exactMatch dpv:Processing.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair72c633ccc4bc8a8a123bc927">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#CodeOfConduct"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv CodesOfConduct exactMatch dpv:CodeOfConduct y GDPRtEXT CodeOfConduct exactMatch dpv:CodeOfConduct.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair8b087ebaf160a00ac1f8056e">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSubjectRight"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Rights closeMatch dpv:DataSubjectRight y GDPRtEXT Rights closeMatch dpv:DataSubjectRight.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair372f9aee7a7214243b3e96b5">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="paird3cacb59773148e4e2ac2f2f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT Consent exactMatch dpv:Consent.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair41f0eb76a93d53171679fa6e">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#WithdrawConsent"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT CanBeWithdrawnEasilyConsentObligation closeMatch dpv:WithdrawConsent.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair2d0a653e53c077423238b6d2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Consent"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT ConsentActivity exactMatch dpv:Consent.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairef484da99824d04fbb475089">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSecurityManagement"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data_security closeMatch dpv:DataSecurityManagement y GDPRtEXT SecurityOfPersonalData closeMatch dpv:DataSecurityManagement.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="paira0d1d9e9020e53cd13cebc77">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PublicDataSource"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Source_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairdab30d3405e06be3139fb4b6">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#LegitimateInterest"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Legal_interest exactMatch dpv:LegitimateInterest y GDPRtEXT LegitimateInterest exactMatch dpv:LegitimateInterest.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="paire836bc76a5d391703a3b0875">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair35e1fb5869c3713a22cf414c">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataSubject"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_Owner exactMatch dpv:DataSubject y GDPRtEXT DataSubject exactMatch dpv:DataSubject.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair8fcd577701c92472c076993f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataController"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_Controller exactMatch dpv:DataController y GDPRtEXT Controller exactMatch dpv:DataController.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="paire06e80e24b1d1d97f1f15121">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PrivacyByDesign"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT DataProtectionByDesignAndByDefault exactMatch dpv:PrivacyByDesign.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
   <rdf:Description rdf:nodeID="pair07e801f1dfa80fa4328d36f0">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
@@ -324,6 +236,42 @@
     <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor"/>
     <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataProcessor"/>
     <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Data_Processor exactMatch dpv:DataProcessor y GDPRtEXT Processor exactMatch dpv:DataProcessor.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair911a14e1dd12a3ccc0db6e4f">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#ImpactAssessment"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT FactorsForImpactAssessment exactMatch dpv:ImpactAssessment.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairfd792ed6836ff6b675e48208">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#ConfidentialityAgreement"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv ConfidentialityAgreement exactMatch dpv:ConfidentialityAgreement y GDPRtEXT ImposeConfidentialityObligationOnPersonnel exactMatch dpv:ConfidentialityAgreement.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment#chainedBy">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AnnotationProperty"/>
+    <rdfs:label xml:lang="es">encadenado por el DPV</rdfs:label>
+    <rdfs:comment xml:lang="es">Término del DPV con el que se corresponden los dos conceptos del par.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair24c2b8dbeab9fce0c71bb8b6">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#AnonymisedData"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Anonymized_data closeMatch dpv:AnonymisedData y GDPRtEXT AnonymousData exactMatch dpv:AnonymisedData.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
   <rdf:Description rdf:nodeID="pair977e55302766880c4740fdc9">
@@ -335,48 +283,100 @@
     <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT PrivacyByDesign closeMatch dpv:PrivacyByDesign.</rdfs:comment>
     <owl:versionInfo>1</owl:versionInfo>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority"/>
-  </rdf:Description>
   <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals">
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SealsAndCertification"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing">
+  <rdf:Description rdf:nodeID="pair9973cef944392b729f6e0094">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#PersonalData"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data exactMatch dpv:PersonalData y GDPRtEXT PersonalData exactMatch dpv:PersonalData.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairc4253ab90973eae56e815913">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#DataProtectionAuthority"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Personal_data_protection_authority exactMatch dpv:DataProtectionAuthority y GDPRtEXT RegulatoryAuthority exactMatch dpv:DataProtectionAuthority.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairde0c45b542f6d51f4c4322ed">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#WithdrawConsent"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT WithdrawingConsent closeMatch dpv:WithdrawConsent.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pairf3721aefd277c941e1951fc2">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#Processing"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT AutomatedProcessing exactMatch dpv:Processing.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PrivacyByDesign"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="pair13c07fbaf1029b332b4a5270">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data"/>
+    <owl:annotatedProperty rdf:resource="http://www.w3.org/2004/02/skos/core#closeMatch"/>
+    <owl:annotatedTarget rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData"/>
+    <bridge:chainedBy rdf:resource="https://w3id.org/dpv#SensitivePersonalData"/>
+    <rdfs:comment xml:lang="es">Encadenado por el DPV: OntoPriv Sensitive_data closeMatch dpv:SensitivePersonalData y GDPRtEXT SensitivePersonalData exactMatch dpv:SensitivePersonalData.</rdfs:comment>
+    <owl:versionInfo>1</owl:versionInfo>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing">
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing"/>
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest">
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights"/>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data"/>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment"/>
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImpactAssessment"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public">
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest"/>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data">
     <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller">
-    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller"/>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct">
+    <skos:closeMatch rdf:resource="http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct"/>
   </rdf:Description>
 </rdf:RDF>

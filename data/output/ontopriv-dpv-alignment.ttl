@@ -143,7 +143,7 @@
 <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Application_favorable_to_the_owner> dcterms:source "LOPDP, art. 10"@es .
 
 <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data> dcterms:source "LOPDP, art. 4"@es ;
-    skos:relatedMatch dpv:BiometricAuthentication .
+    skos:broadMatch dpv:SensitivePersonalData .
 
 <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity> dcterms:source "LOPDP, art. 54"@es ;
     skos:relatedMatch dpv:Certification .
@@ -570,7 +570,7 @@
 
 <http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment> a owl:Ontology ;
     rdfs:label "Alineación con el DPV del perfil Ecuador (LOPDP)"@es ;
-    dcterms:created "2026-11-14T15:38:35+00:00" ;
+    dcterms:created "2026-11-25T02:46:47+00:00" ;
     dcterms:references <https://w3id.org/dpv> ;
     rdfs:comment "Correspondencias SKOS aprobadas por revisión humana entre OntoPriv (núcleo + perfil) y el Data Privacy Vocabulary (DPV 2.3), más los conceptos nuevos extraídos de la ley y aprobados por una persona. El DPV se referencia por IRI; no se importa."@es ;
     owl:imports <http://www.semanticweb.org/profiles/ecuador-lopdp> .
