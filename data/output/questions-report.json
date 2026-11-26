@@ -1,16 +1,16 @@
 {
-  "date": "2026-11-14T15:40:12+00:00",
+  "date": "2026-11-26T00:24:30+00:00",
   "engine": {
     "name": "jena",
     "version": "6.2.0",
     "java": "24.0.2",
     "reasoner": "owl-micro"
   },
-  "seconds": 6.8,
+  "seconds": 14.28,
   "catalog": {
     "file": "src/validation/questions.yaml",
     "version": 1,
-    "sha256": "7882c5cd7e7bb616233d1537dbe01b77fac7a81415a70b0487031ffe9943995f"
+    "sha256": "65979bfb1030fb8765c575ca47cfdf22ccc6f759d0ebfcd53ae8c8db858aa95a"
   },
   "files": [
     "data/output/ontopriv-core.rdf",
@@ -534,7 +534,7 @@
       "answer": [
         "Anonymization Anonymisation LOPDP, art. 31",
         "Anonymization Anonymisation LOPDP, art. 4",
-        "Biometric_data LOPDP, art. 4"
+        "Biometric_data SensitivePersonalData LOPDP, art. 4"
       ],
       "error": null,
       "color": "amarillo",
@@ -587,7 +587,7 @@
       "missing": [
         "Pasado judicial"
       ],
-      "explanation": "La pregunta quedó en amarillo porque, aunque una fila contiene 'Judicial past', la regla automática no logró reconocerlo como equivalente al elemento faltante de pasado judicial.",
+      "explanation": "La pregunta quedó en amarillo porque, aunque la ontología contiene el concepto de pasado judicial en la fila 51, la regla automática no logró reconocer este término como equivalente al elemento esperado.",
       "explained_by": "ia",
       "matches": [
         {
@@ -602,7 +602,7 @@
       "question": "¿Qué conceptos de la ontología están alineados con el DPV?",
       "kind": "at_least",
       "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
-      "rows": 118,
+      "rows": 119,
       "answer": [
         "AdministrativeProcedure AuthorisationProcedure",
         "AdministrativeProcedure GovernanceProcedures",
@@ -610,7 +610,7 @@
       ],
       "error": null,
       "color": "verde",
-      "count": 114
+      "count": 115
     },
     {
       "id": "G02",
@@ -666,15 +666,15 @@
       "question": "¿Qué categorías de datos personales representa la ontología?",
       "kind": "at_least",
       "criterion": "Verde si la respuesta trae al menos 1 concepto; amarillo si no trae ninguno.",
-      "rows": 11,
+      "rows": 12,
       "answer": [
+        "Biometric_data SensitivePersonalData",
         "Credit_data PersonalData",
-        "Data_persons_minors PersonalData",
-        "Data_under_17_years_old PersonalData"
+        "Data_persons_minors PersonalData"
       ],
       "error": null,
       "color": "verde",
-      "count": 11
+      "count": 12
     },
     {
       "id": "G06",
@@ -739,8 +739,8 @@
     },
     "questions": 5,
     "available": true,
-    "calls": 0,
-    "cached": 5,
+    "calls": 1,
+    "cached": 4,
     "invalid": 0,
     "errors": []
   },

@@ -8865,7 +8865,7 @@ provenance:repair-fdd4d7c5f8b962de a prov:Entity ;
 provenance:activity-alignment-write a prov:Activity ;
     rdfs:label "Escritura del módulo de alineación"@es ;
     rdfs:comment "Escribe las correspondencias aprobadas como tripletas SKOS, los conceptos nuevos y los artículos de los duplicados (S5-T06), solo cuando no queda nada por validar."@es ;
-    prov:endedAtTime "2026-11-25T02:46:47+00:00"^^xsd:dateTime ;
+    prov:endedAtTime "2026-11-26T00:21:01+00:00"^^xsd:dateTime ;
     prov:used provenance:file-candidates,
         provenance:file-log ;
     prov:wasAssociatedWith provenance:agent-system .
@@ -8929,7 +8929,7 @@ provenance:bridge-pair-0da44c44ada3ca20 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-b79143ac2b5837af ;
@@ -8943,7 +8943,7 @@ provenance:bridge-pair-15e17f215f9a5792 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AnonymousData> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-459eec69c01d175c ;
@@ -8957,7 +8957,7 @@ provenance:bridge-pair-1de87156c50bc70d a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#LegitimateInterest> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-dded5a68af558090 ;
@@ -8971,7 +8971,7 @@ provenance:bridge-pair-216065ed9fd5481e a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#WithdrawingConsent> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-84fd46838dba6234 ;
@@ -8985,7 +8985,7 @@ provenance:bridge-pair-26cf9789bd497b32 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SensitivePersonalData> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-b3c475a8b3019df2 ;
@@ -8999,7 +8999,7 @@ provenance:bridge-pair-2873c712d16f6c64 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Controller> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-6a237f8df4f9115e ;
@@ -9013,7 +9013,7 @@ provenance:bridge-pair-2af444e9efd4721d a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processor> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-878e81cfc53aebec ;
@@ -9027,7 +9027,7 @@ provenance:bridge-pair-2ceeb1209db06e25 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PublicInterest> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-5b5a6b1cdbc3a2ad ;
@@ -9041,7 +9041,7 @@ provenance:bridge-pair-38441b776a93ed64 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataProtectionByDesignAndByDefault> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-5736247649ec592b ;
@@ -9055,7 +9055,7 @@ provenance:bridge-pair-3ab07ceaeeebff54 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#GivenConsent> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-fd0b2e5f2539feed ;
@@ -9069,7 +9069,7 @@ provenance:bridge-pair-466049bb25327145 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#RegulatoryAuthority> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-9cc3a1c74c37e213 ;
@@ -9083,7 +9083,7 @@ provenance:bridge-pair-4fce209399fa6cf0 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Consent> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-fd0b2e5f2539feed ;
@@ -9097,7 +9097,7 @@ provenance:bridge-pair-56118c7ae5da5daf a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#DataSubject> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-decea9acc7ba75e2 ;
@@ -9111,7 +9111,7 @@ provenance:bridge-pair-604b065e004d236e a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Rights> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-7bb953fbbcb09f78 ;
@@ -9125,7 +9125,7 @@ provenance:bridge-pair-70faa61ee14edf66 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CanBeWithdrawnEasilyConsentObligation> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-84fd46838dba6234 ;
@@ -9139,7 +9139,7 @@ provenance:bridge-pair-870a459faca9ddab a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-5248d747b349006a ;
@@ -9153,7 +9153,7 @@ provenance:bridge-pair-9526857745741d68 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ExerciseRights> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-a37818129afb6ffa ;
@@ -9167,7 +9167,7 @@ provenance:bridge-pair-9619738be296a475 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SealsAndCertification> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-c1cbb85dca68ad60 ;
@@ -9181,7 +9181,7 @@ provenance:bridge-pair-99130ce962e71f9b a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#AutomatedProcessing> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-c97b18e66b571e7e ;
@@ -9195,7 +9195,7 @@ provenance:bridge-pair-a878b1ccbc0863ca a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#CodeOfConduct> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-33b10054c0711344 ;
@@ -9209,7 +9209,7 @@ provenance:bridge-pair-ab8074a761b70d25 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ConsentActivity> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-fd0b2e5f2539feed ;
@@ -9223,7 +9223,7 @@ provenance:bridge-pair-b1744deba98a1edc a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PrivacyByDesign> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-5736247649ec592b ;
@@ -9237,7 +9237,7 @@ provenance:bridge-pair-b475453f1f190906 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImpactAssessment> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-b4f4d94893f710c9 ;
@@ -9251,7 +9251,7 @@ provenance:bridge-pair-b5e57e76ff4e58e0 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#PersonalData> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-1f6da2d1abf7a525 ;
@@ -9265,7 +9265,7 @@ provenance:bridge-pair-bdb207eadb89aa2a a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#SecurityOfPersonalData> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-136ef75918fd6d7c ;
@@ -9279,7 +9279,7 @@ provenance:bridge-pair-c3546fcb164440a2 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#MadePublicByDataSubject> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-8791b70a07aca0e7 ;
@@ -9293,7 +9293,7 @@ provenance:bridge-pair-e0aafe547f053844 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#ImposeConfidentialityObligationOnPersonnel> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-1194f1d15e5d9af5 ;
@@ -9307,7 +9307,7 @@ provenance:bridge-pair-e2a235ef000ce066 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#FactorsForImpactAssessment> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-b4f4d94893f710c9 ;
@@ -9321,7 +9321,7 @@ provenance:bridge-pair-efa183cfe532df8b a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-b79143ac2b5837af ;
@@ -9335,7 +9335,7 @@ provenance:bridge-pair-f2b1fbc067e55845 a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Data> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-ac74e08a6e34c0fc ;
@@ -9349,7 +9349,7 @@ provenance:bridge-pair-f7fb104ab359421d a owl:Axiom,
     owl:annotatedProperty skos:closeMatch ;
     owl:annotatedSource <http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing> ;
     owl:annotatedTarget <http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT#Processing> ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:wasAttributedTo provenance:agent-system ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:mapping-c97b18e66b571e7e ;
@@ -15459,7 +15459,7 @@ provenance:lopdp-art-65 a prov:Entity ;
 provenance:activity-bridge a prov:Activity ;
     rdfs:label "Puente de la base con el GDPR"@es ;
     rdfs:comment "Encadena la base y GDPRtEXT por el DPV (S9-T09). La alineación de GDPRtEXT está fija en data/reference, así que el puente se rehace sin IA y da los mismos pares."@es ;
-    prov:endedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:endedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:qualifiedAssociation provenance:activity-bridge-association-agent-system ;
     prov:used provenance:file-gdprtext,
         provenance:file-gdprtext-alignment,
@@ -15477,9 +15477,9 @@ provenance:activity-bridge-review a prov:Activity ;
 
 provenance:module-bridge a prov:Entity ;
     rdfs:label "Puente de la base con el GDPR (data/output/ontopriv-gdpr-alignment.rdf)"@es ;
-    dct:identifier "sha256:4bdb0dab0d76924d3a903d55f5305d11bb75e2d08984ef884ec8ecb260ff785f" ;
+    dct:identifier "sha256:94c483e13d4f54372bb1afdc5d03d117ad83e685e9a1292c373f092c44e2223e" ;
     rdfs:comment "Esta versión del módulo (su SHA-256 es el del archivo)."@es ;
-    prov:generatedAtTime "2026-11-25T02:47:29+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:33+00:00"^^xsd:dateTime ;
     prov:specializationOf <http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment> ;
     prov:wasDerivedFrom provenance:file-gdprtext-alignment,
         provenance:module-alignment ;
@@ -15507,7 +15507,7 @@ provenance:lopdp-art-4 a prov:Entity ;
 
 provenance:module-core a prov:Entity ;
     rdfs:label "Núcleo OntoPriv-Core (data/output/ontopriv-core.rdf)"@es ;
-    dct:identifier "sha256:d4d3f42a6035b59a6536d3d5aaf91a6d4e8122ed7c75633531732b8f13d33e2f" ;
+    dct:identifier "sha256:9c4284f97eb2e9409bdaf170294e5ab9808dca9de58f9baa530ef4eb60caec12" ;
     rdfs:comment "Esta versión del módulo (su SHA-256 es el del archivo)."@es ;
     prov:specializationOf <http://www.semanticweb.org/ontopriv-core> ;
     prov:wasDerivedFrom provenance:file-ontopriv ;
@@ -15541,7 +15541,7 @@ provenance:file-proposed a prov:Entity ;
 
 provenance:module-profile a prov:Entity ;
     rdfs:label "Perfil de Ecuador (data/output/profile-ecuador-lopdp.rdf)"@es ;
-    dct:identifier "sha256:96fdcca4425dd66f76a40d39b46d31336204aec38f0a34d18ebf1784716528c6" ;
+    dct:identifier "sha256:da67b0995c636a6c690b3a4a6d491c61d2332772cffa5cc8dba5287e62d5965f" ;
     rdfs:comment "Esta versión del módulo (su SHA-256 es el del archivo)."@es ;
     prov:specializationOf <http://www.semanticweb.org/profiles/ecuador-lopdp> ;
     prov:wasDerivedFrom provenance:file-ontopriv ;
@@ -15564,9 +15564,9 @@ provenance:file-ontopriv a prov:Entity ;
 
 provenance:module-alignment a prov:Entity ;
     rdfs:label "Alineación de la base con el DPV (data/output/ontopriv-dpv-alignment.rdf)"@es ;
-    dct:identifier "sha256:7f4447cc08b3d7fd961be468d9ffc5c95c6e7ad5d26cd35f280e9dba17bab427" ;
+    dct:identifier "sha256:1e4b586226d6ae2d814810c4e8d0d03f8b54bab199e823ebfcbaff3f40e33f4c" ;
     rdfs:comment "Esta versión del módulo (su SHA-256 es el del archivo)."@es ;
-    prov:generatedAtTime "2026-11-25T02:46:47+00:00"^^xsd:dateTime ;
+    prov:generatedAtTime "2026-11-26T00:21:01+00:00"^^xsd:dateTime ;
     prov:specializationOf <http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment> ;
     prov:wasDerivedFrom provenance:file-candidates,
         provenance:file-log,

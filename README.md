@@ -7,7 +7,8 @@ Toma una ontología de privacidad, un texto de ley o los dos, y los alinea con e
 (Data Privacy Vocabulary 2.3) usando como base OntoPriv y la LOPDP, revisadas a mano una
 sola vez. Devuelve una ontología nueva en RDF/XML, OWL, Turtle o JSON-LD, validada y con
 la procedencia de cada correspondencia. También convierte una ontología de un formato a
-otro sin tocar su contenido. El historial de cada sprint está en `docs/CHANGELOG.md`.
+otro sin tocar su contenido. La versión actual es la v1.1.0, del Sprint 11; el historial de
+cada sprint está en `docs/CHANGELOG.md`.
 
 ## Requisitos
 - Git y Python 3.13 (en Windows se invoca con `py`; los comandos de abajo son para Git Bash)
@@ -172,7 +173,10 @@ el DPV 2.0 que propusieron sus autoras, copiadas en `data/reference/ontopriv-pap
 
 ## La base del sistema
 OntoPriv-Core, el perfil de Ecuador (LOPDP) y su alineación con el DPV, revisada a mano
-una vez (552 conceptos, 190 correspondencias). Viene en el repositorio, en `data/output`:
+una vez (552 conceptos, 190 correspondencias). Una subida hereda la decisión de la base cuando
+su concepto es el mismo (mismo IRI, mismo nombre o muy parecido), y solo las correspondencias de
+su mismo tipo: una propiedad no hereda la de una clase. Viene en el repositorio, en
+`data/output`:
 
 | Módulo | Qué es |
 |---|---|
@@ -246,7 +250,8 @@ Desktop; en Linux, Docker Engine con Compose) e internet la primera vez.
     docker compose up --build -d      # la primera vez tarda: baja las librerías, Jena y el modelo
 
 La web queda en http://localhost:8501 (para otro puerto, cambia el primer número de `ports` en
-`docker-compose.yml`, por ejemplo `"8080:8501"`).
+`docker-compose.yml`, por ejemplo `"8080:8501"`). En Windows con Docker Desktop (WSL 2), la
+primera construcción tardó unos 6 minutos y la imagen ocupa 4,3 GB en disco.
 
 - La clave no entra en la imagen: Compose le pasa el `.env` al contenedor cuando arranca.
 - Es la versión desplegada: solo el asistente y la base en solo lectura. `docker-compose.yml`
@@ -255,7 +260,8 @@ La web queda en http://localhost:8501 (para otro puerto, cambia el primer númer
   razonador sea Jena; si algo falta, la construcción se detiene con el error.
 - Los espacios de trabajo (las subidas, sus versiones y la caché de la IA) viven en el volumen
   `workspaces`: siguen ahí al apagar, reiniciar o reconstruir el contenedor. Solo
-  `docker compose down -v` los borra.
+  `docker compose down -v` los borra. En un volumen nuevo la caché está vacía: la IA responde
+  otra vez y algunas cifras pueden cambiar un poco (ver `docs/CHANGELOG.md`, v1.1.0).
 
     docker compose logs -f                      # ver lo que hace el programa
     docker compose down                         # apagar (los espacios se quedan)
@@ -266,6 +272,9 @@ La web queda en http://localhost:8501 (para otro puerto, cambia el primer númer
     py -m pytest -q                  # suite completa
     py -m pytest -m "not slow" -q    # rápida: sin el LLM, los embeddings ni Jena reales
 
+La suite rápida no llama al LLM real ni gasta cuota, aunque el `.env` tenga la clave: las
+pruebas que lo necesitan están marcadas `slow`.
+
 Pruebas de punta a punta (S11-T09): cada caso de `data/reference/e2e-s11.yaml` pasa por lo
 mismo que la web y sus resultados quedan solos en `data/output/e2e/s11`: `runs.jsonl` (una
 línea por corrida) y `resumen.md` (la última corrida de cada caso). Los casos usan sus
@@ -273,7 +282,9 @@ propios espacios (`data/workspaces/_e2e`) y las respuestas de la IA que ya tiene
 
     py -m src.e2e.runner data/reference/e2e-s11.yaml [--solo gdprtext pizza] [--limpio]
 
-`--limpio` borra antes el espacio de cada caso, para medir una corrida completa.
+`--limpio` borra antes el espacio de cada caso, para medir una corrida completa. Lo hace una
+vez por corrida: un caso que repite los mismos archivos (`dos-veces-2`) reutiliza el espacio,
+como en la web.
 
 Material nuevo (S11-T11): `py -m src.e2e.material` descarga de sus fuentes las ontologías
 GConsent, GDPRov, DUO y Pizza (de control) y las leyes de México, Argentina (texto de la página

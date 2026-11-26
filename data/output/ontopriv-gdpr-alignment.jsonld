@@ -11,24 +11,27 @@
   },
   "@graph": [
     {
-      "@id": "_:pair559f9f4d4abee7c9365cf932",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:ImpactAssessment"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:ImpactAssessment"
+      "@id": "http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment",
+      "@type": "owl:Ontology",
+      "dct:references": [
+        {
+          "@id": "http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT"
+        },
+        {
+          "@id": "https://w3id.org/dpv"
+        }
+      ],
+      "owl:imports": {
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment"
       },
       "owl:versionInfo": "1",
       "rdfs:comment": {
         "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT ImpactAssessment exactMatch dpv:ImpactAssessment."
+        "@value": "Pares de un concepto de la base (OntoPriv + LOPDP) y uno de GDPRtEXT que se corresponden con el mismo término del DPV con exactMatch o closeMatch en los dos lados. Cada par se escribe con skos:closeMatch y su anotación dice el término del DPV por el que pasa. GDPRtEXT y el DPV se referencian por IRI; no se importan. La explicación de la IA revisora va aparte (ontopriv-gdpr-bridge.csv), no en la ontología."
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Puente de la base con el GDPR: OntoPriv y GDPRtEXT encadenados por el DPV"
       }
     },
     {
@@ -53,499 +56,9 @@
       }
     },
     {
-      "@id": "_:pair8b087ebaf160a00ac1f8056e",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:Rights"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Rights closeMatch dpv:DataSubjectRight y GDPRtEXT Rights closeMatch dpv:DataSubjectRight."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data",
-      "skos:closeMatch": {
-        "@id": "gdprtext:AnonymousData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights",
-      "skos:closeMatch": {
-        "@id": "gdprtext:ExerciseRights"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner",
-      "skos:closeMatch": {
-        "@id": "gdprtext:DataSubject"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement",
-      "skos:closeMatch": {
-        "@id": "gdprtext:ImposeConfidentialityObligationOnPersonnel"
-      }
-    },
-    {
-      "@id": "_:pair41f0eb76a93d53171679fa6e",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:WithdrawConsent"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:CanBeWithdrawnEasilyConsentObligation"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT CanBeWithdrawnEasilyConsentObligation closeMatch dpv:WithdrawConsent."
-      }
-    },
-    {
-      "@id": "_:pair9973cef944392b729f6e0094",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:PersonalData"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:PersonalData"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Personal_data exactMatch dpv:PersonalData y GDPRtEXT PersonalData exactMatch dpv:PersonalData."
-      }
-    },
-    {
-      "@id": "_:pair8ae22cfa412fedc1c085682b",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:Consent"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:GivenConsent"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT GivenConsent exactMatch dpv:Consent."
-      }
-    },
-    {
-      "@id": "_:pair24c2b8dbeab9fce0c71bb8b6",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:AnonymisedData"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:AnonymousData"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Anonymized_data closeMatch dpv:AnonymisedData y GDPRtEXT AnonymousData exactMatch dpv:AnonymisedData."
-      }
-    },
-    {
-      "@id": "_:pair977e55302766880c4740fdc9",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:PrivacyByDesign"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:PrivacyByDesign"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT PrivacyByDesign closeMatch dpv:PrivacyByDesign."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data",
-      "skos:closeMatch": {
-        "@id": "gdprtext:SensitivePersonalData"
-      }
-    },
-    {
-      "@id": "_:pair8fcd577701c92472c076993f",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataController"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:Controller"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Data_Controller exactMatch dpv:DataController y GDPRtEXT Controller exactMatch dpv:DataController."
-      }
-    },
-    {
-      "@id": "_:paira0d1d9e9020e53cd13cebc77",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:PublicDataSource"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:MadePublicByDataSubject"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Source_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource."
-      }
-    },
-    {
       "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct",
       "skos:closeMatch": {
         "@id": "gdprtext:CodeOfConduct"
-      }
-    },
-    {
-      "@id": "_:pair72c633ccc4bc8a8a123bc927",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:CodeOfConduct"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:CodeOfConduct"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv CodesOfConduct exactMatch dpv:CodeOfConduct y GDPRtEXT CodeOfConduct exactMatch dpv:CodeOfConduct."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights",
-      "skos:closeMatch": {
-        "@id": "gdprtext:Rights"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals",
-      "skos:closeMatch": {
-        "@id": "gdprtext:SealsAndCertification"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest",
-      "skos:closeMatch": {
-        "@id": "gdprtext:LegitimateInterest"
-      }
-    },
-    {
-      "@id": "_:pair911a14e1dd12a3ccc0db6e4f",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:ImpactAssessment"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:FactorsForImpactAssessment"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT FactorsForImpactAssessment exactMatch dpv:ImpactAssessment."
-      }
-    },
-    {
-      "@id": "_:pairef484da99824d04fbb475089",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataSecurityManagement"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:SecurityOfPersonalData"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Personal_data_security closeMatch dpv:DataSecurityManagement y GDPRtEXT SecurityOfPersonalData closeMatch dpv:DataSecurityManagement."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public",
-      "skos:closeMatch": {
-        "@id": "gdprtext:MadePublicByDataSubject"
-      }
-    },
-    {
-      "@id": "_:pairc4253ab90973eae56e815913",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataProtectionAuthority"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:RegulatoryAuthority"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Personal_data_protection_authority exactMatch dpv:DataProtectionAuthority y GDPRtEXT RegulatoryAuthority exactMatch dpv:DataProtectionAuthority."
-      }
-    },
-    {
-      "@id": "_:pair6ffb1d75c40bff40003f409b",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:CertificationSeal"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:SealsAndCertification"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Personal_data_protection_seals closeMatch dpv:CertificationSeal y GDPRtEXT SealsAndCertification exactMatch dpv:CertificationSeal."
-      }
-    },
-    {
-      "@id": "_:pair726fa88813b9ee79cfe4a50a",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:RightExerciseActivity"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:ExerciseRights"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Exercise_of_rights closeMatch dpv:RightExerciseActivity y GDPRtEXT ExerciseRights closeMatch dpv:RightExerciseActivity."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design",
-      "skos:closeMatch": [
-        {
-          "@id": "gdprtext:DataProtectionByDesignAndByDefault"
-        },
-        {
-          "@id": "gdprtext:PrivacyByDesign"
-        }
-      ]
-    },
-    {
-      "@id": "_:paire06e80e24b1d1d97f1f15121",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:PrivacyByDesign"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:DataProtectionByDesignAndByDefault"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT DataProtectionByDesignAndByDefault exactMatch dpv:PrivacyByDesign."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data",
-      "skos:closeMatch": {
-        "@id": "gdprtext:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing",
-      "skos:closeMatch": [
-        {
-          "@id": "gdprtext:AutomatedProcessing"
-        },
-        {
-          "@id": "gdprtext:Processing"
-        }
-      ]
-    },
-    {
-      "@id": "_:pairdab30d3405e06be3139fb4b6",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:LegitimateInterest"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:LegitimateInterest"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Legal_interest exactMatch dpv:LegitimateInterest y GDPRtEXT LegitimateInterest exactMatch dpv:LegitimateInterest."
-      }
-    },
-    {
-      "@id": "_:paird3cacb59773148e4e2ac2f2f",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:Consent"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:Consent"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT Consent exactMatch dpv:Consent."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security",
-      "skos:closeMatch": {
-        "@id": "gdprtext:SecurityOfPersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public",
-      "skos:closeMatch": {
-        "@id": "gdprtext:MadePublicByDataSubject"
-      }
-    },
-    {
-      "@id": "bridge:chainedBy",
-      "@type": "owl:AnnotationProperty",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Término del DPV con el que se corresponden los dos conceptos del par."
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "encadenado por el DPV"
-      }
-    },
-    {
-      "@id": "_:pair13c07fbaf1029b332b4a5270",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:SensitivePersonalData"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:SensitivePersonalData"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Sensitive_data closeMatch dpv:SensitivePersonalData y GDPRtEXT SensitivePersonalData exactMatch dpv:SensitivePersonalData."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority",
-      "skos:closeMatch": {
-        "@id": "gdprtext:RegulatoryAuthority"
       }
     },
     {
@@ -570,123 +83,40 @@
       }
     },
     {
-      "@id": "_:pair372f9aee7a7214243b3e96b5",
+      "@id": "_:pair72c633ccc4bc8a8a123bc927",
       "@type": "owl:Axiom",
       "bridge:chainedBy": {
-        "@id": "dpv:Processing"
+        "@id": "dpv:CodeOfConduct"
       },
       "owl:annotatedProperty": {
         "@id": "skos:closeMatch"
       },
       "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct"
       },
       "owl:annotatedTarget": {
-        "@id": "gdprtext:Processing"
+        "@id": "gdprtext:CodeOfConduct"
       },
       "owl:versionInfo": "1",
       "rdfs:comment": {
         "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing."
+        "@value": "Encadenado por el DPV: OntoPriv CodesOfConduct exactMatch dpv:CodeOfConduct y GDPRtEXT CodeOfConduct exactMatch dpv:CodeOfConduct."
       }
     },
     {
-      "@id": "_:pair07e801f1dfa80fa4328d36f0",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataProcessor"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:Processor"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Data_Processor exactMatch dpv:DataProcessor y GDPRtEXT Processor exactMatch dpv:DataProcessor."
-      }
-    },
-    {
-      "@id": "_:pair35e1fb5869c3713a22cf414c",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:DataSubject"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner"
-      },
-      "owl:annotatedTarget": {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner",
+      "skos:closeMatch": {
         "@id": "gdprtext:DataSubject"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Data_Owner exactMatch dpv:DataSubject y GDPRtEXT DataSubject exactMatch dpv:DataSubject."
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent",
-      "skos:closeMatch": [
-        {
-          "@id": "gdprtext:CanBeWithdrawnEasilyConsentObligation"
-        },
-        {
-          "@id": "gdprtext:WithdrawingConsent"
-        }
-      ]
-    },
-    {
-      "@id": "_:paire836bc76a5d391703a3b0875",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:Processing"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:Processing"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing."
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data",
+      "skos:closeMatch": {
+        "@id": "gdprtext:AnonymousData"
       }
     },
     {
-      "@id": "_:pairfd792ed6836ff6b675e48208",
-      "@type": "owl:Axiom",
-      "bridge:chainedBy": {
-        "@id": "dpv:ConfidentialityAgreement"
-      },
-      "owl:annotatedProperty": {
-        "@id": "skos:closeMatch"
-      },
-      "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement"
-      },
-      "owl:annotatedTarget": {
-        "@id": "gdprtext:ImposeConfidentialityObligationOnPersonnel"
-      },
-      "owl:versionInfo": "1",
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv ConfidentialityAgreement exactMatch dpv:ConfidentialityAgreement y GDPRtEXT ImposeConfidentialityObligationOnPersonnel exactMatch dpv:ConfidentialityAgreement."
-      }
-    },
-    {
-      "@id": "_:pair260679548b3b9f779b85cd52",
+      "@id": "_:paira0d1d9e9020e53cd13cebc77",
       "@type": "owl:Axiom",
       "bridge:chainedBy": {
         "@id": "dpv:PublicDataSource"
@@ -695,7 +125,7 @@
         "@id": "skos:closeMatch"
       },
       "owl:annotatedSource": {
-        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public"
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public"
       },
       "owl:annotatedTarget": {
         "@id": "gdprtext:MadePublicByDataSubject"
@@ -703,8 +133,19 @@
       "owl:versionInfo": "1",
       "rdfs:comment": {
         "@language": "es",
-        "@value": "Encadenado por el DPV: OntoPriv Sources_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource."
+        "@value": "Encadenado por el DPV: OntoPriv Source_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource."
       }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing",
+      "skos:closeMatch": [
+        {
+          "@id": "gdprtext:AutomatedProcessing"
+        },
+        {
+          "@id": "gdprtext:Processing"
+        }
+      ]
     },
     {
       "@id": "_:pair2d0a653e53c077423238b6d2",
@@ -728,15 +169,31 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment",
-      "skos:closeMatch": [
-        {
-          "@id": "gdprtext:FactorsForImpactAssessment"
-        },
-        {
-          "@id": "gdprtext:ImpactAssessment"
-        }
-      ]
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals",
+      "skos:closeMatch": {
+        "@id": "gdprtext:SealsAndCertification"
+      }
+    },
+    {
+      "@id": "_:pair911a14e1dd12a3ccc0db6e4f",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:ImpactAssessment"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:FactorsForImpactAssessment"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT FactorsForImpactAssessment exactMatch dpv:ImpactAssessment."
+      }
     },
     {
       "@id": "_:pairde0c45b542f6d51f4c4322ed",
@@ -781,39 +238,106 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ontopriv-gdpr-alignment",
-      "@type": "owl:Ontology",
-      "dct:references": [
-        {
-          "@id": "http://purl.org/adaptcentre/openscience/ontologies/GDPRtEXT"
-        },
-        {
-          "@id": "https://w3id.org/dpv"
-        }
-      ],
-      "owl:imports": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment"
+      "@id": "_:pair35e1fb5869c3713a22cf414c",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataSubject"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:DataSubject"
       },
       "owl:versionInfo": "1",
       "rdfs:comment": {
         "@language": "es",
-        "@value": "Pares de un concepto de la base (OntoPriv + LOPDP) y uno de GDPRtEXT que se corresponden con el mismo término del DPV con exactMatch o closeMatch en los dos lados. Cada par se escribe con skos:closeMatch y su anotación dice el término del DPV por el que pasa. GDPRtEXT y el DPV se referencian por IRI; no se importan. La explicación de la IA revisora va aparte (ontopriv-gdpr-bridge.csv), no en la ontología."
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Puente de la base con el GDPR: OntoPriv y GDPRtEXT encadenados por el DPV"
+        "@value": "Encadenado por el DPV: OntoPriv Data_Owner exactMatch dpv:DataSubject y GDPRtEXT DataSubject exactMatch dpv:DataSubject."
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing",
-      "skos:closeMatch": [
-        {
-          "@id": "gdprtext:AutomatedProcessing"
-        },
-        {
-          "@id": "gdprtext:Processing"
-        }
-      ]
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest",
+      "skos:closeMatch": {
+        "@id": "gdprtext:PublicInterest"
+      }
+    },
+    {
+      "@id": "_:pairfd792ed6836ff6b675e48208",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:ConfidentialityAgreement"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:ImposeConfidentialityObligationOnPersonnel"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv ConfidentialityAgreement exactMatch dpv:ConfidentialityAgreement y GDPRtEXT ImposeConfidentialityObligationOnPersonnel exactMatch dpv:ConfidentialityAgreement."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data",
+      "skos:closeMatch": {
+        "@id": "gdprtext:PersonalData"
+      }
+    },
+    {
+      "@id": "_:pair372f9aee7a7214243b3e96b5",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:Processing"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Processing"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing."
+      }
+    },
+    {
+      "@id": "_:pair977e55302766880c4740fdc9",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:PrivacyByDesign"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:PrivacyByDesign"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT PrivacyByDesign closeMatch dpv:PrivacyByDesign."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public",
+      "skos:closeMatch": {
+        "@id": "gdprtext:MadePublicByDataSubject"
+      }
     },
     {
       "@id": "_:pair281e1eade190044f39f92672",
@@ -837,15 +361,30 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types",
-      "skos:closeMatch": {
-        "@id": "gdprtext:Data"
+      "@id": "_:pair6ffb1d75c40bff40003f409b",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:CertificationSeal"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:SealsAndCertification"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Personal_data_protection_seals closeMatch dpv:CertificationSeal y GDPRtEXT SealsAndCertification exactMatch dpv:CertificationSeal."
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest",
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement",
       "skos:closeMatch": {
-        "@id": "gdprtext:PublicInterest"
+        "@id": "gdprtext:ImposeConfidentialityObligationOnPersonnel"
       }
     },
     {
@@ -863,9 +402,295 @@
       ]
     },
     {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing",
+      "skos:closeMatch": [
+        {
+          "@id": "gdprtext:AutomatedProcessing"
+        },
+        {
+          "@id": "gdprtext:Processing"
+        }
+      ]
+    },
+    {
+      "@id": "_:pair8fcd577701c92472c076993f",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataController"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Controller"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Data_Controller exactMatch dpv:DataController y GDPRtEXT Controller exactMatch dpv:DataController."
+      }
+    },
+    {
+      "@id": "_:pair726fa88813b9ee79cfe4a50a",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:RightExerciseActivity"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:ExerciseRights"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Exercise_of_rights closeMatch dpv:RightExerciseActivity y GDPRtEXT ExerciseRights closeMatch dpv:RightExerciseActivity."
+      }
+    },
+    {
+      "@id": "_:pair559f9f4d4abee7c9365cf932",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:ImpactAssessment"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:ImpactAssessment"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv ImpactAssessment exactMatch dpv:ImpactAssessment y GDPRtEXT ImpactAssessment exactMatch dpv:ImpactAssessment."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority",
+      "skos:closeMatch": {
+        "@id": "gdprtext:RegulatoryAuthority"
+      }
+    },
+    {
+      "@id": "_:pairdab30d3405e06be3139fb4b6",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:LegitimateInterest"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:LegitimateInterest"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Legal_interest exactMatch dpv:LegitimateInterest y GDPRtEXT LegitimateInterest exactMatch dpv:LegitimateInterest."
+      }
+    },
+    {
+      "@id": "_:pairef484da99824d04fbb475089",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataSecurityManagement"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:SecurityOfPersonalData"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Personal_data_security closeMatch dpv:DataSecurityManagement y GDPRtEXT SecurityOfPersonalData closeMatch dpv:DataSecurityManagement."
+      }
+    },
+    {
+      "@id": "bridge:chainedBy",
+      "@type": "owl:AnnotationProperty",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Término del DPV con el que se corresponden los dos conceptos del par."
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "encadenado por el DPV"
+      }
+    },
+    {
+      "@id": "_:pair41f0eb76a93d53171679fa6e",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:WithdrawConsent"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:CanBeWithdrawnEasilyConsentObligation"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Revocation_of_consent closeMatch dpv:WithdrawConsent y GDPRtEXT CanBeWithdrawnEasilyConsentObligation closeMatch dpv:WithdrawConsent."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest",
+      "skos:closeMatch": {
+        "@id": "gdprtext:LegitimateInterest"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public",
+      "skos:closeMatch": {
+        "@id": "gdprtext:MadePublicByDataSubject"
+      }
+    },
+    {
+      "@id": "_:paire06e80e24b1d1d97f1f15121",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:PrivacyByDesign"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:DataProtectionByDesignAndByDefault"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Follow-up_from_design closeMatch dpv:PrivacyByDesign y GDPRtEXT DataProtectionByDesignAndByDefault exactMatch dpv:PrivacyByDesign."
+      }
+    },
+    {
+      "@id": "_:pairc4253ab90973eae56e815913",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataProtectionAuthority"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_authority"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:RegulatoryAuthority"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Personal_data_protection_authority exactMatch dpv:DataProtectionAuthority y GDPRtEXT RegulatoryAuthority exactMatch dpv:DataProtectionAuthority."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security",
+      "skos:closeMatch": {
+        "@id": "gdprtext:SecurityOfPersonalData"
+      }
+    },
+    {
       "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor",
       "skos:closeMatch": {
         "@id": "gdprtext:Processor"
+      }
+    },
+    {
+      "@id": "_:paire836bc76a5d391703a3b0875",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:Processing"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Processing"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Data_processing exactMatch dpv:Processing y GDPRtEXT Processing exactMatch dpv:Processing."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment",
+      "skos:closeMatch": [
+        {
+          "@id": "gdprtext:FactorsForImpactAssessment"
+        },
+        {
+          "@id": "gdprtext:ImpactAssessment"
+        }
+      ]
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types",
+      "skos:closeMatch": {
+        "@id": "gdprtext:Data"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights",
+      "skos:closeMatch": {
+        "@id": "gdprtext:Rights"
+      }
+    },
+    {
+      "@id": "_:pair24c2b8dbeab9fce0c71bb8b6",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:AnonymisedData"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:AnonymousData"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Anonymized_data closeMatch dpv:AnonymisedData y GDPRtEXT AnonymousData exactMatch dpv:AnonymisedData."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data",
+      "skos:closeMatch": {
+        "@id": "gdprtext:SensitivePersonalData"
       }
     },
     {
@@ -873,6 +698,181 @@
       "skos:closeMatch": {
         "@id": "gdprtext:Controller"
       }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights",
+      "skos:closeMatch": {
+        "@id": "gdprtext:ExerciseRights"
+      }
+    },
+    {
+      "@id": "_:pair8ae22cfa412fedc1c085682b",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:Consent"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:GivenConsent"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT GivenConsent exactMatch dpv:Consent."
+      }
+    },
+    {
+      "@id": "_:pair9973cef944392b729f6e0094",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:PersonalData"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:PersonalData"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Personal_data exactMatch dpv:PersonalData y GDPRtEXT PersonalData exactMatch dpv:PersonalData."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent",
+      "skos:closeMatch": [
+        {
+          "@id": "gdprtext:CanBeWithdrawnEasilyConsentObligation"
+        },
+        {
+          "@id": "gdprtext:WithdrawingConsent"
+        }
+      ]
+    },
+    {
+      "@id": "_:pair8b087ebaf160a00ac1f8056e",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Rights"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Rights closeMatch dpv:DataSubjectRight y GDPRtEXT Rights closeMatch dpv:DataSubjectRight."
+      }
+    },
+    {
+      "@id": "_:pair13c07fbaf1029b332b4a5270",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:SensitivePersonalData"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:SensitivePersonalData"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Sensitive_data closeMatch dpv:SensitivePersonalData y GDPRtEXT SensitivePersonalData exactMatch dpv:SensitivePersonalData."
+      }
+    },
+    {
+      "@id": "_:paird3cacb59773148e4e2ac2f2f",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:Consent"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Consent"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Consent exactMatch dpv:Consent y GDPRtEXT Consent exactMatch dpv:Consent."
+      }
+    },
+    {
+      "@id": "_:pair260679548b3b9f779b85cd52",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:PublicDataSource"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:MadePublicByDataSubject"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Sources_accessible_to_the_public exactMatch dpv:PublicDataSource y GDPRtEXT MadePublicByDataSubject exactMatch dpv:PublicDataSource."
+      }
+    },
+    {
+      "@id": "_:pair07e801f1dfa80fa4328d36f0",
+      "@type": "owl:Axiom",
+      "bridge:chainedBy": {
+        "@id": "dpv:DataProcessor"
+      },
+      "owl:annotatedProperty": {
+        "@id": "skos:closeMatch"
+      },
+      "owl:annotatedSource": {
+        "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Processor"
+      },
+      "owl:annotatedTarget": {
+        "@id": "gdprtext:Processor"
+      },
+      "owl:versionInfo": "1",
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Encadenado por el DPV: OntoPriv Data_Processor exactMatch dpv:DataProcessor y GDPRtEXT Processor exactMatch dpv:DataProcessor."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design",
+      "skos:closeMatch": [
+        {
+          "@id": "gdprtext:DataProtectionByDesignAndByDefault"
+        },
+        {
+          "@id": "gdprtext:PrivacyByDesign"
+        }
+      ]
     }
   ]
 }
