@@ -154,6 +154,29 @@ def test_the_command_runs_the_cases_and_says_what_is_missing(files, tmp_path, ca
     assert "casos que no están" in capsys.readouterr().out
 
 
+def test_cleaning_does_not_clean_a_case_that_comes_again(files, tmp_path, monkeypatch):
+    """--limpio cleans each space once: "dos-veces-2" has to find the one of "dos-veces-1"."""
+    onto = files / "mi-gdpr.ttl"
+    cases = tmp_path / "casos.yaml"
+    cases.write_text(f"cases:\n  - {{id: uno, mode: ontology, ontology: {onto}}}\n"
+                     f"  - {{id: dos, mode: ontology, ontology: {onto}}}\n"
+                     f"  - {{id: ley, mode: law, law: {files / 'ley.txt'}}}\n", encoding="utf-8")
+    seen = []
+
+    def run_case(case, fresh=False, cfg=None):
+        seen.append((case.id, fresh))
+        return {"case": case.id}
+    monkeypatch.setattr(rn, "run_case", run_case)
+    monkeypatch.setattr(rn, "save", lambda record, out: None)
+    monkeypatch.setattr(rn, "render", lambda record: "")
+    spaces = ["--salida", str(tmp_path / "e2e"), "--espacios", str(tmp_path / "e2e")]
+    assert rn._run([str(cases), *spaces, "--limpio"]) == 0
+    assert seen == [("uno", True), ("dos", False), ("ley", True)]
+    seen.clear()
+    assert rn._run([str(cases), *spaces]) == 0
+    assert seen == [("uno", False), ("dos", False), ("ley", False)]
+
+
 def test_the_cases_run_in_their_own_spaces(files, fakes, env, tmp_path):  # noqa: F811
     ours = {**env.cfg, "workspaces": {**env.cfg["workspaces"], "dir": str(tmp_path / "e2e")}}
     r = rn.run_case(rn.Case("gdpr", svc.MODE_ONTOLOGY, {"ontology": files / "mi-gdpr.ttl"}),

@@ -307,7 +307,8 @@ def _run(argv: list[str] | None = None) -> int:
     parser.add_argument("casos", type=Path, help="archivo .yaml con los casos")
     parser.add_argument("--solo", nargs="+", metavar="ID", help="corre solo estos casos")
     parser.add_argument("--limpio", action="store_true",
-                        help="borra antes el espacio del caso (la caché de la IA se queda)")
+                        help="borra antes el espacio de cada caso, una vez por corrida (la "
+                             "caché de la IA se queda)")
     parser.add_argument("--salida", type=Path, default=ROOT / "data/output/e2e/s11")
     parser.add_argument("--espacios", type=Path, default=ROOT / SPACES,
                         help="carpeta de los espacios de las pruebas")
@@ -320,6 +321,7 @@ def _run(argv: list[str] | None = None) -> int:
     print("Pruebas del Sprint 11 (S11-T09)")
     cfg = e2e_cfg(args.espacios)
     share_cache(args.espacios)
+    cleaned = set()           # the same files share a space: a case that comes again reuses it
     for case in cases:
         if args.solo and case.id not in args.solo:
             continue
@@ -327,7 +329,9 @@ def _run(argv: list[str] | None = None) -> int:
         if missing:
             print(f"  {case.id}: falta {', '.join(missing)}; no se corrió")
             continue
-        record = run_case(case, fresh=args.limpio, cfg=cfg)
+        files = tuple(sorted(case.files.items()))
+        record = run_case(case, fresh=args.limpio and files not in cleaned, cfg=cfg)
+        cleaned.add(files)
         save(record, args.salida)
         print(render(record))
     print(f"  Espacios: {args.espacios}\n  Registro: {args.salida / RUNS_FILE}\n"

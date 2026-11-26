@@ -9,117 +9,50 @@
   },
   "@graph": [
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Organic_Law_on_Personal_Data_Protection",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_over_17_years_old",
       "skos:broadMatch": {
-        "@id": "dpv:Law"
+        "@id": "dpv:Adult"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_opposition",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 16"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Need",
+      "skos:relatedMatch": {
+        "@id": "dpv:Necessity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Corrective_measures",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 65"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Obligations_of_the_responsible_person_and_manager",
+      "skos:broadMatch": {
+        "@id": "dpv:hasObligation"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Large_scale_treatment",
+      "skos:broadMatch": {
+        "@id": "dpv:hasProcessingScale"
       }
     },
     {
       "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Serious",
       "skos:relatedMatch": {
         "@id": "dpv:hasSeverity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sanctions",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 71"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#UnfulfilledRegistry",
-      "@type": "owl:Class",
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Registro Único de Responsables y Encargados Incumplidos"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Registro de responsables y encargados del tratamiento de datos personales que han incurrido en infracciones, con fines sociales, estadísticos, preventivos y de capacitación."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_information",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 12"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:RightNotice"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CessationOfTreatment",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 65"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "cese del tratamiento"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Medida correctiva que consiste en detener el tratamiento de datos bajo condiciones o plazos determinados."
-      },
-      "skos:narrowMatch": {
-        "@id": "dpv:UntilTimeDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Loyalty",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_in_days_for_the_right_of_removal",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#AdequateProtectionLevel",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 56"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "nivel adecuado de protección"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Estándar requerido para que países u organizaciones puedan recibir datos personales de forma segura."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:DataProtectionAuthority"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exceptions_of_rights",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 18"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Recipient",
-      "skos:exactMatch": {
-        "@id": "dpv:Recipient"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Commercial",
-      "skos:relatedMatch": {
-        "@id": "dpv:CommercialPurpose"
       }
     },
     {
@@ -145,6 +78,340 @@
       }
     },
     {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ProvisionalMeasures",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 74"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Medidas provisionales o cautelares"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Medidas de protección o cautelares aplicables por la Autoridad de Protección de Datos Personales según la norma procedimental administrativa."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Purpose",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Purpose"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_governments",
+      "skos:closeMatch": {
+        "@id": "dpv:PublicSectorBody"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DutyOfConfidentiality",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 30"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Deber de confidencialidad"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Obligación de responsables, encargados y terceras personas en el tratamiento de datos de salud para garantizar su seguridad y complementar el secreto profesional."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:ContractConfidentialityClause"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Security",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 10"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 37"
+        }
+      ],
+      "skos:relatedMatch": {
+        "@id": "dpv:EnforceSecurity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_within_days_for_the_right_of_correction_and_update",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 47"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "contratos de confidencialidad"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Instrumento legal para garantizar el manejo adecuado de datos personales por parte del personal y encargados."
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:ConfidentialityAgreement"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Organizational",
+      "skos:relatedMatch": {
+        "@id": "dpv:OrganisationalMeasure"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_to_consent_for_national_transfers",
+      "skos:relatedMatch": {
+        "@id": "dpv:DataTransferLegalBasis"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 42"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "evaluación de impacto del tratamiento de datos personales"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Proceso obligatorio realizado por el responsable para identificar riesgos altos en el tratamiento de datos personales."
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:ImpactAssessment"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Systematic_evaluation",
+      "skos:broadMatch": {
+        "@id": "dpv:hasAssessment"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Perform_evaluations",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasAssessment"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minor_infractions",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 67"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:ObligationViolated"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#MinorAutomatedDecisionRight",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 21"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Prohibición de tratar datos sensibles o de menores de edad mediante valoraciones automatizadas, salvo autorización expresa o interés público esencial."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:AutomatedDecisionMaking"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Applicable_safety_measures",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 41"
+      },
+      "skos:closeMatch": {
+        "@id": "dpv:TechnicalOrganisationalMeasure"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_for_international_transfers_or_communications",
+      "skos:closeMatch": {
+        "@id": "dpv:DataTransferLegalBasis"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 24"
+      },
+      "skos:closeMatch": {
+        "@id": "dpv:RightExerciseActivity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 20"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:AutomatedDecisionMaking"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_suspension_of_treatment",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 19"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_information",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 12"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:RightNotice"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#need_of",
+      "skos:closeMatch": {
+        "@id": "dpv:hasNecessity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Violations",
+      "skos:relatedMatch": {
+        "@id": "dpv:RuleViolated"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Pseudonymization",
+      "skos:exactMatch": {
+        "@id": "dpv:Pseudonymisation"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#a_data_protection_delegate_will_be_assigned",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasDataProtectionOfficer"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment",
+      "@type": "owl:Ontology",
+      "dcterms:created": "2026-11-26T00:21:01+00:00",
+      "dcterms:references": {
+        "@id": "https://w3id.org/dpv"
+      },
+      "owl:imports": {
+        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp"
+      },
+      "rdfs:comment": {
+        "@language": "es",
+        "@value": "Correspondencias SKOS aprobadas por revisión humana entre OntoPriv (núcleo + perfil) y el Data Privacy Vocabulary (DPV 2.3), más los conceptos nuevos extraídos de la ley y aprobados por una persona. El DPV se referencia por IRI; no se importa."
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Alineación con el DPV del perfil Ecuador (LOPDP)"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Governmental_information_security_mechanism",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 38"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:InformationSecurityPolicy"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Unauthorized_consent",
+      "skos:relatedMatch": {
+        "@id": "dpv:ConsentInvalidated"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Applicability",
+      "skos:relatedMatch": {
+        "@id": "dpv:Applicability"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Slight",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasSeverity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Admitted_Countries",
+      "skos:broadMatch": {
+        "@id": "dpv:Country"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Disabled_owner_data",
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Recipient",
+      "skos:exactMatch": {
+        "@id": "dpv:Recipient"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest",
+      "skos:closeMatch": {
+        "@id": "dpv:PublicInterest"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_correction_and_update",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 14"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      }
+    },
+    {
       "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data",
       "dcterms:source": {
         "@language": "es",
@@ -155,45 +422,89 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data_processing",
-      "skos:relatedMatch": {
-        "@id": "dpv:SensitivePersonalData"
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 57"
+      },
+      "skos:closeMatch": {
+        "@id": "dpv:DataSubjectRight"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_digital_education",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_under_17_years_old",
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Right_to_portability",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 23"
+        "@value": "LOPDP, art. 17"
       },
       "skos:broadMatch": {
         "@id": "dpv:DataSubjectRight"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:DigitalLiteracy"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ProportionalityPrinciple",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#serious_infractions",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasSeverity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal",
+      "skos:relatedMatch": {
+        "@id": "dpv:LegalMeasure"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Preservation_time",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Successor_right_holder",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 27"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Inapplicability",
+      "skos:relatedMatch": {
+        "@id": "dpv:Applicability"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Advise_on_risk_analysis",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasRiskAssessment"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataBreachException",
       "@type": "owl:Class",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 71"
+        "@value": "LOPDP, art. 46"
       },
       "rdfs:label": {
         "@language": "es",
-        "@value": "principio de proporcionalidad"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:Principle"
+        "@value": "excepciones a la notificación de vulneración"
       },
       "skos:definition": {
         "@language": "es",
-        "@value": "Criterio utilizado para establecer la cuantía de la multa basado en la intencionalidad, reiteración, perjuicio y reincidencia."
+        "@value": "Casos específicos donde no es necesario notificar al titular sobre una vulneración de seguridad bajo condiciones demostrables."
+      },
+      "skos:narrowMatch": {
+        "@id": "dpv:DataBreachNotice"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataProtectionAudit",
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#BindingCorporateRules",
       "@type": "owl:Class",
       "dcterms:source": {
         "@language": "es",
@@ -201,30 +512,175 @@
       },
       "rdfs:label": {
         "@language": "es",
-        "@value": "auditorías de protección de datos"
+        "@value": "normas corporativas vinculantes"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:LegalCompliance"
       },
       "skos:definition": {
         "@language": "es",
-        "@value": "Mecanismo de verificación sobre el cumplimiento de las normas corporativas vinculantes."
+        "@value": "Reglas de obligatorio cumplimiento para el grupo empresarial que regulan la transferencia internacional de datos."
       },
-      "skos:exactMatch": {
-        "@id": "dpv:PersonalDataAudit"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#a_data_protection_delegate_will_be_assigned",
+      "skos:narrowMatch": {
+        "@id": "dpv:ContractualTerms"
+      },
       "skos:relatedMatch": {
-        "@id": "dpv:hasDataProtectionOfficer"
+        "@id": "dpv:FulfilmentOfContractualObligation"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Genetic_data",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data_processing",
+      "skos:relatedMatch": {
+        "@id": "dpv:SensitivePersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Commercial",
+      "skos:relatedMatch": {
+        "@id": "dpv:CommercialPurpose"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Purpose",
+      "skos:closeMatch": {
+        "@id": "dpv:hasPurpose"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_of_access",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CessationOfTreatment",
+      "@type": "owl:Class",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 4"
+        "@value": "LOPDP, art. 65"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "cese del tratamiento"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Medida correctiva que consiste en detener el tratamiento de datos bajo condiciones o plazos determinados."
+      },
+      "skos:narrowMatch": {
+        "@id": "dpv:UntilTimeDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Administrative_or_judicial_authorities",
+      "skos:broadMatch": {
+        "@id": "dpv:Authority"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_relationship",
+      "skos:relatedMatch": {
+        "@id": "dpv:Contract"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_in_days_for_the_right_of_removal",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#time_of_right_to_elimination",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public",
+      "skos:exactMatch": {
+        "@id": "dpv:PublicDataSource"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Protection_policies",
+      "skos:broadMatch": {
+        "@id": "dpv:hasPolicy"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International_companies",
+      "skos:broadMatch": {
+        "@id": "dpv:Organisation"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Special_personal_data_categories",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 25"
+      },
+      "skos:closeMatch": {
+        "@id": "dpv:SpecialCategoryPersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_under_15_years_old",
+      "skos:broadMatch": {
+        "@id": "dpv:Child"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#NationalDataProtectionRegistry",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 51"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Registro Nacional de protección de datos personales"
       },
       "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
+        "@id": "dpv:PublicRegisterOfEntities"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Sistema donde el responsable debe reportar y mantener actualizada la información sobre el tratamiento de datos."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Volume",
+      "skos:closeMatch": {
+        "@id": "dpv:hasDataVolume"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Domestic_Companies",
+      "skos:broadMatch": {
+        "@id": "dpv:Organisation"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#affects_to",
+      "skos:closeMatch": {
+        "@id": "dpv:hasImpactOn"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minimization",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Juridicity",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Lawfulness"
       }
     },
     {
@@ -247,31 +703,260 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Purpose",
-      "skos:closeMatch": {
-        "@id": "dpv:hasPurpose"
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#types_of_safety_measures",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasTechnicalOrganisationalMeasure"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Claims_defense",
+      "skos:relatedMatch": {
+        "@id": "dpv:DisputeManagement"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Genetic_data",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 4"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasRight"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#Recidivism",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 71"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "reincidencia"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Circunstancia donde la infracción precedente es de la misma naturaleza que la que se pretende sancionar."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:RuleViolated"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Profile_making",
+      "skos:exactMatch": {
+        "@id": "dpv:Profiling"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#PersonalDataProtection",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 1"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "protección de datos personales"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Derecho que incluye el acceso y decisión sobre información y datos de carácter personal."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:SensitivePersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#territorial_application_scenario",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasJurisdiction"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#obligations",
+      "skos:closeMatch": {
+        "@id": "dpv:hasObligation"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 54"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Certification"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent",
+      "skos:broadMatch": {
+        "@id": "dpv:Consent"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Name",
+      "skos:closeMatch": {
+        "@id": "dpv:hasName"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Epidemiological_studies",
+      "skos:broadMatch": {
+        "@id": "dpv:ScientificResearch"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Deceased_persons_data",
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasRisk"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 4"
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:Processing"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Vital_interest_of_another_person",
+      "skos:closeMatch": {
+        "@id": "dpv:VitalInterestOfNaturalPerson"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_representative_owner",
+      "skos:closeMatch": {
+        "@id": "dpv:GuardianOfDataSubject"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_Related_Data",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 30"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data",
       "dcterms:source": [
         {
           "@language": "es",
-          "@value": "LOPDP, art. 55"
+          "@value": "LOPDP, art. 26"
         },
         {
           "@language": "es",
-          "@value": "LOPDP, art. 57"
+          "@value": "LOPDP, art. 4"
         }
       ],
-      "skos:broadMatch": {
-        "@id": "dpv:Transfer"
+      "skos:closeMatch": {
+        "@id": "dpv:SensitivePersonalData"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_governments",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Teenagers",
+      "skos:broadMatch": {
+        "@id": "dpv:Child"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_digital_education",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 23"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:DigitalLiteracy"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Organic_Law_on_Personal_Data_Protection",
+      "skos:broadMatch": {
+        "@id": "dpv:Law"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#has_as_the_basis_of",
       "skos:closeMatch": {
-        "@id": "dpv:PublicSectorBody"
+        "@id": "dpv:hasLegalBasis"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DirectRequirement",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 62"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "requerimiento directo"
+      },
+      "skos:closeMatch": {
+        "@id": "dpv:RequestRequiresAction"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Acción gratuita que puede ejercer el titular ante el responsable del tratamiento sobre sus derechos."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Confidentiality",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 10"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 50"
+        }
+      ],
+      "skos:relatedMatch": {
+        "@id": "dpv:ConfidentialData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_implemented_by",
+      "skos:closeMatch": {
+        "@id": "dpv:isImplementedByEntity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_to_oppose_opposition",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exceptions_of_rights",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 18"
       }
     },
     {
@@ -300,50 +985,62 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Scope_of_application",
-      "skos:closeMatch": {
-        "@id": "dpv:hasScope"
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 4"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 33"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "dpv:Consent"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Transfer_or_communication",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 33"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:Transfer"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 15"
-      },
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#justification_for_revocation",
       "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
+        "@id": "dpv:hasJustification"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#the_law_applies_in",
       "skos:relatedMatch": {
-        "@id": "dpv:StorageDeletion"
+        "@id": "dpv:hasApplicableLaw"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Name",
-      "skos:closeMatch": {
-        "@id": "dpv:hasName"
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Informed",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasInformedStatus"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#serious_infractions",
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 53"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "códigos de conducta"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Instrumentos sectoriales promovidos para el cumplimiento de la normativa de protección de datos."
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:CodeOfConduct"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Very_serious",
       "skos:relatedMatch": {
         "@id": "dpv:hasSeverity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#duration_of_charge",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
       }
     },
     {
@@ -353,25 +1050,73 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Confidentiality",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 10"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 50"
-        }
-      ],
-      "skos:relatedMatch": {
-        "@id": "dpv:ConfidentialData"
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ProportionalityPrinciple",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 71"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "principio de proporcionalidad"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:Principle"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Criterio utilizado para establecer la cuantía de la multa basado en la intencionalidad, reiteración, perjuicio y reincidencia."
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Scope",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing",
+      "skos:exactMatch": {
+        "@id": "dpv:Processing"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Technical_measurements",
       "skos:closeMatch": {
-        "@id": "dpv:hasScope"
+        "@id": "dpv:TechnicalMeasure"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_consult",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 22"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Consult"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_base",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 4"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Data"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Quality",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:DataQualityManagement"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Impact_assessment",
+      "skos:closeMatch": {
+        "@id": "dpv:hasImpactAssessment"
       }
     },
     {
@@ -402,74 +1147,56 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Epidemiological_studies",
-      "skos:broadMatch": {
-        "@id": "dpv:ScientificResearch"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Technical_measurements",
-      "skos:closeMatch": {
-        "@id": "dpv:TechnicalMeasure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#sources_from_whence_the_credit_data_was_obtained",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDataSource"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Systematic_evaluation",
-      "skos:broadMatch": {
-        "@id": "dpv:hasAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ConfidentialityAgreement",
-      "@type": "owl:Class",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Application_favorable_to_the_owner",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 47"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "contratos de confidencialidad"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Instrumento legal para garantizar el manejo adecuado de datos personales por parte del personal y encargados."
-      },
+        "@value": "LOPDP, art. 10"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public",
       "skos:exactMatch": {
-        "@id": "dpv:ConfidentialityAgreement"
+        "@id": "dpv:PublicDataSource"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Special_personal_data_categories",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 25"
-      },
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#National_Scope",
       "skos:closeMatch": {
-        "@id": "dpv:SpecialCategoryPersonalData"
+        "@id": "dpv:NationalScale"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_institutions",
       "skos:relatedMatch": {
-        "@id": "dpv:AuthorisationProcedure"
+        "@id": "dpv:JudicialOrganisation"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#has_as_the_basis_of",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 55"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 57"
+        }
+      ],
+      "skos:broadMatch": {
+        "@id": "dpv:Transfer"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_protection_mechanisms",
+      "skos:relatedMatch": {
+        "@id": "dpv:DataSecurityManagement"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals",
       "skos:closeMatch": {
-        "@id": "dpv:hasLegalBasis"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Informed",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasInformedStatus"
+        "@id": "dpv:CertificationSeal"
       }
     },
     {
@@ -483,132 +1210,19 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 17"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 4"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 9"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 33"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 57"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 67"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 41"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 49"
-        }
-      ],
-      "skos:exactMatch": {
-        "@id": "dpv:DataController"
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Deceased_persons_data",
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Very_serious",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasSeverity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#Recidivism",
-      "@type": "owl:Class",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk_analysis_of_threats_and_vulnerabilities",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 71"
+        "@value": "LOPDP, art. 40"
       },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "reincidencia"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Circunstancia donde la infracción precedente es de la misma naturaleza que la que se pretende sancionar."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:RuleViolated"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Administrative_or_judicial_authorities",
-      "skos:broadMatch": {
-        "@id": "dpv:Authority"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Governmental_information_security_mechanism",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 38"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:InformationSecurityPolicy"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_of_access",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sensitive_data",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 26"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 4"
-        }
-      ],
       "skos:closeMatch": {
-        "@id": "dpv:SensitivePersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#deadline_in_days_for_the_right_to_oppose_opposition",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Conservation",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:StorageDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Purpose",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:Purpose"
+        "@id": "dpv:SecurityAssessment"
       }
     },
     {
@@ -622,94 +1236,10 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#BindingCorporateRules",
-      "@type": "owl:Class",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proportionality",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 58"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "normas corporativas vinculantes"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:LegalCompliance"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Reglas de obligatorio cumplimiento para el grupo empresarial que regulan la transferencia internacional de datos."
-      },
-      "skos:narrowMatch": {
-        "@id": "dpv:ContractualTerms"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:FulfilmentOfContractualObligation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minor_infractions",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 67"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:ObligationViolated"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_base",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 4"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:Data"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_processing",
-      "skos:exactMatch": {
-        "@id": "dpv:Processing"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types",
-      "skos:closeMatch": {
-        "@id": "dpv:Data"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Slight",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasSeverity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_persons_minors",
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Disabled_owner_data",
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Credit_data",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 28"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Obligations_of_the_responsible_person_and_manager",
-      "skos:broadMatch": {
-        "@id": "dpv:hasObligation"
+        "@value": "LOPDP, art. 10"
       }
     },
     {
@@ -719,25 +1249,9 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_institutions",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legality",
       "skos:relatedMatch": {
-        "@id": "dpv:JudicialOrganisation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Processing",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 4"
-      },
-      "skos:exactMatch": {
-        "@id": "dpv:Processing"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Large_scale_treatment",
-      "skos:broadMatch": {
-        "@id": "dpv:hasProcessingScale"
+        "@id": "dpv:Lawful"
       }
     },
     {
@@ -754,61 +1268,6 @@
       ],
       "skos:exactMatch": {
         "@id": "dpv:Anonymisation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 4"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:SensitivePersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent",
-      "skos:closeMatch": {
-        "@id": "dpv:WithdrawConsent"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Delegate",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 4"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 48"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 49"
-        }
-      ],
-      "skos:exactMatch": {
-        "@id": "dpv:DataProtectionOfficer"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp-dpv-alignment",
-      "@type": "owl:Ontology",
-      "dcterms:created": "2026-11-25T02:46:47+00:00",
-      "dcterms:references": {
-        "@id": "https://w3id.org/dpv"
-      },
-      "owl:imports": {
-        "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp"
-      },
-      "rdfs:comment": {
-        "@language": "es",
-        "@value": "Correspondencias SKOS aprobadas por revisión humana entre OntoPriv (núcleo + perfil) y el Data Privacy Vocabulary (DPV 2.3), más los conceptos nuevos extraídos de la ley y aprobados por una persona. El DPV se referencia por IRI; no se importa."
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Alineación con el DPV del perfil Ecuador (LOPDP)"
       }
     },
     {
@@ -834,183 +1293,6 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_consult",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 22"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:Consult"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#the_law_applies_in",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasApplicableLaw"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 17"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 4"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 10"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 33"
-        }
-      ],
-      "skos:exactMatch": {
-        "@id": "dpv:DataSubject"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Certifying_entity",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 54"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:Certification"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proportionality",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Admitted_Countries",
-      "skos:broadMatch": {
-        "@id": "dpv:Country"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Vital_interest_of_another_person",
-      "skos:closeMatch": {
-        "@id": "dpv:VitalInterestOfNaturalPerson"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_not_to_be_object_to_automated_evaluations",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 20"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:AutomatedDecisionMaking"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Claims_defense",
-      "skos:relatedMatch": {
-        "@id": "dpv:DisputeManagement"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_access",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 13"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:Access"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_suspension_of_treatment",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 19"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Perform_evaluations",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#time_of_attention_within_days_for_the_right_of_correction_and_update",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DirectRequirement",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 62"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "requerimiento directo"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:RequestRequiresAction"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Acción gratuita que puede ejercer el titular ante el responsable del tratamiento sobre sus derechos."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Organizational",
-      "skos:relatedMatch": {
-        "@id": "dpv:OrganisationalMeasure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ImpactAssessment",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 42"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "evaluación de impacto del tratamiento de datos personales"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Proceso obligatorio realizado por el responsable para identificar riesgos altos en el tratamiento de datos personales."
-      },
-      "skos:exactMatch": {
-        "@id": "dpv:ImpactAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proactive_and_demonstrated_accountability",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      }
-    },
-    {
       "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights_of_credit_data_owners",
       "dcterms:source": {
         "@language": "es",
@@ -1021,139 +1303,44 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Profile_making",
-      "skos:exactMatch": {
-        "@id": "dpv:Profiling"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Sources_accessible_to_the_public",
-      "skos:exactMatch": {
-        "@id": "dpv:PublicDataSource"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Transparency",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Serious_infractions",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 10"
+        "@value": "LOPDP, art. 68"
       },
       "skos:relatedMatch": {
-        "@id": "dpv:PrivacyNotice"
+        "@id": "dpv:ObligationViolated"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#can_be_rights_of",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Collection",
+      "skos:closeMatch": {
+        "@id": "dpv:Collect"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_plurality_of_purposes",
       "skos:relatedMatch": {
-        "@id": "dpv:hasRight"
+        "@id": "dpv:hasPurpose"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_under_15_years_old",
-      "skos:broadMatch": {
-        "@id": "dpv:Child"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Juridicity",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      },
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Techniques",
       "skos:relatedMatch": {
-        "@id": "dpv:Lawfulness"
+        "@id": "dpv:TechnicalMeasure"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorized_consent",
-      "skos:broadMatch": {
-        "@id": "dpv:Consent"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Application_favorable_to_the_owner",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Loyalty",
       "dcterms:source": {
         "@language": "es",
         "@value": "LOPDP, art. 10"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal_relationship",
-      "skos:relatedMatch": {
-        "@id": "dpv:Contract"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls",
-      "skos:exactMatch": {
-        "@id": "dpv:Child"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#affects_to",
-      "skos:closeMatch": {
-        "@id": "dpv:hasImpactOn"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Teenagers",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#sources_from_whence_the_credit_data_was_obtained",
       "skos:broadMatch": {
-        "@id": "dpv:Child"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_for_international_transfers_or_communications",
-      "skos:closeMatch": {
-        "@id": "dpv:DataTransferLegalBasis"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Deceased_persons_data",
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_authorized_by",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasAuthority"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Public_interest",
-      "skos:closeMatch": {
-        "@id": "dpv:PublicInterest"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Personal_data_protection_seals",
-      "skos:closeMatch": {
-        "@id": "dpv:CertificationSeal"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#contact_data",
-      "skos:closeMatch": {
-        "@id": "dpv:hasContact"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#NationalDataProtectionRegistry",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 51"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Registro Nacional de protección de datos personales"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:PublicRegisterOfEntities"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Sistema donde el responsable debe reportar y mantener actualizada la información sobre el tratamiento de datos."
+        "@id": "dpv:hasDataSource"
       }
     },
     {
@@ -1193,13 +1380,9 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Applicable_safety_measures",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 41"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:TechnicalOrganisationalMeasure"
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#duration_of_charge",
+      "skos:broadMatch": {
+        "@id": "dpv:hasDuration"
       }
     },
     {
@@ -1209,403 +1392,9 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_under_17_years_old",
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Minimization",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Exercise_of_rights",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 24"
-      },
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Scope",
       "skos:closeMatch": {
-        "@id": "dpv:RightExerciseActivity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#CodesOfConduct",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 53"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "códigos de conducta"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Instrumentos sectoriales promovidos para el cumplimiento de la normativa de protección de datos."
-      },
-      "skos:exactMatch": {
-        "@id": "dpv:CodeOfConduct"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Applicability",
-      "skos:relatedMatch": {
-        "@id": "dpv:Applicability"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Exceptions_to_consent_for_national_transfers",
-      "skos:relatedMatch": {
-        "@id": "dpv:DataTransferLegalBasis"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Legal",
-      "skos:relatedMatch": {
-        "@id": "dpv:LegalMeasure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#scope_of_legislation",
-      "skos:relatedMatch": {
         "@id": "dpv:hasScope"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Corrective_measures",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 65"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_to_correction_and_update",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 14"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk_analysis_of_threats_and_vulnerabilities",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 40"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:SecurityAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataSecurityBreach",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 4"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Vulneración de la seguridad de los datos personales"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Incidente de seguridad que afecta la confidencialidad, disponibilidad o integridad de los datos personales."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:DataBreachRecord"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_implemented_by",
-      "skos:closeMatch": {
-        "@id": "dpv:isImplementedByEntity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DutyOfConfidentiality",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 30"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Deber de confidencialidad"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Obligación de responsables, encargados y terceras personas en el tratamiento de datos de salud para garantizar su seguridad y complementar el secreto profesional."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:ContractConfidentialityClause"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Turnover",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 73"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security",
-      "skos:closeMatch": {
-        "@id": "dpv:DataSecurityManagement"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#types_of_safety_measures",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasTechnicalOrganisationalMeasure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_between_15_to_17_years_old",
-      "skos:broadMatch": {
-        "@id": "dpv:Child"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Not_informed",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasInformedStatus"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_representative_owner",
-      "skos:closeMatch": {
-        "@id": "dpv:GuardianOfDataSubject"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Quality",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 10"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:DataQualityManagement"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data",
-      "skos:closeMatch": {
-        "@id": "dpv:AnonymisedData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Need",
-      "skos:relatedMatch": {
-        "@id": "dpv:Necessity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#obligations",
-      "skos:closeMatch": {
-        "@id": "dpv:hasObligation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Impact_assessment",
-      "skos:closeMatch": {
-        "@id": "dpv:hasImpactAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_protection_mechanisms",
-      "skos:relatedMatch": {
-        "@id": "dpv:DataSecurityManagement"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#MinorAutomatedDecisionRight",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 21"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Derecho de niñas, niños y adolescentes a no ser objeto de una decisión basada única o parcialmente en valoraciones automatizadas"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Prohibición de tratar datos sensibles o de menores de edad mediante valoraciones automatizadas, salvo autorización expresa o interés público esencial."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:AutomatedDecisionMaking"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Security",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 10"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 37"
-        }
-      ],
-      "skos:relatedMatch": {
-        "@id": "dpv:EnforceSecurity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Health_Related_Data",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 30"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Serious_infractions",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 68"
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:ObligationViolated"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Risk",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasRisk"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_with_disability",
-      "skos:relatedMatch": {
-        "@id": "dpv:VulnerableDataSubject"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_opposition",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 16"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#AdministrativeProcedure",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 64"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "procedimiento administrativo"
-      },
-      "skos:broadMatch": {
-        "@id": "dpv:GovernanceProcedures"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:AuthorisationProcedure"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Proceso formal ante la Autoridad de Protección de Datos cuando un requerimiento previo es negado o no contestado."
-      },
-      "skos:relatedMatch": {
-        "@id": "dpv:ApprovalProcedure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Successor_right_holder",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 27"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Techniques",
-      "skos:relatedMatch": {
-        "@id": "dpv:TechnicalMeasure"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Rights",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 57"
-      },
-      "skos:closeMatch": {
-        "@id": "dpv:DataSubjectRight"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#time_of_right_to_elimination",
-      "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#International_companies",
-      "skos:broadMatch": {
-        "@id": "dpv:Organisation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Collection",
-      "skos:closeMatch": {
-        "@id": "dpv:Collect"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#minor_infractions",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasSeverity"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#for_plurality_of_purposes",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasPurpose"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design",
-      "dcterms:source": [
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 39"
-        },
-        {
-          "@language": "es",
-          "@value": "LOPDP, art. 47"
-        }
-      ],
-      "skos:closeMatch": {
-        "@id": "dpv:PrivacyByDesign"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Deceased_persons_data",
-      "skos:broadMatch": {
-        "@id": "dpv:PersonalData"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#need_of",
-      "skos:closeMatch": {
-        "@id": "dpv:hasNecessity"
       }
     },
     {
@@ -1649,6 +1438,164 @@
       }
     },
     {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#scope_of_legislation",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasScope"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Anonymized_data",
+      "skos:closeMatch": {
+        "@id": "dpv:AnonymisedData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#minor_infractions",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasSeverity"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#AdequateProtectionLevel",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 56"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "nivel adecuado de protección"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Estándar requerido para que países u organizaciones puedan recibir datos personales de forma segura."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:DataProtectionAuthority"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_deletion",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 15"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:StorageDeletion"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Authorization_for_international_transfer",
+      "skos:relatedMatch": {
+        "@id": "dpv:AuthorisationProcedure"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 9"
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:LegitimateInterest"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Delegate",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 4"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 48"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 49"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "dpv:DataProtectionOfficer"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Proactive_and_demonstrated_accountability",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_between_15_to_17_years_old",
+      "skos:broadMatch": {
+        "@id": "dpv:Child"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataProtectionAudit",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 58"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "auditorías de protección de datos"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Mecanismo de verificación sobre el cumplimiento de las normas corporativas vinculantes."
+      },
+      "skos:exactMatch": {
+        "@id": "dpv:PersonalDataAudit"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Controller",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 17"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 4"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 9"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 33"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 57"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 67"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 41"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 49"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "dpv:DataController"
+      }
+    },
+    {
       "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#SelfRegulation",
       "@type": "owl:Class",
       "dcterms:source": {
@@ -1668,159 +1615,64 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_Seniors_data",
-      "skos:relatedMatch": {
-        "@id": "dpv:ElderlyDataSubject"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#National_Scope",
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#AdministrativeProcedure",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 64"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "procedimiento administrativo"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:GovernanceProcedures"
+      },
       "skos:closeMatch": {
-        "@id": "dpv:NationalScale"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Pseudonymization",
-      "skos:exactMatch": {
-        "@id": "dpv:Pseudonymisation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Protection_policies",
-      "skos:broadMatch": {
-        "@id": "dpv:hasPolicy"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#PersonalDataProtection",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 1"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "protección de datos personales"
+        "@id": "dpv:AuthorisationProcedure"
       },
       "skos:definition": {
         "@language": "es",
-        "@value": "Derecho que incluye el acceso y decisión sobre información y datos de carácter personal."
+        "@value": "Proceso formal ante la Autoridad de Protección de Datos cuando un requerimiento previo es negado o no contestado."
       },
       "skos:relatedMatch": {
-        "@id": "dpv:SensitivePersonalData"
+        "@id": "dpv:ApprovalProcedure"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Right_to_portability",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Conservation",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 17"
+        "@value": "LOPDP, art. 10"
       },
-      "skos:broadMatch": {
-        "@id": "dpv:DataSubjectRight"
+      "skos:relatedMatch": {
+        "@id": "dpv:StorageDuration"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#ProvisionalMeasures",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 74"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "Medidas provisionales o cautelares"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Medidas de protección o cautelares aplicables por la Autoridad de Protección de Datos Personales según la norma procedimental administrativa."
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Consent",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Follow-up_from_design",
       "dcterms:source": [
         {
           "@language": "es",
-          "@value": "LOPDP, art. 4"
+          "@value": "LOPDP, art. 39"
         },
         {
           "@language": "es",
-          "@value": "LOPDP, art. 33"
+          "@value": "LOPDP, art. 47"
         }
       ],
-      "skos:exactMatch": {
-        "@id": "dpv:Consent"
+      "skos:closeMatch": {
+        "@id": "dpv:PrivacyByDesign"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#territorial_application_scenario",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasJurisdiction"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Inapplicability",
-      "skos:relatedMatch": {
-        "@id": "dpv:Applicability"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Source_accessible_to_the_public",
-      "skos:exactMatch": {
-        "@id": "dpv:PublicDataSource"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legal_interest",
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Biometric_data",
       "dcterms:source": {
         "@language": "es",
-        "@value": "LOPDP, art. 9"
+        "@value": "LOPDP, art. 4"
       },
-      "skos:exactMatch": {
-        "@id": "dpv:LegitimateInterest"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Advise_on_risk_analysis",
-      "skos:relatedMatch": {
-        "@id": "dpv:hasRiskAssessment"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Preservation_time",
       "skos:broadMatch": {
-        "@id": "dpv:hasDuration"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_over_17_years_old",
-      "skos:broadMatch": {
-        "@id": "dpv:Adult"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataBreachException",
-      "@type": "owl:Class",
-      "dcterms:source": {
-        "@language": "es",
-        "@value": "LOPDP, art. 46"
-      },
-      "rdfs:label": {
-        "@language": "es",
-        "@value": "excepciones a la notificación de vulneración"
-      },
-      "skos:definition": {
-        "@language": "es",
-        "@value": "Casos específicos donde no es necesario notificar al titular sobre una vulneración de seguridad bajo condiciones demostrables."
-      },
-      "skos:narrowMatch": {
-        "@id": "dpv:DataBreachNotice"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#justification_for_revocation",
-      "skos:broadMatch": {
-        "@id": "dpv:hasJustification"
+        "@id": "dpv:SensitivePersonalData"
       }
     },
     {
@@ -1830,33 +1682,181 @@
       }
     },
     {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Domestic_Companies",
-      "skos:broadMatch": {
-        "@id": "dpv:Organisation"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Unauthorized_consent",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_Seniors_data",
       "skos:relatedMatch": {
-        "@id": "dpv:ConsentInvalidated"
+        "@id": "dpv:ElderlyDataSubject"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Violations",
-      "skos:relatedMatch": {
-        "@id": "dpv:RuleViolated"
-      }
-    },
-    {
-      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Volume",
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Transfer_or_communication",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 33"
+      },
       "skos:closeMatch": {
-        "@id": "dpv:hasDataVolume"
+        "@id": "dpv:Transfer"
       }
     },
     {
-      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Legality",
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#UnfulfilledRegistry",
+      "@type": "owl:Class",
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Registro Único de Responsables y Encargados Incumplidos"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Registro de responsables y encargados del tratamiento de datos personales que han incurrido en infracciones, con fines sociales, estadísticos, preventivos y de capacitación."
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Credit_data",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 28"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_types",
+      "skos:closeMatch": {
+        "@id": "dpv:Data"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#is_authorized_by",
       "skos:relatedMatch": {
-        "@id": "dpv:Lawful"
+        "@id": "dpv:hasAuthority"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/profiles/ecuador-lopdp#DataSecurityBreach",
+      "@type": "owl:Class",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 4"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Vulneración de la seguridad de los datos personales"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Incidente de seguridad que afecta la confidencialidad, disponibilidad o integridad de los datos personales."
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:DataBreachRecord"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Boys_and_girls",
+      "skos:exactMatch": {
+        "@id": "dpv:Child"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Scope_of_application",
+      "skos:closeMatch": {
+        "@id": "dpv:hasScope"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Data_persons_minors",
+      "skos:broadMatch": {
+        "@id": "dpv:PersonalData"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Revocation_of_consent",
+      "skos:closeMatch": {
+        "@id": "dpv:WithdrawConsent"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Right_of_access",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 13"
+      },
+      "skos:broadMatch": {
+        "@id": "dpv:DataSubjectRight"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:Access"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Transparency",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 10"
+      },
+      "skos:relatedMatch": {
+        "@id": "dpv:PrivacyNotice"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#contact_data",
+      "skos:closeMatch": {
+        "@id": "dpv:hasContact"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Data_Owner",
+      "dcterms:source": [
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 17"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 4"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 10"
+        },
+        {
+          "@language": "es",
+          "@value": "LOPDP, art. 33"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "dpv:DataSubject"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Not_informed",
+      "skos:relatedMatch": {
+        "@id": "dpv:hasInformedStatus"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/franc/ontologies/2023/9/OntologiaLOPDP#Personal_data_security",
+      "skos:closeMatch": {
+        "@id": "dpv:DataSecurityManagement"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Turnover",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 73"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Holder_with_disability",
+      "skos:relatedMatch": {
+        "@id": "dpv:VulnerableDataSubject"
+      }
+    },
+    {
+      "@id": "http://www.semanticweb.org/ley-organica-proteccion-datos-personales#Sanctions",
+      "dcterms:source": {
+        "@language": "es",
+        "@value": "LOPDP, art. 71"
       }
     }
   ]

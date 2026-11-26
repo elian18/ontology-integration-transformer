@@ -44,7 +44,12 @@ def aligned(env, targets):  # noqa: F811
 
 
 @pytest.fixture
-def doubtful(aligned):
+def doubtful(aligned, monkeypatch):
+    """Applying an answer validates again: without this, the AI that explains the questions
+    would be the real one on a machine with LLM_API_KEY (slow, and it spends the quota)."""
+    def no_key(*a, **k):
+        raise KeyError("LLM_API_KEY")
+    monkeypatch.setattr("src.ai.llm_client.LLMClient", no_key)
     return _doubtful(aligned)
 
 

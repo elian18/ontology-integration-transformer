@@ -1621,3 +1621,290 @@ pasó, con las 13 de su archivo.
   - OntoPriv sigue siendo inconsistente (5 hallazgos con Jena y 1 con owlrl), y la base sigue
     sin los axiomas anónimos que el Sprint 3 dejó fuera;
   - de las ontologías de la tabla 1.4 del estado del arte, solo DPCat se pudo descargar.
+
+---
+
+## v1.1.0 — Sprint 11 (Despliegue)
+
+**Entregable:** la versión que se entrega del componente. Se levanta con Docker en cualquier
+máquina con un solo comando: la imagen trae Python, Java 21 con Apache Jena 6.2.0, las
+librerías y el modelo de embeddings, y la versión desplegada muestra solo el asistente. La base
+va en el repositorio con la licencia Apache 2.0 y tiene su página de documentación con WIDOCO,
+publicada en GitHub Pages, con la evaluación de OOPS! frente a OntoPriv. Se probó con material
+nuevo (cuatro ontologías y tres leyes) y con casos límite, y se compararon las
+correspondencias de la base con la Tabla 10 del artículo de OntoPriv. Esa comparación llevó a
+corregir `Biometric_data` en la base.
+
+### Qué se construyó
+- La base en el repositorio (S11-T01) — los cinco módulos de la base en sus cuatro formatos, el
+  catálogo para Protégé y los candidatos de los que se hereda van en git. `LICENSE` (Apache
+  2.0) y `NOTICE` dicen de dónde viene cada material y qué se cambió de OntoPriv.
+- Clon limpio (S11-T02) — git también lleva lo que muestran las "Herramientas de
+  construcción", que en un clon nuevo salían vacías. `requirements.txt` ya no tiene cinco
+  librerías que el código no usa (`anthropic`, `owlready2`, `prov`, `SPARQLWrapper` y
+  `docstring_parser`); una prueba revisa que cada librería importada esté en la lista.
+- Versión desplegada (S11-T03) — con `BUILD_TOOLS=0` la web muestra solo el asistente; el
+  menú "Herramientas de construcción" aparece con `BUILD_TOOLS=1`. Las páginas no se borraron:
+  fueron entregables de los sprints anteriores.
+- Barra al aplicar las respuestas (S11-T04) — "Tú decides" muestra la misma barra que la
+  primera corrida, con los siete pasos que de verdad se rehacen.
+- `src/publish/base_doc.py` (S11-T05) — junta los cuatro módulos de la base en un solo archivo
+  para WIDOCO, con la cabecera de autoría, el crédito a OntoPriv y sus dos artículos, una frase
+  por concepto con sus correspondencias y la tabla de todas las correspondencias.
+- `src/publish/widoco.py` (S11-T06) — la página de la base con WIDOCO 1.4.26, en español y en
+  inglés, en `docs/` (GitHub Pages: https://elian18.github.io/ontology-integration-transformer/).
+  `--oops` manda OntoPriv y la base a OOPS! y guarda sus respuestas en `docs/oops`.
+- Enlaces a la página (S11-T08) — el inicio y la pantalla final del asistente la enlazan.
+- `src/e2e/runner.py` (S11-T09) — cada caso de `data/reference/e2e-s11.yaml` pasa por el mismo
+  servicio que la web. Lo que sale queda anotado en `data/output/e2e/s11`: los números de la
+  web, la validación, las llamadas a la IA, el tiempo y si las cuatro descargas dicen lo mismo.
+- Casos límite (S11-T10) — `src/e2e/edge.py` genera su material: un archivo vacío, uno dañado,
+  un PDF escaneado, uno de más de 25 MB, un `.docx` y la misma subida dos veces. También se
+  prueban tres condiciones: sin clave del LLM, sin Java y con la cuota agotada. Esos casos
+  corren aislados, sin la caché de la IA.
+- Material nuevo y segmentación dinámica (S11-T11):
+  - `src/e2e/material.py` descarga GConsent, GDPRov, DUO, Pizza (de control) y las leyes de
+    México, Argentina y Kenia en `data/input/s11` (git lo ignora);
+  - `src/ingest/legal_segmenter.py` (versión 3) reconoce dónde empieza cada artículo aunque el
+    encabezado no diga "Artículo" ni "Art.": busca números en orden al inicio de la línea, con
+    o sin palabra antes, en español y en inglés ("Section 1"), y descarta el índice;
+  - las ontologías estilo OBO (como DUO) muestran su `rdfs:label` en vez del código y toman la
+    definición de `obo:IAO_0000115`; las reglas de forma (versión 3) también la cuentan.
+- `src/alignment/ontopriv_paper.py` (S11-T07) — compara la base con las 14 correspondencias
+  que propusieron las autoras de OntoPriv con el DPV 2.0 (Tabla 10 del artículo extendido,
+  copiada en `data/reference/ontopriv-paper-dpv.yaml`). No usa la IA.
+- Corrección de la base (S11-T07) — `Biometric_data` estaba como `relatedMatch
+  BiometricAuthentication`; ahora es `broadMatch SensitivePersonalData`, como en el artículo. La
+  anterior queda como versión previa en la procedencia.
+- Docker (S11-T12) — `Dockerfile`, `docker-compose.yml` y `.dockerignore`. La imagen copia
+  Java 21 de `eclipse-temurin`, instala torch sin GPU, baja Jena 6.2.0 y revisa su SHA-512, baja
+  el modelo de embeddings y corre sin internet después. Al construirse arma las colecciones de
+  ChromaDB y se detiene si el razonador no es Jena. Corre con un usuario sin privilegios. La
+  clave del LLM no entra en la imagen: Compose le pasa el `.env` al arrancar. Los espacios de
+  trabajo viven en el volumen `workspaces`.
+- Herencia por tipo (S11-T14) — una subida hereda de la base solo las correspondencias de su
+  mismo tipo: clase con clase, propiedad con propiedad. Si no le queda ninguna, la IA decide el
+  concepto. Las subidas guardadas vuelven a heredar solas (`rules_version` 2 en
+  `inherited.json`).
+- Cierre (S11-T13) — corrida de punta a punta, clon limpio con Docker, README y esta versión.
+  Al revisar la corrida se corrigieron dos cosas de las pruebas:
+  - seis pruebas de la web (`test_ui_decide.py` y `test_ui_final.py`) llamaban a Gemini de
+    verdad al aplicar una respuesta. Eso pasaba porque la IA explica las preguntas en amarillo
+    y la máquina de desarrollo tiene la clave. A veces pasaban los 30 s y fallaban, y gastaban
+    cuota. El fixture `doubtful` ahora simula que falta `LLM_API_KEY`;
+  - con `--limpio`, el corredor borraba también el espacio de `dos-veces-2`, que tiene que
+    encontrar el de `dos-veces-1`. Ahora borra cada espacio una sola vez por corrida.
+
+### Decisiones (ancladas al Scrumban, al plan y al estado del arte)
+- **Docker para entregar.** La universidad es la dueña de la tesis y tiene que poder levantar
+  el programa sin depender del autor. Hoy no hay un servidor, así que se entrega una imagen que
+  se construye igual en cualquier máquina.
+- **WIDOCO documenta solo la base**, en una sola página: lo construido sobre OntoPriv (núcleo,
+  perfil, alineación con el DPV y puente con el GDPR). Las subidas de los usuarios no se
+  documentan, y OntoPriv ya está documentada por sus autoras. El autor de la base es Elian
+  Alexander Gavilanes Miranda (EPN), y OntoPriv aparece en la línea "Basada en OntoPriv" con sus
+  dos artículos.
+- **OOPS! revisa OntoPriv original y la base**, para comparar y dejar recomendaciones a sus
+  autoras (pasar OntoPriv de OWL Full a OWL 2 DL).
+- **Las herramientas de construcción se esconden, no se borran.** Fueron entregables de
+  sprints anteriores; `BUILD_TOOLS` las muestra, igual que `EDITABLE_BASE` deja escribir en la
+  base.
+- **Licencia Apache 2.0**, la misma de OntoPriv, para el código y para la base.
+- **La segmentación no depende de una lista de encabezados.** Las leyes basadas en el GDPR
+  numeran sus artículos de muchas formas, y en inglés no dicen "Artículo".
+- **La base se corrige cuando la evidencia lo pide.** De las 10 filas de la Tabla 10 que son
+  conceptos de la base, la base era mejor en 3 y el artículo en 1 (`Biometric_data`), que se
+  corrigió. No se cambió nada más de la base.
+- **Una propiedad nunca hereda la correspondencia de una clase.** OntoPriv declara 65 conceptos
+  como clase y propiedad a la vez, y la base los decidió como clases. Sin esta regla,
+  `forPersonalData` de GConsent quedaba como `exactMatch` de la clase `PersonalData`, y la regla
+  "propiedades: nunca automáticas" no lo frenaba porque venía de la base.
+- **Sin prueba con otra persona.** Las pruebas las hizo el autor, con material que no se usó
+  para construir la base.
+
+### Resultados
+**Corrida de cierre (S11-T13)**, el 2026-11-26 (UTC), en Windows con Java 24.0.2 y Apache Jena
+6.2.0. La base se rehízo desde OntoPriv: núcleo, perfil, alineación, cuatro formatos, paquetes,
+puente, procedencia, validación, preguntas y página de WIDOCO. Después se corrieron las
+mediciones, los 27 casos de punta a punta desde cero y la suite completa. Lo único que cambió en
+los archivos de la base son las fechas, salvo `questions-report.json`, que ahora lleva la
+corrección de `Biometric_data`.
+
+| Base del sistema | v1.0.0 | v1.1.0 |
+|---|---|---|
+| Tripletas (núcleo, perfil y alineación) | 5233 | 5233 |
+| Correspondencias con el DPV | 190 | 190 (1 corregida: `Biometric_data`) |
+| Forma (pySHACL): heredadas / avisos | 1 / 1605 | 1 / 1605 (6,6 s) |
+| Lógica (Jena, OWL Micro): heredadas / avisos | 5 / 1303 | 5 / 1303 (15,5 s) |
+| Lógica (owlrl): heredadas | 1 | 1 (33,8 s) |
+| Preguntas de competencia: verde / amarillo / gris | 18 / 5 / 0 | 18 / 5 / 0 (14,3 s) |
+| Puente con el GDPR: pares (coherentes) | 31 (31) | 31 (31) |
+| Procedencia (PROV-O) | 13988 tripletas | 13994 tripletas |
+
+- Los resultados son los mismos que en v1.0.0; los tiempos, mayores (allí fueron 4,0 s,
+  8,7 s, 16,3 s y 6,8 s).
+- La procedencia tiene 6 tripletas más: la corrección de `Biometric_data` deja la decisión
+  anterior como versión previa. Ahora son 158 correspondencias que confirman una propuesta del
+  asistente y 32 que la persona decidió sola, con 2 reemplazadas.
+- En las preguntas de la base, G01 trae 115 conceptos alineados (antes 114) y G05 trae 12
+  categorías de datos (antes 11): `Biometric_data` ahora es `SensitivePersonalData`.
+- Completitud de los 552 conceptos de la base: etiqueta en español 25 (4,5 %), en inglés 0 y
+  definición 26 (4,7 %). Lo que falta es de OntoPriv.
+
+**OOPS! (S11-T06)**, evaluación del 2026-11-22:
+
+| Problema de OOPS! | Nivel | OntoPriv | Base |
+|---|---|---|---|
+| P19 Varios dominios o rangos en una propiedad | crítico | 116 | — |
+| P11 Propiedad sin dominio o rango | importante | 115 | 82 |
+| P34 Clase sin tipo | importante | 7 | — |
+| P12 Propiedades equivalentes sin declarar | importante | 3 | 1 |
+| P24 Definiciones recursivas | importante | 3 | 3 |
+| P04 Elementos sin conectar | menor | — | 25 |
+| P07, P08, P13, P22 (menores) | menor | 11, 527, 122, 1 | 12, 527, 121, 1 |
+
+- La base no tiene problemas críticos: las reparaciones del núcleo (una unión en vez de varios
+  dominios o rangos) quitan los 116 casos de P19.
+- Los 25 elementos sin conectar (P04) son los conceptos nuevos que la IA tomó de la LOPDP, que
+  no se ubicaron en la jerarquía de OntoPriv (decisión del Sprint 5).
+
+**La base frente a la Tabla 10 del artículo de OntoPriv (S11-T07).** De las 14 filas, 10 son
+conceptos que están en la base; los otros 4 la base no los tiene.
+
+| De las 10 | Antes de corregir | v1.1.0 |
+|---|---|---|
+| Coinciden (término y relación) | 3 | 4 |
+| Mismo término, otra relación | 3 | 3 |
+| Otro término | 4 | 3 |
+| Usan el mismo término del DPV | 6 | 7 |
+
+- Tres términos del artículo no están en el DPV 2.3: `BiometricData`, `RightToBeForgotten` y
+  `Anonymization`, que en el DPV se escribe `Anonymisation`.
+- En 3 filas la base es más precisa: en OntoPriv, `Confidentiality`, `Security` y `Purpose`
+  son principios, y el artículo los iguala a un acuerdo, a una medida de gestión y a una
+  finalidad. En 1 era mejor el artículo, `Biometric_data`, y se corrigió.
+
+**Las mediciones, otra vez.** La corrección de `Biometric_data` cambió precedentes del decisor
+(3 llamadas):
+- el decisor da lo mismo que en v1.0.0: la regla en uso, 68 propuestas y 76,5 %; la elegida
+  por la segunda grilla, 82 y 75,6 %; la validación cruzada, 72,5 % (p10 63,3 %). En GDPRtEXT
+  sigue con 18 propuestas y 17 correctas;
+- la IA revisora da lo mismo: atrapa 3 de 16 y la precisión pasaría de 76,5 % a 78,7 %, menos
+  de los 5 puntos del criterio. Sigue solo explicando;
+- las preguntas de la IA cambian un poco (1 llamada): siguiendo su recomendación, 69,3 %; con
+  la persona, 8 de 25 sirven y 81,0 %. Las preguntas fijas siguen en 85,7 % y `ask.v1` sigue
+  sin adoptarse, por las mismas tres condiciones.
+
+**Punta a punta (S11-T09 a S11-T11)**, 27 casos desde cero con `--limpio`, en 26 min y con 57
+llamadas a la IA. Todo lo demás salió de la caché.
+
+| Caso | Modo | Conceptos | Base | Regla | Sugeridas | Sin corr. | Sin prop. | Artículos |
+|---|---|---|---|---|---|---|---|---|
+| GDPRtEXT | Mi ontología | 235 | 21 | 75 | 20 | 82 | 37 | — |
+| GDPRtEXT + GDPR | Mi ontología y una ley | 235 | 21 | 75 | 20 | 82 | 37 | 99 |
+| Colombia (Ley 1581) | Una ley | 27 | 10 | 3 | 4 | 8 | 2 | 30 |
+| GConsent | Mi ontología | 72 | 11 | 23 | 11 | 14 | 13 | — |
+| GDPRov | Mi ontología | 150 | 10 | 49 | 14 | 50 | 27 | — |
+| DUO | Mi ontología | 46 | 0 | 6 | 8 | 17 | 15 | — |
+| Pizza (control) | Mi ontología | 107 | 0 | 1 | 1 | 103 | 2 | — |
+| México (LFPDPPP 2025) | Una ley | 74 | 12 | 9 | 12 | 27 | 14 | 64 |
+| Argentina (Ley 25.326) | Una ley | 56 | 12 | 4 | 10 | 20 | 10 | 48 |
+| Kenia (DPA 2019) | Una ley | 75 | 11 | 9 | 9 | 30 | 16 | 71 |
+| GDPRov + Kenia | Mi ontología y una ley | 150 | 10 | 49 | 14 | 50 | 27 | 71 |
+| DUO + México | Mi ontología y una ley | 46 | 0 | 6 | 8 | 17 | 15 | 64 |
+
+- **Validación:** todos los casos que terminan quedan en amarillo y ninguno en rojo; nada de
+  lo que escribió el sistema rompe una regla. La lógica queda en verde en GDPRtEXT, GConsent y
+  DUO, también con su ley. Queda en amarillo en las leyes (lo heredado de OntoPriv-Core), en
+  GDPRov (hallazgos de la propia ontología) y en Pizza.
+- **Descargas:** en todos los casos, también en los de "Solo transformar", los cuatro formatos
+  dan las mismas tripletas.
+- **Segmentación:** LOPDP 77, GDPR 99 y Colombia 30, como antes. México 64, Argentina 48 y Kenia
+  71; a Kenia le faltan los artículos 17, 25, 26 y 70.
+- **Pizza**, la ontología de control, alinea 1 concepto con la regla: es un falso positivo
+  posible entre 107.
+- **Casos límite:** el archivo vacío, el dañado, el PDF escaneado, el de 25,1 MB y el `.docx`
+  terminan con un mensaje para la persona, sin trabajar de más. Sin clave, la subida termina
+  sin la IA en el decisor ni en las etiquetas, y una ley sin clave dice que vuelva cuando la IA
+  esté disponible. Sin Java se usan owlrl y rdflib. Con la cuota agotada (simulada) la subida
+  termina y dice en qué pasos falló la IA.
+- **Lo que cambió frente a la corrida de S11-T11:**
+  - la herencia por tipo (S11-T14) actuó en cuatro casos. En cada uno, una propiedad que
+    heredaba una clase ahora la decide la IA. En GConsent son `forPersonalData` y
+    `forProcessing`, que quedan sugeridas con `hasPersonalData` y `hasProcessing`. En las leyes
+    son `hasConsent` (Argentina), `exercisesRights` (México) y `processesSensitiveData`
+    (Kenia), que quedan sin correspondencia. En GConsent, `forPurpose` antes no heredaba
+    porque había dos `Purpose` en la base; ahora hereda `hasPurpose`, que es una propiedad.
+    GConsent pasa de base 12 a 11 y cada ley de 13 a 12;
+  - en GDPRtEXT la regla acepta 75 en vez de 76. Con `Biometric_data` corregido cambian los
+    precedentes y el decisor volvió a decidir 2 conceptos. `SensitivePersonalData` pasó de
+    `exactMatch SensitivePersonalData` a `exactMatch SpecialCategoryPersonalData`, que es
+    el término del DPV para las categorías especiales del GDPR. `RacialData` pasó de
+    `broadMatch PersonalData` a sin correspondencia.
+
+**Clon limpio con Docker (S11-T13).** Se clonó `master` desde GitHub (commit `bc15db7`, con
+S11-T14) en una carpeta aparte, en Windows con Docker Desktop (WSL 2), y la imagen se construyó
+sin caché:
+- la construcción tardó unos 6 minutos: 196 s las librerías, 95 s escribir la imagen, 28 s el
+  modelo y 23 s las colecciones de ChromaDB (1116 términos del DPV y 552 decisiones) con la
+  prueba del razonador, que dijo "Apache Jena 6.2.0 con Java 21.0.13.1";
+- la imagen ocupa 4,32 GB en disco (1,24 GB de contenido);
+- el contenedor quedó `healthy` a los 8 s;
+- GConsent dio la misma validación que en la corrida local. Base y regla dieron lo mismo (11 y
+  23), pero sugeridas 12, sin correspondencia 16 y sin propuesta 10, en vez de 11, 14 y 13. En
+  un volumen nuevo la caché de la IA está vacía, y Gemini no responde siempre igual a la misma
+  pregunta.
+
+### Cómo usar
+Con Docker (lo único que hace falta es Docker y la clave del LLM):
+
+    git clone https://github.com/elian18/ontology-integration-transformer.git
+    cd ontology-integration-transformer
+    cp .env.example .env              # y colocar la clave del LLM
+    docker compose up --build -d      # http://localhost:8501
+
+Sin Docker, el README explica la instalación, Jena y WIDOCO. Consola nueva:
+
+    py -m src.e2e.material                                 # material nuevo de las pruebas
+    py -m src.e2e.edge                                     # material de los casos límite
+    py -m src.e2e.runner data/reference/e2e-s11.yaml [--solo ID ...] [--limpio]
+    py -m src.alignment.ontopriv_paper                     # la base frente a la Tabla 10
+    py -m src.publish.base_doc                             # la base en un solo archivo
+    py -m src.publish.widoco [--oops]                      # la página de la base
+
+### Pruebas
+Archivos nuevos en este sprint: `tests/test_repo_files.py`, `test_requirements.py`,
+`test_base_doc.py`, `test_widoco_page.py`, `test_e2e_runner.py`, `test_e2e_edge.py`,
+`test_e2e_material.py`, `test_ontopriv_paper.py` y `test_docker.py`. Se ampliaron, entre
+otros, `test_legal_segmenter.py`, `test_alignment_inherit.py`, `test_alignment_sources.py`,
+`test_validation_shapes.py`, `test_ui_decide.py`, `test_ui_final.py`, `test_ui_base_access.py`,
+`test_gdpr_bridge.py` y `test_provenance_base.py`.
+- `test_docker.py` revisa que el `Dockerfile`, `docker-compose.yml`, `.env.example` y la
+  configuración digan lo mismo (versiones de Python, Java, Jena, torch y el modelo). La imagen
+  se construyó de verdad en el clon limpio.
+- La suite rápida ya no llama al LLM real aunque el `.env` tenga la clave.
+- Cada tarea pasó por pruebas de mutación.
+
+Suite del proyecto: 1452 pruebas, 1435 sin las marcadas `slow`. En la corrida de cierre (1 h 4
+min) pasaron 1450 de 1451. La que faltó (`test_the_page_applies_and_shows_the_new_version`)
+pasó los 30 s esperando a Gemini; con el arreglo del fixture, sus archivos pasan
+(`test_ui_decide.py`, `test_ui_final.py` y `test_upload_questions.py`: 25 pruebas), igual que
+los del corredor con la prueba nueva de `--limpio`.
+
+### Alcance y pendientes
+- **Termina el desarrollo.** Sigue la redacción del documento de la tesis y del artículo
+  técnico.
+- **Limitaciones para la tesis:**
+  - la IA no responde siempre igual: en un volumen nuevo, sin caché, GConsent cambió hasta 3
+    conceptos por estado. Lo validado en la base y lo que acepta la regla no cambió;
+  - una corrección de la base mueve al decisor en otras subidas: con `Biometric_data`,
+    `RacialData` de GDPRtEXT perdió su `broadMatch PersonalData`;
+  - la segmentación no encontró 4 de los artículos de Kenia (17, 25, 26 y 70);
+  - Pizza, la ontología de control, tiene 1 falso positivo posible;
+  - lo que la herencia por tipo manda a la IA, si es una propiedad, nunca se acepta solo: queda
+    sugerido o sin correspondencia;
+  - la imagen de Docker pesa 4,3 GB, casi todo por torch y sus dependencias;
+  - las pruebas las hizo el autor; no hubo una prueba con otra persona;
+  - OntoPriv sigue siendo OWL Full e inconsistente (5 hallazgos con Jena y 1 con owlrl). Se
+    recomienda a sus autoras pasarla a OWL 2 DL, y OOPS! deja la lista de problemas en
+    `docs/oops`.
